@@ -45,7 +45,6 @@
 #include <fuse_msgs/msg/serialized_transaction.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-
 namespace fuse_models
 {
 
@@ -83,10 +82,8 @@ public:
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name,
-    fuse_core::TransactionCallback transaction_callback) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
 
 protected:
   /**
@@ -108,15 +105,12 @@ protected:
    * @brief Callback for transaction messages
    * @param[in] msg - The transaction message to process
    */
-  void process(const fuse_msgs::msg::SerializedTransaction & msg);
+  void process(const fuse_msgs::msg::SerializedTransaction& msg);
 
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                             fuse_core::node_interfaces::Parameters, fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncSensorModel interfaces_
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 

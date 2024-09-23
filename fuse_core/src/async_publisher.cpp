@@ -37,9 +37,7 @@
 namespace fuse_core
 {
 
-AsyncPublisher::AsyncPublisher(size_t thread_count)
-: name_("uninitialized"),
-  executor_thread_count_(thread_count)
+AsyncPublisher::AsyncPublisher(size_t thread_count) : name_("uninitialized"), executor_thread_count_(thread_count)
 {
 }
 
@@ -48,11 +46,11 @@ AsyncPublisher::~AsyncPublisher()
   internal_stop();
 }
 
-void AsyncPublisher::initialize(
-  node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const std::string & name)
+void AsyncPublisher::initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                                const std::string& name)
 {
-  if (initialized_) {
+  if (initialized_)
+  {
     throw std::runtime_error("Calling initialize on an already initialized AsyncPublisher!");
   }
 
@@ -64,18 +62,19 @@ void AsyncPublisher::initialize(
   auto executor_options = rclcpp::ExecutorOptions();
   executor_options.context = context;
 
-  if (executor_thread_count_ == 1) {
+  if (executor_thread_count_ == 1)
+  {
     executor_ = rclcpp::executors::SingleThreadedExecutor::make_shared(executor_options);
-  } else {
-    executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
-      executor_options, executor_thread_count_);
+  }
+  else
+  {
+    executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(executor_options, executor_thread_count_);
   }
 
   callback_queue_ = std::make_shared<CallbackAdapter>(context);
 
   // This callback group MUST be re-entrant in order to support parallelization
-  cb_group_ = interfaces_.get_node_base_interface()->create_callback_group(
-    rclcpp::CallbackGroupType::Reentrant, false);
+  cb_group_ = interfaces_.get_node_base_interface()->create_callback_group(rclcpp::CallbackGroupType::Reentrant, false);
   interfaces_.get_node_waitables_interface()->add_waitable(callback_queue_, cb_group_);
 
   // Call the derived onInit() function to perform implementation-specific initialization
@@ -87,19 +86,13 @@ void AsyncPublisher::initialize(
   executor_->add_callback_group(cb_group_, interfaces_.get_node_base_interface());
 
   // Start the executor
-  spinner_ = std::thread(
-    [&]() {
-      executor_->spin();
-    });
+  spinner_ = std::thread([&]() { executor_->spin(); });
 
   // Wait for the executor to start spinning.
   // This avoids a race where the destructor blocks waiting for the spinner_
   // thread to be joined when the class is destroyed before the thread is ever
   // scheduled.
-  auto callback = std::make_shared<CallbackWrapper<void>>(
-    [&]() {
-      initialized_ = true;
-    });
+  auto callback = std::make_shared<CallbackWrapper<void>>([&]() { initialized_ = true; });
   auto result = callback->getFuture();
   callback_queue_->addCallback(callback);
   result.wait();
@@ -110,14 +103,13 @@ void AsyncPublisher::notify(Transaction::ConstSharedPtr transaction, Graph::Cons
   // Insert a call to the `notifyCallback` method into the internal callback queue.
   // This minimizes the time spent by the optimizer's thread calling this function.
   auto callback = std::make_shared<CallbackWrapper<void>>(
-    std::bind(&AsyncPublisher::notifyCallback, this, std::move(transaction), std::move(graph)));
+      std::bind(&AsyncPublisher::notifyCallback, this, std::move(transaction), std::move(graph)));
   callback_queue_->addCallback(callback);
 }
 
 void AsyncPublisher::start()
 {
-  auto callback =
-    std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStart, this));
+  auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStart, this));
   auto result = callback->getFuture();
   callback_queue_->addCallback(callback);
   result.wait();
@@ -127,14 +119,15 @@ void AsyncPublisher::stop()
 {
   // Prefer to call onStop in executor's thread so downstream users don't have
   // to worry about threads in ROS callbacks when there's only 1 thread.
-  if (interfaces_.get_node_base_interface()->get_context()->is_valid()) {
-    auto callback = std::make_shared<CallbackWrapper<void>>(
-      std::bind(&AsyncPublisher::onStop, this)
-    );
+  if (interfaces_.get_node_base_interface()->get_context()->is_valid())
+  {
+    auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncPublisher::onStop, this));
     auto result = callback->getFuture();
     callback_queue_->addCallback(callback);
     result.wait();
-  } else {
+  }
+  else
+  {
     // Can't run in executor's thread because the executor won't service more
     // callbacks after the context is shutdown.
     // Join executor's threads right away.
@@ -145,7 +138,8 @@ void AsyncPublisher::stop()
 
 void AsyncPublisher::internal_stop()
 {
-  if (spinner_.joinable()) {
+  if (spinner_.joinable())
+  {
     executor_->cancel();
     spinner_.join();
   }

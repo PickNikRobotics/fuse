@@ -87,36 +87,47 @@ public:
    * @param[in] device_id An optional device id, for use when variables originate from multiple
    *                      robots or devices
    */
-  explicit AccelerationLinear2DStamped(
-    const rclcpp::Time & stamp,
-    const fuse_core::UUID & device_id = fuse_core::uuid::NIL);
+  explicit AccelerationLinear2DStamped(const rclcpp::Time& stamp,
+                                       const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the X-axis linear acceleration.
    */
-  double & x() {return data_[X];}
+  double& x()
+  {
+    return data_[X];
+  }
 
   /**
    * @brief Read-only access to the X-axis linear acceleration.
    */
-  const double & x() const {return data_[X];}
+  const double& x() const
+  {
+    return data_[X];
+  }
 
   /**
    * @brief Read-write access to the Y-axis linear acceleration.
    */
-  double & y() {return data_[Y];}
+  double& y()
+  {
+    return data_[Y];
+  }
 
   /**
    * @brief Read-only access to the Y-axis linear acceleration.
    */
-  const double & y() const {return data_[Y];}
+  const double& y() const
+  {
+    return data_[Y];
+  }
 
   /**
    * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**
@@ -124,7 +135,10 @@ public:
    *
    * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
    */
-  fuse_core::Manifold * manifold() const override {return nullptr;}
+  fuse_core::Manifold* manifold() const override
+  {
+    return nullptr;
+  }
 #endif
 
 private:
@@ -138,11 +152,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive & boost::serialization::base_object<Stamped>(*this);
+    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive& boost::serialization::base_object<Stamped>(*this);
   }
 };
 

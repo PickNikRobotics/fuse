@@ -52,7 +52,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -106,16 +105,13 @@ public:
    *                               dimensions e.g., "{fuse_variables::Orientation2DStamped::Yaw}"
    */
   RelativePose2DStampedConstraint(
-    const std::string & source,
-    const fuse_variables::Position2DStamped & position1,
-    const fuse_variables::Orientation2DStamped & orientation1,
-    const fuse_variables::Position2DStamped & position2,
-    const fuse_variables::Orientation2DStamped & orientation2,
-    const fuse_core::VectorXd & partial_delta,
-    const fuse_core::MatrixXd & partial_covariance,
-    const std::vector<size_t> & linear_indices =
-    {fuse_variables::Position2DStamped::X, fuse_variables::Position2DStamped::Y},                // NOLINT
-    const std::vector<size_t> & angular_indices = {fuse_variables::Orientation2DStamped::YAW});  // NOLINT
+      const std::string& source, const fuse_variables::Position2DStamped& position1,
+      const fuse_variables::Orientation2DStamped& orientation1, const fuse_variables::Position2DStamped& position2,
+      const fuse_variables::Orientation2DStamped& orientation2, const fuse_core::VectorXd& partial_delta,
+      const fuse_core::MatrixXd& partial_covariance,
+      const std::vector<size_t>& linear_indices = { fuse_variables::Position2DStamped::X,
+                                                    fuse_variables::Position2DStamped::Y },         // NOLINT
+      const std::vector<size_t>& angular_indices = { fuse_variables::Orientation2DStamped::YAW });  // NOLINT
 
   /**
    * @brief Destructor
@@ -128,7 +124,10 @@ public:
    * Order is (dx, dy, dyaw). Note that the returned vector will be full sized (3x1) and in the
    * stated order.
    */
-  const fuse_core::Vector3d & delta() const {return delta_;}
+  const fuse_core::Vector3d& delta() const
+  {
+    return delta_;
+  }
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -136,7 +135,10 @@ public:
    * If only a partial covariance matrix was provided in the constructor, this covariance matrix
    * will not be square.
    */
-  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::MatrixXd& sqrtInformation() const
+  {
+    return sqrt_information_;
+  }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -152,7 +154,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Access the cost function for this constraint
@@ -164,10 +166,10 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction * costFunction() const override;
+  ceres::CostFunction* costFunction() const override;
 
 protected:
-  fuse_core::Vector3d delta_;  //!< The measured pose change (dx, dy, dyaw)
+  fuse_core::Vector3d delta_;             //!< The measured pose change (dx, dy, dyaw)
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix (derived from the
                                           //!< covariance matrix)
 
@@ -182,12 +184,12 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & delta_;
-    archive & sqrt_information_;
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& delta_;
+    archive& sqrt_information_;
   }
 };
 

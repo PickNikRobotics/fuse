@@ -61,7 +61,6 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-
 namespace fuse_publishers
 {
 
@@ -134,9 +133,8 @@ public:
   /**
    * @brief Shadowing extension to the AsyncPublisher::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name) override;
 
   /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or
@@ -166,9 +164,8 @@ public:
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */
-  void notifyCallback(
-    fuse_core::Transaction::ConstSharedPtr transaction,
-    fuse_core::Graph::ConstSharedPtr graph) override;
+  void notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction,
+                      fuse_core::Graph::ConstSharedPtr graph) override;
 
   /**
    * @brief Timer-based callback that publishes the latest map->odom transform
@@ -180,38 +177,32 @@ public:
   void tfPublishTimerCallback();
 
 protected:
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Clock,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Timers,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,
+                                             fuse_core::node_interfaces::Logging, fuse_core::node_interfaces::Parameters,
+                                             fuse_core::node_interfaces::Timers, fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncPublisher interfaces_
 
-  using Synchronizer = StampedVariableSynchronizer<
-    fuse_variables::Orientation2DStamped,
-    fuse_variables::Position2DStamped>;
+  using Synchronizer =
+      StampedVariableSynchronizer<fuse_variables::Orientation2DStamped, fuse_variables::Position2DStamped>;
 
-  std::string base_frame_;  //!< The name of the robot's base_link frame
-  fuse_core::UUID device_id_;  //!< The UUID of the device to be published
+  std::string base_frame_;          //!< The name of the robot's base_link frame
+  fuse_core::UUID device_id_;       //!< The UUID of the device to be published
   rclcpp::Clock::SharedPtr clock_;  //!< The publisher's clock, for timestamping and logging
-  rclcpp::Logger logger_;  //!< The publisher's logger
+  rclcpp::Logger logger_;           //!< The publisher's logger
 
-  std::string map_frame_;  //!< The name of the robot's map frame
+  std::string map_frame_;   //!< The name of the robot's map frame
   std::string odom_frame_;  //!< The name of the odom frame for this pose (or empty if the odom is
                             //!< not used)
 
   rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pose_publisher_;
-  rclcpp::Publisher<
-    geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_with_covariance_publisher_;
-  bool publish_to_tf_;  //!< Flag indicating the pose should be sent to the tf system as well as the
-                        //!< pose topics
+  rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pose_with_covariance_publisher_;
+  bool publish_to_tf_;                    //!< Flag indicating the pose should be sent to the tf system as well as the
+                                          //!< pose topics
   Synchronizer::UniquePtr synchronizer_;  //!< Object that tracks the latest common timestamp of
                                           //!< multiple variables
-  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;  //!< TF2 object that supports querying transforms by
-                                                //!< time and frame id
+  std::unique_ptr<tf2_ros::Buffer> tf_buffer_;               //!< TF2 object that supports querying transforms by
+                                                             //!< time and frame id
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;  //!< TF2 object that subscribes to the
                                                              //!< tf topics and inserts the received
                                                              //!< transforms into the tf buffer
@@ -219,11 +210,11 @@ protected:
   //!< Publish the map->odom or map->base transform to the tf system
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_publisher_ = nullptr;
 
-  rclcpp::TimerBase::SharedPtr tf_publish_timer_;  //!< Timer that publishes tf messages to ensure
-                                                   //!< the tf transform doesn't get stale
-  rclcpp::Duration tf_timeout_;  //!< The max time to wait for a tf transform to become available
+  rclcpp::TimerBase::SharedPtr tf_publish_timer_;      //!< Timer that publishes tf messages to ensure
+                                                       //!< the tf transform doesn't get stale
+  rclcpp::Duration tf_timeout_;                        //!< The max time to wait for a tf transform to become available
   geometry_msgs::msg::TransformStamped tf_transform_;  //!< The transform to be published to tf
-  bool use_tf_lookup_;  //!< Internal flag indicating that a tf frame lookup is required
+  bool use_tf_lookup_;                                 //!< Internal flag indicating that a tf frame lookup is required
 };
 
 }  // namespace fuse_publishers

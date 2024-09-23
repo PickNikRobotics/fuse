@@ -49,7 +49,6 @@
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-
 namespace fuse_models
 {
 
@@ -96,16 +95,14 @@ public:
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name,
-    fuse_core::TransactionCallback transaction_callback) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Callback for pose messages
    * @param[in] msg - The pose message to process
    */
-  void process(const geometry_msgs::msg::PoseWithCovarianceStamped & msg);
+  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -137,21 +134,17 @@ protected:
    * @param[in] validate - Whether to validate the pose or not
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */
-  void processDifferential(
-    const geometry_msgs::msg::PoseWithCovarianceStamped & pose, const bool validate,
-    fuse_core::Transaction & transaction);
+  void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, const bool validate,
+                           fuse_core::Transaction& transaction);
 
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Clock,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,
+                                             fuse_core::node_interfaces::Logging,
+                                             fuse_core::node_interfaces::Parameters, fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncSensorModel interfaces_
 
   rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping and logging
-  rclcpp::Logger logger_;  //!< The sensor model's logger
+  rclcpp::Logger logger_;           //!< The sensor model's logger
 
   ParameterType params_;
 
@@ -163,8 +156,7 @@ protected:
 
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_;
 
-  using PoseThrottledCallback =
-    fuse_core::ThrottledMessageCallback<geometry_msgs::msg::PoseWithCovarianceStamped>;
+  using PoseThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::PoseWithCovarianceStamped>;
   PoseThrottledCallback throttled_callback_;
 };
 

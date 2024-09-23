@@ -46,7 +46,6 @@
 
 using fuse_variables::VelocityLinear3DStamped;
 
-
 TEST(VelocityLinear3DStamped, Type)
 {
   VelocityLinear3DStamped variable(rclcpp::Time(12345678, 910111213));
@@ -61,10 +60,8 @@ TEST(VelocityLinear3DStamped, UUID)
     VelocityLinear3DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    VelocityLinear3DStamped variable3(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("c3po"));
-    VelocityLinear3DStamped variable4(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("c3po"));
+    VelocityLinear3DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    VelocityLinear3DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
@@ -80,19 +77,16 @@ TEST(VelocityLinear3DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    VelocityLinear3DStamped variable1(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("8d8"));
-    VelocityLinear3DStamped variable2(rclcpp::Time(12345678, 910111213),
-      fuse_core::uuid::generate("r4-p17"));
+    VelocityLinear3DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("8d8"));
+    VelocityLinear3DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(VelocityLinear3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = VelocityLinear3DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213),
-    fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base =
+      VelocityLinear3DStamped::make_shared(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<VelocityLinear3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -106,9 +100,12 @@ TEST(VelocityLinear3DStamped, Stamped)
 
 struct CostFunctor
 {
-  CostFunctor() {}
+  CostFunctor()
+  {
+  }
 
-  template<typename T> bool operator()(const T * const x, T * residual) const
+  template <typename T>
+  bool operator()(const T* const x, T* residual) const
   {
     residual[0] = x[0] - T(3.0);
     residual[1] = x[1] + T(8.0);
@@ -120,25 +117,20 @@ struct CostFunctor
 TEST(VelocityLinear3DStamped, Optimization)
 {
   // Create a VelocityLinear3DStamped
-  VelocityLinear3DStamped velocity(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  VelocityLinear3DStamped velocity(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   velocity.x() = 1.5;
   velocity.y() = -3.0;
   velocity.z() = 14.0;
 
   // Create a simple a constraint
-  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(
-    new CostFunctor());
+  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 3, 3>(new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(velocity.data(), velocity.size());
-  std::vector<double *> parameter_blocks;
+  std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(velocity.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -154,8 +146,7 @@ TEST(VelocityLinear3DStamped, Optimization)
 TEST(VelocityLinear3DStamped, Serialization)
 {
   // Create a VelocityLinear3DStamped
-  VelocityLinear3DStamped expected(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  VelocityLinear3DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.x() = 1.5;
   expected.y() = -3.0;
   expected.z() = 14.0;

@@ -64,10 +64,8 @@ TEST(Orientation2DStamped, UUID)
     Orientation2DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    Orientation2DStamped variable3(
-      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    Orientation2DStamped variable4(
-      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    Orientation2DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    Orientation2DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
@@ -83,18 +81,16 @@ TEST(Orientation2DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    Orientation2DStamped variable1(
-      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
-    Orientation2DStamped variable2(
-      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
+    Orientation2DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
+    Orientation2DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(Orientation2DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = Orientation2DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base =
+      Orientation2DStamped::make_shared(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Orientation2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -108,8 +104,8 @@ TEST(Orientation2DStamped, Stamped)
 
 struct Orientation2DPlus
 {
-  template<typename T>
-  bool operator()(const T * x, const T * delta, T * x_plus_delta) const
+  template <typename T>
+  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
@@ -118,8 +114,8 @@ struct Orientation2DPlus
 
 struct Orientation2DMinus
 {
-  template<typename T>
-  bool operator()(const T * x, const T * y, T * y_minus_x) const
+  template <typename T>
+  bool operator()(const T* x, const T* y, T* y_minus_x) const
   {
     y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
     return true;
@@ -127,7 +123,7 @@ struct Orientation2DMinus
 };
 
 using Orientation2DLocalParameterization =
-  fuse_core::AutoDiffLocalParameterization<Orientation2DPlus, Orientation2DMinus, 1, 1>;
+    fuse_core::AutoDiffLocalParameterization<Orientation2DPlus, Orientation2DMinus, 1, 1>;
 
 TEST(Orientation2DStamped, Plus)
 {
@@ -135,9 +131,9 @@ TEST(Orientation2DStamped, Plus)
 
   // Simple test
   {
-    double x[1] = {1.0};
-    double delta[1] = {0.5};
-    double actual[1] = {0.0};
+    double x[1] = { 1.0 };
+    double delta[1] = { 0.5 };
+    double actual[1] = { 0.0 };
     bool success = parameterization->Plus(x, delta, actual);
 
     EXPECT_TRUE(success);
@@ -146,9 +142,9 @@ TEST(Orientation2DStamped, Plus)
 
   // Check roll-over
   {
-    double x[1] = {2.0};
-    double delta[1] = {3.0};
-    double actual[1] = {0.0};
+    double x[1] = { 2.0 };
+    double delta[1] = { 3.0 };
+    double actual[1] = { 0.0 };
     bool success = parameterization->Plus(x, delta, actual);
 
     EXPECT_TRUE(success);
@@ -163,13 +159,14 @@ TEST(Orientation2DStamped, PlusJacobian)
   auto parameterization = Orientation2DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation2DLocalParameterization();
 
-  auto test_values = std::vector<double>{-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
-  for (auto test_value : test_values) {
-    double x[1] = {test_value};
-    double actual[1] = {0.0};
+  auto test_values = std::vector<double>{ -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
+  for (auto test_value : test_values)
+  {
+    double x[1] = { test_value };
+    double actual[1] = { 0.0 };
     bool success = parameterization->ComputeJacobian(x, actual);
 
-    double expected[1] = {0.0};
+    double expected[1] = { 0.0 };
     reference.ComputeJacobian(x, expected);
 
     EXPECT_TRUE(success);
@@ -185,9 +182,9 @@ TEST(Orientation2DStamped, Minus)
 
   // Simple test
   {
-    double x1[1] = {1.0};
-    double x2[1] = {1.5};
-    double actual[1] = {0.0};
+    double x1[1] = { 1.0 };
+    double x2[1] = { 1.5 };
+    double actual[1] = { 0.0 };
     bool success = parameterization->Minus(x1, x2, actual);
 
     EXPECT_TRUE(success);
@@ -196,9 +193,9 @@ TEST(Orientation2DStamped, Minus)
 
   // Check roll-over
   {
-    double x1[1] = {2.0};
-    double x2[1] = {5 - 2 * M_PI};
-    double actual[1] = {0.0};
+    double x1[1] = { 2.0 };
+    double x2[1] = { 5 - 2 * M_PI };
+    double actual[1] = { 0.0 };
     bool success = parameterization->Minus(x1, x2, actual);
 
     EXPECT_TRUE(success);
@@ -211,13 +208,14 @@ TEST(Orientation2DStamped, MinusJacobian)
   auto parameterization = Orientation2DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation2DLocalParameterization();
 
-  auto test_values = std::vector<double>{-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
-  for (auto test_value : test_values) {
-    double x[1] = {test_value};
-    double actual[1] = {0.0};
+  auto test_values = std::vector<double>{ -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
+  for (auto test_value : test_values)
+  {
+    double x[1] = { test_value };
+    double actual[1] = { 0.0 };
     bool success = parameterization->ComputeMinusJacobian(x, actual);
 
-    double expected[1] = {0.0};
+    double expected[1] = { 0.0 };
     reference.ComputeMinusJacobian(x, expected);
 
     EXPECT_TRUE(success);
@@ -229,9 +227,12 @@ TEST(Orientation2DStamped, MinusJacobian)
 
 struct CostFunctor
 {
-  CostFunctor() {}
+  CostFunctor()
+  {
+  }
 
-  template<typename T> bool operator()(const T * const x, T * residual) const
+  template <typename T>
+  bool operator()(const T* const x, T* residual) const
   {
     residual[0] = x[0] - T(3.0);
     return true;
@@ -241,28 +242,20 @@ struct CostFunctor
 TEST(Orientation2DStamped, Optimization)
 {
   // Create a Orientation2DStamped
-  Orientation2DStamped orientation(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  Orientation2DStamped orientation(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   orientation.yaw() = 1.5;
 
   // Create a simple a constraint
-  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(
-    new CostFunctor());
+  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
 #if !CERES_SUPPORTS_MANIFOLDS
-  problem.AddParameterBlock(
-    orientation.data(),
-    orientation.size(),
-    orientation.localParameterization());
+  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.localParameterization());
 #else
-  problem.AddParameterBlock(
-    orientation.data(),
-    orientation.size(),
-    orientation.manifold());
+  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.manifold());
 #endif
-  std::vector<double *> parameter_blocks;
+  std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
@@ -278,8 +271,7 @@ TEST(Orientation2DStamped, Optimization)
 TEST(Orientation2DStamped, Serialization)
 {
   // Create a Orientation2DStamped
-  Orientation2DStamped expected(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  Orientation2DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.yaw() = 1.5;
 
   // Serialize the variable into an archive
@@ -307,15 +299,15 @@ TEST(Orientation2DStamped, Serialization)
 
 struct Orientation2DFunctor
 {
-  template<typename T>
-  bool Plus(const T * x, const T * delta, T * x_plus_delta) const
+  template <typename T>
+  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
   {
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
-  template<typename T>
-  bool Minus(const T * y, const T * x, T * y_minus_x) const
+  template <typename T>
+  bool Minus(const T* y, const T* x, T* y_minus_x) const
   {
     y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
     return true;
@@ -330,9 +322,9 @@ TEST(Orientation2DStamped, ManifoldPlus)
 
   // Simple test
   {
-    double x[1] = {1.0};
-    double delta[1] = {0.5};
-    double actual[1] = {0.0};
+    double x[1] = { 1.0 };
+    double delta[1] = { 0.5 };
+    double actual[1] = { 0.0 };
     bool success = manifold->Plus(x, delta, actual);
 
     EXPECT_TRUE(success);
@@ -341,9 +333,9 @@ TEST(Orientation2DStamped, ManifoldPlus)
 
   // Check roll-over
   {
-    double x[1] = {2.0};
-    double delta[1] = {3.0};
-    double actual[1] = {0.0};
+    double x[1] = { 2.0 };
+    double delta[1] = { 3.0 };
+    double actual[1] = { 0.0 };
     bool success = manifold->Plus(x, delta, actual);
 
     EXPECT_TRUE(success);
@@ -358,13 +350,14 @@ TEST(Orientation2DStamped, ManifoldPlusJacobian)
   auto manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation2DManifold();
 
-  auto test_values = std::vector<double> {-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
-  for (auto test_value : test_values) {
-    double x[1] = {test_value};
-    double actual[1] = {0.0};
+  auto test_values = std::vector<double>{ -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
+  for (auto test_value : test_values)
+  {
+    double x[1] = { test_value };
+    double actual[1] = { 0.0 };
     bool success = manifold->PlusJacobian(x, actual);
 
-    double expected[1] = {0.0};
+    double expected[1] = { 0.0 };
     reference.PlusJacobian(x, expected);
 
     EXPECT_TRUE(success);
@@ -380,9 +373,9 @@ TEST(Orientation2DStamped, ManifoldMinus)
 
   // Simple test
   {
-    double x1[1] = {1.0};
-    double x2[1] = {1.5};
-    double actual[1] = {0.0};
+    double x1[1] = { 1.0 };
+    double x2[1] = { 1.5 };
+    double actual[1] = { 0.0 };
     bool success = manifold->Minus(x2, x1, actual);
 
     EXPECT_TRUE(success);
@@ -391,9 +384,9 @@ TEST(Orientation2DStamped, ManifoldMinus)
 
   // Check roll-over
   {
-    double x1[1] = {2.0};
-    double x2[1] = {5 - 2 * M_PI};
-    double actual[1] = {0.0};
+    double x1[1] = { 2.0 };
+    double x2[1] = { 5 - 2 * M_PI };
+    double actual[1] = { 0.0 };
     bool success = manifold->Minus(x2, x1, actual);
 
     EXPECT_TRUE(success);
@@ -406,13 +399,14 @@ TEST(Orientation2DStamped, ManifoldMinusJacobian)
   auto manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation2DManifold();
 
-  auto test_values = std::vector<double> {-2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI};
-  for (auto test_value : test_values) {
-    double x[1] = {test_value};
-    double actual[1] = {0.0};
+  auto test_values = std::vector<double>{ -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
+  for (auto test_value : test_values)
+  {
+    double x[1] = { test_value };
+    double actual[1] = { 0.0 };
     bool success = manifold->MinusJacobian(x, actual);
 
-    double expected[1] = {0.0};
+    double expected[1] = { 0.0 };
     reference.MinusJacobian(x, expected);
 
     EXPECT_TRUE(success);

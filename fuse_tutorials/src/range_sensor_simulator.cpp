@@ -45,25 +45,25 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
-static constexpr double SITE_WIDTH = 100.0;  //!< The width/length of the test area in meters
-static constexpr double BEACON_SPACING = 20.0;  //!< The distance between each range beacon
-static constexpr double BEACON_SIGMA = 4.0;  //!< Std dev used to create the database of noisy
-                                             //!< beacon positions
+static constexpr double SITE_WIDTH = 100.0;                     //!< The width/length of the test area in meters
+static constexpr double BEACON_SPACING = 20.0;                  //!< The distance between each range beacon
+static constexpr double BEACON_SIGMA = 4.0;                     //!< Std dev used to create the database of noisy
+                                                                //!< beacon positions
 static constexpr double ROBOT_PATH_RADIUS = 0.35 * SITE_WIDTH;  //!< The radius of the simulated
                                                                 //!< robot's path
-static constexpr double ROBOT_VELOCITY = 10.0;  //!< The forward velocity of our simulated robot
-static constexpr char BASELINK_FRAME[] = "base_link";  //!< The base_link frame id used when
-                                                       //!< publishing sensor data
-static constexpr char ODOM_FRAME[] = "odom";  //!< The odom frame id used when publishing wheel
-                                              //!< odometry data
-static constexpr char MAP_FRAME[] = "map";  //!< The map frame id used when publishing ground truth
-                                            //!< data
-static constexpr double IMU_SIGMA = 0.1;  //!< Std dev of simulated Imu measurement noise
-static constexpr double ODOM_VX_SIGMA = 0.5;  //!< Std dev of simulated Odometry linear velocity
-                                              //!< measurement noise
-static constexpr double ODOM_VYAW_SIGMA = 0.5;  //!< Std dev of simulated Odometry angular velocity
-                                                //!< measurement noise
-static constexpr double RANGE_SIGMA = 0.5;  //!< Std dev of simulated beacon range measurement noise
+static constexpr double ROBOT_VELOCITY = 10.0;                  //!< The forward velocity of our simulated robot
+static constexpr char BASELINK_FRAME[] = "base_link";           //!< The base_link frame id used when
+                                                                //!< publishing sensor data
+static constexpr char ODOM_FRAME[] = "odom";                    //!< The odom frame id used when publishing wheel
+                                                                //!< odometry data
+static constexpr char MAP_FRAME[] = "map";                      //!< The map frame id used when publishing ground truth
+                                                                //!< data
+static constexpr double IMU_SIGMA = 0.1;                        //!< Std dev of simulated Imu measurement noise
+static constexpr double ODOM_VX_SIGMA = 0.5;                    //!< Std dev of simulated Odometry linear velocity
+                                                                //!< measurement noise
+static constexpr double ODOM_VYAW_SIGMA = 0.5;                  //!< Std dev of simulated Odometry angular velocity
+                                                                //!< measurement noise
+static constexpr double RANGE_SIGMA = 0.5;                      //!< Std dev of simulated beacon range measurement noise
 
 /**
  * @brief The position of a "range beacon"
@@ -94,9 +94,11 @@ struct Robot
 std::vector<Beacon> createBeacons()
 {
   auto beacons = std::vector<Beacon>();
-  for (auto x = -SITE_WIDTH / 2; x <= SITE_WIDTH / 2; x += BEACON_SPACING) {
-    for (auto y = -SITE_WIDTH / 2; y <= SITE_WIDTH / 2; y += BEACON_SPACING) {
-      beacons.push_back({x, y});  // NOLINT[whitespace/braces]
+  for (auto x = -SITE_WIDTH / 2; x <= SITE_WIDTH / 2; x += BEACON_SPACING)
+  {
+    for (auto y = -SITE_WIDTH / 2; y <= SITE_WIDTH / 2; y += BEACON_SPACING)
+    {
+      beacons.push_back({ x, y });  // NOLINT[whitespace/braces]
     }
   }
   return beacons;
@@ -105,15 +107,16 @@ std::vector<Beacon> createBeacons()
 /**
  * @brief Create a noisy set of beacon priors from the true set of beacons
  */
-std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon> & beacons)
+std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
 {
   static std::random_device rd{};
-  static std::mt19937 generator{rd()};
-  static std::normal_distribution<> noise{0.0, BEACON_SIGMA};
+  static std::mt19937 generator{ rd() };
+  static std::normal_distribution<> noise{ 0.0, BEACON_SIGMA };
 
   auto noisy_beacons = std::vector<Beacon>();
-  for (const auto & beacon : beacons) {
-    noisy_beacons.push_back({beacon.x + noise(generator), beacon.y + noise(generator)});  // NOLINT
+  for (const auto& beacon : beacons)
+  {
+    noisy_beacons.push_back({ beacon.x + noise(generator), beacon.y + noise(generator) });  // NOLINT
   }
   return noisy_beacons;
 }
@@ -121,36 +124,37 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon> & beacons)
 /**
  * @brief Convert the set of beacons into a pointcloud for visualization purposes
  */
-sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(
-  const std::vector<Beacon> & beacons,
-  const rclcpp::Clock & clock)
+sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(const std::vector<Beacon>& beacons,
+                                                             const rclcpp::Clock& clock)
 {
   auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
   msg->header.stamp = clock.now();
 
   msg->header.frame_id = MAP_FRAME;
   sensor_msgs::PointCloud2Modifier modifier(*msg);
-  modifier.setPointCloud2Fields(
-    5, "x", 1, sensor_msgs::msg::PointField::FLOAT32,
-    "y", 1, sensor_msgs::msg::PointField::FLOAT32,
-    "z", 1, sensor_msgs::msg::PointField::FLOAT32,
-    "sigma", 1, sensor_msgs::msg::PointField::FLOAT32,
-    "id", 1, sensor_msgs::msg::PointField::UINT32);
+  modifier.setPointCloud2Fields(5, "x", 1, sensor_msgs::msg::PointField::FLOAT32, "y", 1,
+                                sensor_msgs::msg::PointField::FLOAT32, "z", 1, sensor_msgs::msg::PointField::FLOAT32,
+                                "sigma", 1, sensor_msgs::msg::PointField::FLOAT32, "id", 1,
+                                sensor_msgs::msg::PointField::UINT32);
   modifier.resize(beacons.size());
   sensor_msgs::PointCloud2Iterator<float> x_it(*msg, "x");
   sensor_msgs::PointCloud2Iterator<float> y_it(*msg, "y");
   sensor_msgs::PointCloud2Iterator<float> z_it(*msg, "z");
   sensor_msgs::PointCloud2Iterator<float> sigma_it(*msg, "sigma");
   sensor_msgs::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
-  for (auto id = 0u; id < beacons.size(); ++id) {
+  for (auto id = 0u; id < beacons.size(); ++id)
+  {
     // Compute the distance to each beacon
-    const auto & beacon = beacons.at(id);
+    const auto& beacon = beacons.at(id);
     *x_it = static_cast<float>(beacon.x);
     *y_it = static_cast<float>(beacon.y);
     *z_it = 10.0f;
     *sigma_it = static_cast<float>(BEACON_SIGMA);
     *id_it = id;
-    ++x_it; ++y_it; ++z_it; ++sigma_it, ++id_it;
+    ++x_it;
+    ++y_it;
+    ++z_it;
+    ++sigma_it, ++id_it;
   }
   return msg;
 }
@@ -158,7 +162,7 @@ sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
-nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot & state)
+nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
 {
   auto msg = std::make_shared<nav_msgs::msg::Odometry>();
   msg->header.stamp = state.stamp;
@@ -197,11 +201,8 @@ nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot & state)
  *
  * The state estimator will not run until it has been sent a starting pose.
  */
-void initializeStateEstimation(
-  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const Robot & state,
-  const rclcpp::Clock::SharedPtr & clock,
-  const rclcpp::Logger & logger)
+void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                               const Robot& state, const rclcpp::Clock::SharedPtr& clock, const rclcpp::Logger& logger)
 {
   // Send the initial localization signal to the state estimator
   auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();
@@ -220,29 +221,26 @@ void initializeStateEstimation(
   srv->pose.pose.covariance[28] = 1.0;
   srv->pose.pose.covariance[35] = 1.0;
 
-  auto client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
-    interfaces.get_node_base_interface(),
-    interfaces.get_node_graph_interface(),
-    interfaces.get_node_services_interface(),
-    "/state_estimation/set_pose",
-    rclcpp::ServicesQoS()
-  );
+  auto client = rclcpp::create_client<fuse_msgs::srv::SetPose>(interfaces.get_node_base_interface(),
+                                                               interfaces.get_node_graph_interface(),
+                                                               interfaces.get_node_services_interface(),
+                                                               "/state_estimation/set_pose", rclcpp::ServicesQoS());
 
   while (!client->wait_for_service(std::chrono::seconds(30)) &&
-    interfaces.get_node_base_interface()->get_context()->is_valid())
+         interfaces.get_node_base_interface()->get_context()->is_valid())
   {
-    RCLCPP_WARN_STREAM(
-      logger, "Waiting for '" << client->get_service_name() << "' service to become available.");
+    RCLCPP_WARN_STREAM(logger, "Waiting for '" << client->get_service_name() << "' service to become available.");
   }
 
   auto success = false;
-  while (!success) {
+  while (!success)
+  {
     clock->sleep_for(std::chrono::milliseconds(100));
     srv->pose.header.stamp = clock->now();
     auto result_future = client->async_send_request(srv);
 
     if (rclcpp::spin_until_future_complete(interfaces.get_node_base_interface(), result_future) !=
-      rclcpp::FutureReturnCode::SUCCESS)
+        rclcpp::FutureReturnCode::SUCCESS)
     {
       RCLCPP_ERROR(logger, "service call failed :(");
       client->remove_pending_request(result_future);
@@ -255,7 +253,7 @@ void initializeStateEstimation(
 /**
  * @brief Compute the next robot state given the current robot state and a simulated step time
  */
-Robot simulateRobotMotion(const Robot & previous_state, const rclcpp::Time & now)
+Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
 {
   auto dt = (now - previous_state.stamp).seconds();
   auto theta = std::atan2(previous_state.y, previous_state.x) + (dt * previous_state.vyaw);
@@ -273,11 +271,11 @@ Robot simulateRobotMotion(const Robot & previous_state, const rclcpp::Time & now
 /**
  * @brief Create a simulated Imu measurement from the current state
  */
-sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot & robot)
+sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
 {
   static std::random_device rd{};
-  static std::mt19937 generator{rd()};
-  static std::normal_distribution<> noise{0.0, IMU_SIGMA};
+  static std::mt19937 generator{ rd() };
+  static std::normal_distribution<> noise{ 0.0, IMU_SIGMA };
 
   auto msg = std::make_shared<sensor_msgs::msg::Imu>();
   msg->header.stamp = robot.stamp;
@@ -292,12 +290,12 @@ sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot & robot)
 /**
  * @brief Create a simulated Odometry measurement from the current state
  */
-nav_msgs::msg::Odometry::SharedPtr simulateWheelOdometry(const Robot & robot)
+nav_msgs::msg::Odometry::SharedPtr simulateWheelOdometry(const Robot& robot)
 {
   static std::random_device rd{};
-  static std::mt19937 generator{rd()};
-  static std::normal_distribution<> vx_noise{0.0, ODOM_VX_SIGMA};
-  static std::normal_distribution<> vyaw_noise{0.0, ODOM_VYAW_SIGMA};
+  static std::mt19937 generator{ rd() };
+  static std::normal_distribution<> vx_noise{ 0.0, ODOM_VX_SIGMA };
+  static std::normal_distribution<> vyaw_noise{ 0.0, ODOM_VYAW_SIGMA };
 
   auto msg = std::make_shared<nav_msgs::msg::Odometry>();
   msg->header.stamp = robot.stamp;
@@ -312,13 +310,11 @@ nav_msgs::msg::Odometry::SharedPtr simulateWheelOdometry(const Robot & robot)
   return msg;
 }
 
-sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(
-  const Robot & robot,
-  const std::vector<Beacon> & beacons)
+sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
 {
   static std::random_device rd{};
-  static std::mt19937 generator{rd()};
-  static std::normal_distribution<> noise{0.0, RANGE_SIGMA};
+  static std::mt19937 generator{ rd() };
+  static std::normal_distribution<> noise{ 0.0, RANGE_SIGMA };
 
   auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
   msg->header.stamp = robot.stamp;
@@ -326,19 +322,19 @@ sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(
 
   // Configure the pointcloud to have the following fields: id, range, sigma
   sensor_msgs::PointCloud2Modifier modifier(*msg);
-  modifier.setPointCloud2Fields(
-    3, "id", 1, sensor_msgs::msg::PointField::UINT32,
-    "range", 1, sensor_msgs::msg::PointField::FLOAT64,
-    "sigma", 1, sensor_msgs::msg::PointField::FLOAT64);
+  modifier.setPointCloud2Fields(3, "id", 1, sensor_msgs::msg::PointField::UINT32, "range", 1,
+                                sensor_msgs::msg::PointField::FLOAT64, "sigma", 1,
+                                sensor_msgs::msg::PointField::FLOAT64);
 
   // Generate the simulated range to each known beacon
   modifier.resize(beacons.size());
   sensor_msgs::PointCloud2Iterator<unsigned int> id_it(*msg, "id");
   sensor_msgs::PointCloud2Iterator<double> range_it(*msg, "range");
   sensor_msgs::PointCloud2Iterator<double> sigma_it(*msg, "sigma");
-  for (auto id = 0u; id < beacons.size(); ++id) {
+  for (auto id = 0u; id < beacons.size(); ++id)
+  {
     // Compute the distance to each beacon
-    const auto & beacon = beacons.at(id);
+    const auto& beacon = beacons.at(id);
     auto dx = robot.x - beacon.x;
     auto dy = robot.y - beacon.y;
     auto range = std::sqrt(dx * dx + dy * dy) + noise(generator);
@@ -346,7 +342,9 @@ sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(
     *id_it = id;
     *range_it = range;
     *sigma_it = RANGE_SIGMA;
-    ++id_it; ++range_it; ++sigma_it;
+    ++id_it;
+    ++range_it;
+    ++sigma_it;
   }
   return msg;
 }
@@ -374,7 +372,7 @@ sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(
  *  - The true position and velocity of the robot is published as a nav_msgs::msg::Odometry message
  *    on the /ground_truth topic at 10Hz
  */
-int main(int argc, char ** argv)
+int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("range_sensor_simulator");
@@ -384,18 +382,12 @@ int main(int argc, char ** argv)
   auto latched_qos = rclcpp::QoS(1);
   latched_qos.transient_local();
 
-  auto imu_publisher =
-    node->create_publisher<sensor_msgs::msg::Imu>("imu", 1);
-  auto true_beacons_publisher =
-    node->create_publisher<sensor_msgs::msg::PointCloud2>("true_beacons", latched_qos);
-  auto prior_beacons_publisher =
-    node->create_publisher<sensor_msgs::msg::PointCloud2>("prior_beacons", latched_qos);
-  auto wheel_odom_publisher =
-    node->create_publisher<nav_msgs::msg::Odometry>("wheel_odom", 1);
-  auto ground_truth_publisher =
-    node->create_publisher<nav_msgs::msg::Odometry>("ground_truth", 1);
-  auto range_publisher =
-    node->create_publisher<sensor_msgs::msg::PointCloud2>("ranges", 1);
+  auto imu_publisher = node->create_publisher<sensor_msgs::msg::Imu>("imu", 1);
+  auto true_beacons_publisher = node->create_publisher<sensor_msgs::msg::PointCloud2>("true_beacons", latched_qos);
+  auto prior_beacons_publisher = node->create_publisher<sensor_msgs::msg::PointCloud2>("prior_beacons", latched_qos);
+  auto wheel_odom_publisher = node->create_publisher<nav_msgs::msg::Odometry>("wheel_odom", 1);
+  auto ground_truth_publisher = node->create_publisher<nav_msgs::msg::Odometry>("ground_truth", 1);
+  auto range_publisher = node->create_publisher<sensor_msgs::msg::PointCloud2>("ranges", 1);
 
   // Create the true set of range beacons
   auto beacons = createBeacons();
@@ -420,7 +412,8 @@ int main(int argc, char ** argv)
 
   // Simulate the robot traveling in a circular path
   auto rate = rclcpp::Rate(10.0);
-  while (rclcpp::ok()) {
+  while (rclcpp::ok())
+  {
     // Simulate the robot motion
     auto new_state = simulateRobotMotion(state, node->now());
     // Publish the new ground truth

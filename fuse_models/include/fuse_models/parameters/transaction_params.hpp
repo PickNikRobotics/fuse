@@ -41,7 +41,6 @@
 
 #include <fuse_core/parameter.hpp>
 
-
 namespace fuse_models
 {
 
@@ -61,22 +60,16 @@ public:
    * @param[in] ns - The parameter namespace to use
    */
   void loadFromROS(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string & ns)
+      fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                                 fuse_core::node_interfaces::Parameters>
+          interfaces,
+      const std::string& ns)
   {
-    queue_size = fuse_core::getParam(
-      interfaces, fuse_core::joinParameterName(
-        ns,
-        "queue_size"),
-      queue_size);
+    queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
     fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
   }
 
-  int queue_size{10};
+  int queue_size{ 10 };
   std::string topic{};
 };
 

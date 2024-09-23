@@ -112,7 +112,7 @@ public:
    * @param[out] x_plus_delta  is a \p AmbientSize() vector.
    * @return Return value indicates if the operation was successful or not.
    */
-  virtual bool Plus(const double * x, const double * delta, double * x_plus_delta) const = 0;
+  virtual bool Plus(const double* x, const double* delta, double* x_plus_delta) const = 0;
 
   /**
    * @brief Compute the derivative of Plus(x, delta) w.r.t delta at delta = 0,
@@ -125,7 +125,7 @@ public:
    * matrix.
    * @return
    */
-  virtual bool PlusJacobian(const double * x, double * jacobian) const = 0;
+  virtual bool PlusJacobian(const double* x, double* jacobian) const = 0;
 
   /**
    * @brief Generalization of the subtraction operation
@@ -141,7 +141,7 @@ public:
    * @param[out] y_minus_x is a \p TangentSize() vector.
    * @return Return value indicates if the operation was successful or not.
    */
-  virtual bool Minus(const double * y, const double * x, double * y_minus_x) const = 0;
+  virtual bool Minus(const double* y, const double* x, double* y_minus_x) const = 0;
 
   /**
    * @brief Compute the derivative of Minus(y, x) w.r.t y at y = x, i.e
@@ -152,7 +152,7 @@ public:
    * @param[out] jacobian is a row-major \p TangentSize() x \p AmbientSize() matrix.
    * @return Return value indicates whether the operation was successful or not.
    */
-  virtual bool MinusJacobian(const double * x, double * jacobian) const = 0;
+  virtual bool MinusJacobian(const double* x, double* jacobian) const = 0;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -167,8 +167,10 @@ private:
    * @param[in] version - The version of the archive being read/written.
    * Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & /* archive */, const unsigned int /* version */) {}
+  template <class Archive>
+  void serialize(Archive& /* archive */, const unsigned int /* version */)
+  {
+  }
 };
 
 }  // namespace fuse_core

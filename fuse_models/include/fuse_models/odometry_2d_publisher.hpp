@@ -56,7 +56,6 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-
 namespace fuse_models
 {
 
@@ -123,9 +122,8 @@ public:
   /**
    * @brief Shadowing extension to the AsyncPublisher::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name) override;
 
 protected:
   /**
@@ -142,9 +140,8 @@ protected:
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */
-  void notifyCallback(
-    fuse_core::Transaction::ConstSharedPtr transaction,
-    fuse_core::Graph::ConstSharedPtr graph) override;
+  void notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction,
+                      fuse_core::Graph::ConstSharedPtr graph) override;
 
   /**
    * @brief Perform any required operations before the first call to notify() occurs
@@ -176,17 +173,11 @@ protected:
    *                          structure
    * @return true if the checks pass, false otherwise
    */
-  bool getState(
-    const fuse_core::Graph & graph,
-    const rclcpp::Time & stamp,
-    const fuse_core::UUID & device_id,
-    fuse_core::UUID & position_uuid,
-    fuse_core::UUID & orientation_uuid,
-    fuse_core::UUID & velocity_linear_uuid,
-    fuse_core::UUID & velocity_angular_uuid,
-    fuse_core::UUID & acceleration_linear_uuid,
-    nav_msgs::msg::Odometry & odometry,
-    geometry_msgs::msg::AccelWithCovarianceStamped & acceleration);
+  bool getState(const fuse_core::Graph& graph, const rclcpp::Time& stamp, const fuse_core::UUID& device_id,
+                fuse_core::UUID& position_uuid, fuse_core::UUID& orientation_uuid,
+                fuse_core::UUID& velocity_linear_uuid, fuse_core::UUID& velocity_angular_uuid,
+                fuse_core::UUID& acceleration_linear_uuid, nav_msgs::msg::Odometry& odometry,
+                geometry_msgs::msg::AccelWithCovarianceStamped& acceleration);
 
   /**
    * @brief Timer callback method for the filtered state publication and tf broadcasting
@@ -198,31 +189,24 @@ protected:
    * @brief Object that searches for the most recent common timestamp for a set of variables
    */
   using Synchronizer = fuse_publishers::StampedVariableSynchronizer<
-    fuse_variables::Orientation2DStamped,
-    fuse_variables::Position2DStamped,
-    fuse_variables::VelocityLinear2DStamped,
-    fuse_variables::VelocityAngular2DStamped,
-    fuse_variables::AccelerationLinear2DStamped>;
+      fuse_variables::Orientation2DStamped, fuse_variables::Position2DStamped, fuse_variables::VelocityLinear2DStamped,
+      fuse_variables::VelocityAngular2DStamped, fuse_variables::AccelerationLinear2DStamped>;
 
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Clock,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Timers,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,
+                                             fuse_core::node_interfaces::Logging, fuse_core::node_interfaces::Parameters,
+                                             fuse_core::node_interfaces::Timers, fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncPublisher interfaces_
 
-  fuse_core::UUID device_id_;  //!< The UUID of this device
+  fuse_core::UUID device_id_;       //!< The UUID of this device
   rclcpp::Clock::SharedPtr clock_;  //!< The publisher's clock, for timestamping and logging
-  rclcpp::Logger logger_;  //!< The publisher's logger
+  rclcpp::Logger logger_;           //!< The publisher's logger
 
   ParameterType params_;
 
   rclcpp::Time latest_stamp_;
   rclcpp::Time latest_covariance_stamp_;
-  bool latest_covariance_valid_{false};  //!< Whether the latest covariance computed is valid or not
+  bool latest_covariance_valid_{ false };  //!< Whether the latest covariance computed is valid or not
   nav_msgs::msg::Odometry odom_output_;
   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output_;
 
@@ -237,10 +221,10 @@ protected:
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_ = nullptr;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  fuse_core::DelayedThrottleFilter delayed_throttle_filter_{10.0};  //!< A ros::console filter to
-                                                                    //!< print delayed throttle
-                                                                    //!< messages, that can be reset
-                                                                    //!< on start
+  fuse_core::DelayedThrottleFilter delayed_throttle_filter_{ 10.0 };  //!< A ros::console filter to
+                                                                      //!< print delayed throttle
+                                                                      //!< messages, that can be reset
+                                                                      //!< on start
 
   rclcpp::TimerBase::SharedPtr publish_timer_;
 

@@ -46,7 +46,6 @@
 
 using fuse_variables::AccelerationAngular2DStamped;
 
-
 TEST(AccelerationAngular2DStamped, Type)
 {
   AccelerationAngular2DStamped variable(rclcpp::Time(12345678, 910111213));
@@ -61,10 +60,8 @@ TEST(AccelerationAngular2DStamped, UUID)
     AccelerationAngular2DStamped variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    AccelerationAngular2DStamped variable3(
-      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    AccelerationAngular2DStamped variable4(
-      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationAngular2DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationAngular2DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
@@ -80,18 +77,16 @@ TEST(AccelerationAngular2DStamped, UUID)
 
   // Verify two accelerations with different hardware IDs produce different UUIDs
   {
-    AccelerationAngular2DStamped variable1(
-      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
-    AccelerationAngular2DStamped variable2(
-      rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
+    AccelerationAngular2DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
+    AccelerationAngular2DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(AccelerationAngular2DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = AccelerationAngular2DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base =
+      AccelerationAngular2DStamped::make_shared(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<AccelerationAngular2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -105,9 +100,12 @@ TEST(AccelerationAngular2DStamped, Stamped)
 
 struct CostFunctor
 {
-  CostFunctor() {}
+  CostFunctor()
+  {
+  }
 
-  template<typename T> bool operator()(const T * const x, T * residual) const
+  template <typename T>
+  bool operator()(const T* const x, T* residual) const
   {
     residual[0] = x[0] - T(2.7);
     return true;
@@ -117,23 +115,18 @@ struct CostFunctor
 TEST(AccelerationAngular2DStamped, Optimization)
 {
   // Create a AccelerationAngular2DStamped
-  AccelerationAngular2DStamped acceleration(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  AccelerationAngular2DStamped acceleration(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   acceleration.yaw() = 1.5;
 
   // Create a simple a constraint
-  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(
-    new CostFunctor());
+  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(acceleration.data(), acceleration.size());
-  std::vector<double *> parameter_blocks;
+  std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(acceleration.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -147,8 +140,7 @@ TEST(AccelerationAngular2DStamped, Optimization)
 TEST(AccelerationAngular2DStamped, Serialization)
 {
   // Create a AccelerationAngular2DStamped
-  AccelerationAngular2DStamped expected(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
+  AccelerationAngular2DStamped expected(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("hal9000"));
   expected.yaw() = 1.5;
 
   // Serialize the variable into an archive

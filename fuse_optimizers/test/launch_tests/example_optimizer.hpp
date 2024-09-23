@@ -40,7 +40,6 @@
 
 #include <fuse_optimizers/optimizer.hpp>
 
-
 /**
  * @brief Example optimizer that exposes the motion and sensor models, and the publishers, so we can
  *        check the expected ones are loaded.
@@ -50,32 +49,28 @@ class ExampleOptimizer : public fuse_optimizers::Optimizer
 public:
   FUSE_SMART_PTR_DEFINITIONS(ExampleOptimizer)
 
-  ExampleOptimizer(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    fuse_core::Graph::UniquePtr graph = nullptr
-  )
-  : fuse_optimizers::Optimizer(interfaces, std::move(graph))
+  ExampleOptimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                   fuse_core::Graph::UniquePtr graph = nullptr)
+    : fuse_optimizers::Optimizer(interfaces, std::move(graph))
   {
   }
 
-  const MotionModels & getMotionModels() const
+  const MotionModels& getMotionModels() const
   {
     return motion_models_;
   }
 
-  const SensorModels & getSensorModels() const
+  const SensorModels& getSensorModels() const
   {
     return sensor_models_;
   }
 
-  const Publishers & getPublishers() const
+  const Publishers& getPublishers() const
   {
     return publishers_;
   }
 
-  void transactionCallback(
-    const std::string & sensor_name,
-    fuse_core::Transaction::SharedPtr transaction) override
+  void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) override
   {
     (void)sensor_name;
     (void)transaction;

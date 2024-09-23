@@ -145,12 +145,11 @@ namespace ceres
 class DCSLoss : public ceres::LossFunction
 {
 public:
-  explicit DCSLoss(const double a)
-  : a_(a)
+  explicit DCSLoss(const double a) : a_(a)
   {
   }
 
-  void Evaluate(double, double * rho) const override;
+  void Evaluate(double, double* rho) const override;
 
 private:
   const double a_;
@@ -170,12 +169,11 @@ private:
 class FairLoss : public ceres::LossFunction
 {
 public:
-  explicit FairLoss(const double a)
-  : a_(a), b_(a * a)
+  explicit FairLoss(const double a) : a_(a), b_(a * a)
   {
   }
 
-  void Evaluate(double, double *) const override;
+  void Evaluate(double, double*) const override;
 
 private:
   const double a_;
@@ -222,12 +220,11 @@ private:
 class GemanMcClureLoss : public ceres::LossFunction
 {
 public:
-  explicit GemanMcClureLoss(const double a)
-  : b_(a * a)
+  explicit GemanMcClureLoss(const double a) : b_(a * a)
   {
   }
 
-  void Evaluate(double, double *) const override;
+  void Evaluate(double, double*) const override;
 
 private:
   const double b_;
@@ -246,12 +243,11 @@ private:
 class WelschLoss : public ceres::LossFunction
 {
 public:
-  explicit WelschLoss(const double a)
-  : b_(a * a), c_(-1.0 / b_)
+  explicit WelschLoss(const double a) : b_(a * a), c_(-1.0 / b_)
   {
   }
 
-  void Evaluate(double, double *) const override;
+  void Evaluate(double, double*) const override;
 
 private:
   const double b_;

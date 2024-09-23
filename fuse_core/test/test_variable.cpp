@@ -43,12 +43,14 @@
 
 #include "example_variable.hpp"
 
-TEST(Variable, Type) {
+TEST(Variable, Type)
+{
   ExampleVariable variable;
   ASSERT_EQ("ExampleVariable", variable.type());
 }
 
-TEST(LegacyVariable, Serialization) {
+TEST(LegacyVariable, Serialization)
+{
   // Create an Orientation3DStamped
   LegacyVariable expected;
   expected.data()[0] = 0.952;
@@ -80,7 +82,7 @@ TEST(LegacyVariable, Serialization) {
 #if CERES_SUPPORTS_MANIFOLDS
 struct QuaternionCostFunction
 {
-  explicit QuaternionCostFunction(double * observation)
+  explicit QuaternionCostFunction(double* observation)
   {
     observation_[0] = observation[0];
     observation_[1] = observation[1];
@@ -88,24 +90,12 @@ struct QuaternionCostFunction
     observation_[3] = observation[3];
   }
 
-  template<typename T>
-  bool operator()(const T * quaternion, T * residual) const
+  template <typename T>
+  bool operator()(const T* quaternion, T* residual) const
   {
-    T inverse_quaternion[4] =
-    {
-      quaternion[0],
-      -quaternion[1],
-      -quaternion[2],
-      -quaternion[3]
-    };
+    T inverse_quaternion[4] = { quaternion[0], -quaternion[1], -quaternion[2], -quaternion[3] };
 
-    T observation[4] =
-    {
-      T(observation_[0]),
-      T(observation_[1]),
-      T(observation_[2]),
-      T(observation_[3])
-    };
+    T observation[4] = { T(observation_[0]), T(observation_[1]), T(observation_[2]), T(observation_[3]) };
 
     T output[4];
 
@@ -122,7 +112,8 @@ struct QuaternionCostFunction
   double observation_[4];
 };
 
-TEST(LegacyVariable, ManifoldAdapter) {
+TEST(LegacyVariable, ManifoldAdapter)
+{
   // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
   LegacyVariable orientation;
   orientation.data()[0] = 0.952;
@@ -131,19 +122,16 @@ TEST(LegacyVariable, ManifoldAdapter) {
   orientation.data()[3] = 0.239;
 
   // Create a simple a constraint with an identity quaternion
-  double target_quat[4] = {1.0, 0.0, 0.0, 0.0};
-  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3,
-      4>(new QuaternionCostFunction(target_quat));
+  double target_quat[4] = { 1.0, 0.0, 0.0, 0.0 };
+  ceres::CostFunction* cost_function =
+      new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(new QuaternionCostFunction(target_quat));
 
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.manifold());
-  std::vector<double *> parameter_blocks;
+  std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
-  problem.AddResidualBlock(
-    cost_function,
-    nullptr,
-    parameter_blocks);
+  problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
   ceres::Solver::Summary summary;
@@ -157,7 +145,8 @@ TEST(LegacyVariable, ManifoldAdapter) {
   EXPECT_NEAR(target_quat[3], orientation.data()[3], 1.0e-3);
 }
 
-TEST(LegacyVariable, Deserialization) {
+TEST(LegacyVariable, Deserialization)
+{
   // Test loading a LegacyVariable that was serialized without manifold support.
   // Verify the deserialization works, and that a manifold pointer can be generated.
 
@@ -190,10 +179,10 @@ TEST(LegacyVariable, Deserialization) {
 
   // Test the manifold interface, and that the Legacy LocalParameterization is wrapped
   // in a ManifoldAdapter
-  fuse_core::Manifold * actual_manifold = nullptr;
+  fuse_core::Manifold* actual_manifold = nullptr;
   ASSERT_NO_THROW(actual_manifold = actual.manifold());
   ASSERT_NE(actual_manifold, nullptr);
-  auto actual_manifold_adapter = dynamic_cast<fuse_core::ManifoldAdapter *>(actual_manifold);
+  auto actual_manifold_adapter = dynamic_cast<fuse_core::ManifoldAdapter*>(actual_manifold);
   ASSERT_NE(actual_manifold_adapter, nullptr);
 }
 #endif

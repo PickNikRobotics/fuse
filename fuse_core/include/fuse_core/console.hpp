@@ -42,11 +42,11 @@ namespace fuse_core
 // To replicate ROS 1 behavior, the throttle checking conditions were adapted from the logic here:
 // https://github.com/ros/rosconsole/blob/c9503279e932a04b3d2667cca3d28a8133cacc22/include/ros/console.h
 #if defined(_MSC_VER)
-  #define FUSE_LIKELY(x)       (x)
-  #define FUSE_UNLIKELY(x)     (x)
+#define FUSE_LIKELY(x) (x)
+#define FUSE_UNLIKELY(x) (x)
 #else
-  #define FUSE_LIKELY(x)       __builtin_expect((x), 1)
-  #define FUSE_UNLIKELY(x)     __builtin_expect((x), 0)
+#define FUSE_LIKELY(x) __builtin_expect((x), 1)
+#define FUSE_UNLIKELY(x) __builtin_expect((x), 0)
 #endif
 
 /**
@@ -62,8 +62,7 @@ public:
    *
    * @param[in] The throttle period in seconds
    */
-  explicit DelayedThrottleFilter(const double period)
-  : period_(std::chrono::duration<double, std::ratio<1>>(period))
+  explicit DelayedThrottleFilter(const double period) : period_(std::chrono::duration<double, std::ratio<1>>(period))
   {
     reset();
   }
@@ -82,15 +81,16 @@ public:
    */
   bool isEnabled()
   {
-    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::now());
+    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
 
-    if (last_hit_.time_since_epoch().count() < 0.0) {
+    if (last_hit_.time_since_epoch().count() < 0.0)
+    {
       last_hit_ = now;
       return true;
     }
 
-    if (FUSE_UNLIKELY(last_hit_ + period_ <= now) || FUSE_UNLIKELY(now < last_hit_)) {
+    if (FUSE_UNLIKELY(last_hit_ + period_ <= now) || FUSE_UNLIKELY(now < last_hit_))
+    {
       last_hit_ = now;
       return true;
     }
@@ -103,8 +103,7 @@ public:
    */
   void reset()
   {
-    last_hit_ = std::chrono::time_point_cast<std::chrono::milliseconds>(
-      std::chrono::system_clock::from_time_t(-1));
+    last_hit_ = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::from_time_t(-1));
   }
 
 private:

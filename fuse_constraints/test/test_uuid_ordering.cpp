@@ -46,11 +46,11 @@ TEST(UuidOrdering, Constructor)
   EXPECT_NO_THROW(UuidOrdering());
 
   // Iterators
-  std::vector<fuse_core::UUID> uuids{fuse_core::uuid::generate(), fuse_core::uuid::generate()};
+  std::vector<fuse_core::UUID> uuids{ fuse_core::uuid::generate(), fuse_core::uuid::generate() };
   EXPECT_NO_THROW(UuidOrdering(uuids.begin(), uuids.end()));
 
   // Initializer List
-  EXPECT_NO_THROW(UuidOrdering({fuse_core::uuid::generate(), fuse_core::uuid::generate()}));  // NOLINT
+  EXPECT_NO_THROW(UuidOrdering({ fuse_core::uuid::generate(), fuse_core::uuid::generate() }));  // NOLINT
 }
 
 TEST(UuidOrdering, Access)
@@ -59,7 +59,7 @@ TEST(UuidOrdering, Access)
   auto uuid2 = fuse_core::uuid::generate();
   auto uuid3 = fuse_core::uuid::generate();
   auto uuid4 = fuse_core::uuid::generate();
-  auto order = UuidOrdering{uuid1, uuid2, uuid3};
+  auto order = UuidOrdering{ uuid1, uuid2, uuid3 };
 
   EXPECT_EQ(0u, order.at(uuid1));
   EXPECT_EQ(1u, order.at(uuid2));
@@ -87,7 +87,7 @@ TEST(UuidOrdering, PushBack)
   auto uuid2 = fuse_core::uuid::generate();
   auto uuid3 = fuse_core::uuid::generate();
   auto uuid4 = fuse_core::uuid::generate();
-  auto order = UuidOrdering{uuid1, uuid2, uuid3};
+  auto order = UuidOrdering{ uuid1, uuid2, uuid3 };
 
   EXPECT_EQ(3u, order.size());
   EXPECT_FALSE(order.push_back(uuid3));
@@ -118,7 +118,7 @@ TEST(UuidOrdering, Exists)
   auto uuid2 = fuse_core::uuid::generate();
   auto uuid3 = fuse_core::uuid::generate();
   auto uuid4 = fuse_core::uuid::generate();
-  auto order = UuidOrdering{uuid1, uuid2, uuid3};
+  auto order = UuidOrdering{ uuid1, uuid2, uuid3 };
 
   EXPECT_TRUE(order.exists(0));
   EXPECT_TRUE(order.exists(1));

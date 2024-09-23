@@ -46,15 +46,12 @@
 namespace fuse_variables
 {
 
-Orientation3DStamped::Orientation3DStamped(
-  const rclcpp::Time & stamp,
-  const fuse_core::UUID & device_id)
-: FixedSizeVariable<4>(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
-  Stamped(stamp, device_id)
+Orientation3DStamped::Orientation3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id)
+  : FixedSizeVariable<4>(fuse_core::uuid::generate(detail::type(), stamp, device_id)), Stamped(stamp, device_id)
 {
 }
 
-void Orientation3DStamped::print(std::ostream & stream) const
+void Orientation3DStamped::print(std::ostream& stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
@@ -68,13 +65,13 @@ void Orientation3DStamped::print(std::ostream & stream) const
          << "  - z: " << z() << "\n";
 }
 
-fuse_core::LocalParameterization * Orientation3DStamped::localParameterization() const
+fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() const
 {
   return new Orientation3DLocalParameterization();
 }
 
 #if CERES_SUPPORTS_MANIFOLDS
-fuse_core::Manifold * Orientation3DStamped::manifold() const
+fuse_core::Manifold* Orientation3DStamped::manifold() const
 {
   return new Orientation3DManifold();
 }

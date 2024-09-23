@@ -38,9 +38,7 @@
 namespace fuse_core
 {
 
-void serializeTransaction(
-  const fuse_core::Transaction & transaction,
-  fuse_msgs::msg::SerializedTransaction & msg)
+void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::msg::SerializedTransaction& msg)
 {
   // Serialize the transaction into the msg.data field
   boost::iostreams::stream<fuse_core::MessageBufferStreamSink> stream(msg.data);
@@ -53,26 +51,29 @@ void serializeTransaction(
 }
 
 TransactionDeserializer::TransactionDeserializer()
-: variable_loader_("fuse_core", "fuse_core::Variable"),
-  constraint_loader_("fuse_core", "fuse_core::Constraint"),
-  loss_loader_("fuse_core", "fuse_core::Loss")
+  : variable_loader_("fuse_core", "fuse_core::Variable")
+  , constraint_loader_("fuse_core", "fuse_core::Constraint")
+  , loss_loader_("fuse_core", "fuse_core::Loss")
 {
   // Load all known plugin libraries
   // I believe the library containing a given Variable or Constraint must be loaded in order to
   // deserialize an object of that type. But I haven't actually tested that theory.
-  for (const auto & class_name : variable_loader_.getDeclaredClasses()) {
+  for (const auto& class_name : variable_loader_.getDeclaredClasses())
+  {
     variable_loader_.loadLibraryForClass(class_name);
   }
-  for (const auto & class_name : constraint_loader_.getDeclaredClasses()) {
+  for (const auto& class_name : constraint_loader_.getDeclaredClasses())
+  {
     constraint_loader_.loadLibraryForClass(class_name);
   }
-  for (const auto & class_name : loss_loader_.getDeclaredClasses()) {
+  for (const auto& class_name : loss_loader_.getDeclaredClasses())
+  {
     loss_loader_.loadLibraryForClass(class_name);
   }
 }
 
-fuse_core::Transaction::UniquePtr TransactionDeserializer::deserialize(
-  const fuse_msgs::msg::SerializedTransaction & msg) const
+fuse_core::Transaction::UniquePtr
+TransactionDeserializer::deserialize(const fuse_msgs::msg::SerializedTransaction& msg) const
 {
   // The Transaction object is not a plugin and has no derived types. That makes it much easier to
   // use.

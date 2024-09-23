@@ -52,7 +52,7 @@ namespace fuse_core
  *
  * @tparam Callback The std::function callback
  */
-template<class Callback>
+template <class Callback>
 class ThrottledCallback
 {
 public:
@@ -67,23 +67,20 @@ public:
    *                            throttling
    * @param[in] clock           The clock to throttle against. Defaults to using RCL_SYSTEM_TIME
    */
-  ThrottledCallback(
-    Callback && keep_callback = nullptr,                 // NOLINT(whitespace/operators)
-    Callback && drop_callback = nullptr,                 // NOLINT(whitespace/operators)
-    const rclcpp::Duration & throttle_period = rclcpp::Duration(0, 0),
-    rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>())
-  : keep_callback_(keep_callback)
-    , drop_callback_(drop_callback)
-    , throttle_period_(throttle_period)
-    , clock_(clock)
-  {}
+  ThrottledCallback(Callback&& keep_callback = nullptr,  // NOLINT(whitespace/operators)
+                    Callback&& drop_callback = nullptr,  // NOLINT(whitespace/operators)
+                    const rclcpp::Duration& throttle_period = rclcpp::Duration(0, 0),
+                    rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>())
+    : keep_callback_(keep_callback), drop_callback_(drop_callback), throttle_period_(throttle_period), clock_(clock)
+  {
+  }
 
   /**
    * @brief Throttle period getter
    *
    * @return The current throttle period duration in seconds being used
    */
-  const rclcpp::Duration & getThrottlePeriod() const
+  const rclcpp::Duration& getThrottlePeriod() const
   {
     return throttle_period_;
   }
@@ -106,7 +103,7 @@ public:
    *
    * @param[in] throttle_period The new throttle period duration in seconds to use
    */
-  void setThrottlePeriod(const rclcpp::Duration & throttle_period)
+  void setThrottlePeriod(const rclcpp::Duration& throttle_period)
   {
     throttle_period_ = throttle_period;
   }
@@ -116,7 +113,7 @@ public:
    *
    * @param[in] keep_callback The new keep callback to use
    */
-  void setKeepCallback(const Callback & keep_callback)
+  void setKeepCallback(const Callback& keep_callback)
   {
     keep_callback_ = keep_callback;
   }
@@ -126,7 +123,7 @@ public:
    *
    * @param[in] drop_callback The new drop callback to use
    */
-  void setDropCallback(const Callback & drop_callback)
+  void setDropCallback(const Callback& drop_callback)
   {
     drop_callback_ = drop_callback;
   }
@@ -136,7 +133,7 @@ public:
    *
    * @return The last time the keep callback was called
    */
-  const rclcpp::Time & getLastCalledTime() const
+  const rclcpp::Time& getLastCalledTime() const
   {
     return last_called_time_;
   }
@@ -147,8 +144,8 @@ public:
    *
    * @param[in] args The input arguments
    */
-  template<class ... Args>
-  void callback(Args &&... args)
+  template <class... Args>
+  void callback(Args&&... args)
   {
     // Keep the callback if:
     //
@@ -158,20 +155,25 @@ public:
     // (c) The elpased time between now and the last called time is greater than the throttle period
     rclcpp::Time now = clock_->now();
 
-    if ((last_called_time_.nanoseconds() == 0) ||
-      (throttle_period_.nanoseconds() == 0) ||
-      now - last_called_time_ > throttle_period_)
+    if ((last_called_time_.nanoseconds() == 0) || (throttle_period_.nanoseconds() == 0) ||
+        now - last_called_time_ > throttle_period_)
     {
-      if (keep_callback_) {
+      if (keep_callback_)
+      {
         keep_callback_(std::forward<Args>(args)...);
       }
 
-      if (last_called_time_.nanoseconds() == 0) {
+      if (last_called_time_.nanoseconds() == 0)
+      {
         last_called_time_ = now;
-      } else {
+      }
+      else
+      {
         last_called_time_ += throttle_period_;
       }
-    } else if (drop_callback_) {
+    }
+    else if (drop_callback_)
+    {
       drop_callback_(std::forward<Args>(args)...);
     }
   }
@@ -181,18 +183,18 @@ public:
    *
    * @param[in] args The input arguments
    */
-  template<class... Args>
-  void operator()(Args &&... args)
+  template <class... Args>
+  void operator()(Args&&... args)
   {
     callback(std::forward<Args>(args)...);
   }
 
 private:
-  Callback keep_callback_;         //!< The callback to call when kept, i.e. not dropped
-  Callback drop_callback_;         //!< The callback to call when dropped because of throttling
+  Callback keep_callback_;            //!< The callback to call when kept, i.e. not dropped
+  Callback drop_callback_;            //!< The callback to call when dropped because of throttling
   rclcpp::Duration throttle_period_;  //!< The throttling period duration in seconds
-  rclcpp::Clock::SharedPtr clock_;  //!< The clock to throttle against
-  rclcpp::Time last_called_time_;  //!< The last time the keep callback was called
+  rclcpp::Clock::SharedPtr clock_;    //!< The clock to throttle against
+  rclcpp::Time last_called_time_;     //!< The last time the keep callback was called
 };
 
 /**
@@ -200,9 +202,8 @@ private:
  *
  * @tparam M The ROS message type
  */
-template<class M>
-using ThrottledMessageCallback =
-  ThrottledCallback<std::function<void (const M &)>>;
+template <class M>
+using ThrottledMessageCallback = ThrottledCallback<std::function<void(const M&)>>;
 
 }  // namespace fuse_core
 

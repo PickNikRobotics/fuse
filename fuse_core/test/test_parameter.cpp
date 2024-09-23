@@ -42,53 +42,41 @@
 TEST(parameter, list_parameter_override_prefixes)
 {
   const std::map<std::string, rclcpp::ParameterValue> overrides = {
-    {"foo", {}},
-    {"foo.baz", {}},
-    {"foo.bar", {}},
-    {"foo.bar.baz", {}},
-    {"foo.bar.baz.bing", {}},
-    {"foobar.baz", {}},
-    {"baz", {}}
+    { "foo", {} },        { "foo.baz", {} }, { "foo.bar", {} }, { "foo.bar.baz", {} }, { "foo.bar.baz.bing", {} },
+    { "foobar.baz", {} }, { "baz", {} }
   };
 
   {
-    auto matches = fuse_core::detail::list_parameter_override_prefixes(
-      overrides, "foo");
+    auto matches = fuse_core::detail::list_parameter_override_prefixes(overrides, "foo");
     EXPECT_EQ(2u, matches.size());
     EXPECT_NE(matches.end(), matches.find("foo.baz"));
     EXPECT_NE(matches.end(), matches.find("foo.bar"));
   }
   {
-    auto matches = fuse_core::detail::list_parameter_override_prefixes(
-      overrides, "foo.bar");
+    auto matches = fuse_core::detail::list_parameter_override_prefixes(overrides, "foo.bar");
     EXPECT_EQ(1u, matches.size());
     EXPECT_NE(matches.end(), matches.find("foo.bar.baz"));
   }
   {
-    auto matches = fuse_core::detail::list_parameter_override_prefixes(
-      overrides, "foo.bar.baz");
+    auto matches = fuse_core::detail::list_parameter_override_prefixes(overrides, "foo.bar.baz");
     EXPECT_EQ(1u, matches.size());
     EXPECT_NE(matches.end(), matches.find("foo.bar.baz.bing"));
   }
   {
-    auto matches = fuse_core::detail::list_parameter_override_prefixes(
-      overrides, "foo.baz");
+    auto matches = fuse_core::detail::list_parameter_override_prefixes(overrides, "foo.baz");
     EXPECT_EQ(0u, matches.size());
   }
   {
-    auto matches = fuse_core::detail::list_parameter_override_prefixes(
-      overrides, "foobar");
+    auto matches = fuse_core::detail::list_parameter_override_prefixes(overrides, "foobar");
     EXPECT_EQ(1u, matches.size());
     EXPECT_NE(matches.end(), matches.find("foobar.baz"));
   }
   {
-    auto matches = fuse_core::detail::list_parameter_override_prefixes(
-      overrides, "done");
+    auto matches = fuse_core::detail::list_parameter_override_prefixes(overrides, "done");
     EXPECT_EQ(0u, matches.size());
   }
   {
-    auto matches = fuse_core::detail::list_parameter_override_prefixes(
-      overrides, "");
+    auto matches = fuse_core::detail::list_parameter_override_prefixes(overrides, "");
     EXPECT_EQ(3u, matches.size());
     EXPECT_NE(matches.end(), matches.find("foo"));
     EXPECT_NE(matches.end(), matches.find("foobar"));

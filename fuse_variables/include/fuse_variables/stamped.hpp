@@ -67,12 +67,10 @@ public:
   /**
    * @brief Constructor
    */
-  explicit Stamped(
-    const rclcpp::Time & stamp,
-    const fuse_core::UUID & device_id = fuse_core::uuid::NIL)
-  : device_id_(device_id),
-    stamp_(stamp)
-  {}
+  explicit Stamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
+    : device_id_(device_id), stamp_(stamp)
+  {
+  }
 
   /**
    * @brief Destructor
@@ -82,16 +80,22 @@ public:
   /**
    * @brief Read-only access to the associated timestamp.
    */
-  const rclcpp::Time & stamp() const {return stamp_;}
+  const rclcpp::Time& stamp() const
+  {
+    return stamp_;
+  }
 
   /**
    * @brief Read-only access to the associated device ID.
    */
-  const fuse_core::UUID & deviceId() const {return device_id_;}
+  const fuse_core::UUID& deviceId() const
+  {
+    return device_id_;
+  }
 
 private:
-  fuse_core::UUID device_id_;  //!< The UUID associated with this specific device or hardware
-  rclcpp::Time stamp_{0, 0, RCL_ROS_TIME};    //!< The timestamp associated with this variable
+  fuse_core::UUID device_id_;                 //!< The UUID associated with this specific device or hardware
+  rclcpp::Time stamp_{ 0, 0, RCL_ROS_TIME };  //!< The timestamp associated with this variable
                                               //!< instance
 
   // Allow Boost Serialization access to private methods
@@ -104,11 +108,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & device_id_;
-    archive & stamp_;
+    archive& device_id_;
+    archive& stamp_;
   }
 };
 
@@ -133,8 +137,8 @@ private:
  * @param[in] interfaces  The node interfaces used to load parameters
  * @return                A device UUID
  */
-fuse_core::UUID loadDeviceId(
-  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces);
+fuse_core::UUID
+loadDeviceId(fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces);
 
 }  // namespace fuse_variables
 

@@ -45,9 +45,7 @@
 namespace fuse_core
 {
 
-AsyncSensorModel::AsyncSensorModel(size_t thread_count)
-: name_("uninitialized"),
-  executor_thread_count_(thread_count)
+AsyncSensorModel::AsyncSensorModel(size_t thread_count) : name_("uninitialized"), executor_thread_count_(thread_count)
 {
 }
 
@@ -56,12 +54,11 @@ AsyncSensorModel::~AsyncSensorModel()
   internal_stop();
 }
 
-void AsyncSensorModel::initialize(
-  node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const std::string & name,
-  TransactionCallback transaction_callback)
+void AsyncSensorModel::initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                                  const std::string& name, TransactionCallback transaction_callback)
 {
-  if (initialized_) {
+  if (initialized_)
+  {
     throw std::runtime_error("Calling initialize on an already initialized AsyncSensorModel!");
   }
 
@@ -73,18 +70,19 @@ void AsyncSensorModel::initialize(
   auto executor_options = rclcpp::ExecutorOptions();
   executor_options.context = context;
 
-  if (executor_thread_count_ == 1) {
+  if (executor_thread_count_ == 1)
+  {
     executor_ = rclcpp::executors::SingleThreadedExecutor::make_shared(executor_options);
-  } else {
-    executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(
-      executor_options, executor_thread_count_);
+  }
+  else
+  {
+    executor_ = rclcpp::executors::MultiThreadedExecutor::make_shared(executor_options, executor_thread_count_);
   }
 
   callback_queue_ = std::make_shared<CallbackAdapter>(context);
 
   // This callback group MUST be re-entrant in order to support parallelization
-  cb_group_ = interfaces_.get_node_base_interface()->create_callback_group(
-    rclcpp::CallbackGroupType::Reentrant, false);
+  cb_group_ = interfaces_.get_node_base_interface()->create_callback_group(rclcpp::CallbackGroupType::Reentrant, false);
   interfaces_.get_node_waitables_interface()->add_waitable(callback_queue_, cb_group_);
 
   transaction_callback_ = transaction_callback;
@@ -98,19 +96,13 @@ void AsyncSensorModel::initialize(
   executor_->add_callback_group(cb_group_, interfaces_.get_node_base_interface());
 
   // Start the executor
-  spinner_ = std::thread(
-    [&]() {
-      executor_->spin();
-    });
+  spinner_ = std::thread([&]() { executor_->spin(); });
 
   // Wait for the executor to start spinning.
   // This avoids a race where the destructor blocks waiting for the spinner_
   // thread to be joined when the class is destroyed before the thread is ever
   // scheduled.
-  auto callback = std::make_shared<CallbackWrapper<void>>(
-    [&]() {
-      initialized_ = true;
-    });
+  auto callback = std::make_shared<CallbackWrapper<void>>([&]() { initialized_ = true; });
   auto result = callback->getFuture();
   callback_queue_->addCallback(callback);
   result.wait();
@@ -118,9 +110,8 @@ void AsyncSensorModel::initialize(
 
 void AsyncSensorModel::graphCallback(Graph::ConstSharedPtr graph)
 {
-  auto callback = std::make_shared<CallbackWrapper<void>>(
-    std::bind(&AsyncSensorModel::onGraphUpdate, this, std::move(graph))
-  );
+  auto callback =
+      std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncSensorModel::onGraphUpdate, this, std::move(graph)));
   callback_queue_->addCallback(callback);
 }
 
@@ -131,9 +122,7 @@ void AsyncSensorModel::sendTransaction(Transaction::SharedPtr transaction)
 
 void AsyncSensorModel::start()
 {
-  auto callback = std::make_shared<CallbackWrapper<void>>(
-    std::bind(&AsyncSensorModel::onStart, this)
-  );
+  auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncSensorModel::onStart, this));
   auto result = callback->getFuture();
   callback_queue_->addCallback(callback);
   result.wait();
@@ -143,14 +132,15 @@ void AsyncSensorModel::stop()
 {
   // Prefer to call onStop in executor's thread so downstream users don't have
   // to worry about threads in ROS callbacks when there's only 1 thread.
-  if (interfaces_.get_node_base_interface()->get_context()->is_valid()) {
-    auto callback = std::make_shared<CallbackWrapper<void>>(
-      std::bind(&AsyncSensorModel::onStop, this)
-    );
+  if (interfaces_.get_node_base_interface()->get_context()->is_valid())
+  {
+    auto callback = std::make_shared<CallbackWrapper<void>>(std::bind(&AsyncSensorModel::onStop, this));
     auto result = callback->getFuture();
     callback_queue_->addCallback(callback);
     result.wait();
-  } else {
+  }
+  else
+  {
     // Can't run in executor's thread because the executor won't service more
     // callbacks after the context is shutdown.
     // Join executor's threads right away.
@@ -161,7 +151,8 @@ void AsyncSensorModel::stop()
 
 void AsyncSensorModel::internal_stop()
 {
-  if (spinner_.joinable()) {
+  if (spinner_.joinable())
+  {
     executor_->cancel();
     spinner_.join();
   }

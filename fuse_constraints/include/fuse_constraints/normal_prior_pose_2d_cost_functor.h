@@ -35,8 +35,7 @@
 #ifndef FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_2D_COST_FUNCTOR_H_
 #define FUSE_CONSTRAINTS__NORMAL_PRIOR_POSE_2D_COST_FUNCTOR_H_
 
-#warning \
-  This header is obsolete, please include fuse_constraints/normal_prior_pose_2d_cost_functor.hpp \
+#warning This header is obsolete, please include fuse_constraints/normal_prior_pose_2d_cost_functor.hpp \
   instead
 
 #include <fuse_constraints/normal_prior_pose_2d_cost_functor.hpp>

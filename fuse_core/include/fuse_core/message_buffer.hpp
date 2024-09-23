@@ -56,7 +56,7 @@ namespace fuse_core
  *
  * It is assumed that all messages are received sequentially.
  */
-template<typename Message>
+template <typename Message>
 class MessageBuffer
 {
 public:
@@ -70,8 +70,7 @@ public:
    * method for directly accessing the first member. When dereferenced, an iterator returns a
    * std::pair<rclcpp::Time, MESSAGE>&.
    */
-  using message_range = boost::any_range<const std::pair<rclcpp::Time, Message>,
-      boost::forward_traversal_tag>;
+  using message_range = boost::any_range<const std::pair<rclcpp::Time, Message>, boost::forward_traversal_tag>;
 
   /**
    * @brief A range of timestamps
@@ -90,7 +89,7 @@ public:
    *                          timestamps that are older than the buffer length, an exception will be
    *                          thrown.
    */
-  explicit MessageBuffer(const rclcpp::Duration & buffer_length = rclcpp::Duration::max());
+  explicit MessageBuffer(const rclcpp::Duration& buffer_length = rclcpp::Duration::max());
 
   /**
    * @brief Destructor
@@ -100,7 +99,7 @@ public:
   /**
    * @brief Read-only access to the buffer length
    */
-  const rclcpp::Duration & bufferLength() const
+  const rclcpp::Duration& bufferLength() const
   {
     return buffer_length_;
   }
@@ -108,7 +107,7 @@ public:
   /**
    * @brief Write access to the buffer length
    */
-  void bufferLength(const rclcpp::Duration & buffer_length)
+  void bufferLength(const rclcpp::Duration& buffer_length)
   {
     buffer_length_ = buffer_length;
   }
@@ -122,7 +121,7 @@ public:
    * @param[in] stamp The stamp to assign to the message
    * @param[in] msg   A message
    */
-  void insert(const rclcpp::Time & stamp, const Message & msg);
+  void insert(const rclcpp::Time& stamp, const Message& msg);
 
   /**
    * @brief Query the buffer for the set of messages between two timestamps
@@ -142,9 +141,7 @@ public:
    * @return                    An iterator range containing all of the messages between the
    *                            specified stamps.
    */
-  message_range query(
-    const rclcpp::Time & beginning_stamp, const rclcpp::Time & ending_stamp,
-    bool extended_range = true);
+  message_range query(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp, bool extended_range = true);
 
   /**
    * @brief Read-only access to the current set of timestamps
@@ -155,7 +152,7 @@ public:
 
 protected:
   using Buffer = std::deque<std::pair<rclcpp::Time, Message>>;
-  Buffer buffer_;  //!< The container of received messages, sorted by timestamp
+  Buffer buffer_;                   //!< The container of received messages, sorted by timestamp
   rclcpp::Duration buffer_length_;  //!< The length of the motion model history. Segments older than
                                     //!< \p buffer_length_ will be removed from the motion model
                                     //!< history
@@ -164,7 +161,7 @@ protected:
    * @brief Helper function used with boost::transform_iterators to convert the internal Buffer
    *        value type into a const rclcpp::Time& iterator compatible with stamp_range
    */
-  static const rclcpp::Time & extractStamp(const typename Buffer::value_type & element)
+  static const rclcpp::Time& extractStamp(const typename Buffer::value_type& element)
   {
     return element.first;
   }

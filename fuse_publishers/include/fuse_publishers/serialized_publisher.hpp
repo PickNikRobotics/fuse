@@ -46,7 +46,6 @@
 #include <fuse_msgs/msg/serialized_graph.hpp>
 #include <fuse_msgs/msg/serialized_transaction.hpp>
 
-
 namespace fuse_publishers
 {
 
@@ -71,9 +70,8 @@ public:
   /**
    * @brief Shadowing extension to the AsyncPublisher::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name) override;
 
   /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or
@@ -89,19 +87,15 @@ public:
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */
-  void notifyCallback(
-    fuse_core::Transaction::ConstSharedPtr transaction,
-    fuse_core::Graph::ConstSharedPtr graph) override;
+  void notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction,
+                      fuse_core::Graph::ConstSharedPtr graph) override;
 
 protected:
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Clock,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,
+                                             fuse_core::node_interfaces::Logging,
+                                             fuse_core::node_interfaces::Parameters, fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncPublisher interfaces_
 
   /**
    * @brief Publish the serialized graph
@@ -110,17 +104,14 @@ protected:
    *                  whenever needed
    * @param[in] stamp A rclcpp::Time stamp used for the serialized graph message published
    */
-  void graphPublisherCallback(
-    fuse_core::Graph::ConstSharedPtr graph,
-    const rclcpp::Time & stamp) const;
+  void graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time& stamp) const;
 
   std::string frame_id_;  //!< The name of the frame for the serialized graph and transaction
                           //!< messages published
   rclcpp::Publisher<fuse_msgs::msg::SerializedGraph>::SharedPtr graph_publisher_;
   rclcpp::Publisher<fuse_msgs::msg::SerializedTransaction>::SharedPtr transaction_publisher_;
 
-  using GraphPublisherCallback =
-    std::function<void (fuse_core::Graph::ConstSharedPtr, const rclcpp::Time &)>;
+  using GraphPublisherCallback = std::function<void(fuse_core::Graph::ConstSharedPtr, const rclcpp::Time&)>;
   using GraphPublisherThrottledCallback = fuse_core::ThrottledCallback<GraphPublisherCallback>;
   GraphPublisherThrottledCallback graph_publisher_throttled_callback_;  //!< The graph publisher
                                                                         //!< throttled callback

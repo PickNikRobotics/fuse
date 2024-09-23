@@ -46,9 +46,7 @@ namespace fuse_core
 /**
  * @brief Serialize a transaction into a message
  */
-void serializeTransaction(
-  const fuse_core::Transaction & transaction,
-  fuse_msgs::msg::SerializedTransaction & msg);
+void serializeTransaction(const fuse_core::Transaction& transaction, fuse_msgs::msg::SerializedTransaction& msg);
 
 /**
  * @brief Deserialize a Transaction
@@ -75,8 +73,8 @@ public:
    * @param[IN]  msg  The SerializedTransaction message to be deserialized
    * @return          A fuse Transaction object
    */
-  inline fuse_core::Transaction::UniquePtr deserialize(
-    const fuse_msgs::msg::SerializedTransaction::ConstSharedPtr msg) const
+  inline fuse_core::Transaction::UniquePtr
+  deserialize(const fuse_msgs::msg::SerializedTransaction::ConstSharedPtr msg) const
   {
     return deserialize(*msg);
   }
@@ -90,8 +88,7 @@ public:
    * @param[IN]  msg  The SerializedTransaction message to be deserialized
    * @return          A fuse Transaction object
    */
-  fuse_core::Transaction::UniquePtr deserialize(
-    const fuse_msgs::msg::SerializedTransaction & msg) const;
+  fuse_core::Transaction::UniquePtr deserialize(const fuse_msgs::msg::SerializedTransaction& msg) const;
 
 private:
   //! Pluginlib class loader for Variable types

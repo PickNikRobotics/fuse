@@ -58,10 +58,10 @@
  * }
  * @endcode
  */
-#define FUSE_LOSS_CLONE_DEFINITION(...) \
-  fuse_core::Loss::UniquePtr clone() const override \
-  { \
-    return __VA_ARGS__::make_unique(*this); \
+#define FUSE_LOSS_CLONE_DEFINITION(...)                                                                                \
+  fuse_core::Loss::UniquePtr clone() const override                                                                    \
+  {                                                                                                                    \
+    return __VA_ARGS__::make_unique(*this);                                                                            \
   }
 
 /**
@@ -77,22 +77,22 @@
  * }
  * @endcode
  */
-#define FUSE_LOSS_SERIALIZE_DEFINITION(...) \
-  void serialize(fuse_core::BinaryOutputArchive & archive) const override \
-  { \
-    archive << *this; \
-  }  /* NOLINT */ \
-  void serialize(fuse_core::TextOutputArchive & archive) const override \
-  { \
-    archive << *this; \
-  }  /* NOLINT */ \
-  void deserialize(fuse_core::BinaryInputArchive & archive) override \
-  { \
-    archive >> *this; \
-  }  /* NOLINT */ \
-  void deserialize(fuse_core::TextInputArchive & archive) override \
-  { \
-    archive >> *this; \
+#define FUSE_LOSS_SERIALIZE_DEFINITION(...)                                                                            \
+  void serialize(fuse_core::BinaryOutputArchive& archive) const override                                               \
+  {                                                                                                                    \
+    archive << *this;                                                                                                  \
+  } /* NOLINT */                                                                                                       \
+  void serialize(fuse_core::TextOutputArchive& archive) const override                                                 \
+  {                                                                                                                    \
+    archive << *this;                                                                                                  \
+  } /* NOLINT */                                                                                                       \
+  void deserialize(fuse_core::BinaryInputArchive& archive) override                                                    \
+  {                                                                                                                    \
+    archive >> *this;                                                                                                  \
+  } /* NOLINT */                                                                                                       \
+  void deserialize(fuse_core::TextInputArchive& archive) override                                                      \
+  {                                                                                                                    \
+    archive >> *this;                                                                                                  \
   }
 
 /**
@@ -110,17 +110,17 @@
  * }
  * @endcode
  */
-#define FUSE_LOSS_TYPE_DEFINITION(...) \
-  struct detail \
-  { \
-    static std::string type() \
-    { \
-      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
-    }  /* NOLINT */ \
-  };  /* NOLINT */ \
-  std::string type() const override \
-  { \
-    return detail::type(); \
+#define FUSE_LOSS_TYPE_DEFINITION(...)                                                                                 \
+  struct detail                                                                                                        \
+  {                                                                                                                    \
+    static std::string type()                                                                                          \
+    {                                                                                                                  \
+      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name();                                   \
+    } /* NOLINT */                                                                                                     \
+  };  /* NOLINT */                                                                                                     \
+  std::string type() const override                                                                                    \
+  {                                                                                                                    \
+    return detail::type();                                                                                             \
   }
 
 /**
@@ -137,12 +137,11 @@
  * }
  * @endcode
  */
-#define FUSE_LOSS_DEFINITIONS(...) \
-  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
-  FUSE_LOSS_TYPE_DEFINITION(__VA_ARGS__) \
-  FUSE_LOSS_CLONE_DEFINITION(__VA_ARGS__) \
+#define FUSE_LOSS_DEFINITIONS(...)                                                                                     \
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__)                                                                              \
+  FUSE_LOSS_TYPE_DEFINITION(__VA_ARGS__)                                                                               \
+  FUSE_LOSS_CLONE_DEFINITION(__VA_ARGS__)                                                                              \
   FUSE_LOSS_SERIALIZE_DEFINITION(__VA_ARGS__)
-
 
 namespace fuse_core
 {
@@ -174,7 +173,7 @@ public:
   FUSE_SMART_PTR_ALIASES_ONLY(Loss)
 
   static constexpr ceres::Ownership Ownership =
-    ceres::Ownership::TAKE_OWNERSHIP;    //!< The ownership of the ceres::LossFunction* returned by
+      ceres::Ownership::TAKE_OWNERSHIP;  //!< The ownership of the ceres::LossFunction* returned by
                                          //!< lossFunction()
 
   /**
@@ -197,12 +196,10 @@ public:
    *                 server.
    */
   virtual void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string & name) = 0;
+      fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                                 fuse_core::node_interfaces::Parameters>
+          interfaces,
+      const std::string& name) = 0;
 
   /**
    * @brief Returns a unique name for this loss function type.
@@ -217,7 +214,7 @@ public:
    *
    * @param  stream The stream to write to. Defaults to stdout.
    */
-  virtual void print(std::ostream & stream = std::cout) const = 0;
+  virtual void print(std::ostream& stream = std::cout) const = 0;
 
   /**
    * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function
@@ -230,7 +227,7 @@ public:
    *
    * @return A base pointer to an instance of a derived ceres::LossFunction.
    */
-  virtual ceres::LossFunction * lossFunction() const = 0;
+  virtual ceres::LossFunction* lossFunction() const = 0;
 
   /**
    * @brief Perform a deep copy of the Loss and return a unique pointer to the copy
@@ -254,7 +251,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this loss function into
    */
-  virtual void serialize(fuse_core::BinaryOutputArchive & /* archive */) const = 0;
+  virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const = 0;
 
   /**
    * @brief Serialize this Loss into the provided text archive
@@ -266,7 +263,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this loss function into
    */
-  virtual void serialize(fuse_core::TextOutputArchive & /* archive */) const = 0;
+  virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const = 0;
 
   /**
    * @brief Deserialize data from the provided binary archive into this Loss
@@ -278,7 +275,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized Loss data
    */
-  virtual void deserialize(fuse_core::BinaryInputArchive & /* archive */) = 0;
+  virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) = 0;
 
   /**
    * @brief Deserialize data from the provided text archive into this Loss
@@ -290,7 +287,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized Loss data
    */
-  virtual void deserialize(fuse_core::TextInputArchive & /* archive */) = 0;
+  virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -303,8 +300,8 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & /* archive */, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& /* archive */, const unsigned int /* version */)
   {
   }
 };
@@ -312,7 +309,7 @@ private:
 /**
  * Stream operator implementation used for all derived Loss classes.
  */
-std::ostream & operator<<(std::ostream & stream, const Loss & loss);
+std::ostream& operator<<(std::ostream& stream, const Loss& loss);
 
 }  // namespace fuse_core
 

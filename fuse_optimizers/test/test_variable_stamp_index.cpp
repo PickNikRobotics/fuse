@@ -59,10 +59,8 @@ class StampedVariable : public fuse_core::Variable, public fuse_variables::Stamp
 public:
   FUSE_VARIABLE_DEFINITIONS(StampedVariable)
 
-  explicit StampedVariable(const rclcpp::Time & stamp = rclcpp::Time(0, 0, RCL_ROS_TIME))
-  : fuse_core::Variable(fuse_core::uuid::generate()),
-    fuse_variables::Stamped(stamp),
-    data_{}
+  explicit StampedVariable(const rclcpp::Time& stamp = rclcpp::Time(0, 0, RCL_ROS_TIME))
+    : fuse_core::Variable(fuse_core::uuid::generate()), fuse_variables::Stamped(stamp), data_{}
   {
   }
 
@@ -71,17 +69,17 @@ public:
     return 1;
   }
 
-  const double * data() const override
+  const double* data() const override
   {
     return &data_;
   }
 
-  double * data() override
+  double* data() override
   {
     return &data_;
   }
 
-  void print(std::ostream & /*stream = std::cout*/) const override
+  void print(std::ostream& /*stream = std::cout*/) const override
   {
   }
 
@@ -98,12 +96,12 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & boost::serialization::base_object<fuse_variables::Stamped>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& boost::serialization::base_object<fuse_variables::Stamped>(*this);
+    archive& data_;
   }
 };
 
@@ -117,9 +115,7 @@ class UnstampedVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(UnstampedVariable)
 
-  UnstampedVariable()
-  : fuse_core::Variable(fuse_core::uuid::generate()),
-    data_{}
+  UnstampedVariable() : fuse_core::Variable(fuse_core::uuid::generate()), data_{}
   {
   }
 
@@ -128,17 +124,17 @@ public:
     return 1;
   }
 
-  const double * data() const override
+  const double* data() const override
   {
     return &data_;
   }
 
-  double * data() override
+  double* data() override
   {
     return &data_;
   }
 
-  void print(std::ostream & /*stream = std::cout*/) const override
+  void print(std::ostream& /*stream = std::cout*/) const override
   {
   }
 
@@ -155,11 +151,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& data_;
   }
 };
 
@@ -175,40 +171,32 @@ public:
 
   GenericConstraint() = default;
 
-  GenericConstraint(
-    const std::string & source,
-    std::initializer_list<fuse_core::UUID> variable_uuids)
-  : Constraint(source, variable_uuids)
+  GenericConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuids)
+    : Constraint(source, variable_uuids)
   {
   }
 
-  explicit GenericConstraint(const std::string & source, const fuse_core::UUID & variable1)
-  : fuse_core::Constraint(source, {variable1})
+  explicit GenericConstraint(const std::string& source, const fuse_core::UUID& variable1)
+    : fuse_core::Constraint(source, { variable1 })
   {
   }
 
-  GenericConstraint(
-    const std::string & source,
-    const fuse_core::UUID & variable1,
-    const fuse_core::UUID & variable2)
-  : fuse_core::Constraint(source, {variable1, variable2})
+  GenericConstraint(const std::string& source, const fuse_core::UUID& variable1, const fuse_core::UUID& variable2)
+    : fuse_core::Constraint(source, { variable1, variable2 })
   {
   }
 
-  GenericConstraint(
-    const std::string & source,
-    const fuse_core::UUID & variable1,
-    const fuse_core::UUID & variable2,
-    const fuse_core::UUID & variable3)
-  : fuse_core::Constraint(source, {variable1, variable2, variable3})
+  GenericConstraint(const std::string& source, const fuse_core::UUID& variable1, const fuse_core::UUID& variable2,
+                    const fuse_core::UUID& variable3)
+    : fuse_core::Constraint(source, { variable1, variable2, variable3 })
   {
   }
 
-  void print(std::ostream & /*stream = std::cout*/) const override
+  void print(std::ostream& /*stream = std::cout*/) const override
   {
   }
 
-  ceres::CostFunction * costFunction() const override
+  ceres::CostFunction* costFunction() const override
   {
     return nullptr;
   }
@@ -224,15 +212,14 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
   }
 };
 
 BOOST_CLASS_EXPORT(GenericConstraint);
-
 
 TEST(VariableStampIndex, Size)
 {
@@ -322,7 +309,7 @@ TEST(VariableStampIndex, Query)
   index.query(rclcpp::Time(1, 500000, RCL_ROS_TIME), std::back_inserter(actual1));
   EXPECT_EQ(expected1, actual1);
 
-  auto expected2 = std::vector<fuse_core::UUID>{x1->uuid(), l1->uuid()};
+  auto expected2 = std::vector<fuse_core::UUID>{ x1->uuid(), l1->uuid() };
   std::sort(expected2.begin(), expected2.end());
   auto actual2 = std::vector<fuse_core::UUID>();
   index.query(rclcpp::Time(2, 500000, RCL_ROS_TIME), std::back_inserter(actual2));
@@ -375,7 +362,7 @@ TEST(VariableStampIndex, MarginalTransaction)
   EXPECT_EQ(4u, index.size());
 
   // And the marginal constraint x3->l1 should not affect future queries
-  auto expected = std::vector<fuse_core::UUID>{l1->uuid()};
+  auto expected = std::vector<fuse_core::UUID>{ l1->uuid() };
   std::sort(expected.begin(), expected.end());
   auto actual = std::vector<fuse_core::UUID>();
   index.query(rclcpp::Time(2, 500000, RCL_ROS_TIME), std::back_inserter(actual));
