@@ -17,12 +17,13 @@ find_package(pluginlib REQUIRED)
 
 find_package(Ceres REQUIRED)
 
-###########
-## Build ##
-###########
+# ##############################################################################
+# Build ##
+# ##############################################################################
 
-## fuse_loss library
-add_library(${PROJECT_NAME}
+# fuse_loss library
+add_library(
+  ${PROJECT_NAME}
   src/arctan_loss.cpp
   src/cauchy_loss.cpp
   src/composed_loss.cpp
@@ -36,21 +37,17 @@ add_library(${PROJECT_NAME}
   src/tolerant_loss.cpp
   src/trivial_loss.cpp
   src/tukey_loss.cpp
-  src/welsch_loss.cpp
-)
-target_include_directories(${PROJECT_NAME} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
-)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-  Ceres::ceres
-  fuse_core::fuse_core
-  pluginlib::pluginlib
-)
+  src/welsch_loss.cpp)
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+target_link_libraries(${PROJECT_NAME} PUBLIC Ceres::ceres fuse_core::fuse_core
+                                             pluginlib::pluginlib)
 
-#############
-## Testing ##
-#############
+# ##############################################################################
+# Testing ##
+# ##############################################################################
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -59,28 +56,22 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
-#############
-## Install ##
-#############
+# ##############################################################################
+# Install ##
+# ##############################################################################
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}-export
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
+  RUNTIME DESTINATION bin)
 
-install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME}
-)
+install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
 
 pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
 
 ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
-ament_export_dependencies(
-  ament_cmake_ros
-  fuse_core
-  pluginlib
-  Ceres
-)
+ament_export_dependencies(ament_cmake_ros fuse_core pluginlib Ceres)
 
 ament_package()

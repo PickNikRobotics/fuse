@@ -400,7 +400,7 @@ inline bool processAbsolutePoseWithCovariance(
  * Additionally, the covariance of each pose message is rotated into the robot's base frame at the
  * time of pose_absolute1. They are then added in the constraint if the pose measurements are
  * independent. Otherwise, if the pose measurements are dependent, the covariance of pose_absolute1
- * is substracted from the covariance of pose_absolute2. A small minimum relative covariance is
+ * is subtracted from the covariance of pose_absolute2. A small minimum relative covariance is
  * added to avoid getting a zero or ill-conditioned covariance. This could happen if both covariance
  * matrices are the same or very similar, e.g. when pose_absolute1 == pose_absolute2, it's possible
  * that the covariance is the same for both poses.
@@ -409,7 +409,7 @@ inline bool processAbsolutePoseWithCovariance(
  * @param[in] device_id - The UUID of the machine
  * @param[in] pose1 - The first (and temporally earlier) PoseWithCovarianceStamped message
  * @param[in] pose2 - The second (and temporally later) PoseWithCovarianceStamped message
- * @param[in] independent - Whether the pose measurements are indepent or not
+ * @param[in] independent - Whether the pose measurements are independent or not
  * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always
  *                                               added to the resulting pose relative covariance
  * @param[in] loss - The loss function for the 2D pose constraint generated
@@ -663,7 +663,7 @@ inline bool processDifferentialPoseWithCovariance(
     // which are the j_pose1 and j_pose2 jacobians used above for the covariance propagation
     // expression for independent pose measurements.
     //
-    // This seems to be the approach adviced in
+    // This seems to be the approach advised in
     // https://github.com/cra-ros-pkg/robot_localization/issues/356, but after comparing the
     // resulting relative pose covariance C12 and the twist covariance, we can conclude that the
     // approach proposed here is the only one that allow us to get results that match.
@@ -774,7 +774,7 @@ inline bool processDifferentialPoseWithCovariance(
  * @param[in] minimum_pose_relative_covariance - The minimum pose relative covariance that is always
  *                                               added to the resulting pose relative covariance
  * @param[in] twist_covariance_offset - The twist covariance offset that was added to the twist
- *                                      covariance and must be substracted from it before computing
+ *                                      covariance and must be subtracted from it before computing
  *                                      the pose relative covariance from it
  * @param[in] loss - The loss function for the 2D pose constraint generated
  * @param[in] validate - Whether to validate the measurements or not. If the validation fails no

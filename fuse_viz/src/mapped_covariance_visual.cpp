@@ -477,7 +477,7 @@ void MappedCovarianceVisual::setOrientationOffset(float ori_offset)
   orientation_root_node_->setScale(ori_offset, ori_offset, ori_offset);
   // The scale the offset_nodes as well so the displayed shape represents a 1-sigma
   // standard deviation when displayed with an scale of 1.0
-  // NOTE: We only want to change the scales of the dimentions that represent the
+  // NOTE: We only want to change the scales of the dimensions that represent the
   //       orientation covariance. The other dimensions are set to 1.0.
   for (int i = 0; i < kNumOriShapes; i++) {
     if (i == kYaw2D) {

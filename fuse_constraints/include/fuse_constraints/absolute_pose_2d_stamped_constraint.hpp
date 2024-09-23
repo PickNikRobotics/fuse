@@ -66,7 +66,7 @@ namespace fuse_constraints
  * Some sensors, such as GPS, provide direct measurements of the robot's pose in the global frame.
  * And localization systems often match laserscans to a prior map (scan-to-map measurements). This
  * constraint holds the measured 2D pose and the measurement uncertainty/covariance. It also permits
- * measurement of a subset of the pose provided in the position and orientation varables.
+ * measurement of a subset of the pose provided in the position and orientation variables.
  */
 class AbsolutePose2DStampedConstraint : public fuse_core::Constraint
 {

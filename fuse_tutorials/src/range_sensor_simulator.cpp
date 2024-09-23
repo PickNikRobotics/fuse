@@ -232,7 +232,7 @@ void initializeStateEstimation(
     interfaces.get_node_base_interface()->get_context()->is_valid())
   {
     RCLCPP_WARN_STREAM(
-      logger, "Waiting for '" << client->get_service_name() << "' service to become avaiable.");
+      logger, "Waiting for '" << client->get_service_name() << "' service to become available.");
   }
 
   auto success = false;

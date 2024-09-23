@@ -179,7 +179,7 @@ void GraphIgnition::process(
     {
       RCLCPP_WARN_STREAM(
         logger_,
-        "Waiting for '" << reset_client_->wait_for_service() << "' service to become avaiable.");
+        "Waiting for '" << reset_client_->wait_for_service() << "' service to become available.");
     }
 
     auto srv = std::make_shared<std_srvs::srv::Empty::Request>();

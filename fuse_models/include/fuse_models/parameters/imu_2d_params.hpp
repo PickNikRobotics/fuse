@@ -186,7 +186,7 @@ public:
   fuse_core::Matrix3d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance
                                                          //!< matrix
   fuse_core::Matrix3d twist_covariance_offset;    //!< Offset already added to the twist covariance
-                                                  //!< matrix, that will be substracted in order to
+                                                  //!< matrix, that will be subtracted in order to
                                                   //!< recover the raw values
   bool remove_gravitational_acceleration {false};
   int queue_size {10};

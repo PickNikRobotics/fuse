@@ -80,7 +80,7 @@ namespace fuse_core
  *   motion model needs access to the latest values of the state variables. In many cases, motion
  *   models will simply not need that information. If the motion model does need access the to
  *   graph, the most common implementation will simply be to move the provided pointer into a class
- *   memebr variable, for use in other callbacks.
+ *   member variable, for use in other callbacks.
  *   @code{.cpp}
  *   void onGraphUpdate(Graph::ConstSharedPtr graph) override { this->graph_ = std::move(graph); }
  *   @endcode

@@ -356,7 +356,7 @@ public:
     rclcpp::Clock clock = rclcpp::Clock(RCL_STEADY_TIME)) override;
 
   /**
-   * @brief Evalute the values of the current set of variables, given the current set of
+   * @brief Evaluate the values of the current set of variables, given the current set of
    *        constraints.
    *
    * The values in the graph do not change after the call.
@@ -398,11 +398,11 @@ protected:
   using Variables = std::unordered_map<fuse_core::UUID, fuse_core::Variable::SharedPtr,
       fuse_core::uuid::hash>;
   using VariableSet = std::unordered_set<fuse_core::UUID, fuse_core::uuid::hash>;
-  using CrossReference = std::unordered_map<fuse_core::UUID, std::vector<fuse_core::UUID>,
+  using cross-reference = std::unordered_map<fuse_core::UUID, std::vector<fuse_core::UUID>,
       fuse_core::uuid::hash>;
 
   Constraints constraints_;  //!< The set of all constraints
-  CrossReference constraints_by_variable_uuid_;  //!< Index all of the constraints by variable uuids
+  cross-reference constraints_by_variable_uuid_;  //!< Index all of the constraints by variable uuids
   ceres::Problem::Options problem_options_;  //!< User-defined options to be applied to all
                                              //!< constructed ceres::Problems
   Variables variables_;  //!< The set of all variables

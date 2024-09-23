@@ -63,7 +63,7 @@ namespace fuse_constraints
  * measurements (wheel encoders, inertial strap-down, visual odometry) measure the change in the
  * pose, not the pose directly. This constraint holds the measured 2D pose change and the
  * measurement uncertainty/covariance. It also permits measurement of a subset of the relative pose
- * provided in the position and orientation varables.
+ * provided in the position and orientation variables.
  */
 class RelativePose2DStampedConstraint : public fuse_core::Constraint
 {

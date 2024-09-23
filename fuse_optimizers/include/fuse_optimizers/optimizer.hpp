@@ -268,7 +268,7 @@ protected:
   void stopPlugins();
 
   /**
-   * @brief Update and publish diagnotics
+   * @brief Update and publish diagnostics
    * @param[in] status The diagnostic status
    */
   virtual void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & status);

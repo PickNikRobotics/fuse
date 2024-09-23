@@ -1,11 +1,9 @@
-# CORE GTESTS ======================================================================================
+# CORE GTESTS
+# ======================================================================================
 set(TEST_TARGETS
-  test_unicycle_2d
-  test_unicycle_2d_predict
-  test_unicycle_2d_state_cost_function
-  test_graph_ignition
-  test_unicycle_2d_ignition
-)
+    test_unicycle_2d test_unicycle_2d_predict
+    test_unicycle_2d_state_cost_function test_graph_ignition
+    test_unicycle_2d_ignition)
 
 foreach(test_name ${TEST_TARGETS})
   ament_add_gtest("${test_name}" "${test_name}.cpp")

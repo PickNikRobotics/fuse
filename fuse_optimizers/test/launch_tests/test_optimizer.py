@@ -28,13 +28,15 @@ import pytest
 
 @pytest.fixture
 def test_proc():
-    test_root = '.'
+    test_root = "."
 
-    param_path = os.path.join(test_root, 'launch_tests', 'config', 'optimizer_params.yaml')
-    test_path = os.path.join(test_root, 'test_optimizer')
+    param_path = os.path.join(
+        test_root, "launch_tests", "config", "optimizer_params.yaml"
+    )
+    test_path = os.path.join(test_root, "test_optimizer")
 
-    cmd = [test_path, '--ros-args', '--params-file', param_path]
-    return ExecuteProcess(cmd=cmd, shell=True, output='screen', cached_output=True)
+    cmd = [test_path, "--ros-args", "--params-file", param_path]
+    return ExecuteProcess(cmd=cmd, shell=True, output="screen", cached_output=True)
 
 
 @launch_pytest.fixture
@@ -45,4 +47,4 @@ def generate_test_description(test_proc):
 @pytest.mark.launch(fixture=generate_test_description)
 async def test_no_failed_gtests(test_proc, launch_context):
     await process_tools.wait_for_exit(launch_context, test_proc, timeout=30)
-    assert test_proc.return_code == 0, 'GTests failed'
+    assert test_proc.return_code == 0, "GTests failed"

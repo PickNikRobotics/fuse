@@ -293,7 +293,7 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
   //
   // So even if the added constraints and variables are stored in std::vector containers in the
   // transaction, we cannot compare them with the straightforward approach mentioned above. Instead,
-  // we need to check that all added constraints and varaibles are in the graph, and check they are
+  // we need to check that all added constraints and variables are in the graph, and check they are
   // the same.
   for (const auto & added_constraint : transaction->addedConstraints()) {
     try {
@@ -406,7 +406,7 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
   //
   // So even if the added constraints and variables are stored in std::vector containers in the
   // transaction, we cannot compare them with the straightforward approach mentioned above. Instead,
-  // we need to check that all added constraints and varaibles are in the graph, and check they are
+  // we need to check that all added constraints and variables are in the graph, and check they are
   // the same.
   for (const auto & added_constraint : transaction->addedConstraints()) {
     try {

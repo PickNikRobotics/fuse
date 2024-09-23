@@ -47,8 +47,6 @@ places where most of the dimensions are unused. However, including too few physi
 also leads to inefficient and cumbersome usage when even the simplest of observation models involve many variables.
 This is one of those "Goldilocks principle" situations.
 
-![Goldilocks principle](http://home.netcom.com/~swansont_2/goldilocks.jpg)
-
 Understanding how Variable interact with the rest of the system will help in the design of "good" Variable.
 
 * The fuse stack is designed to combine observations _of the same variable identity_ from multiple sources. As

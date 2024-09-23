@@ -363,7 +363,7 @@ Ogre::ColourValue RelativePose2DStampedConstraintVisual::computeLossErrorLineCol
   // would get an incorrect loss brightness.
   //
   // However, we cannot do this because it changes the color of the error line, which should be
-  // consistent for all constraints visuals. Instead, we clamp the minium brightness:
+  // consistent for all constraints visuals. Instead, we clamp the minimum brightness:
   const auto min_brightness = std::min(min_brightness_, brightness);
 
   // Scale brightness by the loss scale within the [min_brightness, 1] range:

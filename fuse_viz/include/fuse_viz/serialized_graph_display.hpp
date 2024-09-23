@@ -63,7 +63,7 @@ class Pose2DStampedProperty;
 class RelativePose2DStampedConstraintProperty;
 
 /**
- * @brief An rviz dispaly for fuse_msgs::msg::SerializedGraph messages.
+ * @brief An rviz display for fuse_msgs::msg::SerializedGraph messages.
  */
 class SerializedGraphDisplay
   : public rviz_common::MessageFilterDisplay<fuse_msgs::msg::SerializedGraph>

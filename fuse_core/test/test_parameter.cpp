@@ -83,7 +83,7 @@ TEST(parameter, list_parameter_override_prefixes)
   }
   {
     auto matches = fuse_core::detail::list_parameter_override_prefixes(
-      overrides, "dne");
+      overrides, "done");
     EXPECT_EQ(0u, matches.size());
   }
   {

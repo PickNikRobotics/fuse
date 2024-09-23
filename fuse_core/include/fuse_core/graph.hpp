@@ -403,7 +403,7 @@ public:
                                                                 // because clock.now() is non-const
 
   /**
-   * @brief Evalute the values of the current set of variables, given the current set of
+   * @brief Evaluate the values of the current set of variables, given the current set of
    *        constraints.
    *
    * The values in the graph do not change after the call.

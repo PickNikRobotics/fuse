@@ -278,7 +278,7 @@ void Unicycle2DIgnition::process(
     {
       RCLCPP_WARN_STREAM(
         logger_,
-        "Waiting for '" << reset_client_->get_service_name() << "' service to become avaiable.");
+        "Waiting for '" << reset_client_->get_service_name() << "' service to become available.");
     }
 
     auto srv = std::make_shared<std_srvs::srv::Empty::Request>();

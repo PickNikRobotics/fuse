@@ -220,7 +220,7 @@ protected:
     fuse_core::Transaction::SharedPtr transaction) override;
 
   /**
-   * @brief Update and publish diagnotics
+   * @brief Update and publish diagnostics
    * @param[in] status The diagnostic status
    */
   void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & status) override;

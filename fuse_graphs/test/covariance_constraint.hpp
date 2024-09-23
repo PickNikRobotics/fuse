@@ -50,7 +50,7 @@
 
 
 /**
- * @brief Create a cost fuction that implements one of the Ceres unit tests
+ * @brief Create a cost function that implements one of the Ceres unit tests
  *
  * UnaryCostFunctions are added to all three variables
  * - https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/covariance_test.cc#L423
