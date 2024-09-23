@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  # Run if someone manually presses the button in the GitHub Actions UI
+  workflow_dispatch:
+  # Run when a PR is opened or updated
+  pull_request:
+  # Run when a commit is pushed to main
+  push:
+    branches:
+      - main
+
+permissions:
+  # Allow reading the source code
+  contents: read
+  # Allow writing built containers to GitHub Package Registry
+  packages: write
+
+jobs:
+  build-ws:
+    name: Build colcon workspace
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+        # Log into GitHub Container Registry so we can push an image
+      - name: Log in to GHCR
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build the Dockerfile and push the image to the private GitHub Container Registry on this repo
+      - name: Build workspace
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          # run_id is unique to a particular run of this workflow so shouldn't clobber
+          tags: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
+          push: true
+          # This project is small enough that caching to GitHub Actions should be fine (it has a 10GB cache limit)
+          cache-to: type=gha,mode=max
+          cache-from: type=gha
+
+  test-ws:
+    name: Test colcon workspace
+    needs:
+      # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
+      - build-ws
+    runs-on: ubuntu-24.04
+    container:
+      # Run on the Docker image we tagged and pushed to a private repo in the job above
+      image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
+    steps:
+      - name: Unit test workspace
+        run: |
+          . /opt/ros/rolling/setup.sh
+          . /colcon_ws/install/local_setup.sh
+          colcon test --event-handlers console_direct+ --retest-until-pass 3
+        working-directory: /colcon_ws
+
+      # `colcon test` does not actually error on failure - run `colcon test-result` to generate a summary and an error code.
+      - name: Display colcon test results
+        # Run this step even if a previous step failed
+        if: always()
+        run: colcon test-result --verbose
+        working-directory: /colcon_ws

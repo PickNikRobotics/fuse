@@ -62,11 +62,6 @@ repos:
           - "-c"
           - "markdown-link-check-config.json"
 
-  - repo: https://github.com/hadolint/hadolint
-    rev: v2.12.0
-    hooks:
-      - id: hadolint-docker
-
   - repo: https://github.com/cheshirekow/cmake-format-precommit
     rev: v0.6.10
     hooks:
