@@ -46,15 +46,6 @@ add_executable(range_sensor_simulator src/range_sensor_simulator.cpp)
 target_link_libraries(range_sensor_simulator ${PROJECT_NAME})
 
 # ##############################################################################
-# Testing ##
-# ##############################################################################
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
-
-# ##############################################################################
 # Install ##
 # ##############################################################################
 
