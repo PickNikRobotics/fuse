@@ -48,7 +48,7 @@ public:
 
   virtual ~MyMotionModel() = default;
 
-  bool applyCallback(fuse_core::Transaction& /*transaction*/)
+  bool applyCallback(fuse_core::Transaction& /*transaction*/) override
   {
     rclcpp::sleep_for(std::chrono::milliseconds(1000));
     transaction_received = true;

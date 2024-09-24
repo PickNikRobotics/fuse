@@ -35,9 +35,6 @@
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
 
-#include <array>
-#include <string>
-
 #include "cost_function_gtest.hpp"
 #include <fuse_constraints/normal_prior_pose_3d.hpp>
 #include <fuse_constraints/normal_prior_pose_3d_cost_functor.hpp>

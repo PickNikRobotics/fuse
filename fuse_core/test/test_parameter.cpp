@@ -33,7 +33,6 @@
  */
 #include <gtest/gtest.h>
 
-#include <limits>
 #include <map>
 #include <string>
 

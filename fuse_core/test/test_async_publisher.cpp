@@ -33,8 +33,6 @@
  */
 #include <gtest/gtest.h>
 
-#include <set>
-
 #include <fuse_core/async_publisher.hpp>
 #include <rclcpp/rclcpp.hpp>
 
@@ -50,7 +48,8 @@ public:
 
   virtual ~MyPublisher() = default;
 
-  void notifyCallback(fuse_core::Transaction::ConstSharedPtr /*transaction*/, fuse_core::Graph::ConstSharedPtr /*graph*/)
+  void notifyCallback(fuse_core::Transaction::ConstSharedPtr /*transaction*/,
+                      fuse_core::Graph::ConstSharedPtr /*graph*/) override
   {
     rclcpp::sleep_for(std::chrono::milliseconds(10));
     callback_processed = true;

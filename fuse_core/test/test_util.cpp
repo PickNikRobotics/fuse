@@ -33,7 +33,6 @@
  */
 #include <gtest/gtest.h>
 
-#include <numeric>
 #include <string>
 
 #include <ceres/autodiff_cost_function.h>
@@ -186,7 +185,8 @@ TEST(Util, quaternionProduct)
 
   // Atm only the jacobian wrt the second quaternion is implemented. If the computation will be
   // extended in future, we just have to compare J_analytic_q1 with the other automatic J_autodiff_q1.
-  double J_analytic_q1[16], J_analytic_q2[16];  // Analytical Jacobians wrt first and second quaternion
+  // double J_analytic_q1[16];  // Analytical Jacobians wrt first quaternion
+  double J_analytic_q2[16];                     // Analytical Jacobian wrt second quaternion
   double J_autodiff_q1[16], J_autodiff_q2[16];  // Autodiff Jacobians wrt first and second quaternion
 
   fuse_core::quaternionProduct(q1, q2, q_out, J_analytic_q2);

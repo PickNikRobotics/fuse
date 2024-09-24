@@ -38,7 +38,9 @@
 
 #include <memory>
 #include <vector>
+#include <ceres/cost_function.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
 
 /**
  * @brief A helper function to compare a expected and actual cost function.

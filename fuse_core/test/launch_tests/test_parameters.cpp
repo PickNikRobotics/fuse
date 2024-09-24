@@ -33,7 +33,6 @@
  */
 #include <gtest/gtest.h>
 
-#include <numeric>
 #include <string>
 #include <thread>
 
