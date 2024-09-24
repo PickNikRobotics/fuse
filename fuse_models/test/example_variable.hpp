@@ -52,8 +52,7 @@ class ExampleVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
 
-  ExampleVariable()
-  : fuse_core::Variable(fuse_core::uuid::generate()), data_(0.0)
+  ExampleVariable() : fuse_core::Variable(fuse_core::uuid::generate()), data_(0.0)
   {
   }
 
@@ -62,17 +61,17 @@ public:
     return 1;
   }
 
-  const double * data() const override
+  const double* data() const override
   {
     return &data_;
   }
 
-  double * data() override
+  double* data() override
   {
     return &data_;
   }
 
-  void print(std::ostream & stream = std::cout) const override
+  void print(std::ostream& stream = std::cout) const override
   {
     stream << type() << ":\n"
            << "  uuid: " << uuid() << '\n'
@@ -92,11 +91,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& data_;
   }
 };
 

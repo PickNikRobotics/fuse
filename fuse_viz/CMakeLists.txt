@@ -25,18 +25,19 @@ find_package(Eigen3 REQUIRED)
 
 find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 
-###########
-## Build ##
-###########
+# ##############################################################################
+# Build ##
+# ##############################################################################
 
-qt5_wrap_cpp(moc_files
+qt5_wrap_cpp(
+  moc_files
   include/fuse_viz/mapped_covariance_property.hpp
   include/fuse_viz/pose_2d_stamped_property.hpp
   include/fuse_viz/relative_pose_2d_stamped_constraint_property.hpp
-  include/fuse_viz/serialized_graph_display.hpp
-)
+  include/fuse_viz/serialized_graph_display.hpp)
 
-add_library(${PROJECT_NAME} SHARED
+add_library(
+  ${PROJECT_NAME} SHARED
   src/mapped_covariance_property.cpp
   src/mapped_covariance_visual.cpp
   src/pose_2d_stamped_property.cpp
@@ -44,49 +45,37 @@ add_library(${PROJECT_NAME} SHARED
   src/relative_pose_2d_stamped_constraint_property.cpp
   src/relative_pose_2d_stamped_constraint_visual.cpp
   src/serialized_graph_display.cpp
-  ${moc_files}
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-  ${fuse_msgs_TARGETS}
-  Eigen3::Eigen
-  fuse_constraints::fuse_constraints
-  fuse_core::fuse_core
-  fuse_variables::fuse_variables
-  ${geometry_msgs_TARGETS}
-  rviz_common::rviz_common
-  rviz_rendering::rviz_rendering
-  tf2_geometry_msgs::tf2_geometry_msgs
-)
+  ${moc_files})
+target_link_libraries(
+  ${PROJECT_NAME}
+  PRIVATE ${fuse_msgs_TARGETS}
+          Eigen3::Eigen
+          fuse_constraints::fuse_constraints
+          fuse_core::fuse_core
+          fuse_variables::fuse_variables
+          ${geometry_msgs_TARGETS}
+          rviz_common::rviz_common
+          rviz_rendering::rviz_rendering
+          tf2_geometry_msgs::tf2_geometry_msgs)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
-  ${Qt5Widgets_INCLUDE_DIRS}
-)
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:include/${PROJECT_NAME}>
+         ${Qt5Widgets_INCLUDE_DIRS})
 
-#############
-## Install ##
-#############
+# ##############################################################################
+# Install ##
+# ##############################################################################
 
-install(TARGETS ${PROJECT_NAME}
+install(
+  TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
+  RUNTIME DESTINATION bin)
 
-install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME}
-)
+install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
 
 pluginlib_export_plugin_description_file(rviz_common rviz_plugins.xml)
-
-#############
-## Testing ##
-#############
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-endif()
 
 ament_package()

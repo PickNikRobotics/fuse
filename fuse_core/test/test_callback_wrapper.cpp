@@ -44,12 +44,12 @@
 class MyClass
 {
 public:
-  double processData(const std::vector<double> & data)
+  double processData(const std::vector<double>& data)
   {
     return std::accumulate(data.begin(), data.end(), 0.0);
   }
 
-  void processDataInPlace(const std::vector<double> & data, double & output)
+  void processDataInPlace(const std::vector<double>& data, double& output)
   {
     output = std::accumulate(data.begin(), data.end(), 0.0);
   }
@@ -72,16 +72,14 @@ public:
 TEST_F(TestCallbackWrapper, Double)
 {
   MyClass my_object;
-  std::vector<double> data = {1.0, 2.0, 3.0, 4.0, 5.0};
+  std::vector<double> data = { 1.0, 2.0, 3.0, 4.0, 5.0 };
 
   auto node = rclcpp::Node::make_shared("callback_wrapper_double_test_node");
-  auto callback_queue =
-    std::make_shared<fuse_core::CallbackAdapter>(node->get_node_base_interface()->get_context());
-  node->get_node_waitables_interface()->add_waitable(
-    callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+  auto callback_queue = std::make_shared<fuse_core::CallbackAdapter>(node->get_node_base_interface()->get_context());
+  node->get_node_waitables_interface()->add_waitable(callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
 
   auto callback = std::make_shared<fuse_core::CallbackWrapper<double>>(
-    std::bind(&MyClass::processData, &my_object, std::ref(data)));
+      std::bind(&MyClass::processData, &my_object, std::ref(data)));
   auto result = callback->getFuture();
 
   callback_queue->addCallback(callback);
@@ -95,17 +93,15 @@ TEST_F(TestCallbackWrapper, Double)
 TEST_F(TestCallbackWrapper, Void)
 {
   MyClass my_object;
-  std::vector<double> data = {1.0, 2.0, 3.0, 4.0, 5.0};
+  std::vector<double> data = { 1.0, 2.0, 3.0, 4.0, 5.0 };
   double output;
 
   auto node = rclcpp::Node::make_shared("callback_wrapper_void_test_node");
-  auto callback_queue =
-    std::make_shared<fuse_core::CallbackAdapter>(node->get_node_base_interface()->get_context());
-  node->get_node_waitables_interface()->add_waitable(
-    callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
+  auto callback_queue = std::make_shared<fuse_core::CallbackAdapter>(node->get_node_base_interface()->get_context());
+  node->get_node_waitables_interface()->add_waitable(callback_queue, (rclcpp::CallbackGroup::SharedPtr) nullptr);
 
   auto callback = std::make_shared<fuse_core::CallbackWrapper<void>>(
-    std::bind(&MyClass::processDataInPlace, &my_object, std::ref(data), std::ref(output)));
+      std::bind(&MyClass::processDataInPlace, &my_object, std::ref(data), std::ref(output)));
   auto result = callback->getFuture();
 
   callback_queue->addCallback(callback);

@@ -53,10 +53,10 @@
  *
  * For a given Ceres Solver Option <T>, the function ToString calls ceres::<T>ToString
  */
-#define CERES_OPTION_TO_STRING_DEFINITION(Option) \
-  static inline const char * ToString(ceres::Option value) \
-  { \
-    return ceres::Option ## ToString(value); \
+#define CERES_OPTION_TO_STRING_DEFINITION(Option)                                                                      \
+  static inline const char* ToString(ceres::Option value)                                                              \
+  {                                                                                                                    \
+    return ceres::Option##ToString(value);                                                                             \
   }
 
 /**
@@ -64,10 +64,10 @@
  *
  * For a given Ceres Solver Option <T>, the function FromString calls ceres::StringTo<T>
  */
-#define CERES_OPTION_FROM_STRING_DEFINITION(Option) \
-  static inline bool FromString(std::string string_value, ceres::Option * value) \
-  { \
-    return ceres::StringTo ## Option(string_value, value); \
+#define CERES_OPTION_FROM_STRING_DEFINITION(Option)                                                                    \
+  static inline bool FromString(std::string string_value, ceres::Option* value)                                        \
+  {                                                                                                                    \
+    return ceres::StringTo##Option(string_value, value);                                                               \
   }
 
 /**
@@ -75,8 +75,8 @@
  *
  * See CERES_OPTION_TO_STRING_DEFINITION and CERES_OPTION_FROM_STRING_DEFINITION.
  */
-#define CERES_OPTION_STRING_DEFINITIONS(Option) \
-  CERES_OPTION_TO_STRING_DEFINITION(Option) \
+#define CERES_OPTION_STRING_DEFINITIONS(Option)                                                                        \
+  CERES_OPTION_TO_STRING_DEFINITION(Option)                                                                            \
   CERES_OPTION_FROM_STRING_DEFINITION(Option)
 
 #if !CERES_VERSION_AT_LEAST(2, 0, 0)
@@ -88,25 +88,33 @@
 namespace ceres
 {
 
-#define CASESTR(x) case x: return #x
-#define STRENUM(x) if (value == #x) {*type = x; return true;}
+#define CASESTR(x)                                                                                                     \
+  case x:                                                                                                              \
+    return #x
+#define STRENUM(x)                                                                                                     \
+  if (value == #x)                                                                                                     \
+  {                                                                                                                    \
+    *type = x;                                                                                                         \
+    return true;                                                                                                       \
+  }
 
-static void UpperCase(std::string * input)
+static void UpperCase(std::string* input)
 {
   std::transform(input->begin(), input->end(), input->begin(), ::toupper);
 }
 
-inline const char * LoggingTypeToString(LoggingType type)
+inline const char* LoggingTypeToString(LoggingType type)
 {
-  switch (type) {
-  CASESTR(SILENT);
-  CASESTR(PER_MINIMIZER_ITERATION);
+  switch (type)
+  {
+    CASESTR(SILENT);
+    CASESTR(PER_MINIMIZER_ITERATION);
     default:
       return "UNKNOWN";
   }
 }
 
-inline bool StringToLoggingType(std::string value, LoggingType * type)
+inline bool StringToLoggingType(std::string value, LoggingType* type)
 {
   UpperCase(&value);
   STRENUM(SILENT);
@@ -114,17 +122,18 @@ inline bool StringToLoggingType(std::string value, LoggingType * type)
   return false;
 }
 
-inline const char * DumpFormatTypeToString(DumpFormatType type)
+inline const char* DumpFormatTypeToString(DumpFormatType type)
 {
-  switch (type) {
-  CASESTR(CONSOLE);
-  CASESTR(TEXTFILE);
+  switch (type)
+  {
+    CASESTR(CONSOLE);
+    CASESTR(TEXTFILE);
     default:
       return "UNKNOWN";
   }
 }
 
-inline bool StringToDumpFormatType(std::string value, DumpFormatType * type)
+inline bool StringToDumpFormatType(std::string value, DumpFormatType* type)
 {
   UpperCase(&value);
   STRENUM(CONSOLE);
@@ -144,12 +153,12 @@ inline bool StringToDumpFormatType(std::string value, DumpFormatType * type)
 namespace ceres
 {
 
-inline bool StringToLoggingType(std::string value, LoggingType * type)
+inline bool StringToLoggingType(std::string value, LoggingType* type)
 {
   return StringtoLoggingType(value, type);
 }
 
-inline bool StringToDumpFormatType(std::string value, DumpFormatType * type)
+inline bool StringToDumpFormatType(std::string value, DumpFormatType* type)
 {
   return StringtoDumpFormatType(value, type);
 }
@@ -188,30 +197,25 @@ CERES_OPTION_STRING_DEFINITIONS(VisibilityClusteringType)
  * @param[in] default_value - A default value to use if the provided parameter name does not exist
  * @return The loaded (or default) value
  */
-template<class T>
+template <class T>
 T declareCeresParam(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Base,
-    node_interfaces::Logging,
-    node_interfaces::Parameters
-  > interfaces,
-  const std::string & parameter_name,
-  const T & default_value,
-  const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
-  rcl_interfaces::msg::ParameterDescriptor())
+    node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
+        interfaces,
+    const std::string& parameter_name, const T& default_value,
+    const rcl_interfaces::msg::ParameterDescriptor& parameter_descriptor = rcl_interfaces::msg::ParameterDescriptor())
 {
-  const std::string default_string_value{ToString(default_value)};
+  const std::string default_string_value{ ToString(default_value) };
 
   std::string string_value;
   string_value = getParam(interfaces, parameter_name, default_string_value, parameter_descriptor);
 
   T value;
-  if (!FromString(string_value, &value)) {
-    RCLCPP_WARN_STREAM(
-      interfaces.get_node_logging_interface()->get_logger(),
-      "The requested " << parameter_name << " (" << string_value
-                       << ") is not supported. Using the default value (" << default_string_value
-                       << ") instead.");
+  if (!FromString(string_value, &value))
+  {
+    RCLCPP_WARN_STREAM(interfaces.get_node_logging_interface()->get_logger(),
+                       "The requested " << parameter_name << " (" << string_value
+                                        << ") is not supported. Using the default value (" << default_string_value
+                                        << ") instead.");
     value = default_value;
   }
 
@@ -227,13 +231,9 @@ T declareCeresParam(
  * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
 void loadCovarianceOptionsFromROS(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Base,
-    node_interfaces::Logging,
-    node_interfaces::Parameters
-  > interfaces,
-  ceres::Covariance::Options & covariance_options,
-  const std::string & ns = std::string());
+    node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
+        interfaces,
+    ceres::Covariance::Options& covariance_options, const std::string& ns = std::string());
 
 /**
  * @brief Populate a ceres::Problem::Options object with information from the parameter server
@@ -243,12 +243,8 @@ void loadCovarianceOptionsFromROS(
  * @param[out] problem_options - The ceres::Problem::Options object to update
  * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
-void loadProblemOptionsFromROS(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Parameters
-  > interfaces,
-  ceres::Problem::Options & problem_options,
-  const std::string & ns = std::string());
+void loadProblemOptionsFromROS(node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
+                               ceres::Problem::Options& problem_options, const std::string& ns = std::string());
 
 /**
  * @brief Populate a ceres::Solver::Options object with information from the parameter server
@@ -259,13 +255,9 @@ void loadProblemOptionsFromROS(
  * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
 void loadSolverOptionsFromROS(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Base,
-    node_interfaces::Logging,
-    node_interfaces::Parameters
-  > interfaces,
-  ceres::Solver::Options & solver_options,
-  const std::string & ns = std::string());
+    node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
+        interfaces,
+    ceres::Solver::Options& solver_options, const std::string& ns = std::string());
 
 }  // namespace fuse_core
 

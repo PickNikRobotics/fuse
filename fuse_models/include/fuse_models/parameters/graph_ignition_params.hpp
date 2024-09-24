@@ -39,7 +39,6 @@
 
 #include <fuse_models/parameters/parameter_base.hpp>
 
-
 namespace fuse_models
 {
 
@@ -59,51 +58,37 @@ public:
    * @param[in] ns - The parameter namespace to use
    */
   void loadFromROS(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string & ns)
+      fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                                 fuse_core::node_interfaces::Parameters>
+          interfaces,
+      const std::string& ns)
   {
-    queue_size = fuse_core::getParam(
-      interfaces, fuse_core::joinParameterName(
-        ns,
-        "queue_size"),
-      queue_size);
-    reset_service = fuse_core::getParam(
-      interfaces, fuse_core::joinParameterName(
-        ns,
-        "reset_service"),
-      reset_service);
+    queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
+    reset_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "reset_service"), reset_service);
     set_graph_service =
-      fuse_core::getParam(
-      interfaces, fuse_core::joinParameterName(
-        ns,
-        "set_graph_service"),
-      set_graph_service);
+        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "set_graph_service"), set_graph_service);
     topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
   }
 
   /**
    * @brief The size of the subscriber queue for the topic
    */
-  int queue_size{10};
+  int queue_size{ 10 };
 
   /**
    * @brief The name of the reset service to call before sending transactions to the optimizer
    */
-  std::string reset_service{"~/reset"};
+  std::string reset_service{ "~/reset" };
 
   /**
    * @brief The name of the set_graph service to advertise
    */
-  std::string set_graph_service{"set_graph"};
+  std::string set_graph_service{ "set_graph" };
 
   /**
    * @brief The topic name for received SerializedGraph messages
    */
-  std::string topic{"graph"};
+  std::string topic{ "graph" };
 };
 
 }  // namespace parameters

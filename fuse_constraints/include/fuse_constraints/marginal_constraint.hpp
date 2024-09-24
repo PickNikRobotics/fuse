@@ -65,7 +65,6 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/tuple/tuple.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -103,14 +102,9 @@ public:
    * @param[in] last_A         Iterator pointing to one past the last A matrix
    * @param[in] b              The b vector of the marginal cost (of the form A*(x - x_bar) + b)
    */
-  template<typename VariableIterator, typename MatrixIterator>
-  MarginalConstraint(
-    const std::string & source,
-    VariableIterator first_variable,
-    VariableIterator last_variable,
-    MatrixIterator first_A,
-    MatrixIterator last_A,
-    const fuse_core::VectorXd & b);
+  template <typename VariableIterator, typename MatrixIterator>
+  MarginalConstraint(const std::string& source, VariableIterator first_variable, VariableIterator last_variable,
+                     MatrixIterator first_A, MatrixIterator last_A, const fuse_core::VectorXd& b);
 
   /**
    * @brief Destructor
@@ -120,23 +114,32 @@ public:
   /**
    * @brief Read-only access to the A matrices of the marginal constraint
    */
-  const std::vector<fuse_core::MatrixXd> & A() const {return A_;}
+  const std::vector<fuse_core::MatrixXd>& A() const
+  {
+    return A_;
+  }
 
   /**
    * @brief Read-only access to the b vector of the marginal constraint
    */
-  const fuse_core::VectorXd & b() const {return b_;}
+  const fuse_core::VectorXd& b() const
+  {
+    return b_;
+  }
 
   /**
    * @brief Read-only access to the variable linearization points, x_bar
    */
-  const std::vector<fuse_core::VectorXd> & x_bar() const {return x_bar_;}
+  const std::vector<fuse_core::VectorXd>& x_bar() const
+  {
+    return x_bar_;
+  }
 
 #if !CERES_SUPPORTS_MANIFOLDS
   /**
    * @brief Read-only access to the variable local parameterizations
    */
-  const std::vector<fuse_core::LocalParameterization::SharedPtr> & localParameterizations() const
+  const std::vector<fuse_core::LocalParameterization::SharedPtr>& localParameterizations() const
   {
     return local_parameterizations_;
   }
@@ -144,7 +147,10 @@ public:
   /**
    * @brief Read-only access to the variable manifolds
    */
-  const std::vector<fuse_core::Manifold::SharedPtr> & manifolds() const {return manifolds_;}
+  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds() const
+  {
+    return manifolds_;
+  }
 #endif
 
   /**
@@ -152,7 +158,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -164,11 +170,11 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction * costFunction() const override;
+  ceres::CostFunction* costFunction() const override;
 
 protected:
   std::vector<fuse_core::MatrixXd> A_;  //!< The A matrices of the marginal constraint
-  fuse_core::VectorXd b_;  //!< The b vector of the marginal constraint
+  fuse_core::VectorXd b_;               //!< The b vector of the marginal constraint
 #if !CERES_SUPPORTS_MANIFOLDS
   //!< The local parameterizations
   std::vector<fuse_core::LocalParameterization::SharedPtr> local_parameterizations_;
@@ -187,8 +193,8 @@ private:
    * @param[out] archive - The archive object into which class members will be serialized
    * @param[in] version - The version of the archive being written.
    */
-  template<class Archive>
-  void save(Archive & archive, const unsigned int /* version */) const
+  template <class Archive>
+  void save(Archive& archive, const unsigned int /* version */) const
   {
     archive << boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive << A_;
@@ -207,13 +213,14 @@ private:
    * @param[in] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read.
    */
-  template<class Archive>
-  void load(Archive & archive, const unsigned int version)
+  template <class Archive>
+  void load(Archive& archive, const unsigned int version)
   {
     archive >> boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive >> A_;
     archive >> b_;
-    if (version == 0) {
+    if (version == 0)
+    {
       // Version 0 serialization files will contain a std::vector of LocalParameterization
       // shared pointers. If the current version of Ceres Solver does not support Manifolds,
       // then the serialized LocalParameterization pointers can be deserialized directly into
@@ -224,26 +231,25 @@ private:
 #else
       auto local_parameterizations = std::vector<fuse_core::LocalParameterization::SharedPtr>();
       archive >> local_parameterizations;
-      std::transform(
-        std::make_move_iterator(local_parameterizations.begin()),
-        std::make_move_iterator(local_parameterizations.end()),
-        std::back_inserter(manifolds_),
-        [](fuse_core::LocalParameterization::SharedPtr local_parameterization)
-        {return fuse_core::ManifoldAdapter::make_shared(std::move(local_parameterization));});
+      std::transform(std::make_move_iterator(local_parameterizations.begin()),
+                     std::make_move_iterator(local_parameterizations.end()), std::back_inserter(manifolds_),
+                     [](fuse_core::LocalParameterization::SharedPtr local_parameterization) {
+                       return fuse_core::ManifoldAdapter::make_shared(std::move(local_parameterization));
+                     });
 #endif
-    } else {  // (version >= 1)
-      // Version 1 serialization files will contain a std::vector of Manifold shared pointers. If
-      // the current version of Ceres Solver does not support Manifolds, then there is no way to
-      // deserialize the requested data. But if the current version of Ceres Solver does support
-      // manifolds, then the serialized Manifold pointers can be deserialized directly into the
-      // class member.
+    }
+    else
+    {  // (version >= 1)
+       // Version 1 serialization files will contain a std::vector of Manifold shared pointers. If
+       // the current version of Ceres Solver does not support Manifolds, then there is no way to
+       // deserialize the requested data. But if the current version of Ceres Solver does support
+       // manifolds, then the serialized Manifold pointers can be deserialized directly into the
+       // class member.
 #if !CERES_SUPPORTS_MANIFOLDS
-      throw std::runtime_error(
-              "Attempting to deserialize an archive saved in Version " +
-              std::to_string(
-                version) + " format. However, the current version of Ceres Solver (" +
-              CERES_VERSION_STRING + ") does not support manifolds. Ceres Solver version 2.1.0 "
-              "or later is required to load this file.");
+      throw std::runtime_error("Attempting to deserialize an archive saved in Version " + std::to_string(version) +
+                               " format. However, the current version of Ceres Solver (" + CERES_VERSION_STRING +
+                               ") does not support manifolds. Ceres Solver version 2.1.0 "
+                               "or later is required to load this file.");
 #else
       archive >> manifolds_;
 #endif
@@ -259,7 +265,7 @@ namespace detail
 /**
  * @brief Return the UUID of the provided variable
  */
-inline const fuse_core::UUID getUuid(const fuse_core::Variable & variable)
+inline const fuse_core::UUID getUuid(const fuse_core::Variable& variable)
 {
   return variable.uuid();
 }
@@ -267,7 +273,7 @@ inline const fuse_core::UUID getUuid(const fuse_core::Variable & variable)
 /**
  * @brief Return the current value of the provided variable
  */
-inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable & variable)
+inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& variable)
 {
   return Eigen::Map<const fuse_core::VectorXd>(variable.data(), variable.size());
 }
@@ -276,8 +282,7 @@ inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable & var
 /**
  * @brief Return the local parameterization of the provided variable
  */
-inline fuse_core::LocalParameterization::SharedPtr getLocalParameterization(
-  const fuse_core::Variable & variable)
+inline fuse_core::LocalParameterization::SharedPtr getLocalParameterization(const fuse_core::Variable& variable)
 {
   return fuse_core::LocalParameterization::SharedPtr(variable.localParameterization());
 }
@@ -285,7 +290,7 @@ inline fuse_core::LocalParameterization::SharedPtr getLocalParameterization(
 /**
  * @brief Return the manifold of the provided variable
  */
-inline fuse_core::Manifold::SharedPtr getManifold(const fuse_core::Variable & variable)
+inline fuse_core::Manifold::SharedPtr getManifold(const fuse_core::Variable& variable)
 {
   return fuse_core::Manifold::SharedPtr(variable.manifold());
 }
@@ -293,31 +298,27 @@ inline fuse_core::Manifold::SharedPtr getManifold(const fuse_core::Variable & va
 
 }  // namespace detail
 
-template<typename VariableIterator, typename MatrixIterator>
-MarginalConstraint::MarginalConstraint(
-  const std::string & source,
-  VariableIterator first_variable,
-  VariableIterator last_variable,
-  MatrixIterator first_A,
-  MatrixIterator last_A,
-  const fuse_core::VectorXd & b)
-: Constraint(source,
-    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
-    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid)),
-  A_(first_A, last_A),
-  b_(b),
+template <typename VariableIterator, typename MatrixIterator>
+MarginalConstraint::MarginalConstraint(const std::string& source, VariableIterator first_variable,
+                                       VariableIterator last_variable, MatrixIterator first_A, MatrixIterator last_A,
+                                       const fuse_core::VectorXd& b)
+  : Constraint(source, boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
+               boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid))
+  , A_(first_A, last_A)
+  , b_(b)
+  ,
 #if !CERES_SUPPORTS_MANIFOLDS
-  local_parameterizations_(boost::make_transform_iterator(first_variable,
-    &fuse_constraints::detail::getLocalParameterization),
-    boost::make_transform_iterator(last_variable,
-    &fuse_constraints::detail::getLocalParameterization)),
+  local_parameterizations_(
+      boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getLocalParameterization),
+      boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getLocalParameterization))
+  ,
 #else
-  manifolds_(
-    boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getManifold),
-    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getManifold)),
+  manifolds_(boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getManifold),
+             boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getManifold))
+  ,
 #endif
   x_bar_(boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getCurrentValue),
-    boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getCurrentValue))
+         boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getCurrentValue))
 {
   assert(!A_.empty());
   assert(A_.size() == x_bar_.size());
@@ -327,19 +328,11 @@ MarginalConstraint::MarginalConstraint(
   assert(A_.size() == manifolds_.size());
 #endif
   assert(b_.rows() > 0);
-  assert(
-    std::all_of(
-      A_.begin(), A_.end(), [this](const auto & A) {
-        return A.rows() == this->b_.rows();
-      }));  // NOLINT
-  assert(
-    std::all_of(
-      boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
-      boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
-      [](const boost::tuple<const fuse_core::MatrixXd &, const fuse_core::Variable &> & tuple)  // NOLINT
-      {
-        return static_cast<size_t>(tuple.get<0>().cols()) == tuple.get<1>().localSize();
-      }));  // NOLINT
+  assert(std::all_of(A_.begin(), A_.end(), [this](const auto& A) { return A.rows() == this->b_.rows(); }));  // NOLINT
+  assert(std::all_of(boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
+                     boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
+                     [](const boost::tuple<const fuse_core::MatrixXd&, const fuse_core::Variable&>& tuple)    // NOLINT
+                     { return static_cast<size_t>(tuple.get<0>().cols()) == tuple.get<1>().localSize(); }));  // NOLINT
 }
 
 }  // namespace fuse_constraints

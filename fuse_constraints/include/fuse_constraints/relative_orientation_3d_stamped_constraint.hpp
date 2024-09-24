@@ -53,7 +53,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -83,12 +82,10 @@ public:
    *                         (4x1 vector: w, x, y, z)
    * @param[in] covariance   The measurement covariance (3x3 matrix: qx, qy, qz)
    */
-  RelativeOrientation3DStampedConstraint(
-    const std::string & source,
-    const fuse_variables::Orientation3DStamped & orientation1,
-    const fuse_variables::Orientation3DStamped & orientation2,
-    const fuse_core::Vector4d & delta,
-    const fuse_core::Matrix3d & covariance);
+  RelativeOrientation3DStampedConstraint(const std::string& source,
+                                         const fuse_variables::Orientation3DStamped& orientation1,
+                                         const fuse_variables::Orientation3DStamped& orientation2,
+                                         const fuse_core::Vector4d& delta, const fuse_core::Matrix3d& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
@@ -99,12 +96,10 @@ public:
    * @param[in] delta        The measured orientation change as an Eigen quaternion
    * @param[in] covariance   The measurement covariance (3x3 matrix: qx, qy, qz)
    */
-  RelativeOrientation3DStampedConstraint(
-    const std::string & source,
-    const fuse_variables::Orientation3DStamped & orientation1,
-    const fuse_variables::Orientation3DStamped & orientation2,
-    const Eigen::Quaterniond & delta,
-    const fuse_core::Matrix3d & covariance);
+  RelativeOrientation3DStampedConstraint(const std::string& source,
+                                         const fuse_variables::Orientation3DStamped& orientation1,
+                                         const fuse_variables::Orientation3DStamped& orientation2,
+                                         const Eigen::Quaterniond& delta, const fuse_core::Matrix3d& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
@@ -115,12 +110,11 @@ public:
    * @param[in] delta        The measured orientation change as a ROS quaternion message
    * @param[in] covariance   The measurement covariance (3x3 matrix: qx, qy, qz)
    */
-  RelativeOrientation3DStampedConstraint(
-    const std::string & source,
-    const fuse_variables::Orientation3DStamped & orientation1,
-    const fuse_variables::Orientation3DStamped & orientation2,
-    const geometry_msgs::msg::Quaternion & delta,
-    const std::array<double, 9> & covariance);
+  RelativeOrientation3DStampedConstraint(const std::string& source,
+                                         const fuse_variables::Orientation3DStamped& orientation1,
+                                         const fuse_variables::Orientation3DStamped& orientation2,
+                                         const geometry_msgs::msg::Quaternion& delta,
+                                         const std::array<double, 9>& covariance);
 
   /**
    * @brief Destructor
@@ -132,14 +126,20 @@ public:
    *
    * Order is (w, x, y, z)
    */
-  const fuse_core::Vector4d & delta() const {return delta_;}
+  const fuse_core::Vector4d& delta() const
+  {
+    return delta_;
+  }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
    * Order is (x, y, z)
    */
-  const fuse_core::Matrix3d & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::Matrix3d& sqrtInformation() const
+  {
+    return sqrt_information_;
+  }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -153,7 +153,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -165,7 +165,7 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction * costFunction() const override;
+  ceres::CostFunction* costFunction() const override;
 
 protected:
   /**
@@ -174,7 +174,7 @@ protected:
    * @param[in] quaternion The input Eigen quaternion
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
-  static fuse_core::Vector4d toEigen(const Eigen::Quaterniond & quaternion);
+  static fuse_core::Vector4d toEigen(const Eigen::Quaterniond& quaternion);
 
   /**
    * @brief Utility method to convert an ROS quaternion message to an Eigen Vector4d
@@ -182,7 +182,7 @@ protected:
    * @param[in] quaternion The input ROS quaternion message
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
-  static fuse_core::Vector4d toEigen(const geometry_msgs::msg::Quaternion & quaternion);
+  static fuse_core::Vector4d toEigen(const geometry_msgs::msg::Quaternion& quaternion);
 
   /**
    * @brief Utility method to convert a flat 1D array to a 3x3 Eigen matrix
@@ -190,9 +190,9 @@ protected:
    * @param[in] covariance The input covariance array
    * @return The \p covariance, converted to an Eigen Matrix3d
    */
-  static fuse_core::Matrix3d toEigen(const std::array<double, 9> & covariance);
+  static fuse_core::Matrix3d toEigen(const std::array<double, 9>& covariance);
 
-  fuse_core::Vector4d delta_;  //!< The measured/prior mean vector for this variable
+  fuse_core::Vector4d delta_;             //!< The measured/prior mean vector for this variable
   fuse_core::Matrix3d sqrt_information_;  //!< The square root information matrix
 
 private:
@@ -206,12 +206,12 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & delta_;
-    archive & sqrt_information_;
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& delta_;
+    archive& sqrt_information_;
   }
 };
 

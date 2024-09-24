@@ -45,7 +45,6 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/vector.hpp>
 
-
 /**
  * @brief Dummy variable implementation for testing
  */
@@ -54,16 +53,25 @@ class ExampleVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
 
-  explicit ExampleVariable(size_t N = 1)
-  : fuse_core::Variable(fuse_core::uuid::generate()),
-    data_(N, 0.0)
+  explicit ExampleVariable(size_t N = 1) : fuse_core::Variable(fuse_core::uuid::generate()), data_(N, 0.0)
   {
   }
 
-  size_t size() const override {return data_.size();}
-  const double * data() const override {return data_.data();}
-  double * data() override {return data_.data();}
-  void print(std::ostream & /*stream = std::cout*/) const override {}
+  size_t size() const override
+  {
+    return data_.size();
+  }
+  const double* data() const override
+  {
+    return data_.data();
+  }
+  double* data() override
+  {
+    return data_.data();
+  }
+  void print(std::ostream& /*stream = std::cout*/) const override
+  {
+  }
 
 private:
   std::vector<double> data_;
@@ -78,11 +86,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& data_;
   }
 };
 

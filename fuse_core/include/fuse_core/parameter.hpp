@@ -50,7 +50,7 @@ namespace fuse_core
 {
 
 // Helper function to get a namespace string with a '.' suffix, but only if not empty
-std::string joinParameterName(const std::string & left, const std::string & right);
+std::string joinParameterName(const std::string& left, const std::string& right);
 
 // NOTE(CH3): Some of these basically mimic the behavior from rclcpp's node.hpp, but for interfaces
 
@@ -70,29 +70,33 @@ std::string joinParameterName(const std::string & left, const std::string & righ
  * @return The value of the parameter.
  * @throws rclcpp::exceptions::InvalidParameterTypeException if the parameter type does not match
  */
-template<class T>
+template <class T>
 T getParam(
-  node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-  const std::string & parameter_name,
-  const T & default_value,
-  const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
-  rcl_interfaces::msg::ParameterDescriptor(),
-  bool ignore_override = false)
+    node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces, const std::string& parameter_name,
+    const T& default_value,
+    const rcl_interfaces::msg::ParameterDescriptor& parameter_descriptor = rcl_interfaces::msg::ParameterDescriptor(),
+    bool ignore_override = false)
 {
   auto params_interface = interfaces.get_node_parameters_interface();
-  if (params_interface->has_parameter(parameter_name)) {
+  if (params_interface->has_parameter(parameter_name))
+  {
     return params_interface->get_parameter(parameter_name).get_parameter_value().get<T>();
-  } else {
-    try {
-      return params_interface->declare_parameter(
-        parameter_name, rclcpp::ParameterValue(default_value), parameter_descriptor, ignore_override
-      ).get<T>();
-    } catch (const rclcpp::ParameterTypeException & ex) {
+  }
+  else
+  {
+    try
+    {
+      return params_interface
+          ->declare_parameter(parameter_name, rclcpp::ParameterValue(default_value), parameter_descriptor,
+                              ignore_override)
+          .get<T>();
+    }
+    catch (const rclcpp::ParameterTypeException& ex)
+    {
       throw rclcpp::exceptions::InvalidParameterTypeException(parameter_name, ex.what());
     }
   }
 }
-
 
 /**
  * @brief Compatibility wrapper for ros2 params in ros1 syntax
@@ -109,22 +113,23 @@ T getParam(
  * @return The value of the parameter.
  * @throws rclcpp::exceptions::InvalidParameterTypeException if the parameter type does not match
  */
-template<class T>
+template <class T>
 T getParam(
-  node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-  const std::string & parameter_name,
-  const rcl_interfaces::msg::ParameterDescriptor & parameter_descriptor =
-  rcl_interfaces::msg::ParameterDescriptor(),
-  bool ignore_override = false)
+    node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces, const std::string& parameter_name,
+    const rcl_interfaces::msg::ParameterDescriptor& parameter_descriptor = rcl_interfaces::msg::ParameterDescriptor(),
+    bool ignore_override = false)
 {
   // get advantage of parameter value template magic to get the correct rclcpp::ParameterType from T
   // NOTE(CH3): For the same reason we can't defer to the overload of getParam
-  rclcpp::ParameterValue value{T{}};
-  try {
-    return interfaces.get_node_parameters_interface()->declare_parameter(
-      parameter_name, value.get_type(), parameter_descriptor, ignore_override
-    ).get<T>();
-  } catch (const rclcpp::ParameterTypeException & ex) {
+  rclcpp::ParameterValue value{ T{} };
+  try
+  {
+    return interfaces.get_node_parameters_interface()
+        ->declare_parameter(parameter_name, value.get_type(), parameter_descriptor, ignore_override)
+        .get<T>();
+  }
+  catch (const rclcpp::ParameterTypeException& ex)
+  {
     throw rclcpp::exceptions::InvalidParameterTypeException(parameter_name, ex.what());
   }
 }
@@ -133,11 +138,9 @@ namespace detail
 {
 /** @brief Internal function for unit testing.
  * @internal
-*/
+ */
 std::unordered_set<std::string>
-list_parameter_override_prefixes(
-  const std::map<std::string, rclcpp::ParameterValue> & overrides,
-  std::string prefix);
+list_parameter_override_prefixes(const std::map<std::string, rclcpp::ParameterValue>& overrides, std::string prefix);
 }  // namespace detail
 
 /**
@@ -161,11 +164,10 @@ list_parameter_override_prefixes(
  * @param[in] prefix - the parameter prefix
  * @param[in] max_depth - how deep to return parameter override names, or 0 for
  *    unlimited depth.
-*/
+ */
 std::unordered_set<std::string>
-list_parameter_override_prefixes(
-  node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-  std::string prefix);
+list_parameter_override_prefixes(node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
+                                 std::string prefix);
 
 /**
  * @brief Utility method for handling required ROS params
@@ -175,24 +177,18 @@ list_parameter_override_prefixes(
  * @param[out] value - The ROS parameter value for the \p key
  * @throws std::runtime_error if the parameter does not exist
  */
-inline
-void getParamRequired(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Base,
-    node_interfaces::Logging,
-    node_interfaces::Parameters
-  > interfaces,
-  const std::string & key,
-  std::string & value
-)
+inline void getParamRequired(
+    node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
+        interfaces,
+    const std::string& key, std::string& value)
 {
   std::string default_value = "";
   value = getParam(interfaces, key, default_value);
 
-  if (value == default_value) {
-    const std::string error =
-      "Could not find required parameter " + key + " in namespace " +
-      interfaces.get_node_base_interface()->get_namespace();
+  if (value == default_value)
+  {
+    const std::string error = "Could not find required parameter " + key + " in namespace " +
+                              interfaces.get_node_base_interface()->get_namespace();
 
     RCLCPP_FATAL_STREAM(interfaces.get_node_logging_interface()->get_logger(), error);
     throw std::runtime_error(error);
@@ -210,25 +206,19 @@ void getParamRequired(
  * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0
  *                     is accepted or not
  */
-template<typename T,
-  typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
-void getPositiveParam(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Logging,
-    node_interfaces::Parameters
-  > interfaces,
-  const std::string & parameter_name,
-  T & default_value,
-  const bool strict = true
-)
+template <typename T, typename = std::enable_if_t<std::is_integral<T>::value || std::is_floating_point<T>::value>>
+void getPositiveParam(node_interfaces::NodeInterfaces<node_interfaces::Logging, node_interfaces::Parameters> interfaces,
+                      const std::string& parameter_name, T& default_value, const bool strict = true)
 {
   T value = getParam(interfaces, parameter_name, default_value);
-  if (value < 0 || (strict && value == 0)) {
-    RCLCPP_WARN_STREAM(
-      interfaces.get_node_logging_interface()->get_logger(),
-      "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "")
-                       << " 0. Using the default value (" << default_value << ") instead.");
-  } else {
+  if (value < 0 || (strict && value == 0))
+  {
+    RCLCPP_WARN_STREAM(interfaces.get_node_logging_interface()->get_logger(),
+                       "The requested " << parameter_name.c_str() << " is <" << (strict ? "=" : "")
+                                        << " 0. Using the default value (" << default_value << ") instead.");
+  }
+  else
+  {
     default_value = value;
   }
 }
@@ -243,13 +233,9 @@ void getPositiveParam(
  * @param[in] strict - Whether to check the loaded value is strictly positive or not, i.e. whether 0
  *                     is accepted or not
  */
-inline void getPositiveParam(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Logging,
-    node_interfaces::Parameters
-  > interfaces,
-  const std::string & parameter_name,
-  rclcpp::Duration & default_value, const bool strict = true)
+inline void
+getPositiveParam(node_interfaces::NodeInterfaces<node_interfaces::Logging, node_interfaces::Parameters> interfaces,
+                 const std::string& parameter_name, rclcpp::Duration& default_value, const bool strict = true)
 {
   double default_value_sec = default_value.seconds();
   getPositiveParam(interfaces, parameter_name, default_value_sec, strict);
@@ -270,15 +256,10 @@ inline void getPositiveParam(
  *                            parameter name does not exist
  * @return The loaded (or default) covariance matrix, generated from the diagonal vector
  */
-template<int Size, typename Scalar = double>
+template <int Size, typename Scalar = double>
 fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Logging,
-    node_interfaces::Parameters
-  > interfaces,
-  const std::string & parameter_name,
-  Scalar default_value
-)
+    node_interfaces::NodeInterfaces<node_interfaces::Logging, node_interfaces::Parameters> interfaces,
+    const std::string& parameter_name, Scalar default_value)
 {
   using Vector = typename Eigen::Matrix<Scalar, Size, 1>;
 
@@ -286,19 +267,16 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
   diagonal = getParam(interfaces, parameter_name, diagonal);
 
   const auto diagonal_size = diagonal.size();
-  if (diagonal_size != Size) {
-    throw std::invalid_argument(
-            "Invalid size of " + std::to_string(diagonal_size) + ", expected " +
-            std::to_string(Size));
+  if (diagonal_size != Size)
+  {
+    throw std::invalid_argument("Invalid size of " + std::to_string(diagonal_size) + ", expected " +
+                                std::to_string(Size));
   }
 
-  if (std::any_of(
-      diagonal.begin(), diagonal.end(),
-      [](const auto & value) {return value < Scalar(0);}))  // NOLINT(whitespace/braces)
+  if (std::any_of(diagonal.begin(), diagonal.end(),
+                  [](const auto& value) { return value < Scalar(0); }))  // NOLINT(whitespace/braces)
   {
-    throw std::invalid_argument(
-            "Invalid negative diagonal values in " +
-            fuse_core::to_string(Vector(diagonal.data())));
+    throw std::invalid_argument("Invalid negative diagonal values in " + fuse_core::to_string(Vector(diagonal.data())));
   }
 
   return Vector(diagonal.data()).asDiagonal();
@@ -312,16 +290,11 @@ fuse_core::Matrix<Scalar, Size, Size> getCovarianceDiagonalParam(
  * @return Loss function or nullptr if the parameter does not exist
  */
 inline fuse_core::Loss::SharedPtr loadLossConfig(
-  node_interfaces::NodeInterfaces<
-    node_interfaces::Base,
-    node_interfaces::Logging,
-    node_interfaces::Parameters
-  > interfaces,
-  const std::string & name
-)
+    node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
+        interfaces,
+    const std::string& name)
 {
-  if (!interfaces.get_node_parameters_interface()->has_parameter(
-      name + ".type"))
+  if (!interfaces.get_node_parameters_interface()->has_parameter(name + ".type"))
   {
     return {};
   }

@@ -78,37 +78,27 @@ public:
     return 1;
   }
 
-  bool Plus(
-    const double * x,
-    const double * delta,
-    double * x_plus_delta) const override
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     // Compute the angle increment as a linear update, and handle the 2*Pi rollover
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
-  bool ComputeJacobian(
-    const double * /*x*/,
-    double * jacobian) const override
+  bool ComputeJacobian(const double* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
   }
 
-  bool Minus(
-    const double * x,
-    const double * y,
-    double * y_minus_x) const override
+  bool Minus(const double* x, const double* y, double* y_minus_x) const override
   {
     // Compute the difference from x to y, and handle the 2*Pi rollover
     y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
     return true;
   }
 
-  bool ComputeMinusJacobian(
-    const double * /*x*/,
-    double * jacobian) const override
+  bool ComputeMinusJacobian(const double* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
@@ -125,10 +115,10 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
+    archive& boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
   }
 };
 
@@ -145,31 +135,37 @@ class Orientation2DManifold : public fuse_core::Manifold
 public:
   FUSE_SMART_PTR_DEFINITIONS(Orientation2DManifold)
 
-  int AmbientSize() const override {return 1;}
+  int AmbientSize() const override
+  {
+    return 1;
+  }
 
-  int TangentSize() const override {return 1;}
+  int TangentSize() const override
+  {
+    return 1;
+  }
 
-  bool Plus(const double * x, const double * delta, double * x_plus_delta) const override
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     // Compute the angle increment as a linear update, and handle the 2*Pi rollover
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
-  bool PlusJacobian(const double * /*x*/, double * jacobian) const override
+  bool PlusJacobian(const double* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
   }
 
-  bool Minus(const double * y, const double * x, double * y_minus_x) const override
+  bool Minus(const double* y, const double* x, double* y_minus_x) const override
   {
     // Compute the difference from y to x, and handle the 2*Pi rollover
     y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
     return true;
   }
 
-  bool MinusJacobian(const double * /*x*/, double * jacobian) const override
+  bool MinusJacobian(const double* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
@@ -185,10 +181,10 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Manifold>(*this);
+    archive& boost::serialization::base_object<fuse_core::Manifold>(*this);
   }
 };
 #endif
@@ -226,26 +222,30 @@ public:
    * @param[in] device_id An optional device id, for use when variables originate from multiple
    *                      robots or devices
    */
-  explicit Orientation2DStamped(
-    const rclcpp::Time & stamp,
-    const fuse_core::UUID & device_id = fuse_core::uuid::NIL);
+  explicit Orientation2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the heading angle.
    */
-  double & yaw() {return data_[YAW];}
+  double& yaw()
+  {
+    return data_[YAW];
+  }
 
   /**
    * @brief Read-only access to the heading angle.
    */
-  const double & yaw() const {return data_[YAW];}
+  const double& yaw() const
+  {
+    return data_[YAW];
+  }
 
   /**
    * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Returns the number of elements of the local parameterization space.
@@ -253,7 +253,10 @@ public:
    * Since we are overriding the \p localParameterization() method, it is good practice to override
    * the \p localSize() method as well.
    */
-  size_t localSize() const override {return 1u;}
+  size_t localSize() const override
+  {
+    return 1u;
+  }
 
   /**
    * @brief Create a new Ceres local parameterization object to apply to updates of this variable
@@ -263,7 +266,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  fuse_core::LocalParameterization * localParameterization() const override;
+  fuse_core::LocalParameterization* localParameterization() const override;
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**
@@ -274,7 +277,7 @@ public:
    *
    * @return A base pointer to an instance of a derived manifold
    */
-  fuse_core::Manifold * manifold() const override;
+  fuse_core::Manifold* manifold() const override;
 #endif
 
 private:
@@ -288,11 +291,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive & boost::serialization::base_object<Stamped>(*this);
+    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive& boost::serialization::base_object<Stamped>(*this);
   }
 };
 

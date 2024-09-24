@@ -42,31 +42,28 @@
 namespace fuse_loss
 {
 
-TolerantLoss::TolerantLoss(const double a, const double b)
-: a_(a), b_(b)
+TolerantLoss::TolerantLoss(const double a, const double b) : a_(a), b_(b)
 {
 }
 
 void TolerantLoss::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters
-  > interfaces,
-  const std::string & name)
+    fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                               fuse_core::node_interfaces::Parameters>
+        interfaces,
+    const std::string& name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
   b_ = fuse_core::getParam(interfaces, name + ".b", b_);
 }
 
-void TolerantLoss::print(std::ostream & stream) const
+void TolerantLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n"
          << "  b: " << b_ << "\n";
 }
 
-ceres::LossFunction * TolerantLoss::lossFunction() const
+ceres::LossFunction* TolerantLoss::lossFunction() const
 {
   return new ceres::TolerantLoss(a_, b_);
 }

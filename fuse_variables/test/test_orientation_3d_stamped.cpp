@@ -110,7 +110,7 @@ TEST(Orientation3DStamped, UUID)
   }
 }
 
-template<typename T>
+template <typename T>
 inline static void QuaternionInverse(const T in[4], T out[4])
 {
   out[0] = in[0];
@@ -121,8 +121,8 @@ inline static void QuaternionInverse(const T in[4], T out[4])
 
 struct Orientation3DPlus
 {
-  template<typename T>
-  bool operator()(const T * x, const T * delta, T * x_plus_delta) const
+  template <typename T>
+  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
     T q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
@@ -133,8 +133,8 @@ struct Orientation3DPlus
 
 struct Orientation3DMinus
 {
-  template<typename T>
-  bool operator()(const T * x, const T * y, T * y_minus_x) const
+  template <typename T>
+  bool operator()(const T* x, const T* y, T* y_minus_x) const
   {
     T x_inverse[4];
     QuaternionInverse(x, x_inverse);
@@ -146,15 +146,15 @@ struct Orientation3DMinus
 };
 
 using Orientation3DLocalParameterization =
-  fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
+    fuse_core::AutoDiffLocalParameterization<Orientation3DPlus, Orientation3DMinus, 4, 3>;
 
 TEST(Orientation3DStamped, Plus)
 {
   auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
 
-  double x[4] = {0.842614977, 0.2, 0.3, 0.4};
-  double delta[3] = {0.15, -0.2, 0.433012702};
-  double result[4] = {0.0, 0.0, 0.0, 0.0};
+  double x[4] = { 0.842614977, 0.2, 0.3, 0.4 };
+  double delta[3] = { 0.15, -0.2, 0.433012702 };
+  double result[4] = { 0.0, 0.0, 0.0, 0.0 };
   bool success = parameterization->Plus(x, delta, result);
 
   EXPECT_TRUE(success);
@@ -170,9 +170,9 @@ TEST(Orientation3DStamped, Minus)
 {
   auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
 
-  double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
-  double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
-  double result[3] = {0.0, 0.0, 0.0};
+  double x1[4] = { 0.842614977, 0.2, 0.3, 0.4 };
+  double x2[4] = { 0.745561, 0.360184, 0.194124, 0.526043 };
+  double result[3] = { 0.0, 0.0, 0.0 };
   bool success = parameterization->Minus(x1, x2, result);
 
   EXPECT_TRUE(success);
@@ -188,39 +188,35 @@ TEST(Orientation3DStamped, PlusJacobian)
   auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
-  for (double qx = -0.5; qx < 0.5; qx += 0.1) {
-    for (double qy = -0.5; qy < 0.5; qy += 0.1) {
-      for (double qz = -0.5; qz < 0.5; qz += 0.1) {
+  for (double qx = -0.5; qx < 0.5; qx += 0.1)
+  {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1)
+    {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1)
+      {
         double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
-        double x[4] = {qw, qx, qy, qz};
+        double x[4] = { qw, qx, qy, qz };
         fuse_core::MatrixXd actual(4, 3);
         /* *INDENT-OFF* */
-        actual << 0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0;
+        actual << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
         bool success = parameterization->ComputeJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(4, 3);
         /* *INDENT-OFF* */
-        expected << 0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0;
+        expected << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
         reference.ComputeJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-        EXPECT_TRUE(
-          expected.isApprox(
-            actual,
-            1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                     << "Actual is:\n" << actual.format(clean) << "\n"
-                     << "Difference is:\n" << (expected - actual).format(clean)
-                     << "\n";
+        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n"
+                                                       << expected.format(clean) << "\n"
+                                                       << "Actual is:\n"
+                                                       << actual.format(clean) << "\n"
+                                                       << "Difference is:\n"
+                                                       << (expected - actual).format(clean) << "\n";
       }
     }
   }
@@ -233,39 +229,35 @@ TEST(Orientation3DStamped, MinusJacobian)
   auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
-  for (double qx = -0.5; qx < 0.5; qx += 0.1) {
-    for (double qy = -0.5; qy < 0.5; qy += 0.1) {
-      for (double qz = -0.5; qz < 0.5; qz += 0.1) {
+  for (double qx = -0.5; qx < 0.5; qx += 0.1)
+  {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1)
+    {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1)
+      {
         double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
-        double x[4] = {qw, qx, qy, qz};
+        double x[4] = { qw, qx, qy, qz };
         fuse_core::MatrixXd actual(3, 4);
         /* *INDENT-OFF* */
-        actual << 0.0, 0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0, 0.0;
+        actual << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
         bool success = parameterization->ComputeMinusJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(3, 4);
         /* *INDENT-OFF* */
-        expected << 0.0, 0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0, 0.0;
+        expected << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
         reference.ComputeMinusJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-        EXPECT_TRUE(
-          expected.isApprox(
-            actual,
-            1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                     << "Actual is:\n" << actual.format(clean) <<
-          "\n"
-                     << "Difference is:\n" <<
-          (expected - actual).format(clean)
-                     << "\n";
+        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n"
+                                                       << expected.format(clean) << "\n"
+                                                       << "Actual is:\n"
+                                                       << actual.format(clean) << "\n"
+                                                       << "Difference is:\n"
+                                                       << (expected - actual).format(clean) << "\n";
       }
     }
   }
@@ -275,8 +267,8 @@ TEST(Orientation3DStamped, MinusJacobian)
 
 TEST(Orientation3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base = Orientation3DStamped::make_shared(
-    rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
+  fuse_core::Variable::SharedPtr base =
+      Orientation3DStamped::make_shared(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Orientation3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
   EXPECT_EQ(rclcpp::Time(12345678, 910111213), derived->stamp());
@@ -290,7 +282,7 @@ TEST(Orientation3DStamped, Stamped)
 
 struct QuaternionCostFunction
 {
-  explicit QuaternionCostFunction(double * observation)
+  explicit QuaternionCostFunction(double* observation)
   {
     observation_[0] = observation[0];
     observation_[1] = observation[1];
@@ -298,24 +290,12 @@ struct QuaternionCostFunction
     observation_[3] = observation[3];
   }
 
-  template<typename T>
-  bool operator()(const T * quaternion, T * residual) const
+  template <typename T>
+  bool operator()(const T* quaternion, T* residual) const
   {
-    T inverse_quaternion[4] =
-    {
-      quaternion[0],
-      -quaternion[1],
-      -quaternion[2],
-      -quaternion[3]
-    };
+    T inverse_quaternion[4] = { quaternion[0], -quaternion[1], -quaternion[2], -quaternion[3] };
 
-    T observation[4] =
-    {
-      T(observation_[0]),
-      T(observation_[1]),
-      T(observation_[2]),
-      T(observation_[3])
-    };
+    T observation[4] = { T(observation_[0]), T(observation_[1]), T(observation_[2]), T(observation_[3]) };
 
     T output[4];
 
@@ -342,25 +322,18 @@ TEST(Orientation3DStamped, Optimization)
   orientation.z() = 0.239;
 
   // Create a simple a constraint with an identity quaternion
-  double target_quat[4] = {1.0, 0.0, 0.0, 0.0};
-  ceres::CostFunction * cost_function =
-    new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3,
-      4>(new QuaternionCostFunction(target_quat));
+  double target_quat[4] = { 1.0, 0.0, 0.0, 0.0 };
+  ceres::CostFunction* cost_function =
+      new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(new QuaternionCostFunction(target_quat));
 
   // Build the problem.
   ceres::Problem problem;
 #if !CERES_SUPPORTS_MANIFOLDS
-  problem.AddParameterBlock(
-    orientation.data(),
-    orientation.size(),
-    orientation.localParameterization());
+  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.localParameterization());
 #else
-  problem.AddParameterBlock(
-    orientation.data(),
-    orientation.size(),
-    orientation.manifold());
+  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.manifold());
 #endif
-  std::vector<double *> parameter_blocks;
+  std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
@@ -443,16 +416,16 @@ TEST(Orientation3DStamped, Serialization)
 
 struct Orientation3DFunctor
 {
-  template<typename T>
-  bool Plus(const T * x, const T * delta, T * x_plus_delta) const
+  template <typename T>
+  bool Plus(const T* x, const T* delta, T* x_plus_delta) const
   {
     T q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
     ceres::QuaternionProduct(x, q_delta, x_plus_delta);
     return true;
   }
-  template<typename T>
-  bool Minus(const T * y, const T * x, T * y_minus_x) const
+  template <typename T>
+  bool Minus(const T* y, const T* x, T* y_minus_x) const
   {
     T x_inverse[4];
     QuaternionInverse(x, x_inverse);
@@ -469,9 +442,9 @@ TEST(Orientation3DStamped, ManifoldPlus)
 {
   auto manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
 
-  double x[4] = {0.842614977, 0.2, 0.3, 0.4};
-  double delta[3] = {0.15, -0.2, 0.433012702};
-  double result[4] = {0.0, 0.0, 0.0, 0.0};
+  double x[4] = { 0.842614977, 0.2, 0.3, 0.4 };
+  double delta[3] = { 0.15, -0.2, 0.433012702 };
+  double result[4] = { 0.0, 0.0, 0.0, 0.0 };
   bool success = manifold->Plus(x, delta, result);
 
   EXPECT_TRUE(success);
@@ -488,39 +461,35 @@ TEST(Orientation3DStamped, ManifoldPlusJacobian)
   auto manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation3DManifold();
 
-  for (double qx = -0.5; qx < 0.5; qx += 0.1) {
-    for (double qy = -0.5; qy < 0.5; qy += 0.1) {
-      for (double qz = -0.5; qz < 0.5; qz += 0.1) {
+  for (double qx = -0.5; qx < 0.5; qx += 0.1)
+  {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1)
+    {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1)
+      {
         double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
-        double x[4] = {qw, qx, qy, qz};
+        double x[4] = { qw, qx, qy, qz };
         fuse_core::MatrixXd actual(4, 3);
         /* *INDENT-OFF* */
-        actual << 0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0;
+        actual << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
         bool success = manifold->PlusJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(4, 3);
         /* *INDENT-OFF* */
-        expected << 0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0;
+        expected << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
         reference.PlusJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-        EXPECT_TRUE(
-          expected.isApprox(
-            actual,
-            1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                     << "Actual is:\n" << actual.format(clean) << "\n"
-                     << "Difference is:\n" << (expected - actual).format(clean)
-                     << "\n";
+        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n"
+                                                       << expected.format(clean) << "\n"
+                                                       << "Actual is:\n"
+                                                       << actual.format(clean) << "\n"
+                                                       << "Difference is:\n"
+                                                       << (expected - actual).format(clean) << "\n";
       }
     }
   }
@@ -530,9 +499,9 @@ TEST(Orientation3DStamped, ManifoldPlusJacobian)
 
 TEST(Orientation3DStamped, ManifoldMinus)
 {
-  double x1[4] = {0.842614977, 0.2, 0.3, 0.4};
-  double x2[4] = {0.745561, 0.360184, 0.194124, 0.526043};
-  double result[3] = {0.0, 0.0, 0.0};
+  double x1[4] = { 0.842614977, 0.2, 0.3, 0.4 };
+  double x2[4] = { 0.745561, 0.360184, 0.194124, 0.526043 };
+  double result[3] = { 0.0, 0.0, 0.0 };
 
   auto manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
   bool success = manifold->Minus(x2, x1, result);
@@ -550,37 +519,35 @@ TEST(Orientation3DStamped, ManifoldMinusJacobian)
   auto manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation3DManifold();
 
-  for (double qx = -0.5; qx < 0.5; qx += 0.1) {
-    for (double qy = -0.5; qy < 0.5; qy += 0.1) {
-      for (double qz = -0.5; qz < 0.5; qz += 0.1) {
+  for (double qx = -0.5; qx < 0.5; qx += 0.1)
+  {
+    for (double qy = -0.5; qy < 0.5; qy += 0.1)
+    {
+      for (double qz = -0.5; qz < 0.5; qz += 0.1)
+      {
         double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
-        double x[4] = {qw, qx, qy, qz};
+        double x[4] = { qw, qx, qy, qz };
         fuse_core::MatrixXd actual(3, 4);
         /* *INDENT-OFF* */
-        actual << 0.0, 0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0, 0.0,
-                  0.0, 0.0, 0.0, 0.0;
+        actual << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
         bool success = manifold->MinusJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(3, 4);
         /* *INDENT-OFF* */
-        expected << 0.0, 0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0, 0.0;
+        expected << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
         reference.MinusJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
         Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
-        EXPECT_TRUE(
-          expected.isApprox(
-            actual,
-            1.0e-5)) << "Expected is:\n" << expected.format(clean) << "\n"
-                     << "Actual is:\n" << actual.format(clean) << "\n"
-                     << "Difference is:\n" << (expected - actual).format(clean)
-                     << "\n";
+        EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n"
+                                                       << expected.format(clean) << "\n"
+                                                       << "Actual is:\n"
+                                                       << actual.format(clean) << "\n"
+                                                       << "Difference is:\n"
+                                                       << (expected - actual).format(clean) << "\n";
       }
     }
   }

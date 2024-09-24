@@ -105,19 +105,18 @@ public:
   virtual void call() = 0;
 };
 
-template<typename T>
+template <typename T>
 class CallbackWrapper : public CallbackWrapperBase
 {
 public:
-  using CallbackFunction = std::function<T (void)>;
+  using CallbackFunction = std::function<T(void)>;
 
   /**
    * @brief Constructor
    *
    * @param[in] callback The function to be called from the callback queue
    */
-  explicit CallbackWrapper(CallbackFunction callback)
-  : callback_(callback)
+  explicit CallbackWrapper(CallbackFunction callback) : callback_(callback)
   {
   }
 
@@ -139,18 +138,17 @@ public:
 
 private:
   CallbackFunction callback_;  //!< The function to execute within the
-  std::promise<T> promise_;  //!< Promise/Future used to return data after the callback is executed
+  std::promise<T> promise_;    //!< Promise/Future used to return data after the callback is executed
 };
 
 // Specialization to handle 'void' return types
 // Specifically, promise_.set_value(callback_()) does not work if callback_() returns void.
-template<>
+template <>
 inline void CallbackWrapper<void>::call()
 {
   callback_();
   promise_.set_value();
 }
-
 
 class CallbackAdapter : public rclcpp::Waitable
 {
@@ -162,12 +160,10 @@ public:
    */
   size_t get_number_of_ready_guard_conditions() override;
 
-
   /**
    * @brief tell the CallbackGroup that this waitable is ready to execute anything
    */
-  bool is_ready(rcl_wait_set_t const & wait_set) override;
-
+  bool is_ready(rcl_wait_set_t const& wait_set) override;
 
   /**
    * @brief add_to_wait_set is called by rclcpp during NodeWaitables::add_waitable() and
@@ -175,15 +171,15 @@ public:
     waitable_ptr = std::make_shared<CallbackWrapper>();
     node->get_node_waitables_interface()->add_waitable(waitable_ptr, (rclcpp::CallbackGroup::SharedPtr) nullptr);
    */
-  void add_to_wait_set(rcl_wait_set_t & wait_set) override;
+  void add_to_wait_set(rcl_wait_set_t& wait_set) override;
 
   std::shared_ptr<void> take_data() override;
 
-  void execute(std::shared_ptr<void> const & data) override;
+  void execute(std::shared_ptr<void> const& data) override;
 
-  void addCallback(const std::shared_ptr<CallbackWrapperBase> & callback);
+  void addCallback(const std::shared_ptr<CallbackWrapperBase>& callback);
 
-  void addCallback(std::shared_ptr<CallbackWrapperBase> && callback);
+  void addCallback(std::shared_ptr<CallbackWrapperBase>&& callback);
 
   void removeAllCallbacks();
 
@@ -194,7 +190,6 @@ private:
   std::mutex queue_mutex_;
   std::deque<std::shared_ptr<CallbackWrapperBase>> callback_queue_;
 };
-
 
 }  // namespace fuse_core
 

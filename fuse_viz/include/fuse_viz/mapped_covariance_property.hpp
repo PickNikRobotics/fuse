@@ -50,7 +50,6 @@
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_common/properties/property.hpp>
 
-
 namespace Ogre
 {
 
@@ -87,10 +86,9 @@ public:
     RGB,
   };
 
-  MappedCovarianceProperty(
-    const QString & name = "Covariance", bool default_value = false,
-    const QString & description = QString(), rviz_common::properties::Property * parent = 0,
-    const char * changed_slot = 0, QObject * receiver = 0);
+  MappedCovarianceProperty(const QString& name = "Covariance", bool default_value = false,
+                           const QString& description = QString(), rviz_common::properties::Property* parent = 0,
+                           const char* changed_slot = 0, QObject* receiver = 0);
 
   virtual ~MappedCovarianceProperty();
 
@@ -98,10 +96,9 @@ public:
   bool getOrientationBool();
 
   // Methods to manage the unordered map of Covariance Visuals
-  MappedCovarianceVisualPtr createAndInsertVisual(
-    const std::string & key, Ogre::SceneManager * scene_manager,
-    Ogre::SceneNode * parent_node);
-  void eraseVisual(const std::string & key);
+  MappedCovarianceVisualPtr createAndInsertVisual(const std::string& key, Ogre::SceneManager* scene_manager,
+                                                  Ogre::SceneNode* parent_node);
+  void eraseVisual(const std::string& key);
   void clearVisual();
   size_t sizeVisual();
 
@@ -114,23 +111,23 @@ private Q_SLOTS:
   void updateColorStyleChoice();
 
 private:
-  void updateColorAndAlphaAndScaleAndOffset(const MappedCovarianceVisualPtr & visual);
-  void updateOrientationFrame(const MappedCovarianceVisualPtr & visual);
-  void updateVisibility(const MappedCovarianceVisualPtr & visual);
+  void updateColorAndAlphaAndScaleAndOffset(const MappedCovarianceVisualPtr& visual);
+  void updateOrientationFrame(const MappedCovarianceVisualPtr& visual);
+  void updateVisibility(const MappedCovarianceVisualPtr& visual);
 
   std::unordered_map<std::string, MappedCovarianceVisualPtr> covariances_;
 
-  rviz_common::properties::BoolProperty * position_property_;
-  rviz_common::properties::ColorProperty * position_color_property_;
-  rviz_common::properties::FloatProperty * position_alpha_property_;
-  rviz_common::properties::FloatProperty * position_scale_property_;
-  rviz_common::properties::BoolProperty * orientation_property_;
-  rviz_common::properties::EnumProperty * orientation_frame_property_;
-  rviz_common::properties::EnumProperty * orientation_colorstyle_property_;
-  rviz_common::properties::ColorProperty * orientation_color_property_;
-  rviz_common::properties::FloatProperty * orientation_alpha_property_;
-  rviz_common::properties::FloatProperty * orientation_offset_property_;
-  rviz_common::properties::FloatProperty * orientation_scale_property_;
+  rviz_common::properties::BoolProperty* position_property_;
+  rviz_common::properties::ColorProperty* position_color_property_;
+  rviz_common::properties::FloatProperty* position_alpha_property_;
+  rviz_common::properties::FloatProperty* position_scale_property_;
+  rviz_common::properties::BoolProperty* orientation_property_;
+  rviz_common::properties::EnumProperty* orientation_frame_property_;
+  rviz_common::properties::EnumProperty* orientation_colorstyle_property_;
+  rviz_common::properties::ColorProperty* orientation_color_property_;
+  rviz_common::properties::FloatProperty* orientation_alpha_property_;
+  rviz_common::properties::FloatProperty* orientation_offset_property_;
+  rviz_common::properties::FloatProperty* orientation_scale_property_;
 };
 
 }  // namespace fuse_viz

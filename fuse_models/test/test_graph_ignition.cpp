@@ -77,35 +77,38 @@ static std::string failure_description;  // NOLINT(runtime/string)
  * @brief Compare all the properties of two Variable objects
  * @return True if all the properties match, false otherwise
  */
-bool compareVariables(const fuse_core::Variable & expected, const fuse_core::Variable & actual)
+bool compareVariables(const fuse_core::Variable& expected, const fuse_core::Variable& actual)
 {
   failure_description = "";
   bool variables_equal = true;
-  if (expected.type() != actual.type()) {
+  if (expected.type() != actual.type())
+  {
     variables_equal = false;
-    failure_description += "The variables have different types.\n  expected type is '" +
-      expected.type() +
-      "'\n    actual type is '" + actual.type() + "'\n";
+    failure_description += "The variables have different types.\n  expected type is '" + expected.type() +
+                           "'\n    actual type is '" + actual.type() + "'\n";
   }
-  if (expected.size() != actual.size()) {
+  if (expected.size() != actual.size())
+  {
     variables_equal = false;
     failure_description += "The variables have different sizes.\n  expected size is '" +
-      std::to_string(expected.size()) + "'\n    actual size is '" + std::to_string(actual.size()) +
-      "'\n";
+                           std::to_string(expected.size()) + "'\n    actual size is '" + std::to_string(actual.size()) +
+                           "'\n";
   }
-  if (expected.uuid() != actual.uuid()) {
+  if (expected.uuid() != actual.uuid())
+  {
     variables_equal = false;
     failure_description += "The variables have different UUIDs.\n  expected UUID is '" +
-      fuse_core::uuid::to_string(expected.uuid()) + "'\n    actual UUID is '" +
-      fuse_core::uuid::to_string(actual.uuid()) + "'\n";
+                           fuse_core::uuid::to_string(expected.uuid()) + "'\n    actual UUID is '" +
+                           fuse_core::uuid::to_string(actual.uuid()) + "'\n";
   }
-  for (size_t i = 0; i < expected.size(); ++i) {
-    if (expected.data()[i] != actual.data()[i]) {
+  for (size_t i = 0; i < expected.size(); ++i)
+  {
+    if (expected.data()[i] != actual.data()[i])
+    {
       variables_equal = false;
-      failure_description += "The variables have different values.\n  expected data(" +
-        std::to_string(i) + ") is '" +
-        std::to_string(expected.data()[i]) + "'\n    actual data(" + std::to_string(i) + ") is '" +
-        std::to_string(actual.data()[i]) + "'\n";
+      failure_description += "The variables have different values.\n  expected data(" + std::to_string(i) + ") is '" +
+                             std::to_string(expected.data()[i]) + "'\n    actual data(" + std::to_string(i) + ") is '" +
+                             std::to_string(actual.data()[i]) + "'\n";
     }
   }
   return variables_equal;
@@ -115,40 +118,40 @@ bool compareVariables(const fuse_core::Variable & expected, const fuse_core::Var
  * @brief Compare all the properties of two Constraint objects
  * @return True if all the properties match, false otherwise
  */
-bool compareConstraints(
-  const fuse_core::Constraint & expected,
-  const fuse_core::Constraint & actual)
+bool compareConstraints(const fuse_core::Constraint& expected, const fuse_core::Constraint& actual)
 {
   failure_description = "";
   bool constraints_equal = true;
-  if (expected.type() != actual.type()) {
+  if (expected.type() != actual.type())
+  {
     constraints_equal = false;
-    failure_description += "The constraints have different types.\n  expected type is '" +
-      expected.type() +
-      "'\n    actual type is '" + actual.type() + "'\n";
+    failure_description += "The constraints have different types.\n  expected type is '" + expected.type() +
+                           "'\n    actual type is '" + actual.type() + "'\n";
   }
-  if (expected.uuid() != actual.uuid()) {
+  if (expected.uuid() != actual.uuid())
+  {
     constraints_equal = false;
     failure_description += "The constraints have different UUIDs.\n  expected UUID is '" +
-      fuse_core::uuid::to_string(expected.uuid()) + "'\n    actual UUID is '" +
-      fuse_core::uuid::to_string(actual.uuid()) + "'\n";
+                           fuse_core::uuid::to_string(expected.uuid()) + "'\n    actual UUID is '" +
+                           fuse_core::uuid::to_string(actual.uuid()) + "'\n";
   }
-  if (expected.variables().size() != actual.variables().size()) {
+  if (expected.variables().size() != actual.variables().size())
+  {
     constraints_equal = false;
-    failure_description +=
-      "The constraints involve a different number of variables.\n  expected variable count is '" +
-      std::to_string(expected.variables().size()) + "'\n    actual variable count is '" +
-      std::to_string(actual.variables().size()) + "'\n";
+    failure_description += "The constraints involve a different number of variables.\n  expected variable count is '" +
+                           std::to_string(expected.variables().size()) + "'\n    actual variable count is '" +
+                           std::to_string(actual.variables().size()) + "'\n";
   }
-  for (size_t i = 0; i < expected.variables().size(); ++i) {
-    if (expected.variables().at(i) != actual.variables().at(i)) {
+  for (size_t i = 0; i < expected.variables().size(); ++i)
+  {
+    if (expected.variables().at(i) != actual.variables().at(i))
+    {
       constraints_equal = false;
       std::string i_str = std::to_string(i);
-      failure_description +=
-        "The constraints involve different variable UUIDs.\n  expected variables(" + i_str +
-        ") is '" + fuse_core::uuid::to_string(expected.variables()[i]) +
-        "'\n    actual variables(" + i_str + ") is '" +
-        fuse_core::uuid::to_string(actual.variables()[i]) + "'\n";
+      failure_description += "The constraints involve different variable UUIDs.\n  expected variables(" + i_str +
+                             ") is '" + fuse_core::uuid::to_string(expected.variables()[i]) +
+                             "'\n    actual variables(" + i_str + ") is '" +
+                             fuse_core::uuid::to_string(actual.variables()[i]) + "'\n";
     }
   }
   return constraints_equal;
@@ -157,22 +160,22 @@ bool compareConstraints(
 namespace fuse_core
 {
 
-bool operator==(const fuse_core::Variable & rhs, const fuse_core::Variable & lhs)
+bool operator==(const fuse_core::Variable& rhs, const fuse_core::Variable& lhs)
 {
   return compareVariables(rhs, lhs);
 }
 
-bool operator!=(const fuse_core::Variable & rhs, const fuse_core::Variable & lhs)
+bool operator!=(const fuse_core::Variable& rhs, const fuse_core::Variable& lhs)
 {
   return !(rhs == lhs);
 }
 
-bool operator==(const fuse_core::Constraint & rhs, const fuse_core::Constraint & lhs)
+bool operator==(const fuse_core::Constraint& rhs, const fuse_core::Constraint& lhs)
 {
   return compareConstraints(rhs, lhs);
 }
 
-bool operator!=(const fuse_core::Constraint & rhs, const fuse_core::Constraint & lhs)
+bool operator!=(const fuse_core::Constraint& rhs, const fuse_core::Constraint& lhs)
 {
   return !(rhs == lhs);
 }
@@ -190,23 +193,21 @@ public:
   {
     rclcpp::init(0, nullptr);
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    spinner_ = std::thread(
-      [&]() {
-        executor_->spin();
-      });
+    spinner_ = std::thread([&]() { executor_->spin(); });
   }
 
   void TearDown() override
   {
     executor_->cancel();
-    if (spinner_.joinable()) {
+    if (spinner_.joinable())
+    {
       spinner_.join();
     }
     executor_.reset();
     rclcpp::shutdown();
   }
 
-  std::thread spinner_;   //!< Internal thread for spinning the executor
+  std::thread spinner_;  //!< Internal thread for spinning the executor
   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 };
 
@@ -214,11 +215,8 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
 {
   // Test that the expected PoseStamped message is published
   rclcpp::NodeOptions options;
-  options.arguments(
-  {
-    "--ros-args",
-    "-p", "ignition_sensor.set_graph_service:=set_graph",
-    "-p", "ignition_sensor.reset_service:=''"});
+  options.arguments({ "--ros-args", "-p", "ignition_sensor.set_graph_service:=set_graph", "-p",
+                      "ignition_sensor.reset_service:=''" });
   auto node = rclcpp::Node::make_shared("graph_ignition_test", options);
   executor_->add_node(node);
 
@@ -247,14 +245,12 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
   graph.addVariable(variable3);
 
   auto constraint1 = ExampleConstraint::make_shared(
-    "test",
-    std::initializer_list<fuse_core::UUID>{variable1->uuid(), variable2->uuid()});    // NOLINT
+      "test", std::initializer_list<fuse_core::UUID>{ variable1->uuid(), variable2->uuid() });  // NOLINT
   constraint1->data = 1.5;
   graph.addConstraint(constraint1);
 
   auto constraint2 = ExampleConstraint::make_shared(
-    "test",
-    std::initializer_list<fuse_core::UUID>{variable2->uuid(), variable3->uuid()});    // NOLINT
+      "test", std::initializer_list<fuse_core::UUID>{ variable2->uuid(), variable3->uuid() });  // NOLINT
   constraint2->data = -3.7;
   graph.addConstraint(constraint2);
 
@@ -293,24 +289,32 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
   //
   // So even if the added constraints and variables are stored in std::vector containers in the
   // transaction, we cannot compare them with the straightforward approach mentioned above. Instead,
-  // we need to check that all added constraints and varaibles are in the graph, and check they are
+  // we need to check that all added constraints and variables are in the graph, and check they are
   // the same.
-  for (const auto & added_constraint : transaction->addedConstraints()) {
-    try {
-      const auto & constraint = graph.getConstraint(added_constraint.uuid());
+  for (const auto& added_constraint : transaction->addedConstraints())
+  {
+    try
+    {
+      const auto& constraint = graph.getConstraint(added_constraint.uuid());
 
       EXPECT_EQ(constraint, added_constraint) << failure_description;
-    } catch (const std::out_of_range & ex) {
+    }
+    catch (const std::out_of_range& ex)
+    {
       ADD_FAILURE() << ex.what();
     }
   }
 
-  for (const auto & added_variable : transaction->addedVariables()) {
-    try {
-      const auto & variable = graph.getVariable(added_variable.uuid());
+  for (const auto& added_variable : transaction->addedVariables())
+  {
+    try
+    {
+      const auto& variable = graph.getVariable(added_variable.uuid());
 
       EXPECT_EQ(variable, added_variable) << failure_description;
-    } catch (const std::out_of_range & ex) {
+    }
+    catch (const std::out_of_range& ex)
+    {
       ADD_FAILURE() << ex.what();
     }
   }
@@ -327,11 +331,8 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments(
-  {
-    "--ros-args",
-    "-p", "ignition_sensor.set_graph_service:=set_graph",
-    "-p", "ignition_sensor.reset_service:=''"});
+  options.arguments({ "--ros-args", "-p", "ignition_sensor.set_graph_service:=set_graph", "-p",
+                      "ignition_sensor.reset_service:=''" });
   auto node = rclcpp::Node::make_shared("graph_ignition_test", options);
   executor_->add_node(node);
 
@@ -360,14 +361,12 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
   graph.addVariable(variable3);
 
   auto constraint1 = ExampleConstraint::make_shared(
-    "test",
-    std::initializer_list<fuse_core::UUID>{variable1->uuid(), variable2->uuid()});    // NOLINT
+      "test", std::initializer_list<fuse_core::UUID>{ variable1->uuid(), variable2->uuid() });  // NOLINT
   constraint1->data = 1.5;
   graph.addConstraint(constraint1);
 
   auto constraint2 = ExampleConstraint::make_shared(
-    "test",
-    std::initializer_list<fuse_core::UUID>{variable2->uuid(), variable3->uuid()});    // NOLINT
+      "test", std::initializer_list<fuse_core::UUID>{ variable2->uuid(), variable3->uuid() });  // NOLINT
   constraint2->data = -3.7;
   graph.addConstraint(constraint2);
 
@@ -406,24 +405,32 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
   //
   // So even if the added constraints and variables are stored in std::vector containers in the
   // transaction, we cannot compare them with the straightforward approach mentioned above. Instead,
-  // we need to check that all added constraints and varaibles are in the graph, and check they are
+  // we need to check that all added constraints and variables are in the graph, and check they are
   // the same.
-  for (const auto & added_constraint : transaction->addedConstraints()) {
-    try {
-      const auto & constraint = graph.getConstraint(added_constraint.uuid());
+  for (const auto& added_constraint : transaction->addedConstraints())
+  {
+    try
+    {
+      const auto& constraint = graph.getConstraint(added_constraint.uuid());
 
       EXPECT_EQ(constraint, added_constraint) << failure_description;
-    } catch (const std::out_of_range & ex) {
+    }
+    catch (const std::out_of_range& ex)
+    {
       ADD_FAILURE() << ex.what();
     }
   }
 
-  for (const auto & added_variable : transaction->addedVariables()) {
-    try {
-      const auto & variable = graph.getVariable(added_variable.uuid());
+  for (const auto& added_variable : transaction->addedVariables())
+  {
+    try
+    {
+      const auto& variable = graph.getVariable(added_variable.uuid());
 
       EXPECT_EQ(variable, added_variable) << failure_description;
-    } catch (const std::out_of_range & ex) {
+    }
+    catch (const std::out_of_range& ex)
+    {
       ADD_FAILURE() << ex.what();
     }
   }

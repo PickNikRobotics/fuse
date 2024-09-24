@@ -52,13 +52,9 @@ class TimestampManagerTestFixture : public ::testing::Test
 {
 public:
   TimestampManagerTestFixture()
-  : manager(std::bind(&TimestampManagerTestFixture::generator,
-      this,
-      std::placeholders::_1,
-      std::placeholders::_2,
-      std::placeholders::_3,
-      std::placeholders::_4),
-      rclcpp::Duration::max())
+    : manager(std::bind(&TimestampManagerTestFixture::generator, this, std::placeholders::_1, std::placeholders::_2,
+                        std::placeholders::_3, std::placeholders::_4),
+              rclcpp::Duration::max())
   {
   }
 
@@ -74,11 +70,9 @@ public:
     generated_time_spans.clear();
   }
 
-  void generator(
-    const rclcpp::Time & beginning_stamp,
-    const rclcpp::Time & ending_stamp,
-    std::vector<fuse_core::Constraint::SharedPtr> & /*constraints*/,
-    std::vector<fuse_core::Variable::SharedPtr> & /*variables*/)
+  void generator(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
+                 std::vector<fuse_core::Constraint::SharedPtr>& /*constraints*/,
+                 std::vector<fuse_core::Variable::SharedPtr>& /*variables*/)
   {
     generated_time_spans.emplace_back(beginning_stamp, ending_stamp);
   }
@@ -86,7 +80,6 @@ public:
   fuse_core::TimestampManager manager;
   std::vector<std::pair<rclcpp::Time, rclcpp::Time>> generated_time_spans;
 };
-
 
 TEST_F(TimestampManagerTestFixture, Empty)
 {

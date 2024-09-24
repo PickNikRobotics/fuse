@@ -46,7 +46,6 @@
 
 using fuse_variables::Point2DFixedLandmark;
 
-
 TEST(Point2DFixedLandmark, Type)
 {
   Point2DFixedLandmark variable(0);
@@ -72,9 +71,12 @@ TEST(Point2DFixedLandmark, UUID)
 
 struct CostFunctor
 {
-  CostFunctor() {}
+  CostFunctor()
+  {
+  }
 
-  template<typename T> bool operator()(const T * const x, T * residual) const
+  template <typename T>
+  bool operator()(const T* const x, T* residual) const
   {
     residual[0] = x[0] - T(3.0);
     residual[1] = x[1] + T(8.0);
@@ -90,16 +92,16 @@ TEST(Point2DFixedLandmark, Optimization)
   position.y() = -3.0;
 
   // Create a simple a constraint
-  ceres::CostFunction * cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 2, 2>(
-    new CostFunctor());
+  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 2, 2>(new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
   problem.AddParameterBlock(position.data(), position.size());
-  std::vector<double *> parameter_blocks;
+  std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(position.data());
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
-  if (position.holdConstant()) {
+  if (position.holdConstant())
+  {
     problem.SetParameterBlockConstant(position.data());
   }
 

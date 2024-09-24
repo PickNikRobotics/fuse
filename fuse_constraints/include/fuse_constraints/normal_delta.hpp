@@ -38,7 +38,6 @@
 
 #include <fuse_core/eigen.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -73,7 +72,7 @@ public:
    *              these are the same type of variable. At a minimum, they must have the same
    *              dimensions and the per-element subtraction operator must be valid.
    */
-  NormalDelta(const fuse_core::MatrixXd & A, const fuse_core::VectorXd & b);
+  NormalDelta(const fuse_core::MatrixXd& A, const fuse_core::VectorXd& b);
 
   /**
    * @brief Destructor
@@ -84,10 +83,7 @@ public:
    * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided
    *        variable/parameter values
    */
-  virtual bool Evaluate(
-    double const * const * parameters,
-    double * residuals,
-    double ** jacobians) const;
+  virtual bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const;
 
 private:
   fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root

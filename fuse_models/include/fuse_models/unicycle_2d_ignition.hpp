@@ -49,7 +49,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
 
-
 namespace fuse_models
 {
 
@@ -108,10 +107,8 @@ public:
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name,
-    fuse_core::TransactionCallback transaction_callback) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
@@ -138,23 +135,20 @@ public:
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped & msg);
+  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  bool setPoseServiceCallback(
-    rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
-    std::shared_ptr<rmw_request_id_t>,
-    const fuse_msgs::srv::SetPose::Request::SharedPtr req);
+  bool setPoseServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
+                              std::shared_ptr<rmw_request_id_t>, const fuse_msgs::srv::SetPose::Request::SharedPtr req);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  bool setPoseDeprecatedServiceCallback(
-    rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
-    std::shared_ptr<rmw_request_id_t> request_id,
-    const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req);
+  bool setPoseDeprecatedServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
+                                        std::shared_ptr<rmw_request_id_t> request_id,
+                                        const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req);
 
 protected:
   /**
@@ -170,9 +164,7 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void process(
-    const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
-    std::function<void()> post_process = nullptr);
+  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, std::function<void()> post_process = nullptr);
 
   /**
    * @brief Create and send a prior transaction based on the supplied pose
@@ -183,24 +175,20 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped & pose);
+  void sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose);
 
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Clock,
-    fuse_core::node_interfaces::Graph,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Services,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,
+                                             fuse_core::node_interfaces::Graph, fuse_core::node_interfaces::Logging,
+                                             fuse_core::node_interfaces::Parameters,
+                                             fuse_core::node_interfaces::Services, fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncSensorModel interfaces_
 
-  std::atomic_bool started_;  //!< Flag indicating the sensor has been started
-  bool initial_transaction_sent_;  //!< Flag indicating an initial transaction has been sent already
-  fuse_core::UUID device_id_;  //!< The UUID of this device
+  std::atomic_bool started_;        //!< Flag indicating the sensor has been started
+  bool initial_transaction_sent_;   //!< Flag indicating an initial transaction has been sent already
+  fuse_core::UUID device_id_;       //!< The UUID of this device
   rclcpp::Clock::SharedPtr clock_;  //!< The sensor model's clock, for timestamping
-  rclcpp::Logger logger_;  //!< The sensor model's logger
+  rclcpp::Logger logger_;           //!< The sensor model's logger
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 

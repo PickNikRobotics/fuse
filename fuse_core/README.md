@@ -11,7 +11,7 @@ instances, allowing measurements to involve previous states as well as the curre
 When defining a new variable type, there is a balance that must be struct between reusability and convenience. If you
 define a complex composite state, it is unlikely that any other available components will use that same state
 definition. If you make the state too granular, then more book-keeping and value lookups will be required to piece
-together a useful concept from many smallar scalar components.
+together a useful concept from many smaller scalar components.
 
 As an example, let's consider a 3D pose consisting of a 3D position (x, y, z) and a quaternion orientation
 (qx, qy, qx, qw). We could define a single state for the 3D pose consisting of all 7 scalar components. Alternatively,

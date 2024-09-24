@@ -42,15 +42,13 @@
 class MyMotionModel : public fuse_core::AsyncMotionModel
 {
 public:
-  MyMotionModel()
-  : fuse_core::AsyncMotionModel(1),
-    initialized(false)
+  MyMotionModel() : fuse_core::AsyncMotionModel(1), initialized(false)
   {
   }
 
   virtual ~MyMotionModel() = default;
 
-  bool applyCallback(fuse_core::Transaction & /*transaction*/)
+  bool applyCallback(fuse_core::Transaction& /*transaction*/)
   {
     rclcpp::sleep_for(std::chrono::milliseconds(1000));
     transaction_received = true;
@@ -89,7 +87,8 @@ public:
 
 TEST_F(TestAsyncMotionModel, OnInit)
 {
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 50; i++)
+  {
     MyMotionModel motion_model;
     auto node = rclcpp::Node::make_shared("test_async_motion_model_node");
     motion_model.initialize(*node, "my_motion_model_" + std::to_string(i));
@@ -120,13 +119,15 @@ TEST_F(TestAsyncMotionModel, OnGraphUpdate)
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
 
   // Test for multiple cycles of graphCallback to be sure
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 50; i++)
+  {
     motion_model.graph_received = false;
     motion_model.graphCallback(graph);
     EXPECT_FALSE(motion_model.graph_received);
 
     rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10);
-    while (!motion_model.graph_received && clock.now() < wait_time_elapsed) {
+    while (!motion_model.graph_received && clock.now() < wait_time_elapsed)
+    {
       rclcpp::sleep_for(std::chrono::milliseconds(10));
     }
     EXPECT_TRUE(motion_model.graph_received);

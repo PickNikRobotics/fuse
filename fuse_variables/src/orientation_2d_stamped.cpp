@@ -46,15 +46,12 @@
 namespace fuse_variables
 {
 
-Orientation2DStamped::Orientation2DStamped(
-  const rclcpp::Time & stamp,
-  const fuse_core::UUID & device_id)
-: FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)),
-  Stamped(stamp, device_id)
+Orientation2DStamped::Orientation2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id)
+  : FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)), Stamped(stamp, device_id)
 {
 }
 
-void Orientation2DStamped::print(std::ostream & stream) const
+void Orientation2DStamped::print(std::ostream& stream) const
 {
   stream << type() << ":\n"
          << "  uuid: " << uuid() << "\n"
@@ -65,13 +62,13 @@ void Orientation2DStamped::print(std::ostream & stream) const
          << "  - yaw: " << yaw() << "\n";
 }
 
-fuse_core::LocalParameterization * Orientation2DStamped::localParameterization() const
+fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
 {
   return new Orientation2DLocalParameterization();
 }
 
 #if CERES_SUPPORTS_MANIFOLDS
-fuse_core::Manifold * Orientation2DStamped::manifold() const
+fuse_core::Manifold* Orientation2DStamped::manifold() const
 {
   return new Orientation2DManifold();
 }

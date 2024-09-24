@@ -49,12 +49,10 @@
 // Register this publisher with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_tutorials::BeaconPublisher, fuse_core::Publisher);
 
-
 namespace fuse_tutorials
 {
-void BeaconPublisher::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const std::string & name)
+void BeaconPublisher::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                                 const std::string& name)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncPublisher::initialize(interfaces, name);
@@ -72,20 +70,21 @@ void BeaconPublisher::onInit()
   pub_options.callback_group = cb_group_;
 
   beacon_publisher_ = rclcpp::create_publisher<sensor_msgs::msg::PointCloud2>(
-    interfaces_, fuse_core::joinTopicName(name_, "beacons"), 1, pub_options);
+      interfaces_, fuse_core::joinTopicName(name_, "beacons"), 1, pub_options);
 }
 
-void BeaconPublisher::notifyCallback(
-  fuse_core::Transaction::ConstSharedPtr /* transaction */,
-  fuse_core::Graph::ConstSharedPtr graph)
+void BeaconPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr /* transaction */,
+                                     fuse_core::Graph::ConstSharedPtr graph)
 {
   // This is where all of the processing happens in this publisher implementation. All of the
   // beacons are represented as fuse_variables::Point2DLandmark objects. We loop through the
   // variables in the graph and keep a pointer to the variables that are the correct type.
-  auto beacons = std::vector<const fuse_variables::Point2DLandmark *>();
-  for (const auto & variable : graph->getVariables()) {
-    const auto beacon = dynamic_cast<const fuse_variables::Point2DLandmark *>(&variable);
-    if (beacon) {
+  auto beacons = std::vector<const fuse_variables::Point2DLandmark*>();
+  for (const auto& variable : graph->getVariables())
+  {
+    const auto beacon = dynamic_cast<const fuse_variables::Point2DLandmark*>(&variable);
+    if (beacon)
+    {
       beacons.push_back(beacon);
     }
   }
@@ -110,8 +109,9 @@ void BeaconPublisher::notifyCallback(
   sensor_msgs::PointCloud2Iterator<float> y_it(msg, "y");
   sensor_msgs::PointCloud2Iterator<float> z_it(msg, "z");
   sensor_msgs::PointCloud2Iterator<unsigned int> id_it(msg, "id");
-  for (auto id = 0u; id < beacons.size(); ++id) {
-    const auto & beacon = beacons.at(id);
+  for (auto id = 0u; id < beacons.size(); ++id)
+  {
+    const auto& beacon = beacons.at(id);
     *x_it = static_cast<float>(beacon->x());
     *y_it = static_cast<float>(beacon->y());
     *z_it = 0.0f;

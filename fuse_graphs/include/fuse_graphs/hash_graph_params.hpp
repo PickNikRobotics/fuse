@@ -39,7 +39,6 @@
 #include <fuse_core/ceres_options.hpp>
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
 
-
 namespace fuse_graphs
 {
 
@@ -61,10 +60,7 @@ public:
    *
    * @param[in] interfaces - The node interfaces with which to load parameters
    */
-  void loadFromROS(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Parameters
-    > interfaces)
+  void loadFromROS(fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces)
   {
     fuse_core::loadProblemOptionsFromROS(interfaces, problem_options, "problem_options");
   }

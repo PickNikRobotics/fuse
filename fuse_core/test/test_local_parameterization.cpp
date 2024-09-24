@@ -42,8 +42,8 @@
 
 struct Plus
 {
-  template<typename T>
-  bool operator()(const T * x, const T * delta, T * x_plus_delta) const
+  template <typename T>
+  bool operator()(const T* x, const T* delta, T* x_plus_delta) const
   {
     x_plus_delta[0] = x[0] + 2.0 * delta[0];
     x_plus_delta[1] = x[1] + 5.0 * delta[1];
@@ -54,8 +54,8 @@ struct Plus
 
 struct Minus
 {
-  template<typename T>
-  bool operator()(const T * x, const T * y, T * y_minus_x) const
+  template <typename T>
+  bool operator()(const T* x, const T* y, T* y_minus_x) const
   {
     y_minus_x[0] = (y[0] - x[0]) / 2.0;
     y_minus_x[1] = (y[1] - x[1]) / 5.0;
@@ -65,14 +65,13 @@ struct Minus
 
 using TestLocalParameterization = fuse_core::AutoDiffLocalParameterization<Plus, Minus, 3, 2>;
 
-
 TEST(LocalParameterization, Plus)
 {
   TestLocalParameterization parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
-  double delta[2] = {0.5, 1.0};
-  double actual[3] = {0.0, 0.0, 0.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
+  double delta[2] = { 0.5, 1.0 };
+  double actual[3] = { 0.0, 0.0, 0.0 };
   bool success = parameterization.Plus(x, delta, actual);
 
   EXPECT_TRUE(success);
@@ -85,16 +84,14 @@ TEST(LocalParameterization, PlusJacobian)
 {
   TestLocalParameterization parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(3, 2);
   bool success = parameterization.ComputeJacobian(x, actual.data());
 
   fuse_core::MatrixXd expected(3, 2);
 
   /* *INDENT-OFF* */  // Bypass uncrustify
-  expected << 2.0, 0.0,
-              0.0, 5.0,
-              0.0, 0.0;
+  expected << 2.0, 0.0, 0.0, 5.0, 0.0, 0.0;
   /* *INDENT-ON* */
 
   EXPECT_TRUE(success);
@@ -105,9 +102,9 @@ TEST(LocalParameterization, Minus)
 {
   TestLocalParameterization parameterization;
 
-  double x1[3] = {1.0, 2.0, 3.0};
-  double x2[3] = {2.0, 7.0, 3.0};
-  double actual[2] = {0.0, 0.0};
+  double x1[3] = { 1.0, 2.0, 3.0 };
+  double x2[3] = { 2.0, 7.0, 3.0 };
+  double actual[2] = { 0.0, 0.0 };
   bool success = parameterization.Minus(x1, x2, actual);
 
   EXPECT_TRUE(success);
@@ -119,15 +116,14 @@ TEST(LocalParameterization, MinusJacobian)
 {
   TestLocalParameterization parameterization;
 
-  double x[3] = {1.0, 2.0, 3.0};
+  double x[3] = { 1.0, 2.0, 3.0 };
   fuse_core::MatrixXd actual(2, 3);
   bool success = parameterization.ComputeMinusJacobian(x, actual.data());
 
   fuse_core::MatrixXd expected(2, 3);
 
   /* *INDENT-OFF* */  // Bypass uncrustify
-  expected << 0.5, 0.0, 0.0,
-              0.0, 0.2, 0.0;
+  expected << 0.5, 0.0, 0.0, 0.0, 0.2, 0.0;
   /* *INDENT-ON* */
 
   EXPECT_TRUE(success);
@@ -138,8 +134,8 @@ TEST(LocalParameterization, MinusSameVariablesIsZero)
 {
   TestLocalParameterization parameterization;
 
-  double x1[3] = {1.0, 2.0, 3.0};
-  double actual[2] = {0.0, 0.0};
+  double x1[3] = { 1.0, 2.0, 3.0 };
+  double actual[2] = { 0.0, 0.0 };
   bool success = parameterization.Minus(x1, x1, actual);
 
   EXPECT_TRUE(success);
@@ -151,14 +147,14 @@ TEST(LocalParameterization, PlusMinus)
 {
   TestLocalParameterization parameterization;
 
-  const double x1[3] = {1.0, 2.0, 3.0};
-  const double delta[2] = {0.5, 1.0};
-  double x2[3] = {0.0, 0.0, 0.0};
+  const double x1[3] = { 1.0, 2.0, 3.0 };
+  const double delta[2] = { 0.5, 1.0 };
+  double x2[3] = { 0.0, 0.0, 0.0 };
   bool success = parameterization.Plus(x1, delta, x2);
 
   ASSERT_TRUE(success);
 
-  double actual[2] = {0.0, 0.0};
+  double actual[2] = { 0.0, 0.0 };
   success = parameterization.Minus(x1, x2, actual);
 
   EXPECT_TRUE(success);

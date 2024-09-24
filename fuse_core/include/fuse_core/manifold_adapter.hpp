@@ -65,7 +65,7 @@ public:
    *
    * @param[in] local_parameterization Raw pointer to a derviced fuse::LocalParameterization object
    */
-  explicit ManifoldAdapter(fuse_core::LocalParameterization * local_parameterization)
+  explicit ManifoldAdapter(fuse_core::LocalParameterization* local_parameterization)
   {
     local_parameterization_.reset(local_parameterization);
   }
@@ -89,7 +89,10 @@ public:
    *
    * @return int Dimension of the ambient space in which the manifold is embedded.
    */
-  int AmbientSize() const override {return local_parameterization_->GlobalSize();}
+  int AmbientSize() const override
+  {
+    return local_parameterization_->GlobalSize();
+  }
 
   /**
    * @brief Dimension of the manifold/tangent space.
@@ -98,7 +101,10 @@ public:
    *
    * @return int Dimension of the manifold/tangent space.
    */
-  int TangentSize() const override {return local_parameterization_->LocalSize();}
+  int TangentSize() const override
+  {
+    return local_parameterization_->LocalSize();
+  }
 
   /**
    * @brief  x_plus_delta = Plus(x, delta),
@@ -112,7 +118,7 @@ public:
    * @param[out] x_plus_delta  is a \p AmbientSize() vector.
    * @return Return value indicates if the operation was successful or not.
    */
-  bool Plus(const double * x, const double * delta, double * x_plus_delta) const override
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     return local_parameterization_->Plus(x, delta, x_plus_delta);
   }
@@ -128,7 +134,7 @@ public:
    * matrix.
    * @return
    */
-  bool PlusJacobian(const double * x, double * jacobian) const override
+  bool PlusJacobian(const double* x, double* jacobian) const override
   {
     return local_parameterization_->ComputeJacobian(x, jacobian);
   }
@@ -147,7 +153,7 @@ public:
    * @param[out] y_minus_x is a \p TangentSize() vector.
    * @return Return value indicates if the operation was successful or not.
    */
-  bool Minus(const double * y, const double * x, double * y_minus_x) const override
+  bool Minus(const double* y, const double* x, double* y_minus_x) const override
   {
     return local_parameterization_->Minus(x, y, y_minus_x);
   }
@@ -161,7 +167,7 @@ public:
    * @param[out] jacobian is a row-major \p TangentSize() x \p AmbientSize() matrix.
    * @return Return value indicates whether the operation was successful or not.
    */
-  bool MinusJacobian(const double * x, double * jacobian) const override
+  bool MinusJacobian(const double* x, double* jacobian) const override
   {
     return local_parameterization_->ComputeMinusJacobian(x, jacobian);
   }
@@ -178,11 +184,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<Manifold>(*this);
-    archive & local_parameterization_;
+    archive& boost::serialization::base_object<Manifold>(*this);
+    archive& local_parameterization_;
   }
 
   /**

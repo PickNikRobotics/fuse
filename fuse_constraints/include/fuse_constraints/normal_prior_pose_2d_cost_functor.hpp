@@ -40,7 +40,6 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -80,13 +79,13 @@ public:
    *              order (x, y, yaw)
    * @param[in] b The pose measurement or prior in order (x, y, yaw)
    */
-  NormalPriorPose2DCostFunctor(const fuse_core::MatrixXd & A, const fuse_core::Vector3d & b);
+  NormalPriorPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    */
-  template<typename T>
-  bool operator()(const T * const position, const T * const orientation, T * residual) const;
+  template <typename T>
+  bool operator()(const T* const position, const T* const orientation, T* residual) const;
 
 private:
   fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root
@@ -94,18 +93,13 @@ private:
   fuse_core::Vector3d b_;  //!< The measured 2D pose value
 };
 
-NormalPriorPose2DCostFunctor::NormalPriorPose2DCostFunctor(
-  const fuse_core::MatrixXd & A,
-  const fuse_core::Vector3d & b)
-: A_(A),
-  b_(b)
+NormalPriorPose2DCostFunctor::NormalPriorPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b)
+  : A_(A), b_(b)
 {
 }
 
-template<typename T>
-bool NormalPriorPose2DCostFunctor::operator()(
-  const T * const position, const T * const orientation,
-  T * residual) const
+template <typename T>
+bool NormalPriorPose2DCostFunctor::operator()(const T* const position, const T* const orientation, T* residual) const
 {
   Eigen::Matrix<T, 3, 1> full_residuals_vector;
   full_residuals_vector(0) = position[0] - T(b_(0));

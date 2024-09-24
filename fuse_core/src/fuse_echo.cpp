@@ -50,20 +50,13 @@ namespace fuse_core
 class FuseEcho : public rclcpp::Node
 {
 public:
-  explicit FuseEcho(rclcpp::NodeOptions options)
-  : Node("fuse_echo", options)
+  explicit FuseEcho(rclcpp::NodeOptions options) : Node("fuse_echo", options)
   {
     // Subscribe to the constraint topic
     graph_sub_ = this->create_subscription<fuse_msgs::msg::SerializedGraph>(
-      "graph",
-      rclcpp::QoS(100),
-      std::bind(&FuseEcho::graphCallback, this, std::placeholders::_1)
-    );
+        "graph", rclcpp::QoS(100), std::bind(&FuseEcho::graphCallback, this, std::placeholders::_1));
     transaction_sub_ = this->create_subscription<fuse_msgs::msg::SerializedTransaction>(
-      "transaction",
-      rclcpp::QoS(100),
-      std::bind(&FuseEcho::transactionCallback, this, std::placeholders::_1)
-    );
+        "transaction", rclcpp::QoS(100), std::bind(&FuseEcho::transactionCallback, this, std::placeholders::_1));
   }
 
 private:
@@ -72,7 +65,7 @@ private:
   rclcpp::Subscription<fuse_msgs::msg::SerializedGraph>::SharedPtr graph_sub_;
   rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr transaction_sub_;
 
-  void graphCallback(const fuse_msgs::msg::SerializedGraph & msg)
+  void graphCallback(const fuse_msgs::msg::SerializedGraph& msg)
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "GRAPH:" << std::endl;
@@ -81,7 +74,7 @@ private:
     graph->print();
   }
 
-  void transactionCallback(const fuse_msgs::msg::SerializedTransaction & msg)
+  void transactionCallback(const fuse_msgs::msg::SerializedTransaction& msg)
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "TRANSACTION:" << std::endl;
@@ -92,7 +85,6 @@ private:
 };
 
 }  // namespace fuse_core
-
 
 #include <rclcpp_components/register_node_macro.hpp>
 

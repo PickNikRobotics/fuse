@@ -57,7 +57,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -71,7 +70,7 @@ namespace fuse_constraints
  * prior map (scan-to-map measurements). This constraint holds the measured variable value and the
  * measurement uncertainty/covariance.
  */
-template<class Variable>
+template <class Variable>
 class AbsoluteConstraint : public fuse_core::Constraint
 {
 public:
@@ -90,11 +89,8 @@ public:
    * @param[in] mean       The measured/prior value of all variable dimensions
    * @param[in] covariance The measurement/prior uncertainty of all variable dimensions
    */
-  AbsoluteConstraint(
-    const std::string & source,
-    const Variable & variable,
-    const fuse_core::VectorXd & mean,
-    const fuse_core::MatrixXd & covariance);
+  AbsoluteConstraint(const std::string& source, const Variable& variable, const fuse_core::VectorXd& mean,
+                     const fuse_core::MatrixXd& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of only a partial set of dimensions of the
@@ -109,12 +105,8 @@ public:
    *                               by \p indices.
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
-  AbsoluteConstraint(
-    const std::string & source,
-    const Variable & variable,
-    const fuse_core::VectorXd & partial_mean,
-    const fuse_core::MatrixXd & partial_covariance,
-    const std::vector<size_t> & indices);
+  AbsoluteConstraint(const std::string& source, const Variable& variable, const fuse_core::VectorXd& partial_mean,
+                     const fuse_core::MatrixXd& partial_covariance, const std::vector<size_t>& indices);
 
   /**
    * @brief Destructor
@@ -128,7 +120,10 @@ public:
    * are in the order defined by the variable, not the order defined by the \p indices parameter.
    * All unmeasured variable dimensions are set to zero.
    */
-  const fuse_core::VectorXd & mean() const {return mean_;}
+  const fuse_core::VectorXd& mean() const
+  {
+    return mean_;
+  }
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -138,7 +133,10 @@ public:
    * variable_dimensions. If only a partial set of dimensions are measured, then this matrix will
    * not be square.
    */
-  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::MatrixXd& sqrtInformation() const
+  {
+    return sqrt_information_;
+  }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -155,7 +153,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -167,10 +165,10 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction * costFunction() const override;
+  ceres::CostFunction* costFunction() const override;
 
 protected:
-  fuse_core::VectorXd mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::VectorXd mean_;              //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 
 private:
@@ -184,28 +182,23 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & mean_;
-    archive & sqrt_information_;
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& mean_;
+    archive& sqrt_information_;
   }
 };
 
 // Define unique names for the different variations of the absolute constraint
-using AbsoluteAccelerationAngular2DStampedConstraint =
-  AbsoluteConstraint<fuse_variables::AccelerationAngular2DStamped>;
-using AbsoluteAccelerationLinear2DStampedConstraint =
-  AbsoluteConstraint<fuse_variables::AccelerationLinear2DStamped>;
-using AbsoluteOrientation2DStampedConstraint =
-  AbsoluteConstraint<fuse_variables::Orientation2DStamped>;
+using AbsoluteAccelerationAngular2DStampedConstraint = AbsoluteConstraint<fuse_variables::AccelerationAngular2DStamped>;
+using AbsoluteAccelerationLinear2DStampedConstraint = AbsoluteConstraint<fuse_variables::AccelerationLinear2DStamped>;
+using AbsoluteOrientation2DStampedConstraint = AbsoluteConstraint<fuse_variables::Orientation2DStamped>;
 using AbsolutePosition2DStampedConstraint = AbsoluteConstraint<fuse_variables::Position2DStamped>;
 using AbsolutePosition3DStampedConstraint = AbsoluteConstraint<fuse_variables::Position3DStamped>;
-using AbsoluteVelocityAngular2DStampedConstraint =
-  AbsoluteConstraint<fuse_variables::VelocityAngular2DStamped>;
-using AbsoluteVelocityLinear2DStampedConstraint =
-  AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>;
+using AbsoluteVelocityAngular2DStampedConstraint = AbsoluteConstraint<fuse_variables::VelocityAngular2DStamped>;
+using AbsoluteVelocityLinear2DStampedConstraint = AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>;
 }  // namespace fuse_constraints
 
 // Include the template implementation

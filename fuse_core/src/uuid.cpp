@@ -61,7 +61,7 @@ UUID generate()
   return uuid;
 }
 
-UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp)
+UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp)
 {
   const auto nanoseconds = stamp.nanoseconds();
   constexpr size_t buffer_size = sizeof(nanoseconds);
@@ -69,7 +69,8 @@ UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp)
 
   // Explicitly pack nanosecond bits from LSB -> MSB by masking and shifting
   // E.g. 10 would be 0x00000000'0000000A, so the buffer would store 0x0A at buffer[0]
-  for (size_t i = 0; i < sizeof(nanoseconds); i++) {
+  for (size_t i = 0; i < sizeof(nanoseconds); i++)
+  {
     auto mask = (nanoseconds & (static_cast<int64_t>(0xFF) << 8 * i));
     buffer[i] = static_cast<unsigned char>(mask >> 8 * i);
   }
@@ -77,14 +78,15 @@ UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp)
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
-UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp, const UUID & id)
+UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, const UUID& id)
 {
   const auto nanoseconds = stamp.nanoseconds();
   constexpr size_t buffer_size = sizeof(nanoseconds) + UUID::static_size();
   std::array<unsigned char, buffer_size> buffer;
 
   // Explicitly pack nanosecond bits from LSB -> MSB by masking and shifting
-  for (size_t i = 0; i < sizeof(nanoseconds); i++) {
+  for (size_t i = 0; i < sizeof(nanoseconds); i++)
+  {
     auto mask = (nanoseconds & (static_cast<int64_t>(0xFF) << 8 * i));
     buffer[i] = static_cast<unsigned char>(mask >> 8 * i);
   }
@@ -96,11 +98,9 @@ UUID generate(const std::string & namespace_string, const rclcpp::Time & stamp, 
   return generate(namespace_string, buffer.data(), buffer.size());
 }
 
-UUID generate(const std::string & namespace_string, const uint64_t & user_id)
+UUID generate(const std::string& namespace_string, const uint64_t& user_id)
 {
-  return generate(
-    namespace_string, reinterpret_cast<const unsigned char *>(&user_id),
-    sizeof(user_id));
+  return generate(namespace_string, reinterpret_cast<const unsigned char*>(&user_id), sizeof(user_id));
 }
 
 }  // namespace uuid

@@ -57,7 +57,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -73,7 +72,7 @@ namespace fuse_constraints
  * is not the correct operation for a specific variable type (e.g. 3D rotations), a custom
  * constraint or template specialization will be needed.
  */
-template<class Variable>
+template <class Variable>
 class RelativeConstraint : public fuse_core::Constraint
 {
 public:
@@ -93,12 +92,8 @@ public:
    * @param[in] delta      The measured change between variable1 and variable2
    * @param[in] covariance The measurement uncertainty
    */
-  RelativeConstraint(
-    const std::string & source,
-    const Variable & variable1,
-    const Variable & variable2,
-    const fuse_core::VectorXd & delta,
-    const fuse_core::MatrixXd & covariance);
+  RelativeConstraint(const std::string& source, const Variable& variable1, const Variable& variable2,
+                     const fuse_core::VectorXd& delta, const fuse_core::MatrixXd& covariance);
 
   /**
    * @brief Constructor
@@ -116,13 +111,9 @@ public:
    *                               order defined by \p indices.
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
-  RelativeConstraint(
-    const std::string & source,
-    const Variable & variable1,
-    const Variable & variable2,
-    const fuse_core::VectorXd & delta,
-    const fuse_core::MatrixXd & covariance,
-    const std::vector<size_t> & indices);
+  RelativeConstraint(const std::string& source, const Variable& variable1, const Variable& variable2,
+                     const fuse_core::VectorXd& delta, const fuse_core::MatrixXd& covariance,
+                     const std::vector<size_t>& indices);
 
   /**
    * @brief Destructor
@@ -136,7 +127,10 @@ public:
    * are in the order defined by the variable, not the order defined by the \p indices parameter.
    * All unmeasured variable dimensions are set to zero.
    */
-  const fuse_core::VectorXd & delta() const {return delta_;}
+  const fuse_core::VectorXd& delta() const
+  {
+    return delta_;
+  }
 
   /**
    * @brief Read-only access to the square root information matrix.
@@ -146,7 +140,10 @@ public:
    * variable_dimensions. If only a partial set of dimensions are measured, then this matrix will
    * not be square.
    */
-  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::MatrixXd& sqrtInformation() const
+  {
+    return sqrt_information_;
+  }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -163,7 +160,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -175,10 +172,10 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction * costFunction() const override;
+  ceres::CostFunction* costFunction() const override;
 
 protected:
-  fuse_core::VectorXd delta_;  //!< The measured change between the two variables
+  fuse_core::VectorXd delta_;             //!< The measured change between the two variables
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 
 private:
@@ -192,28 +189,23 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & delta_;
-    archive & sqrt_information_;
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& delta_;
+    archive& sqrt_information_;
   }
 };
 
 // Define unique names for the different variations of the absolute constraint
-using RelativeAccelerationAngular2DStampedConstraint =
-  RelativeConstraint<fuse_variables::AccelerationAngular2DStamped>;
-using RelativeAccelerationLinear2DStampedConstraint =
-  RelativeConstraint<fuse_variables::AccelerationLinear2DStamped>;
-using RelativeOrientation2DStampedConstraint =
-  RelativeConstraint<fuse_variables::Orientation2DStamped>;
+using RelativeAccelerationAngular2DStampedConstraint = RelativeConstraint<fuse_variables::AccelerationAngular2DStamped>;
+using RelativeAccelerationLinear2DStampedConstraint = RelativeConstraint<fuse_variables::AccelerationLinear2DStamped>;
+using RelativeOrientation2DStampedConstraint = RelativeConstraint<fuse_variables::Orientation2DStamped>;
 using RelativePosition2DStampedConstraint = RelativeConstraint<fuse_variables::Position2DStamped>;
 using RelativePosition3DStampedConstraint = RelativeConstraint<fuse_variables::Position3DStamped>;
-using RelativeVelocityAngular2DStampedConstraint =
-  RelativeConstraint<fuse_variables::VelocityAngular2DStamped>;
-using RelativeVelocityLinear2DStampedConstraint =
-  RelativeConstraint<fuse_variables::VelocityLinear2DStamped>;
+using RelativeVelocityAngular2DStampedConstraint = RelativeConstraint<fuse_variables::VelocityAngular2DStamped>;
+using RelativeVelocityLinear2DStampedConstraint = RelativeConstraint<fuse_variables::VelocityLinear2DStamped>;
 }  // namespace fuse_constraints
 
 // Include the template implementation

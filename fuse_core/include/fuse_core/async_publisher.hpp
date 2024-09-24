@@ -86,14 +86,16 @@ public:
    * @param[in] name A unique name to give this plugin instance
    * @throws runtime_error if already initialized
    */
-  void initialize(
-    node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name) override;
+  void initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name) override;
 
   /**
    * @brief Get the unique name of this publisher
    */
-  const std::string & name() const override {return name_;}
+  const std::string& name() const override
+  {
+    return name_;
+  }
 
   /**
    * @brief Notify the publisher that an optimization cycle is complete, and about changes to the
@@ -154,7 +156,7 @@ protected:
   //! The callback queue used for fuse internal callbacks
   std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
 
-  std::string name_;  //!< The unique name for this publisher instance
+  std::string name_;                           //!< The unique name for this publisher instance
   rclcpp::CallbackGroup::SharedPtr cb_group_;  //!< Internal re-entrant callback group
 
   //! The node interfaces
@@ -162,8 +164,8 @@ protected:
 
   //! A single/multi-threaded executor assigned to the local callback queue
   rclcpp::Executor::SharedPtr executor_;
-  size_t executor_thread_count_{1};
-  std::thread spinner_;  //!< Internal thread for spinning the executor
+  size_t executor_thread_count_{ 1 };
+  std::thread spinner_;                    //!< Internal thread for spinning the executor
   std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 
   /**
@@ -185,7 +187,9 @@ protected:
    * Derived classes should override this method to implement any additional initialization
    * steps needed (access the parameter server, advertise, subscribe, etc.).
    */
-  virtual void onInit() {}
+  virtual void onInit()
+  {
+  }
 
   /**
    * @brief Callback method executed in response to the optimizer completing an optimization cycle.
@@ -199,9 +203,9 @@ protected:
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */
-  virtual void notifyCallback(
-    Transaction::ConstSharedPtr /*transaction*/,
-    Graph::ConstSharedPtr /*graph*/) {}
+  virtual void notifyCallback(Transaction::ConstSharedPtr /*transaction*/, Graph::ConstSharedPtr /*graph*/)
+  {
+  }
 
   /**
    * @brief Perform any required operations to prepare for servicing calls to notify()
@@ -209,7 +213,9 @@ protected:
    * This function will be called once after initialize() but before any calls to notify(). It
    * may also be called at any time after a call to stop().
    */
-  virtual void onStart() {}
+  virtual void onStart()
+  {
+  }
 
   /**
    * @brief Perform any required operations to clean up the internal state
@@ -218,7 +224,9 @@ protected:
    * after a call to start(). No calls to notify() will occur after stop() is called, but
    * before start() is called.
    */
-  virtual void onStop() {}
+  virtual void onStop()
+  {
+  }
 
 private:
   //! Stop the internal executor thread (in order to use this class again it must be re-initialized)

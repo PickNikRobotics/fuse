@@ -63,22 +63,31 @@ class GenericVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(GenericVariable)
 
-  GenericVariable()
-  : fuse_core::Variable(fuse_core::uuid::generate()),
-    data_{}
-  {}
+  GenericVariable() : fuse_core::Variable(fuse_core::uuid::generate()), data_{}
+  {
+  }
 
-  explicit GenericVariable(const fuse_core::UUID & uuid)
-  : fuse_core::Variable(uuid),
-    data_{}
-  {}
+  explicit GenericVariable(const fuse_core::UUID& uuid) : fuse_core::Variable(uuid), data_{}
+  {
+  }
 
-  size_t size() const override {return 1;}
+  size_t size() const override
+  {
+    return 1;
+  }
 
-  const double * data() const override {return &data_;}
-  double * data() override {return &data_;}
+  const double* data() const override
+  {
+    return &data_;
+  }
+  double* data() override
+  {
+    return &data_;
+  }
 
-  void print(std::ostream & /*stream = std::cout*/) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override
+  {
+  }
 
 protected:
   double data_;
@@ -94,11 +103,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& data_;
   }
 };
 
@@ -112,18 +121,27 @@ class GenericConstraint : public fuse_core::Constraint
 public:
   FUSE_CONSTRAINT_DEFINITIONS(GenericConstraint)
 
-  GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids)
-  : Constraint("test", variable_uuids) {}
+  GenericConstraint(std::initializer_list<fuse_core::UUID> variable_uuids) : Constraint("test", variable_uuids)
+  {
+  }
 
-  explicit GenericConstraint(const fuse_core::UUID & variable1)
-  : fuse_core::Constraint("test", {variable1}) {}
+  explicit GenericConstraint(const fuse_core::UUID& variable1) : fuse_core::Constraint("test", { variable1 })
+  {
+  }
 
-  GenericConstraint(const fuse_core::UUID & variable1, const fuse_core::UUID & variable2)
-  : fuse_core::Constraint("test", {variable1, variable2}) {}
+  GenericConstraint(const fuse_core::UUID& variable1, const fuse_core::UUID& variable2)
+    : fuse_core::Constraint("test", { variable1, variable2 })
+  {
+  }
 
-  void print(std::ostream & /*stream = std::cout*/) const override {}
+  void print(std::ostream& /*stream = std::cout*/) const override
+  {
+  }
 
-  ceres::CostFunction * costFunction() const override {return nullptr;}
+  ceres::CostFunction* costFunction() const override
+  {
+    return nullptr;
+  }
 
 private:
   // Allow Boost Serialization access to private methods
@@ -136,10 +154,10 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
   }
 };
 
@@ -150,10 +168,8 @@ public:
 
   FixedOrientation3DStamped() = default;
 
-  explicit FixedOrientation3DStamped(
-    const rclcpp::Time & stamp,
-    const fuse_core::UUID & device_id = fuse_core::uuid::NIL)
-  : Orientation3DStamped(stamp, device_id)
+  explicit FixedOrientation3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
+    : Orientation3DStamped(stamp, device_id)
   {
   }
 
@@ -173,10 +189,10 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_variables::Orientation3DStamped>(*this);
+    archive& boost::serialization::base_object<fuse_variables::Orientation3DStamped>(*this);
   }
 };
 
@@ -208,7 +224,7 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
   graph.addConstraint(c6);
 
   // Define the set of variables to be marginalized
-  auto to_be_marginalized = std::vector<fuse_core::UUID>{x2->uuid(), x1->uuid()};
+  auto to_be_marginalized = std::vector<fuse_core::UUID>{ x2->uuid(), x1->uuid() };
 
   // Compute the ordering
   auto actual = fuse_constraints::computeEliminationOrder(to_be_marginalized, graph);
@@ -222,7 +238,8 @@ TEST(MarginalizeVariables, ComputeEliminationOrder)
 
   // Check
   ASSERT_EQ(expected.size(), actual.size());
-  for (size_t i = 0; i < expected.size(); ++i) {
+  for (size_t i = 0; i < expected.size(); ++i)
+  {
     SCOPED_TRACE(i);
     EXPECT_EQ(fuse_core::uuid::to_string(expected.at(i)), fuse_core::uuid::to_string(actual.at(i)));
   }
@@ -259,14 +276,11 @@ TEST(MarginalizeVariables, ComputeEliminationOrderWithOrphanVariables)
   // fail) With 1 or 2 orphan variables computeEliminationOrder throws an std::runtime_error
   // exception because CCOLAMD fails With 3 or more orphan variables computeEliminationOrder crashes
   // with `free(): invalid next size (fast)`
-  auto o1 =
-    GenericVariable::make_shared(
-    fuse_core::uuid::from_string(
-      "b726fbef-4015-4dc8-b4dd-cb57d4439c74"));
+  auto o1 = GenericVariable::make_shared(fuse_core::uuid::from_string("b726fbef-4015-4dc8-b4dd-cb57d4439c74"));
   graph.addVariable(o1);
 
   // Define the set of variables to be marginalized
-  auto to_be_marginalized = std::vector<fuse_core::UUID>{x2->uuid(), x1->uuid(), o1->uuid()};
+  auto to_be_marginalized = std::vector<fuse_core::UUID>{ x2->uuid(), x1->uuid(), o1->uuid() };
 
   // Compute the ordering
   fuse_constraints::UuidOrdering actual;
@@ -282,18 +296,21 @@ TEST(MarginalizeVariables, ComputeEliminationOrderWithOrphanVariables)
 
   // Check
   ASSERT_EQ(expected.size(), actual.size());
-  for (size_t i = 0; i < expected.size(); ++i) {
+  for (size_t i = 0; i < expected.size(); ++i)
+  {
     SCOPED_TRACE(i);
     EXPECT_EQ(fuse_core::uuid::to_string(expected.at(i)), fuse_core::uuid::to_string(actual.at(i)));
   }
 
   // Check all marginalized variables are in the elimination order
   // This check is equivalent to the assert in marginalizeVariables
-  for (const auto & variable_uuid : to_be_marginalized) {
+  for (const auto& variable_uuid : to_be_marginalized)
+  {
     SCOPED_TRACE(fuse_core::uuid::to_string(variable_uuid));
 
     EXPECT_TRUE(actual.exists(variable_uuid));
-    if (actual.exists(variable_uuid)) {
+    if (actual.exists(variable_uuid))
+    {
       EXPECT_GT(to_be_marginalized.size(), actual.at(variable_uuid));
     }
   }
@@ -318,11 +335,7 @@ TEST(MarginalizeVariables, Linearize)
   delta << 0.979795897, 0.0, 0.0, 0.2;
   fuse_core::Matrix3d cov;
   cov << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto constraint = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
-    "test",
-    *x1, *x2,
-    delta,
-    cov);
+  auto constraint = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared("test", *x1, *x2, delta, cov);
 
   auto graph = fuse_graphs::HashGraph();
   graph.addVariable(x1);
@@ -344,16 +357,16 @@ TEST(MarginalizeVariables, Linearize)
   // Define the expected values
   fuse_core::MatrixXd expected_A0(3, 3);
   /* *INDENT-OFF* */
-  expected_A0 << -0.91999992754510684367,    -0.39191852892782985673,    -2.8735440640859089001e-07,
-                  0.27712824947756498073,    -0.65053818745824854020,    -2.5352112979770691226e-07,
-                  7.1505019336171038447e-08,  2.5546009342625186633e-07, -0.57735026918958520792;
+  expected_A0 << -0.91999992754510684367, -0.39191852892782985673, -2.8735440640859089001e-07, 0.27712824947756498073,
+      -0.65053818745824854020, -2.5352112979770691226e-07, 7.1505019336171038447e-08, 2.5546009342625186633e-07,
+      -0.57735026918958520792;
   /* *INDENT-ON* */
 
   fuse_core::MatrixXd expected_A1(3, 3);
   /* *INDENT-OFF* */
-  expected_A1 <<  0.99999999999996114219,    -1.8482708254510815671e-07, -2.873543621662033587e-07,
-                  1.3069243487082160549e-07,  0.70710678118650927004,    -2.5352115484711390536e-07,
-                  1.6590414383954588118e-07,  2.0699913566568639567e-07,  0.57735026918958520792;
+  expected_A1 << 0.99999999999996114219, -1.8482708254510815671e-07, -2.873543621662033587e-07,
+      1.3069243487082160549e-07, 0.70710678118650927004, -2.5352115484711390536e-07, 1.6590414383954588118e-07,
+      2.0699913566568639567e-07, 0.57735026918958520792;
   /* *INDENT-ON* */
 
   fuse_core::VectorXd expected_b(3);
@@ -376,9 +389,9 @@ TEST(MarginalizeVariables, MarginalizeNext)
   term1.variables.push_back(1);
   auto A1 = fuse_core::MatrixXd(3, 3);
   /* *INDENT-OFF* */
-  A1 <<  0.99999999999999922284,     4.4999993911720714834e-08, -2.9999995598828377297e-08,
-        -3.181980062078038074e-08,   0.70710678118654701763,     1.0606600528428877794e-08,
-         1.7320505793505525105e-08, -8.6602525498080673572e-09,  0.57735026918962550901;
+  A1 << 0.99999999999999922284, 4.4999993911720714834e-08, -2.9999995598828377297e-08, -3.181980062078038074e-08,
+      0.70710678118654701763, 1.0606600528428877794e-08, 1.7320505793505525105e-08, -8.6602525498080673572e-09,
+      0.57735026918962550901;
   /* *INDENT-ON* */
   term1.A.push_back(A1);
   auto b1 = fuse_core::VectorXd(3);
@@ -390,15 +403,15 @@ TEST(MarginalizeVariables, MarginalizeNext)
   term2.variables.push_back(1);
   auto A21 = fuse_core::MatrixXd(3, 3);
   /* *INDENT-OFF* */
-  A21 << 0.99999999999996114219,    -1.8482708254510815671e-07, -2.873543621662033587e-07,
-         1.3069243487082160549e-07,  0.70710678118650927004,    -2.5352115484711390536e-07,
-         1.6590414383954588118e-07,  2.0699913566568639567e-07,  0.57735026918958520792;
+  A21 << 0.99999999999996114219, -1.8482708254510815671e-07, -2.873543621662033587e-07, 1.3069243487082160549e-07,
+      0.70710678118650927004, -2.5352115484711390536e-07, 1.6590414383954588118e-07, 2.0699913566568639567e-07,
+      0.57735026918958520792;
   /* *INDENT-ON* */
   auto A22 = fuse_core::MatrixXd(3, 3);
   /* *INDENT-OFF* */
-  A22 << -0.91999992754510684367,    -0.39191852892782985673,    -2.8735440640859089001e-07,
-          0.27712824947756498073,    -0.6505381874582485402,     -2.5352112979770691226e-07,
-          7.1505019336171038447e-08,  2.5546009342625186633e-07, -0.57735026918958520792;
+  A22 << -0.91999992754510684367, -0.39191852892782985673, -2.8735440640859089001e-07, 0.27712824947756498073,
+      -0.6505381874582485402, -2.5352112979770691226e-07, 7.1505019336171038447e-08, 2.5546009342625186633e-07,
+      -0.57735026918958520792;
   /* *INDENT-ON* */
   term2.A.push_back(A21);
   term2.A.push_back(A22);
@@ -418,9 +431,8 @@ TEST(MarginalizeVariables, MarginalizeNext)
   expected.variables.push_back(3);
   auto A_expected = fuse_core::MatrixXd(3, 3);
   /* *INDENT-OFF* */
-  A_expected << -0.686835139329528,   0.064384601986636,   0.000000153209328,
-                 0.000000000000000,  -0.509885650799691,   0.000000079984512,
-                 0.000000000000000,   0.000000000000000,   0.408248290463911;
+  A_expected << -0.686835139329528, 0.064384601986636, 0.000000153209328, 0.000000000000000, -0.509885650799691,
+      0.000000079984512, 0.000000000000000, 0.000000000000000, 0.408248290463911;
   /* *INDENT-ON* */
   expected.A.push_back(A_expected);
   auto b_expected = fuse_core::VectorXd(3);
@@ -465,29 +477,28 @@ TEST(MarginalizeVariables, MarginalizeVariables)
   mean1 << 0.92736185, 0.1, 0.2, 0.3;
   fuse_core::Matrix3d cov1;
   cov1 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto prior_x1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
-    "test", *x1, mean1, cov1);
+  auto prior_x1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared("test", *x1, mean1, cov1);
 
   fuse_core::Vector4d delta2;
   delta2 << 0.979795897, 0.0, 0.0, 0.2;
   fuse_core::Matrix3d cov2;
   cov2 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto relative_x1_x2 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
-    "test", *x1, *x2, delta2, cov2);
+  auto relative_x1_x2 =
+      fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared("test", *x1, *x2, delta2, cov2);
 
   fuse_core::Vector4d delta3;
   delta3 << 0.979795897, 0.0, 0.0, 0.2;
   fuse_core::Matrix3d cov3;
   cov3 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto relative_x2_x3 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
-    "test", *x2, *x3, delta3, cov3);
+  auto relative_x2_x3 =
+      fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared("test", *x2, *x3, delta3, cov3);
 
   fuse_core::Vector4d delta4;
   delta4 << 0.979795897, 0.2, 0.0, 0.0;
   fuse_core::Matrix3d cov4;
   cov4 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto relative_x2_l1 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
-    "test", *x2, *l1, delta4, cov4);
+  auto relative_x2_l1 =
+      fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared("test", *x2, *l1, delta4, cov4);
 
   // Add to the graph
   auto graph = fuse_graphs::HashGraph();
@@ -508,26 +519,24 @@ TEST(MarginalizeVariables, MarginalizeVariables)
   auto expected_x3 = x3->array();
   auto expected_l1 = l1->array();
 
-  auto requests = std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>
-  {
-    {x2->uuid(), x2->uuid()}, {x3->uuid(), x3->uuid()}, {l1->uuid(), l1->uuid()}
-  };
+  auto requests = std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>{ { x2->uuid(), x2->uuid() },
+                                                                            { x3->uuid(), x3->uuid() },
+                                                                            { l1->uuid(), l1->uuid() } };
   auto expected_covariances = std::vector<std::vector<double>>();
   graph.getCovariance(requests, expected_covariances);
-  const auto & expected_x2_cov = expected_covariances[0];
-  const auto & expected_x3_cov = expected_covariances[1];
-  const auto & expected_l1_cov = expected_covariances[2];
+  const auto& expected_x2_cov = expected_covariances[0];
+  const auto& expected_x3_cov = expected_covariances[1];
+  const auto& expected_l1_cov = expected_covariances[2];
 
   // Marginalize out X1
-  auto transaction = fuse_constraints::marginalizeVariables("test", {x1->uuid()}, graph);  // NOLINT
+  auto transaction = fuse_constraints::marginalizeVariables("test", { x1->uuid() }, graph);  // NOLINT
 
   // Verify the computed transaction
   auto added_variables = transaction.addedVariables();
   EXPECT_EQ(0u, std::distance(added_variables.begin(), added_variables.end()));
 
   auto removed_variables_range = transaction.removedVariables();
-  auto removed_variables = std::set<fuse_core::UUID>(
-    removed_variables_range.begin(), removed_variables_range.end());
+  auto removed_variables = std::set<fuse_core::UUID>(removed_variables_range.begin(), removed_variables_range.end());
   EXPECT_EQ(1u, removed_variables.size());
   EXPECT_TRUE(removed_variables.count(x1->uuid()));
 
@@ -535,9 +544,8 @@ TEST(MarginalizeVariables, MarginalizeVariables)
   EXPECT_EQ(1u, std::distance(added_constraints.begin(), added_constraints.end()));
 
   auto removed_constraints_range = transaction.removedConstraints();
-  auto removed_constraints = std::set<fuse_core::UUID>(
-    removed_constraints_range.begin(),
-    removed_constraints_range.end());
+  auto removed_constraints =
+      std::set<fuse_core::UUID>(removed_constraints_range.begin(), removed_constraints_range.end());
   EXPECT_EQ(2u, removed_constraints.size());
   EXPECT_TRUE(removed_constraints.count(prior_x1->uuid()));
   EXPECT_TRUE(removed_constraints.count(relative_x1_x2->uuid()));
@@ -555,35 +563,41 @@ TEST(MarginalizeVariables, MarginalizeVariables)
 
   auto actual_covariances = std::vector<std::vector<double>>();
   graph.getCovariance(requests, actual_covariances);
-  const auto & actual_x2_cov = actual_covariances[0];
-  const auto & actual_x3_cov = actual_covariances[1];
-  const auto & actual_l1_cov = actual_covariances[2];
+  const auto& actual_x2_cov = actual_covariances[0];
+  const auto& actual_x3_cov = actual_covariances[1];
+  const auto& actual_l1_cov = actual_covariances[2];
 
   // Compare. The post-marginal results should be identical to the pre-marginal results
   ASSERT_EQ(expected_x2.size(), actual_x2.size());
-  for (size_t i = 0; i < expected_x2.size(); ++i) {
+  for (size_t i = 0; i < expected_x2.size(); ++i)
+  {
     EXPECT_NEAR(expected_x2[i], actual_x2[i], 1.0e-5);
   }
   ASSERT_EQ(expected_x2_cov.size(), actual_x2_cov.size());
-  for (size_t i = 0; i < expected_x2_cov.size(); ++i) {
+  for (size_t i = 0; i < expected_x2_cov.size(); ++i)
+  {
     EXPECT_NEAR(expected_x2_cov[i], actual_x2_cov[i], 1.0e-5);
   }
 
   ASSERT_EQ(expected_x3.size(), actual_x3.size());
-  for (size_t i = 0; i < expected_x3.size(); ++i) {
+  for (size_t i = 0; i < expected_x3.size(); ++i)
+  {
     EXPECT_NEAR(expected_x3[i], actual_x3[i], 1.0e-5);
   }
   ASSERT_EQ(expected_x3_cov.size(), actual_x3_cov.size());
-  for (size_t i = 0; i < expected_x3_cov.size(); ++i) {
+  for (size_t i = 0; i < expected_x3_cov.size(); ++i)
+  {
     EXPECT_NEAR(expected_x3_cov[i], actual_x3_cov[i], 1.0e-5);
   }
 
   ASSERT_EQ(expected_l1.size(), actual_l1.size());
-  for (size_t i = 0; i < expected_l1.size(); ++i) {
+  for (size_t i = 0; i < expected_l1.size(); ++i)
+  {
     EXPECT_NEAR(expected_l1[i], actual_l1[i], 1.0e-5);
   }
   ASSERT_EQ(expected_l1_cov.size(), actual_l1_cov.size());
-  for (size_t i = 0; i < expected_l1_cov.size(); ++i) {
+  for (size_t i = 0; i < expected_l1_cov.size(); ++i)
+  {
     EXPECT_NEAR(expected_l1_cov[i], actual_l1_cov[i], 1.0e-5);
   }
 }
@@ -617,8 +631,7 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
   mean1 << 0.92736185, 0.1, 0.2, 0.3;
   fuse_core::Matrix3d cov1;
   cov1 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto prior_x1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
-    "test", *x1, mean1, cov1);
+  auto prior_x1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared("test", *x1, mean1, cov1);
 
   // Note that this prior on the landmark is required. The covariance of the prior has no impact on
   // the solution, as the value of the landmark will be held constant. However, due to assumptions
@@ -628,29 +641,28 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
   mean2 << 0.842614977, 0.2, 0.3, 0.4;
   fuse_core::Matrix3d cov2;
   cov2 << 3.0, 0.0, 0.0, 0.0, 3.1, 0.0, 0.0, 0.0, 3.2;
-  auto prior_l1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
-    "test", *l1, mean2, cov2);
+  auto prior_l1 = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared("test", *l1, mean2, cov2);
 
   fuse_core::Vector4d delta3;
   delta3 << 0.979795897, 0.0, 0.0, 0.2;
   fuse_core::Matrix3d cov3;
   cov3 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto relative_x1_x2 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
-    "test", *x1, *x2, delta3, cov3);
+  auto relative_x1_x2 =
+      fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared("test", *x1, *x2, delta3, cov3);
 
   fuse_core::Vector4d delta4;
   delta4 << 0.979795897, 0.0, 0.0, 0.2;
   fuse_core::Matrix3d cov4;
   cov4 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto relative_x2_x3 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
-    "test", *x2, *x3, delta4, cov4);
+  auto relative_x2_x3 =
+      fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared("test", *x2, *x3, delta4, cov4);
 
   fuse_core::Vector4d delta5;
   delta5 << 0.979795897, 0.2, 0.0, 0.0;
   fuse_core::Matrix3d cov5;
   cov5 << 1.0, 0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 3.0;
-  auto relative_x1_l1 = fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared(
-    "test", *x1, *l1, delta5, cov5);
+  auto relative_x1_l1 =
+      fuse_constraints::RelativeOrientation3DStampedConstraint::make_shared("test", *x1, *l1, delta5, cov5);
 
   // Add to the graph
   auto graph = fuse_graphs::HashGraph();
@@ -671,26 +683,22 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
   auto expected_x2 = x2->array();
   auto expected_x3 = x3->array();
 
-  auto requests = std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>
-  {
-    {x2->uuid(), x2->uuid()}, {x3->uuid(), x3->uuid()}
-  };
+  auto requests = std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>{ { x2->uuid(), x2->uuid() },
+                                                                            { x3->uuid(), x3->uuid() } };
   auto expected_covariances = std::vector<std::vector<double>>();
   graph.getCovariance(requests, expected_covariances);
-  const auto & expected_x2_cov = expected_covariances[0];
-  const auto & expected_x3_cov = expected_covariances[1];
+  const auto& expected_x2_cov = expected_covariances[0];
+  const auto& expected_x3_cov = expected_covariances[1];
 
   // Marginalize out X1 and L1
-  auto transaction =
-    fuse_constraints::marginalizeVariables("test", {x1->uuid(), l1->uuid()}, graph);  // NOLINT
+  auto transaction = fuse_constraints::marginalizeVariables("test", { x1->uuid(), l1->uuid() }, graph);  // NOLINT
 
   // Verify the computed transaction
   auto added_variables = transaction.addedVariables();
   EXPECT_EQ(0u, std::distance(added_variables.begin(), added_variables.end()));
 
   auto removed_variables_range = transaction.removedVariables();
-  auto removed_variables = std::set<fuse_core::UUID>(
-    removed_variables_range.begin(), removed_variables_range.end());
+  auto removed_variables = std::set<fuse_core::UUID>(removed_variables_range.begin(), removed_variables_range.end());
   EXPECT_EQ(2u, removed_variables.size());
   EXPECT_TRUE(removed_variables.count(x1->uuid()));
   EXPECT_TRUE(removed_variables.count(l1->uuid()));
@@ -699,9 +707,8 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
   EXPECT_EQ(1u, std::distance(added_constraints.begin(), added_constraints.end()));
 
   auto removed_constraints_range = transaction.removedConstraints();
-  auto removed_constraints = std::set<fuse_core::UUID>(
-    removed_constraints_range.begin(),
-    removed_constraints_range.end());
+  auto removed_constraints =
+      std::set<fuse_core::UUID>(removed_constraints_range.begin(), removed_constraints_range.end());
 
   EXPECT_EQ(4u, removed_constraints.size());
   EXPECT_TRUE(removed_constraints.count(prior_x1->uuid()));
@@ -721,25 +728,29 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
 
   auto actual_covariances = std::vector<std::vector<double>>();
   graph.getCovariance(requests, actual_covariances);
-  const auto & actual_x2_cov = actual_covariances[0];
-  const auto & actual_x3_cov = actual_covariances[1];
+  const auto& actual_x2_cov = actual_covariances[0];
+  const auto& actual_x3_cov = actual_covariances[1];
 
   // Compare. The post-marginal results should be identical to the pre-marginal results
   ASSERT_EQ(expected_x2.size(), actual_x2.size());
-  for (size_t i = 0; i < expected_x2.size(); ++i) {
+  for (size_t i = 0; i < expected_x2.size(); ++i)
+  {
     EXPECT_NEAR(expected_x2[i], actual_x2[i], 1.0e-3);
   }
   ASSERT_EQ(expected_x2_cov.size(), actual_x2_cov.size());
-  for (size_t i = 0; i < expected_x2_cov.size(); ++i) {
+  for (size_t i = 0; i < expected_x2_cov.size(); ++i)
+  {
     EXPECT_NEAR(expected_x2_cov[i], actual_x2_cov[i], 1.0e-3);
   }
 
   ASSERT_EQ(expected_x3.size(), actual_x3.size());
-  for (size_t i = 0; i < expected_x3.size(); ++i) {
+  for (size_t i = 0; i < expected_x3.size(); ++i)
+  {
     EXPECT_NEAR(expected_x3[i], actual_x3[i], 1.0e-3);
   }
   ASSERT_EQ(expected_x3_cov.size(), actual_x3_cov.size());
-  for (size_t i = 0; i < expected_x3_cov.size(); ++i) {
+  for (size_t i = 0; i < expected_x3_cov.size(); ++i)
+  {
     EXPECT_NEAR(expected_x3_cov[i], actual_x3_cov[i], 1.0e-3);
   }
 }

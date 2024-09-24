@@ -51,19 +51,17 @@ namespace fuse_tutorials
 // variable order defined in the RangeCostFunctor must match the variable order provided to the base
 // class Constraint constructor. In this case, robot position, then the beacon position
 // fuse_core::Constraint(source, { robot_position.uuid(), beacon_position.uuid() })
-RangeConstraint::RangeConstraint(
-  const std::string & source,
-  const fuse_variables::Position2DStamped & robot_position,
-  const fuse_variables::Point2DLandmark & beacon_position,
-  const double z,
-  const double sigma)
-: fuse_core::Constraint(source, {robot_position.uuid(), beacon_position.uuid()}),  // NOLINT
-  sigma_(sigma),
-  z_(z)
+RangeConstraint::RangeConstraint(const std::string& source, const fuse_variables::Position2DStamped& robot_position,
+                                 const fuse_variables::Point2DLandmark& beacon_position, const double z,
+                                 const double sigma)
+  : fuse_core::Constraint(source, { robot_position.uuid(), beacon_position.uuid() })
+  ,  // NOLINT
+  sigma_(sigma)
+  , z_(z)
 {
 }
 
-void RangeConstraint::print(std::ostream & stream) const
+void RangeConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -74,7 +72,7 @@ void RangeConstraint::print(std::ostream & stream) const
          << "  range sigma: " << sigma_ << "\n";
 }
 
-ceres::CostFunction * RangeConstraint::costFunction() const
+ceres::CostFunction* RangeConstraint::costFunction() const
 {
   // Here we use the Ceres Solver AutoDiffCostFunction class to generate a derived CostFunction
   // object from our RangeCostFunctor. The AutoDiffCostFunction requires the cost functor as the
@@ -87,8 +85,7 @@ ceres::CostFunction * RangeConstraint::costFunction() const
   //        is also 2.
   // If there were additional involved variables, the size of each variable would appear here in
   // order.
-  return new ceres::AutoDiffCostFunction<RangeCostFunctor, 1, 2, 2>(
-    new RangeCostFunctor(z_, sigma_));
+  return new ceres::AutoDiffCostFunction<RangeCostFunctor, 1, 2, 2>(new RangeCostFunctor(z_, sigma_));
 }
 
 }  // namespace fuse_tutorials

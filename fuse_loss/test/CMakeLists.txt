@@ -1,4 +1,5 @@
-# CORE GTESTS ======================================================================================
+# CORE GTESTS
+# ======================================================================================
 ament_add_gtest(test_loss_function test_loss_function.cpp)
 target_link_libraries(test_loss_function ${PROJECT_NAME})
 
@@ -15,7 +16,10 @@ ament_add_gtest(test_scaled_loss test_scaled_loss.cpp)
 target_link_libraries(test_scaled_loss ${PROJECT_NAME})
 
 # Qwt Loss Plot Tests
-option(BUILD_WITH_PLOT_TESTS "Build with plot tests. These test might fail to run in headless systems." OFF)
+option(
+  BUILD_WITH_PLOT_TESTS
+  "Build with plot tests. These test might fail to run in headless systems."
+  OFF)
 if(BUILD_WITH_PLOT_TESTS)
   find_package(Qt5 REQUIRED COMPONENTS Core Widgets)
 
@@ -26,17 +30,11 @@ if(BUILD_WITH_PLOT_TESTS)
 
   ament_add_gtest(test_qwt_loss_plot test_qwt_loss_plot.cpp)
   target_link_libraries(test_qwt_loss_plot ${PROJECT_NAME})
-  target_include_directories(test_qwt_loss_plot
-    PRIVATE
-      ${Qt5Core_INCLUDE_DIRS}
-      ${Qt5Widgets_INCLUDE_DIRS}
-      ${QWT_INCLUDE_DIRS}
-  )
-  target_link_libraries(test_qwt_loss_plot
-    ${Qt5Core_LIBRARIES}
-    ${Qt5Widgets_LIBRARIES}
-    ${QWT_LIBRARIES}
-  )
+  target_include_directories(
+    test_qwt_loss_plot PRIVATE ${Qt5Core_INCLUDE_DIRS}
+                               ${Qt5Widgets_INCLUDE_DIRS} ${QWT_INCLUDE_DIRS})
+  target_link_libraries(test_qwt_loss_plot ${Qt5Core_LIBRARIES}
+                        ${Qt5Widgets_LIBRARIES} ${QWT_LIBRARIES})
 
   option(BUILD_WITH_INTERACTIVE_TESTS "Build with interactive tests" OFF)
   if(BUILD_WITH_INTERACTIVE_TESTS)

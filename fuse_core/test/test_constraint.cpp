@@ -43,7 +43,7 @@ TEST(Constraint, Constructor)
   // Create a constraint with a single UUID
   {
     fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
-    ExampleConstraint constraint("test", {variable_uuid1});  // NOLINT
+    ExampleConstraint constraint("test", { variable_uuid1 });  // NOLINT
     ASSERT_EQ(1u, constraint.variables().size());
     ASSERT_EQ(variable_uuid1, constraint.variables().at(0));
   }
@@ -52,7 +52,7 @@ TEST(Constraint, Constructor)
     fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
     fuse_core::UUID variable_uuid2 = fuse_core::uuid::generate();
     fuse_core::UUID variable_uuid3 = fuse_core::uuid::generate();
-    ExampleConstraint constraint("test", {variable_uuid1, variable_uuid2, variable_uuid3});  // NOLINT
+    ExampleConstraint constraint("test", { variable_uuid1, variable_uuid2, variable_uuid3 });  // NOLINT
     ASSERT_EQ(3u, constraint.variables().size());
     ASSERT_EQ(variable_uuid1, constraint.variables().at(0));
     ASSERT_EQ(variable_uuid2, constraint.variables().at(1));
@@ -67,7 +67,8 @@ TEST(Constraint, Constructor)
     variable_uuids.push_back(fuse_core::uuid::generate());
     ExampleConstraint constraint("test", variable_uuids.begin(), variable_uuids.end());
     ASSERT_EQ(variable_uuids.size(), constraint.variables().size());
-    for (size_t i = 0; i < variable_uuids.size(); ++i) {
+    for (size_t i = 0; i < variable_uuids.size(); ++i)
+    {
       ASSERT_EQ(variable_uuids.at(i), constraint.variables().at(i));
     }
   }
@@ -76,12 +77,13 @@ TEST(Constraint, Constructor)
     fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
     fuse_core::UUID variable_uuid2 = fuse_core::uuid::generate();
     fuse_core::UUID variable_uuid3 = fuse_core::uuid::generate();
-    ExampleConstraint constraint1("test", {variable_uuid1, variable_uuid2, variable_uuid3});  // NOLINT
+    ExampleConstraint constraint1("test", { variable_uuid1, variable_uuid2, variable_uuid3 });  // NOLINT
     ExampleConstraint constraint2(constraint1);
 
     ASSERT_EQ(constraint1.uuid(), constraint2.uuid());
     ASSERT_EQ(constraint1.variables().size(), constraint2.variables().size());
-    for (size_t i = 0; i < constraint1.variables().size(); ++i) {
+    for (size_t i = 0; i < constraint1.variables().size(); ++i)
+    {
       ASSERT_EQ(constraint1.variables().at(i), constraint2.variables().at(i));
     }
   }
@@ -90,6 +92,6 @@ TEST(Constraint, Constructor)
 TEST(Constraint, Type)
 {
   fuse_core::UUID variable_uuid1 = fuse_core::uuid::generate();
-  ExampleConstraint constraint("test", {variable_uuid1});  // NOLINT
+  ExampleConstraint constraint("test", { variable_uuid1 });  // NOLINT
   ASSERT_EQ("ExampleConstraint", constraint.type());
 }

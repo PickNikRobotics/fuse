@@ -43,29 +43,26 @@
 namespace fuse_loss
 {
 
-GemanMcClureLoss::GemanMcClureLoss(const double a)
-: a_(a)
+GemanMcClureLoss::GemanMcClureLoss(const double a) : a_(a)
 {
 }
 
 void GemanMcClureLoss::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters
-  > interfaces,
-  const std::string & name)
+    fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                               fuse_core::node_interfaces::Parameters>
+        interfaces,
+    const std::string& name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void GemanMcClureLoss::print(std::ostream & stream) const
+void GemanMcClureLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction * GemanMcClureLoss::lossFunction() const
+ceres::LossFunction* GemanMcClureLoss::lossFunction() const
 {
   return new ceres::GemanMcClureLoss(a_);
 }

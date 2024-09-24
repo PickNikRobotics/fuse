@@ -53,16 +53,25 @@ class ExampleVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(ExampleVariable)
 
-  ExampleVariable()
-  : fuse_core::Variable(fuse_core::uuid::generate()),
-    data_(0.0)
+  ExampleVariable() : fuse_core::Variable(fuse_core::uuid::generate()), data_(0.0)
   {
   }
 
-  size_t size() const override {return 1;}
-  const double * data() const override {return &data_;}
-  double * data() override {return &data_;}
-  void print(std::ostream & /*stream = std::cout*/) const override {}
+  size_t size() const override
+  {
+    return 1;
+  }
+  const double* data() const override
+  {
+    return &data_;
+  }
+  double* data() override
+  {
+    return &data_;
+  }
+  void print(std::ostream& /*stream = std::cout*/) const override
+  {
+  }
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**
@@ -70,7 +79,10 @@ public:
    *
    * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
    */
-  fuse_core::Manifold * manifold() const override {return nullptr;}
+  fuse_core::Manifold* manifold() const override
+  {
+    return nullptr;
+  }
 #endif
 
 private:
@@ -86,11 +98,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& data_;
   }
 };
 
@@ -102,11 +114,17 @@ class LegacyParameterization : public fuse_core::LocalParameterization
 public:
   FUSE_SMART_PTR_DEFINITIONS(LegacyParameterization)
 
-  int GlobalSize() const override {return 4;}
+  int GlobalSize() const override
+  {
+    return 4;
+  }
 
-  int LocalSize() const override {return 3;}
+  int LocalSize() const override
+  {
+    return 3;
+  }
 
-  bool Plus(const double * x, const double * delta, double * x_plus_delta) const override
+  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     double q_delta[4];
     ceres::AngleAxisToQuaternion(delta, q_delta);
@@ -114,22 +132,30 @@ public:
     return true;
   }
 
-  bool ComputeJacobian(const double * x, double * jacobian) const override
+  bool ComputeJacobian(const double* x, double* jacobian) const override
   {
     double x0 = x[0] / 2;
     double x1 = x[1] / 2;
     double x2 = x[2] / 2;
     double x3 = x[3] / 2;
     /* *INDENT-OFF* */
-    jacobian[0] = -x1; jacobian[1]  = -x2; jacobian[2]  = -x3;  // NOLINT
-    jacobian[3] =  x0; jacobian[4]  = -x3; jacobian[5]  =  x2;  // NOLINT
-    jacobian[6] =  x3; jacobian[7]  =  x0; jacobian[8]  = -x1;  // NOLINT
-    jacobian[9] = -x2; jacobian[10] =  x1; jacobian[11] =  x0;  // NOLINT
+    jacobian[0] = -x1;
+    jacobian[1] = -x2;
+    jacobian[2] = -x3;  // NOLINT
+    jacobian[3] = x0;
+    jacobian[4] = -x3;
+    jacobian[5] = x2;  // NOLINT
+    jacobian[6] = x3;
+    jacobian[7] = x0;
+    jacobian[8] = -x1;  // NOLINT
+    jacobian[9] = -x2;
+    jacobian[10] = x1;
+    jacobian[11] = x0;  // NOLINT
     /* *INDENT-ON* */
     return true;
   }
 
-  bool Minus(const double * x, const double * y, double * y_minus_x) const override
+  bool Minus(const double* x, const double* y, double* y_minus_x) const override
   {
     double x_inverse[4];
     x_inverse[0] = x[0];
@@ -143,16 +169,25 @@ public:
     return true;
   }
 
-  bool ComputeMinusJacobian(const double * x, double * jacobian) const override
+  bool ComputeMinusJacobian(const double* x, double* jacobian) const override
   {
     double x0 = x[0] * 2;
     double x1 = x[1] * 2;
     double x2 = x[2] * 2;
     double x3 = x[3] * 2;
     /* *INDENT-OFF* */
-    jacobian[0] = -x1; jacobian[1]  =  x0; jacobian[2]  =  x3;  jacobian[3]  = -x2;  // NOLINT
-    jacobian[4] = -x2; jacobian[5]  = -x3; jacobian[6]  =  x0;  jacobian[7]  =  x1;  // NOLINT
-    jacobian[8] = -x3; jacobian[9]  =  x2; jacobian[10] = -x1;  jacobian[11] =  x0;  // NOLINT
+    jacobian[0] = -x1;
+    jacobian[1] = x0;
+    jacobian[2] = x3;
+    jacobian[3] = -x2;  // NOLINT
+    jacobian[4] = -x2;
+    jacobian[5] = -x3;
+    jacobian[6] = x0;
+    jacobian[7] = x1;  // NOLINT
+    jacobian[8] = -x3;
+    jacobian[9] = x2;
+    jacobian[10] = -x1;
+    jacobian[11] = x0;  // NOLINT
     /* *INDENT-ON* */
     return true;
   }
@@ -168,10 +203,10 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
+    archive& boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
   }
 };
 
@@ -180,16 +215,25 @@ class LegacyVariable : public fuse_core::Variable
 public:
   FUSE_VARIABLE_DEFINITIONS(LegacyVariable);
 
-  LegacyVariable()
-  : fuse_core::Variable(fuse_core::uuid::generate()),
-    data_{1.0, 0.0, 0.0, 0.0}
+  LegacyVariable() : fuse_core::Variable(fuse_core::uuid::generate()), data_{ 1.0, 0.0, 0.0, 0.0 }
   {
   }
 
-  size_t size() const override {return 4;}
-  const double * data() const override {return data_;}
-  double * data() override {return data_;}
-  void print(std::ostream & /*stream = std::cout*/) const override {}
+  size_t size() const override
+  {
+    return 4;
+  }
+  const double* data() const override
+  {
+    return data_;
+  }
+  double* data() override
+  {
+    return data_;
+  }
+  void print(std::ostream& /*stream = std::cout*/) const override
+  {
+  }
 
   /**
    * @brief Returns the number of elements of the local parameterization space.
@@ -197,14 +241,17 @@ public:
    * While a quaternion has 4 parameters, a 3D rotation only has 3 degrees of freedom. Hence, the local
    * parameterization space is only size 3.
    */
-  size_t localSize() const override {return 3u;}
+  size_t localSize() const override
+  {
+    return 3u;
+  }
 
   /**
    * @brief Provides a Ceres local parameterization for the quaternion
    *
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
    */
-  fuse_core::LocalParameterization * localParameterization() const override
+  fuse_core::LocalParameterization* localParameterization() const override
   {
     return new LegacyParameterization();
   }
@@ -221,11 +268,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Variable>(*this);
-    archive & data_;
+    archive& boost::serialization::base_object<fuse_core::Variable>(*this);
+    archive& data_;
   }
 };
 

@@ -43,7 +43,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_loss
 {
 
@@ -82,12 +81,9 @@ public:
    *                 server.
    */
   void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    >/*interfaces*/,
-    const std::string & /*name*/) override
+      fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                                 fuse_core::node_interfaces::Parameters> /*interfaces*/,
+      const std::string& /*name*/) override
   {
   }
 
@@ -96,7 +92,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function
@@ -109,7 +105,7 @@ public:
    *
    * @return A base pointer to an instance of a derived ceres::LossFunction.
    */
-  ceres::LossFunction * lossFunction() const override;
+  ceres::LossFunction* lossFunction() const override;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -122,10 +118,10 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Loss>(*this);
+    archive& boost::serialization::base_object<fuse_core::Loss>(*this);
   }
 };
 

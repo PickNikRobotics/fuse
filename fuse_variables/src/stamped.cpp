@@ -41,18 +41,20 @@
 namespace fuse_variables
 {
 
-fuse_core::UUID loadDeviceId(
-  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces)
+fuse_core::UUID
+loadDeviceId(fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces)
 {
   std::string device_str;
 
   device_str = fuse_core::getParam(interfaces, "device_id", std::string());
-  if (!device_str.empty()) {
+  if (!device_str.empty())
+  {
     return fuse_core::uuid::from_string(device_str);
   }
 
   device_str = fuse_core::getParam(interfaces, "device_name", std::string());
-  if (!device_str.empty()) {
+  if (!device_str.empty())
+  {
     return fuse_core::uuid::generate(device_str);
   }
 

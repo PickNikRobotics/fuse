@@ -2,7 +2,7 @@ type: 'rosdoc2 config'
 version: 1
 ---
 settings:
-    # Don't generate a defalt index file, this package provides its own.
+    # Don't generate a default index file, this package provides its own.
     generate_package_index: false
 builders:
     - sphinx: {

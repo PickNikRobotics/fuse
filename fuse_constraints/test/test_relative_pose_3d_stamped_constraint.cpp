@@ -49,11 +49,10 @@
 #include <fuse_variables/orientation_3d_stamped.hpp>
 #include <fuse_variables/position_3d_stamped.hpp>
 
-using fuse_variables::Orientation3DStamped;
-using fuse_variables::Position3DStamped;
 using fuse_constraints::AbsolutePose3DStampedConstraint;
 using fuse_constraints::RelativePose3DStampedConstraint;
-
+using fuse_variables::Orientation3DStamped;
+using fuse_variables::Position3DStamped;
 
 TEST(RelativePose3DStampedConstraint, Constructor)
 {
@@ -70,18 +69,22 @@ TEST(RelativePose3DStampedConstraint, Constructor)
   // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
-  cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT
-         1.10752598122138, 1.39176289439125,  0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,  // NOLINT
-         1.02943174290333, 0.643422499737987, 1.26701658550187,  1.23641771365403, 1.55169301761377, 1.34706781598061,  // NOLINT
-         1.96120532313878, 1.35471905449013,  1.23641771365403,  2.39750866789926, 2.06887486311147, 2.04350823837035,  // NOLINT
-         1.96735470687891, 1.18353784377297,  1.55169301761377,  2.06887486311147, 2.503913946461,   1.73844731158092,  // NOLINT
-         1.5153042667951,  1.28979625492894,  1.34706781598061,  2.04350823837035, 1.73844731158092, 2.15326088526198;  // NOLINT
+  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,
+      1.5153042667951,  // NOLINT
+      1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297,
+      1.28979625492894,  // NOLINT
+      1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377,
+      1.34706781598061,  // NOLINT
+      1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147,
+      2.04350823837035,  // NOLINT
+      1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461,
+      1.73844731158092,  // NOLINT
+      1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092,
+      2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
   EXPECT_NO_THROW(
-    RelativePose3DStampedConstraint constraint(
-      "test", position1, orientation1, position2,
-      orientation2, delta, cov));
+      RelativePose3DStampedConstraint constraint("test", position1, orientation1, position2, orientation2, delta, cov));
 }
 
 TEST(RelativePose3DStampedConstraint, Covariance)
@@ -98,32 +101,32 @@ TEST(RelativePose3DStampedConstraint, Covariance)
   // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
-  cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT
-         1.10752598122138, 1.39176289439125,  0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,  // NOLINT
-         1.02943174290333, 0.643422499737987, 1.26701658550187,  1.23641771365403, 1.55169301761377, 1.34706781598061,  // NOLINT
-         1.96120532313878, 1.35471905449013,  1.23641771365403,  2.39750866789926, 2.06887486311147, 2.04350823837035,  // NOLINT
-         1.96735470687891, 1.18353784377297,  1.55169301761377,  2.06887486311147, 2.503913946461,   1.73844731158092,  // NOLINT
-         1.5153042667951,  1.28979625492894,  1.34706781598061,  2.04350823837035, 1.73844731158092, 2.15326088526198;  // NOLINT
+  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,
+      1.5153042667951,  // NOLINT
+      1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297,
+      1.28979625492894,  // NOLINT
+      1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377,
+      1.34706781598061,  // NOLINT
+      1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147,
+      2.04350823837035,  // NOLINT
+      1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461,
+      1.73844731158092,  // NOLINT
+      1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092,
+      2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  RelativePose3DStampedConstraint constraint(
-    "test",
-    position1,
-    orientation1,
-    position2,
-    orientation2,
-    delta,
-    cov);
+  RelativePose3DStampedConstraint constraint("test", position1, orientation1, position2, orientation2, delta, cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix6d expected_sqrt_info;
   /* *INDENT-OFF* */
-  expected_sqrt_info << 2.12658752275893, 1.20265444927878, 4.71225672571804, 1.43587520991272, -4.12764062992821,  -3.19509486240291,   // NOLINT
-                        0.0,              2.41958656956248, 5.93151964116945, 3.72535320852517, -4.23326858606213,  -5.27776664777548,   // NOLINT
-                        0.0,              0.0,              3.82674686590005, 2.80341171946161, -2.68168478581452,  -2.8894384435255,    // NOLINT
-                        0.0,              0.0,              0.0,              1.83006791372784, -0.696917410192509, -1.17412835464633,   // NOLINT
-                        0.0,              0.0,              0.0,              0.0,               0.953302832761324, -0.769654414882847,  // NOLINT
-                        0.0,              0.0,              0.0,              0.0,               0.0,                0.681477739760948;  // NOLINT
+  expected_sqrt_info << 2.12658752275893, 1.20265444927878, 4.71225672571804, 1.43587520991272, -4.12764062992821,
+      -3.19509486240291,                                                                                // NOLINT
+      0.0, 2.41958656956248, 5.93151964116945, 3.72535320852517, -4.23326858606213, -5.27776664777548,  // NOLINT
+      0.0, 0.0, 3.82674686590005, 2.80341171946161, -2.68168478581452, -2.8894384435255,                // NOLINT
+      0.0, 0.0, 0.0, 1.83006791372784, -0.696917410192509, -1.17412835464633,                           // NOLINT
+      0.0, 0.0, 0.0, 0.0, 0.953302832761324, -0.769654414882847,                                        // NOLINT
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.681477739760948;                                                       // NOLINT
   /* *INDENT-ON* */
   fuse_core::Matrix6d expected_cov = cov;
 
@@ -137,27 +140,23 @@ TEST(RelativePose3DStampedConstraint, Optimization)
   // Optimize a two-pose system with a pose prior and a relative pose constraint
   // Verify the expected poses and covariances are generated.
   // Create two poses
-  auto position1 =
-    Position3DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto position1 = Position3DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   position1->x() = 1.5;
   position1->y() = -3.0;
   position1->z() = 10.0;
 
-  auto orientation1 = Orientation3DStamped::make_shared(
-    rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
+  auto orientation1 = Orientation3DStamped::make_shared(rclcpp::Time(1, 0), fuse_core::uuid::generate("spra"));
   orientation1->w() = 0.952;
   orientation1->x() = 0.038;
   orientation1->y() = -0.189;
   orientation1->z() = 0.239;
 
-  auto position2 =
-    Position3DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("spra"));
+  auto position2 = Position3DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("spra"));
   position2->x() = -1.5;
   position2->y() = 3.0;
   position2->z() = -10.0;
 
-  auto orientation2 = Orientation3DStamped::make_shared(
-    rclcpp::Time(2, 0), fuse_core::uuid::generate("spra"));
+  auto orientation2 = Orientation3DStamped::make_shared(rclcpp::Time(2, 0), fuse_core::uuid::generate("spra"));
   orientation2->w() = 0.944;
   orientation2->x() = -0.128;
   orientation2->y() = 0.145;
@@ -167,78 +166,53 @@ TEST(RelativePose3DStampedConstraint, Optimization)
   fuse_core::Vector7d mean_origin;
   mean_origin << 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix6d cov_origin = fuse_core::Matrix6d::Identity();
-  auto prior = AbsolutePose3DStampedConstraint::make_shared(
-    "test",
-    *position1,
-    *orientation1,
-    mean_origin,
-    cov_origin);
+  auto prior = AbsolutePose3DStampedConstraint::make_shared("test", *position1, *orientation1, mean_origin, cov_origin);
 
   // Create a relative pose constraint for 1m in the x direction
   fuse_core::Vector7d mean_delta;
   mean_delta << 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0;
   fuse_core::Matrix6d cov_delta = fuse_core::Matrix6d::Identity();
-  auto relative = RelativePose3DStampedConstraint::make_shared(
-    "test",
-    *position1,
-    *orientation1,
-    *position2,
-    *orientation2,
-    mean_delta,
-    cov_delta);
+  auto relative = RelativePose3DStampedConstraint::make_shared("test", *position1, *orientation1, *position2,
+                                                               *orientation2, mean_delta, cov_delta);
 
   // Build the problem
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
-  problem.AddParameterBlock(
-    orientation1->data(),
-    orientation1->size(),
+  problem.AddParameterBlock(orientation1->data(), orientation1->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-    orientation1->localParameterization());
+                            orientation1->localParameterization());
 #else
-    orientation1->manifold());
+                            orientation1->manifold());
 #endif
-  problem.AddParameterBlock(
-    position1->data(),
-    position1->size(),
+  problem.AddParameterBlock(position1->data(), position1->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-    position1->localParameterization());
+                            position1->localParameterization());
 #else
-    position1->manifold());
+                            position1->manifold());
 #endif
-  problem.AddParameterBlock(
-    orientation2->data(),
-    orientation2->size(),
+  problem.AddParameterBlock(orientation2->data(), orientation2->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-    orientation2->localParameterization());
+                            orientation2->localParameterization());
 #else
-    orientation2->manifold());
+                            orientation2->manifold());
 #endif
-  problem.AddParameterBlock(
-    position2->data(),
-    position2->size(),
+  problem.AddParameterBlock(position2->data(), position2->size(),
 #if !CERES_SUPPORTS_MANIFOLDS
-    position2->localParameterization());
+                            position2->localParameterization());
 #else
-    position2->manifold());
+                            position2->manifold());
 #endif
-  std::vector<double *> prior_parameter_blocks;
+  std::vector<double*> prior_parameter_blocks;
   prior_parameter_blocks.push_back(position1->data());
   prior_parameter_blocks.push_back(orientation1->data());
-  problem.AddResidualBlock(
-    prior->costFunction(),
-    prior->lossFunction(),
-    prior_parameter_blocks);
-  std::vector<double *> relative_parameter_blocks;
+  problem.AddResidualBlock(prior->costFunction(), prior->lossFunction(), prior_parameter_blocks);
+  std::vector<double*> relative_parameter_blocks;
   relative_parameter_blocks.push_back(position1->data());
   relative_parameter_blocks.push_back(orientation1->data());
   relative_parameter_blocks.push_back(position2->data());
   relative_parameter_blocks.push_back(orientation2->data());
-  problem.AddResidualBlock(
-    relative->costFunction(),
-    relative->lossFunction(),
-    relative_parameter_blocks);
+  problem.AddResidualBlock(relative->costFunction(), relative->lossFunction(), relative_parameter_blocks);
 
   // Run the solver
   ceres::Solver::Options options;
@@ -263,7 +237,7 @@ TEST(RelativePose3DStampedConstraint, Optimization)
 
   // Compute the marginal covariance for pose1
   {
-    std::vector<std::pair<const double *, const double *>> covariance_blocks;
+    std::vector<std::pair<const double*, const double*>> covariance_blocks;
     covariance_blocks.emplace_back(position1->data(), position1->data());
     covariance_blocks.emplace_back(orientation1->data(), orientation1->data());
     covariance_blocks.emplace_back(position1->data(), orientation1->data());
@@ -276,14 +250,10 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     covariance.GetCovarianceBlock(position1->data(), position1->data(), cov_pos_pos.data());
 
     fuse_core::MatrixXd cov_or_or(3, 3);
-    covariance.GetCovarianceBlockInTangentSpace(
-      orientation1->data(),
-      orientation1->data(), cov_or_or.data());
+    covariance.GetCovarianceBlockInTangentSpace(orientation1->data(), orientation1->data(), cov_or_or.data());
 
     fuse_core::MatrixXd cov_pos_or(position1->size(), 3);
-    covariance.GetCovarianceBlockInTangentSpace(
-      position1->data(),
-      orientation1->data(), cov_pos_or.data());
+    covariance.GetCovarianceBlockInTangentSpace(position1->data(), orientation1->data(), cov_pos_or.data());
 
     // Assemble the full covariance from the covariance blocks
     fuse_core::Matrix6d actual_covariance;
@@ -292,13 +262,8 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     // Define the expected covariance
     fuse_core::Matrix6d expected_covariance;
     /* *INDENT-OFF* */
-    expected_covariance <<
-      1.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,  1.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,  0.0,  1.0,  0.0,  0.0,  0.0,
-      0.0,  0.0,  0.0,  1.0,  0.0,  0.0,
-      0.0,  0.0,  0.0,  0.0,  1.0,  0.0,
-      0.0,  0.0,  0.0,  0.0,  0.0,  1.0;
+    expected_covariance << 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0;
     /* *INDENT-ON* */
 
     EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
@@ -306,7 +271,7 @@ TEST(RelativePose3DStampedConstraint, Optimization)
 
   // Compute the marginal covariance for pose2
   {
-    std::vector<std::pair<const double *, const double *>> covariance_blocks;
+    std::vector<std::pair<const double*, const double*>> covariance_blocks;
     covariance_blocks.emplace_back(position2->data(), position2->data());
     covariance_blocks.emplace_back(position2->data(), orientation2->data());
     covariance_blocks.emplace_back(orientation2->data(), orientation2->data());
@@ -319,14 +284,10 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     covariance.GetCovarianceBlock(position2->data(), position2->data(), cov_pos_pos.data());
 
     fuse_core::MatrixXd cov_or_or(3, 3);
-    covariance.GetCovarianceBlockInTangentSpace(
-      orientation2->data(),
-      orientation2->data(), cov_or_or.data());
+    covariance.GetCovarianceBlockInTangentSpace(orientation2->data(), orientation2->data(), cov_or_or.data());
 
     fuse_core::MatrixXd cov_pos_or(position1->size(), 3);
-    covariance.GetCovarianceBlockInTangentSpace(
-      position2->data(),
-      orientation2->data(), cov_pos_or.data());
+    covariance.GetCovarianceBlockInTangentSpace(position2->data(), orientation2->data(), cov_pos_or.data());
 
     // Assemble the full covariance from the covariance blocks
     fuse_core::Matrix6d actual_covariance;
@@ -335,13 +296,8 @@ TEST(RelativePose3DStampedConstraint, Optimization)
     // Define the expected covariance
     fuse_core::Matrix6d expected_covariance;
     /* *INDENT-OFF* */
-    expected_covariance <<
-      2.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-      0.0,  3.0,  0.0,  0.0,  0.0,  1.0,
-      0.0,  0.0,  3.0,  0.0, -1.0,  0.0,
-      0.0,  0.0,  0.0,  2.0,  0.0,  0.0,
-      0.0,  0.0, -1.0,  0.0,  2.0,  0.0,
-      0.0,  1.0,  0.0,  0.0,  0.0,  2.0;
+    expected_covariance << 2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 3.0, 0.0, -1.0, 0.0,
+        0.0, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0, -1.0, 0.0, 2.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 2.0;
     /* *INDENT-ON* */
 
     EXPECT_MATRIX_NEAR(expected_covariance, actual_covariance, 1.0e-9);
@@ -363,16 +319,21 @@ TEST(RelativePose3DStampedConstraint, Serialization)
   // required precision)
   fuse_core::Matrix6d cov;
   /* *INDENT-OFF* */
-  cov << 2.0847236144069,  1.10752598122138,  1.02943174290333,  1.96120532313878, 1.96735470687891, 1.5153042667951,   // NOLINT
-         1.10752598122138, 1.39176289439125,  0.643422499737987, 1.35471905449013, 1.18353784377297, 1.28979625492894,  // NOLINT
-         1.02943174290333, 0.643422499737987, 1.26701658550187,  1.23641771365403, 1.55169301761377, 1.34706781598061,  // NOLINT
-         1.96120532313878, 1.35471905449013,  1.23641771365403,  2.39750866789926, 2.06887486311147, 2.04350823837035,  // NOLINT
-         1.96735470687891, 1.18353784377297,  1.55169301761377,  2.06887486311147, 2.503913946461,   1.73844731158092,  // NOLINT
-         1.5153042667951,  1.28979625492894,  1.34706781598061,  2.04350823837035, 1.73844731158092, 2.15326088526198;  // NOLINT
+  cov << 2.0847236144069, 1.10752598122138, 1.02943174290333, 1.96120532313878, 1.96735470687891,
+      1.5153042667951,  // NOLINT
+      1.10752598122138, 1.39176289439125, 0.643422499737987, 1.35471905449013, 1.18353784377297,
+      1.28979625492894,  // NOLINT
+      1.02943174290333, 0.643422499737987, 1.26701658550187, 1.23641771365403, 1.55169301761377,
+      1.34706781598061,  // NOLINT
+      1.96120532313878, 1.35471905449013, 1.23641771365403, 2.39750866789926, 2.06887486311147,
+      2.04350823837035,  // NOLINT
+      1.96735470687891, 1.18353784377297, 1.55169301761377, 2.06887486311147, 2.503913946461,
+      1.73844731158092,  // NOLINT
+      1.5153042667951, 1.28979625492894, 1.34706781598061, 2.04350823837035, 1.73844731158092,
+      2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  RelativePose3DStampedConstraint expected("test", position1, orientation1, position2, orientation2,
-    delta, cov);
+  RelativePose3DStampedConstraint expected("test", position1, orientation1, position2, orientation2, delta, cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;

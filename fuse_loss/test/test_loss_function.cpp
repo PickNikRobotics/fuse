@@ -64,7 +64,7 @@ namespace
 // Compares the values of rho'(s) and rho''(s) computed by the
 // callback with estimates obtained by symmetric finite differencing
 // of rho(s).
-void AssertLossFunctionIsValid(const ceres::LossFunction & loss, double s)
+void AssertLossFunctionIsValid(const ceres::LossFunction& loss, double s)
 {
   ASSERT_GT(s, 0);
 

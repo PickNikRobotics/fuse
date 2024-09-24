@@ -42,15 +42,12 @@ PLUGINLIB_EXPORT_CLASS(fuse_models::Transaction, fuse_core::SensorModel)
 namespace fuse_models
 {
 
-Transaction::Transaction()
-: fuse_core::AsyncSensorModel(1)
+Transaction::Transaction() : fuse_core::AsyncSensorModel(1)
 {
 }
 
-void Transaction::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const std::string & name,
-  fuse_core::TransactionCallback transaction_callback)
+void Transaction::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                             const std::string& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -68,12 +65,8 @@ void Transaction::onStart()
   sub_options.callback_group = cb_group_;
 
   sub_ = rclcpp::create_subscription<fuse_msgs::msg::SerializedTransaction>(
-    interfaces_,
-    fuse_core::joinTopicName(name_, params_.topic),
-    params_.queue_size,
-    std::bind(&Transaction::process, this, std::placeholders::_1),
-    sub_options
-  );
+      interfaces_, fuse_core::joinTopicName(name_, params_.topic), params_.queue_size,
+      std::bind(&Transaction::process, this, std::placeholders::_1), sub_options);
 }
 
 void Transaction::onStop()
@@ -81,7 +74,7 @@ void Transaction::onStop()
   sub_.reset();
 }
 
-void Transaction::process(const fuse_msgs::msg::SerializedTransaction & msg)
+void Transaction::process(const fuse_msgs::msg::SerializedTransaction& msg)
 {
   // Deserialize and send the transaction to the plugin's parent
   sendTransaction(transaction_deserializer_.deserialize(msg)->clone());

@@ -1,4 +1,5 @@
-# CORE GTESTS ======================================================================================
+# CORE GTESTS
+# ======================================================================================
 ament_add_gtest(test_constraint test_constraint.cpp)
 target_link_libraries(test_constraint ${PROJECT_NAME})
 
@@ -29,11 +30,12 @@ target_link_libraries(test_util ${PROJECT_NAME})
 ament_add_gtest(test_uuid test_uuid.cpp)
 target_link_libraries(test_uuid ${PROJECT_NAME})
 
-ament_add_gtest(test_variable test_variable.cpp WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
+ament_add_gtest(test_variable test_variable.cpp WORKING_DIRECTORY
+                ${PROJECT_SOURCE_DIR}/test)
 target_link_libraries(test_variable ${PROJECT_NAME})
 
-
-# ROS TESTS (NO LAUNCH) ============================================================================
+# ROS TESTS (NO LAUNCH)
+# ============================================================================
 ament_add_gtest(test_async_motion_model test_async_motion_model.cpp)
 target_link_libraries(test_async_motion_model ${PROJECT_NAME})
 
@@ -48,17 +50,18 @@ target_link_libraries(test_callback_wrapper ${PROJECT_NAME})
 
 find_package(geometry_msgs REQUIRED)
 ament_add_gtest(test_throttled_callback test_throttled_callback.cpp)
-target_link_libraries(test_throttled_callback ${PROJECT_NAME} ${geometry_msgs_TARGETS})
+target_link_libraries(test_throttled_callback ${PROJECT_NAME}
+                      ${geometry_msgs_TARGETS})
 
-
-# ROS TESTS (WITH LAUNCH) ==========================================================================
+# ROS TESTS (WITH LAUNCH)
+# ==========================================================================
 find_package(ament_cmake_pytest REQUIRED)
 
 ament_add_gtest_executable(test_parameters launch_tests/test_parameters.cpp)
 target_link_libraries(test_parameters ${PROJECT_NAME})
 
 ament_add_pytest_test(test_parameters_py "launch_tests/test_parameters.py"
-  WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-)
+                      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
 
-configure_file("launch_tests/test_parameters.yaml" "launch_tests/test_parameters.yaml" COPYONLY)
+configure_file("launch_tests/test_parameters.yaml"
+               "launch_tests/test_parameters.yaml" COPYONLY)

@@ -49,12 +49,11 @@
 #include <fuse_msgs/srv/set_pose_deprecated.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-using fuse_constraints::AbsolutePosition2DStampedConstraint;
-using fuse_constraints::AbsoluteOrientation2DStampedConstraint;
-using fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint;
-using fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint;
 using fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint;
-
+using fuse_constraints::AbsoluteOrientation2DStampedConstraint;
+using fuse_constraints::AbsolutePosition2DStampedConstraint;
+using fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint;
+using fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint;
 
 /**
  * @brief Promise used to communicate between the tests and the callback
@@ -72,18 +71,19 @@ void transactionCallback(fuse_core::Transaction::SharedPtr transaction)
 /**
  * @brief Helper function for fetching the desired constraint from a transaction
  */
-template<typename Derived>
-const Derived * getConstraint(const fuse_core::Transaction & transaction)
+template <typename Derived>
+const Derived* getConstraint(const fuse_core::Transaction& transaction)
 {
-  for (const auto & constraint : transaction.addedConstraints()) {
-    auto derived = dynamic_cast<const Derived *>(&constraint);
-    if (derived) {
+  for (const auto& constraint : transaction.addedConstraints())
+  {
+    auto derived = dynamic_cast<const Derived*>(&constraint);
+    if (derived)
+    {
       return derived;
     }
   }
   return nullptr;
 }
-
 
 class Unicycle2DIgnitionTestFixture : public ::testing::Test
 {
@@ -96,23 +96,21 @@ public:
   {
     rclcpp::init(0, nullptr);
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    spinner_ = std::thread(
-      [&]() {
-        executor_->spin();
-      });
+    spinner_ = std::thread([&]() { executor_->spin(); });
   }
 
   void TearDown() override
   {
     executor_->cancel();
-    if (spinner_.joinable()) {
+    if (spinner_.joinable())
+    {
       spinner_.join();
     }
     executor_.reset();
     rclcpp::shutdown();
   }
 
-  std::thread spinner_;   //!< Internal thread for spinning the executor
+  std::thread spinner_;  //!< Internal thread for spinning the executor
   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 };
 
@@ -120,13 +118,12 @@ TEST_F(Unicycle2DIgnitionTestFixture, InitialTransaction)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments(
-  {
-    "--ros-args",
-    "-p", "ignition_sensor.initial_state:="
-    "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
-    "-p", "ignition_sensor.initial_sigma:="
-    "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]"});
+  options.arguments({ "--ros-args", "-p",
+                      "ignition_sensor.initial_state:="
+                      "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
+                      "-p",
+                      "ignition_sensor.initial_sigma:="
+                      "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]" });
   auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
   executor_->add_node(node);
 
@@ -201,14 +198,13 @@ TEST_F(Unicycle2DIgnitionTestFixture, SkipInitialTransaction)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments(
-  {
-    "--ros-args",
-    "-p", "ignition_sensor.initial_state:="
-    "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
-    "-p", "ignition_sensor.initial_sigma:="
-    "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
-    "-p", "ignition_sensor.publish_on_startup:=false"});
+  options.arguments({ "--ros-args", "-p",
+                      "ignition_sensor.initial_state:="
+                      "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
+                      "-p",
+                      "ignition_sensor.initial_sigma:="
+                      "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
+                      "-p", "ignition_sensor.publish_on_startup:=false" });
   auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
   executor_->add_node(node);
 
@@ -230,16 +226,14 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseService)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments(
-  {
-    "--ros-args",
-    "-p", "ignition_sensor.initial_state:="
-    "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
-    "-p", "ignition_sensor.initial_sigma:="
-    "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
-    "-p", "ignition_sensor.set_pose_service:=set_pose",
-    "-p", "ignition_sensor.reset_service:=''",
-    "-p", "ignition_sensor.publish_on_startup:=false"});
+  options.arguments({ "--ros-args", "-p",
+                      "ignition_sensor.initial_state:="
+                      "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
+                      "-p",
+                      "ignition_sensor.initial_sigma:="
+                      "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
+                      "-p", "ignition_sensor.set_pose_service:=set_pose", "-p", "ignition_sensor.reset_service:=''",
+                      "-p", "ignition_sensor.publish_on_startup:=false" });
   auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
   executor_->add_node(node);
 
@@ -331,16 +325,14 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
 {
   // Set some configuration
   rclcpp::NodeOptions options;
-  options.arguments(
-  {
-    "--ros-args",
-    "-p", "ignition_sensor.initial_state:="
-    "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
-    "-p", "ignition_sensor.initial_sigma:="
-    "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
-    "-p", "ignition_sensor.set_pose_deprecated_service:=set_pose_deprecated",
-    "-p", "ignition_sensor.reset_service:=''",
-    "-p", "ignition_sensor.publish_on_startup:=false"});
+  options.arguments({ "--ros-args", "-p",
+                      "ignition_sensor.initial_state:="
+                      "[0.1, 1.2, 2.3, 3.4, 4.5, 5.6, 6.7, 7.8]",
+                      "-p",
+                      "ignition_sensor.initial_sigma:="
+                      "[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]",
+                      "-p", "ignition_sensor.set_pose_deprecated_service:=set_pose_deprecated", "-p",
+                      "ignition_sensor.reset_service:=''", "-p", "ignition_sensor.publish_on_startup:=false" });
   auto node = rclcpp::Node::make_shared("unicycle_2d_ignition_test", options);
   executor_->add_node(node);
 
@@ -363,8 +355,8 @@ TEST_F(Unicycle2DIgnitionTestFixture, SetPoseDeprecatedService)
   srv->pose.pose.covariance[0] = 1.0;
   srv->pose.pose.covariance[7] = 2.0;
   srv->pose.pose.covariance[35] = 3.0;
-  auto client = node->create_client<fuse_msgs::srv::SetPoseDeprecated>(
-    "/unicycle_2d_ignition_test/set_pose_deprecated");
+  auto client =
+      node->create_client<fuse_msgs::srv::SetPoseDeprecated>("/unicycle_2d_ignition_test/set_pose_deprecated");
   ASSERT_TRUE(client->wait_for_service(std::chrono::seconds(1)));
   auto result = client->async_send_request(srv);
   ASSERT_EQ(std::future_status::ready, result.wait_for(std::chrono::seconds(10)));

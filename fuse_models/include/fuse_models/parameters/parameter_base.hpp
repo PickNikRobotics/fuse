@@ -41,7 +41,6 @@
 #include <fuse_models/common/sensor_config.hpp>
 #include <fuse_core/parameter.hpp>
 
-
 namespace fuse_models
 {
 
@@ -60,12 +59,10 @@ struct ParameterBase
    * @param[in] ns - The parameter namespace to use
    */
   virtual void loadFromROS(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string & ns) = 0;
+      fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                                 fuse_core::node_interfaces::Parameters>
+          interfaces,
+      const std::string& ns) = 0;
 };
 
 /**
@@ -77,14 +74,15 @@ struct ParameterBase
  * @param[in] name - The ROS parameter name for the sensor configuration parameter
  * @return A vector with the dimension indices, that would be empty if the parameter does not exist
  */
-template<typename T>
-inline std::vector<size_t> loadSensorConfig(
-  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
-  const std::string & name)
+template <typename T>
+inline std::vector<size_t>
+loadSensorConfig(fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
+                 const std::string& name)
 {
   std::vector<std::string> dimensions;
   dimensions = fuse_core::getParam(interfaces, name, dimensions);
-  if (!dimensions.empty()) {
+  if (!dimensions.empty())
+  {
     return common::getDimensionIndices<T>(dimensions);
   }
 
