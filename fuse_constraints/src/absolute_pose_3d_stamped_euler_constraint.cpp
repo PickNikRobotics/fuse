@@ -45,27 +45,24 @@ namespace fuse_constraints
 {
 
 AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
-  const std::string & source,
-  const fuse_variables::Position3DStamped & position,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const fuse_core::Vector6d & mean,
-  const fuse_core::Matrix6d & covariance)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
-  mean_(mean),
-  sqrt_information_(covariance.inverse().llt().matrixU())
-{ 
+    const std::string& source, const fuse_variables::Position3DStamped& position,
+    const fuse_variables::Orientation3DStamped& orientation, const fuse_core::Vector6d& mean,
+    const fuse_core::Matrix6d& covariance)
+  : fuse_core::Constraint(source, { position.uuid(), orientation.uuid() })
+  ,  // NOLINT
+  mean_(mean)
+  , sqrt_information_(covariance.inverse().llt().matrixU())
+{
 }
 
 AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
-  const std::string & source,
-  const fuse_variables::Position3DStamped & position,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const fuse_core::Vector6d & partial_mean,
-  const fuse_core::MatrixXd & partial_covariance,
-  const std::vector<size_t> & variable_indices)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
+    const std::string& source, const fuse_variables::Position3DStamped& position,
+    const fuse_variables::Orientation3DStamped& orientation, const fuse_core::Vector6d& partial_mean,
+    const fuse_core::MatrixXd& partial_covariance, const std::vector<size_t>& variable_indices)
+  : fuse_core::Constraint(source, { position.uuid(), orientation.uuid() })
+  ,  // NOLINT
   mean_(partial_mean)
-{ 
+{
   // Compute the partial sqrt information matrix of the provided cov matrix
   fuse_core::MatrixXd partial_sqrt_information = partial_covariance.inverse().llt().matrixU();
 
@@ -76,8 +73,8 @@ AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
   // dimensions. But the variable vectors will be full sized. We can make this all work out by
   // creating a non-square A, where each row computes a cost for one measured dimensions,
   // and the columns are in the order defined by the variable.
-  
-  // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions 
+
+  // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions
   sqrt_information_ = fuse_core::MatrixXd::Zero(variable_indices.size(), 6);
   for (size_t i = 0; i < variable_indices.size(); ++i)
   {
@@ -103,7 +100,7 @@ fuse_core::Matrix6d AbsolutePose3DStampedEulerConstraint::covariance() const
   return pinv * pinv.transpose();
 }
 
-void AbsolutePose3DStampedEulerConstraint::print(std::ostream & stream) const
+void AbsolutePose3DStampedEulerConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -113,23 +110,24 @@ void AbsolutePose3DStampedEulerConstraint::print(std::ostream & stream) const
          << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 
-  if (loss()) {
+  if (loss())
+  {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
-ceres::CostFunction * AbsolutePose3DStampedEulerConstraint::costFunction() const
+ceres::CostFunction* AbsolutePose3DStampedEulerConstraint::costFunction() const
 {
   return new NormalPriorPose3DEuler(sqrt_information_, mean_);
-  
+
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
   // use automatic differentiation as follows:
 
   // return new ceres::AutoDiffCostFunction<NormalPriorPose3DEulerCostFunctor, ceres::DYNAMIC, 3, 4>(
-    // new NormalPriorPose3DEulerCostFunctor(sqrt_information_, mean_), 
-    // sqrt_information_.rows());
-    
+  // new NormalPriorPose3DEulerCostFunctor(sqrt_information_, mean_),
+  // sqrt_information_.rows());
+
   // And including the followings:
   // #include <ceres/autodiff_cost_function.h>
   // #include <fuse_constraints/normal_prior_pose_3d_euler_cost_functor.hpp>

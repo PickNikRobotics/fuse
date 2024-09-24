@@ -43,11 +43,11 @@
 
 TEST(Predict, predictDirectVals)
 {
-  fuse_core::Vector3d position1 (0.0, 0.0, 0.0);
-  Eigen::Quaterniond orientation1 (1.0, 0.0, 0.0, 0.0);
-  fuse_core::Vector3d vel_linear1 (1.0, 0.0, 0.0);
-  fuse_core::Vector3d vel_angular1 (0.0, 0.0, 1.570796327);
-  fuse_core::Vector3d acc_linear1 (1.0, 0.0, 0.0);
+  fuse_core::Vector3d position1(0.0, 0.0, 0.0);
+  Eigen::Quaterniond orientation1(1.0, 0.0, 0.0, 0.0);
+  fuse_core::Vector3d vel_linear1(1.0, 0.0, 0.0);
+  fuse_core::Vector3d vel_angular1(0.0, 0.0, 1.570796327);
+  fuse_core::Vector3d acc_linear1(1.0, 0.0, 0.0);
   double dt = 0.1;
   fuse_core::Vector3d position2;
   Eigen::Quaterniond orientation2;
@@ -55,22 +55,11 @@ TEST(Predict, predictDirectVals)
   fuse_core::Vector3d vel_angular2;
   fuse_core::Vector3d acc_linear2;
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2);
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   Eigen::Quaterniond q;
-  q = Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitZ()) *
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
+  q = Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitZ()) * Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
 
   EXPECT_DOUBLE_EQ(0.105, position2.x());
@@ -91,23 +80,12 @@ TEST(Predict, predictDirectVals)
   EXPECT_DOUBLE_EQ(0.0, acc_linear2.z());
 
   // // Carry on with the output state from last time - show in-place update support
-  fuse_models::predict(
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2);
+  fuse_models::predict(position2, orientation2, vel_linear2, vel_angular2, acc_linear2, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
-  q = Eigen::AngleAxisd(0.3141592654, Eigen::Vector3d::UnitZ()) *
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
+  q = Eigen::AngleAxisd(0.3141592654, Eigen::Vector3d::UnitZ()) * Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
-  
+
   EXPECT_DOUBLE_EQ(0.21858415916807189, position2.x());
   EXPECT_DOUBLE_EQ(0.017989963481956205, position2.y());
   EXPECT_DOUBLE_EQ(0.0, position2.z());
@@ -130,21 +108,10 @@ TEST(Predict, predictDirectVals)
   vel_angular1.z() = -1.570796327;
   acc_linear1.y() = -1.0;
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2);
-  
-  q = Eigen::AngleAxisd(-0.1570796327, Eigen::Vector3d::UnitZ()) *
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
+
+  q = Eigen::AngleAxisd(-0.1570796327, Eigen::Vector3d::UnitZ()) * Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
       Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
 
   EXPECT_DOUBLE_EQ(0.105, position2.x());
@@ -162,26 +129,15 @@ TEST(Predict, predictDirectVals)
   EXPECT_DOUBLE_EQ(0.0, acc_linear2.z());
 
   // Out of plane motion
-  position1 = {0.0, 0.0, 0.0};
-  orientation1 = {1.0, 0.0, 0.0, 0.0};
-  vel_linear1 = {0.0, 0.0, 0.1};
-  vel_angular1 = {1.570796327, 0.0, 0.0};
-  acc_linear1 = {0.0, 0.0, 1.0};
+  position1 = { 0.0, 0.0, 0.0 };
+  orientation1 = { 1.0, 0.0, 0.0, 0.0 };
+  vel_linear1 = { 0.0, 0.0, 0.1 };
+  vel_angular1 = { 1.570796327, 0.0, 0.0 };
+  acc_linear1 = { 0.0, 0.0, 1.0 };
   dt = 0.1;
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2
-  );
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(0.0, position2.x());
   EXPECT_DOUBLE_EQ(0.0, position2.y());
@@ -201,26 +157,15 @@ TEST(Predict, predictDirectVals)
   EXPECT_DOUBLE_EQ(1.0, acc_linear2.z());
 
   // General 3D motion (these value are checked against rl predict() equations)
-  position1 = {0.0, 0.0, 0.0};
-  orientation1 = {0.110, -0.003, -0.943, 0.314}; // RPY {-2.490, -0.206, 3.066}
-  vel_linear1 = {0.1, 0.2, 0.1};
-  vel_angular1 = {1.570796327, 1.570796327, -1.570796327};
-  acc_linear1 = {-0.5, 1.0, 1.0};
+  position1 = { 0.0, 0.0, 0.0 };
+  orientation1 = { 0.110, -0.003, -0.943, 0.314 };  // RPY {-2.490, -0.206, 3.066}
+  vel_linear1 = { 0.1, 0.2, 0.1 };
+  vel_angular1 = { 1.570796327, 1.570796327, -1.570796327 };
+  acc_linear1 = { -0.5, 1.0, 1.0 };
   dt = 0.1;
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2
-  );
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(-0.012044123300410431, position2.x());
   EXPECT_DOUBLE_EQ(0.011755776496514461, position2.y());
@@ -242,11 +187,11 @@ TEST(Predict, predictDirectVals)
 
 TEST(Predict, predictFromDoublePointers)
 {
-  double position1[3] {0.0, 0.0, 0.0};
-  double orientation1[3] {0.0, 0.0, 0.0};
-  double vel_linear1[3] {1.0, 0.0, 0.0};
-  double vel_angular1[3] {0.0, 0.0, 1.570796327};
-  double acc_linear1[3] {1.0, 0.0, 0.0};
+  double position1[3]{ 0.0, 0.0, 0.0 };
+  double orientation1[3]{ 0.0, 0.0, 0.0 };
+  double vel_linear1[3]{ 1.0, 0.0, 0.0 };
+  double vel_angular1[3]{ 0.0, 0.0, 1.570796327 };
+  double acc_linear1[3]{ 1.0, 0.0, 0.0 };
   double dt = 0.1;
   double position2[3];
   double orientation2[3];
@@ -254,60 +199,40 @@ TEST(Predict, predictFromDoublePointers)
   double vel_angular2[3];
   double acc_linear2[3];
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2);
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(0.105, position2[0]);
-  EXPECT_DOUBLE_EQ(0.0,   position2[1]);
-  EXPECT_DOUBLE_EQ(0.0,   position2[2]);
+  EXPECT_DOUBLE_EQ(0.0, position2[1]);
+  EXPECT_DOUBLE_EQ(0.0, position2[2]);
   EXPECT_DOUBLE_EQ(0.0, orientation2[0]);
   EXPECT_DOUBLE_EQ(0.0, orientation2[1]);
   EXPECT_DOUBLE_EQ(0.1570796327, orientation2[2]);
-  EXPECT_DOUBLE_EQ(1.1,   vel_linear2[0]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_linear2[1]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_linear2[2]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_angular2[0]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_angular2[1]);
+  EXPECT_DOUBLE_EQ(1.1, vel_linear2[0]);
+  EXPECT_DOUBLE_EQ(0.0, vel_linear2[1]);
+  EXPECT_DOUBLE_EQ(0.0, vel_linear2[2]);
+  EXPECT_DOUBLE_EQ(0.0, vel_angular2[0]);
+  EXPECT_DOUBLE_EQ(0.0, vel_angular2[1]);
   EXPECT_DOUBLE_EQ(1.570796327, vel_angular2[2]);
   EXPECT_DOUBLE_EQ(1.0, acc_linear2[0]);
   EXPECT_DOUBLE_EQ(0.0, acc_linear2[1]);
   EXPECT_DOUBLE_EQ(0.0, acc_linear2[2]);
 
   // Carry on with the output state from last time - show in-place update support
-  fuse_models::predict(
-      position2,
-      orientation2,
-      vel_linear2,
-      vel_angular2,
-      acc_linear2,
-      dt,
-      position2,
-      orientation2,
-      vel_linear2,
-      vel_angular2,
-      acc_linear2);
+  fuse_models::predict(position2, orientation2, vel_linear2, vel_angular2, acc_linear2, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
-  EXPECT_DOUBLE_EQ(0.21858415916807189,  position2[0]);
+  EXPECT_DOUBLE_EQ(0.21858415916807189, position2[0]);
   EXPECT_DOUBLE_EQ(0.017989963481956205, position2[1]);
   EXPECT_DOUBLE_EQ(0.0, position2[2]);
   EXPECT_DOUBLE_EQ(0.0, orientation2[0]);
   EXPECT_DOUBLE_EQ(0.0, orientation2[1]);
   EXPECT_DOUBLE_EQ(0.3141592654, orientation2[2]);
-  EXPECT_DOUBLE_EQ(1.2,   vel_linear2[0]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_linear2[1]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_linear2[2]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_angular2[0]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_angular2[1]);
+  EXPECT_DOUBLE_EQ(1.2, vel_linear2[0]);
+  EXPECT_DOUBLE_EQ(0.0, vel_linear2[1]);
+  EXPECT_DOUBLE_EQ(0.0, vel_linear2[2]);
+  EXPECT_DOUBLE_EQ(0.0, vel_angular2[0]);
+  EXPECT_DOUBLE_EQ(0.0, vel_angular2[1]);
   EXPECT_DOUBLE_EQ(1.570796327, vel_angular2[2]);
   EXPECT_DOUBLE_EQ(1.0, acc_linear2[0]);
   EXPECT_DOUBLE_EQ(0.0, acc_linear2[1]);
@@ -318,35 +243,25 @@ TEST(Predict, predictFromDoublePointers)
   vel_angular1[2] = -1.570796327;
   acc_linear1[1] = -1.0;
 
-  fuse_models::predict(
-      position1,
-      orientation1,
-      vel_linear1,
-      vel_angular1,
-      acc_linear1,
-      dt,
-      position2,
-      orientation2,
-      vel_linear2,
-      vel_angular2,
-      acc_linear2);
-  
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
+
   EXPECT_DOUBLE_EQ(0.105, position2[0]);
-  EXPECT_DOUBLE_EQ(-0.105,position2[1]);
-  EXPECT_DOUBLE_EQ(0.0,   position2[2]);
+  EXPECT_DOUBLE_EQ(-0.105, position2[1]);
+  EXPECT_DOUBLE_EQ(0.0, position2[2]);
   EXPECT_DOUBLE_EQ(0.0, orientation2[0]);
   EXPECT_DOUBLE_EQ(0.0, orientation2[1]);
   EXPECT_DOUBLE_EQ(-0.1570796327, orientation2[2]);
-  EXPECT_DOUBLE_EQ(1.1,   vel_linear2[0]);
-  EXPECT_DOUBLE_EQ(-1.1,  vel_linear2[1]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_linear2[2]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_angular2[0]);
-  EXPECT_DOUBLE_EQ(0.0,   vel_angular2[1]);
+  EXPECT_DOUBLE_EQ(1.1, vel_linear2[0]);
+  EXPECT_DOUBLE_EQ(-1.1, vel_linear2[1]);
+  EXPECT_DOUBLE_EQ(0.0, vel_linear2[2]);
+  EXPECT_DOUBLE_EQ(0.0, vel_angular2[0]);
+  EXPECT_DOUBLE_EQ(0.0, vel_angular2[1]);
   EXPECT_DOUBLE_EQ(-1.570796327, vel_angular2[2]);
-  EXPECT_DOUBLE_EQ(1.0,  acc_linear2[0]);
+  EXPECT_DOUBLE_EQ(1.0, acc_linear2[0]);
   EXPECT_DOUBLE_EQ(-1.0, acc_linear2[1]);
   EXPECT_DOUBLE_EQ(0.0, acc_linear2[2]);
-  
+
   // Out of plane motion
   position1[0] = 0.0;
   position1[1] = 0.0;
@@ -365,19 +280,8 @@ TEST(Predict, predictFromDoublePointers)
   acc_linear1[2] = 1.0;
   dt = 0.1;
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2
-  );
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(0.0, position2[0]);
   EXPECT_DOUBLE_EQ(0.0, position2[1]);
@@ -413,26 +317,15 @@ TEST(Predict, predictFromDoublePointers)
   acc_linear1[2] = 1.0;
   dt = 0.1;
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2
-  );
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(-0.012031207341885572, position2[0]);
-  EXPECT_DOUBLE_EQ(0.011723254405731805,  position2[1]);
+  EXPECT_DOUBLE_EQ(0.011723254405731805, position2[1]);
   EXPECT_DOUBLE_EQ(-0.024981300126995967, position2[2]);
-  EXPECT_DOUBLE_EQ(-2.3391131265098766,   orientation2[0]);
-  EXPECT_DOUBLE_EQ(-0.4261584872792554,  orientation2[1]);
-  EXPECT_DOUBLE_EQ(3.0962756133525855,  orientation2[2]);
+  EXPECT_DOUBLE_EQ(-2.3391131265098766, orientation2[0]);
+  EXPECT_DOUBLE_EQ(-0.4261584872792554, orientation2[1]);
+  EXPECT_DOUBLE_EQ(3.0962756133525855, orientation2[2]);
   EXPECT_DOUBLE_EQ(0.05, vel_linear2[0]);
   EXPECT_DOUBLE_EQ(0.3, vel_linear2[1]);
   EXPECT_DOUBLE_EQ(0.2, vel_linear2[2]);
@@ -448,11 +341,11 @@ TEST(Predict, predictFromJetPointers)
 {
   using Jet = ceres::Jet<double, 32>;
 
-  Jet position1[3] = {Jet(0.0), Jet(0.0), Jet(0.0)};
-  Jet orientation1[3] = {Jet(0.0), Jet(0.0), Jet(0.0)};
-  Jet vel_linear1[3] = {Jet(1.0), Jet(0.0), Jet(0.0)};
-  Jet vel_angular1[3] = {Jet(0.0), Jet(0.0), Jet(1.570796327)};
-  Jet acc_linear1[3] = {Jet(1.0), Jet(0.0), Jet(0.0)};
+  Jet position1[3] = { Jet(0.0), Jet(0.0), Jet(0.0) };
+  Jet orientation1[3] = { Jet(0.0), Jet(0.0), Jet(0.0) };
+  Jet vel_linear1[3] = { Jet(1.0), Jet(0.0), Jet(0.0) };
+  Jet vel_angular1[3] = { Jet(0.0), Jet(0.0), Jet(1.570796327) };
+  Jet acc_linear1[3] = { Jet(1.0), Jet(0.0), Jet(0.0) };
   Jet dt = Jet(0.1);
   Jet position2[3];
   Jet orientation2[3];
@@ -460,100 +353,70 @@ TEST(Predict, predictFromJetPointers)
   Jet vel_angular2[3];
   Jet acc_linear2[3];
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2);
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(Jet(0.105).a, position2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   position2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   position2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, position2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, position2[2].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, orientation2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, orientation2[1].a);
   EXPECT_DOUBLE_EQ(Jet(0.1570796327).a, orientation2[2].a);
-  EXPECT_DOUBLE_EQ(Jet(1.1).a,   vel_linear2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_linear2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_linear2[2].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_angular2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_angular2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(1.1).a, vel_linear2[0].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_linear2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_linear2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_angular2[0].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_angular2[1].a);
   EXPECT_DOUBLE_EQ(Jet(1.570796327).a, vel_angular2[2].a);
   EXPECT_DOUBLE_EQ(Jet(1.0).a, acc_linear2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, acc_linear2[1].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, acc_linear2[2].a);
 
   // Carry on with the output state from last time - show in-place update support
-  fuse_models::predict(
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2);
-  
-  EXPECT_DOUBLE_EQ(Jet(0.21858415916807189).a,  position2[0].a);
+  fuse_models::predict(position2, orientation2, vel_linear2, vel_angular2, acc_linear2, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
+
+  EXPECT_DOUBLE_EQ(Jet(0.21858415916807189).a, position2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.017989963481956205).a, position2[1].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, position2[2].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, orientation2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, orientation2[1].a);
   EXPECT_DOUBLE_EQ(Jet(0.3141592654).a, orientation2[2].a);
-  EXPECT_DOUBLE_EQ(Jet(1.2).a,   vel_linear2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_linear2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_linear2[2].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_angular2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_angular2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(1.2).a, vel_linear2[0].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_linear2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_linear2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_angular2[0].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_angular2[1].a);
   EXPECT_DOUBLE_EQ(Jet(1.570796327).a, vel_angular2[2].a);
   EXPECT_DOUBLE_EQ(Jet(1.0).a, acc_linear2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, acc_linear2[1].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, acc_linear2[2].a);
 
   // // Use non-zero Y values
-  vel_linear1[1]  = Jet(-1.0);
+  vel_linear1[1] = Jet(-1.0);
   vel_angular1[2] = Jet(-1.570796327);
-  acc_linear1[1]  = Jet(-1.0);
+  acc_linear1[1] = Jet(-1.0);
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2);
-  
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
+
   EXPECT_DOUBLE_EQ(Jet(0.105).a, position2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(-0.105).a,position2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   position2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(-0.105).a, position2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, position2[2].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, orientation2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, orientation2[1].a);
   EXPECT_DOUBLE_EQ(Jet(-0.1570796327).a, orientation2[2].a);
-  EXPECT_DOUBLE_EQ(Jet(1.1).a,   vel_linear2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(-1.1).a,  vel_linear2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_linear2[2].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_angular2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,   vel_angular2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(1.1).a, vel_linear2[0].a);
+  EXPECT_DOUBLE_EQ(Jet(-1.1).a, vel_linear2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_linear2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_angular2[0].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, vel_angular2[1].a);
   EXPECT_DOUBLE_EQ(Jet(-1.570796327).a, vel_angular2[2].a);
-  EXPECT_DOUBLE_EQ(Jet(1.0).a,  acc_linear2[0].a);
+  EXPECT_DOUBLE_EQ(Jet(1.0).a, acc_linear2[0].a);
   EXPECT_DOUBLE_EQ(Jet(-1.0).a, acc_linear2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(0.0).a,  acc_linear2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(0.0).a, acc_linear2[2].a);
 
-// Out of plane motion
+  // Out of plane motion
   position1[0] = Jet(0.0);
   position1[1] = Jet(0.0);
   position1[2] = Jet(0.0);
@@ -571,19 +434,8 @@ TEST(Predict, predictFromJetPointers)
   acc_linear1[2] = Jet(1.0);
   dt = Jet(0.1);
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2
-  );
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(Jet(0.0).a, position2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.0).a, position2[1].a);
@@ -619,26 +471,15 @@ TEST(Predict, predictFromJetPointers)
   acc_linear1[2] = Jet(1.0);
   dt = Jet(0.1);
 
-  fuse_models::predict(
-    position1,
-    orientation1,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    dt,
-    position2,
-    orientation2,
-    vel_linear2,
-    vel_angular2,
-    acc_linear2
-  );
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(Jet(-0.012031207341885572).a, position2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(0.011723254405731805).a,  position2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(0.011723254405731805).a, position2[1].a);
   EXPECT_DOUBLE_EQ(Jet(-0.024981300126995967).a, position2[2].a);
-  EXPECT_DOUBLE_EQ(Jet(-2.3391131265098766).a,   orientation2[0].a);
-  EXPECT_DOUBLE_EQ(Jet(-0.4261584872792554).a,  orientation2[1].a);
-  EXPECT_DOUBLE_EQ(Jet(3.0962756133525855).a,  orientation2[2].a);
+  EXPECT_DOUBLE_EQ(Jet(-2.3391131265098766).a, orientation2[0].a);
+  EXPECT_DOUBLE_EQ(Jet(-0.4261584872792554).a, orientation2[1].a);
+  EXPECT_DOUBLE_EQ(Jet(3.0962756133525855).a, orientation2[2].a);
   EXPECT_DOUBLE_EQ(Jet(0.05).a, vel_linear2[0].a);
   EXPECT_DOUBLE_EQ(Jet(0.3).a, vel_linear2[1].a);
   EXPECT_DOUBLE_EQ(Jet(0.2).a, vel_linear2[2].a);

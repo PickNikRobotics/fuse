@@ -32,7 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-
 #ifndef FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
 #define FUSE_CONSTRAINTS__ABSOLUTE_POSE_3D_STAMPED_EULER_CONSTRAINT_HPP_
 
@@ -54,13 +53,12 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_constraints
 {
 
 /**
  * @brief A constraint that represents either prior information about a 3D pose, or a direct
- *        measurement of the 3D pose. 
+ *        measurement of the 3D pose.
  *
  * A 3D pose is the combination of a 3D position and a 3D orientation variable. As a convenience,
  * this class applies an absolute constraint on both variables at once. This type of constraint
@@ -92,13 +90,10 @@ public:
    *                            (6x1 vector: x, y, z, roll, pitch, yaw)
    * @param[in] covariance      The measurement/prior covariance (6x6 matrix: x, y, z, roll, pitch, yaw)
    */
-  AbsolutePose3DStampedEulerConstraint(
-    const std::string & source,
-    const fuse_variables::Position3DStamped & position,
-    const fuse_variables::Orientation3DStamped & orientation,
-    const fuse_core::Vector6d & mean,
-    const fuse_core::Matrix6d & covariance);
-  
+  AbsolutePose3DStampedEulerConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
+                                       const fuse_variables::Orientation3DStamped& orientation,
+                                       const fuse_core::Vector6d& mean, const fuse_core::Matrix6d& covariance);
+
   /**
    * @brief Create a constraint using a partial measurement/prior of the 3D pose
    *
@@ -110,13 +105,11 @@ public:
    * @param[in] partial_covariance  The measurement/prior covariance (6x6 matrix: x, y, z, roll, pitch, yaw)
    * @param[in] variable_indices    The indices of the measured variables
    */
-  AbsolutePose3DStampedEulerConstraint(
-    const std::string & source,
-    const fuse_variables::Position3DStamped & position,
-    const fuse_variables::Orientation3DStamped & orientation,
-    const fuse_core::Vector6d & partial_mean,
-    const fuse_core::MatrixXd & partial_covariance,
-    const std::vector<size_t> & variable_indices);
+  AbsolutePose3DStampedEulerConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
+                                       const fuse_variables::Orientation3DStamped& orientation,
+                                       const fuse_core::Vector6d& partial_mean,
+                                       const fuse_core::MatrixXd& partial_covariance,
+                                       const std::vector<size_t>& variable_indices);
 
   /**
    * @brief Destructor
@@ -128,14 +121,20 @@ public:
    *
    * Order is (x, y, z, roll, pitch, yaw)
    */
-  const fuse_core::Vector6d & mean() const {return mean_;}
+  const fuse_core::Vector6d& mean() const
+  {
+    return mean_;
+  }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
    * Order is (x, y, z, roll, pitch, yaw)
    */
-  const fuse_core::MatrixXd & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::MatrixXd& sqrtInformation() const
+  {
+    return sqrt_information_;
+  }
 
   /**
    * @brief Compute the measurement covariance matrix.
@@ -149,7 +148,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -161,10 +160,10 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction * costFunction() const override;
+  ceres::CostFunction* costFunction() const override;
 
 protected:
-  fuse_core::Vector6d mean_;  //!< The measured/prior mean vector for this variable
+  fuse_core::Vector6d mean_;              //!< The measured/prior mean vector for this variable
   fuse_core::MatrixXd sqrt_information_;  //!< The square root information matrix
 
 private:
@@ -178,12 +177,12 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & mean_;
-    archive & sqrt_information_;
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& mean_;
+    archive& sqrt_information_;
   }
 };
 

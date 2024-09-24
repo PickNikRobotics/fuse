@@ -67,18 +67,17 @@ namespace fuse_models
 {
 
 Omnidirectional3DIgnition::Omnidirectional3DIgnition()
-: fuse_core::AsyncSensorModel(1),
-  started_(false),
-  initial_transaction_sent_(false),
-  device_id_(fuse_core::uuid::NIL),
-  logger_(rclcpp::get_logger("uninitialized"))
+  : fuse_core::AsyncSensorModel(1)
+  , started_(false)
+  , initial_transaction_sent_(false)
+  , device_id_(fuse_core::uuid::NIL)
+  , logger_(rclcpp::get_logger("uninitialized"))
 {
 }
 
 void Omnidirectional3DIgnition::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const std::string & name,
-  fuse_core::TransactionCallback transaction_callback)
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, const std::string& name,
+    fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -95,52 +94,32 @@ void Omnidirectional3DIgnition::onInit()
   params_.loadFromROS(interfaces_, name_);
 
   // Connect to the reset service
-  if (!params_.reset_service.empty()) {
+  if (!params_.reset_service.empty())
+  {
     reset_client_ = rclcpp::create_client<std_srvs::srv::Empty>(
-      interfaces_.get_node_base_interface(),
-      interfaces_.get_node_graph_interface(),
-      interfaces_.get_node_services_interface(),
-      params_.reset_service,
-      rclcpp::ServicesQoS(),
-      cb_group_
-    );
+        interfaces_.get_node_base_interface(), interfaces_.get_node_graph_interface(),
+        interfaces_.get_node_services_interface(), params_.reset_service, rclcpp::ServicesQoS(), cb_group_);
   }
 
   // Advertise
   rclcpp::SubscriptionOptions sub_options;
   sub_options.callback_group = cb_group_;
   sub_ = rclcpp::create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
-    interfaces_,
-    params_.topic,
-    params_.queue_size,
-    std::bind(&Omnidirectional3DIgnition::subscriberCallback, this, std::placeholders::_1),
-    sub_options
-  );
+      interfaces_, params_.topic, params_.queue_size,
+      std::bind(&Omnidirectional3DIgnition::subscriberCallback, this, std::placeholders::_1), sub_options);
 
   set_pose_service_ = rclcpp::create_service<fuse_msgs::srv::SetPose>(
-    interfaces_.get_node_base_interface(),
-    interfaces_.get_node_services_interface(),
-    fuse_core::joinTopicName(
-      interfaces_.get_node_base_interface()->get_name(),
-      params_.set_pose_service),
-    std::bind(
-      &Omnidirectional3DIgnition::setPoseServiceCallback, this, std::placeholders::_1,
-      std::placeholders::_2, std::placeholders::_3),
-    rclcpp::ServicesQoS(),
-    cb_group_
-  );
+      interfaces_.get_node_base_interface(), interfaces_.get_node_services_interface(),
+      fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.set_pose_service),
+      std::bind(&Omnidirectional3DIgnition::setPoseServiceCallback, this, std::placeholders::_1, std::placeholders::_2,
+                std::placeholders::_3),
+      rclcpp::ServicesQoS(), cb_group_);
   set_pose_deprecated_service_ = rclcpp::create_service<fuse_msgs::srv::SetPoseDeprecated>(
-    interfaces_.get_node_base_interface(),
-    interfaces_.get_node_services_interface(),
-    fuse_core::joinTopicName(
-      interfaces_.get_node_base_interface()->get_name(),
-      params_.set_pose_deprecated_service),
-    std::bind(
-      &Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1,
-      std::placeholders::_2, std::placeholders::_3),
-    rclcpp::ServicesQoS(),
-    cb_group_
-  );
+      interfaces_.get_node_base_interface(), interfaces_.get_node_services_interface(),
+      fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.set_pose_deprecated_service),
+      std::bind(&Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1,
+                std::placeholders::_2, std::placeholders::_3),
+      rclcpp::ServicesQoS(), cb_group_);
 }
 
 void Omnidirectional3DIgnition::start()
@@ -150,7 +129,8 @@ void Omnidirectional3DIgnition::start()
   // TODO(swilliams) Should this be executed every time optimizer.reset() is called, or only once
   //                 ever? I feel like it should be "only once ever". Send an initial state
   //                 transaction immediately, if requested
-  if (params_.publish_on_startup && !initial_transaction_sent_) {
+  if (params_.publish_on_startup && !initial_transaction_sent_)
+  {
     auto pose = geometry_msgs::msg::PoseWithCovarianceStamped();
     tf2::Quaternion q;
     // q.setRPY(params_.initial_state[3], params_.initial_state[4], params_.initial_state[5]);
@@ -163,7 +143,8 @@ void Omnidirectional3DIgnition::start()
     pose.pose.pose.orientation.y = q.y();
     pose.pose.pose.orientation.z = q.z();
     pose.pose.pose.orientation.w = q.w();
-    for (size_t i = 0; i < 6; i++) {
+    for (size_t i = 0; i < 6; i++)
+    {
       pose.pose.covariance[i * 7] = params_.initial_sigma[i] * params_.initial_sigma[i];
     }
     sendPrior(pose);
@@ -176,30 +157,32 @@ void Omnidirectional3DIgnition::stop()
   started_ = false;
 }
 
-void Omnidirectional3DIgnition::subscriberCallback(
-  const geometry_msgs::msg::PoseWithCovarianceStamped & msg)
+void Omnidirectional3DIgnition::subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
 {
-  try {
+  try
+  {
     process(msg);
-  } catch (const std::exception & e) {
+  }
+  catch (const std::exception& e)
+  {
     RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring message.");
   }
 }
 
-bool Omnidirectional3DIgnition::setPoseServiceCallback(
-  rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
-  std::shared_ptr<rmw_request_id_t> request_id,
-  const fuse_msgs::srv::SetPose::Request::SharedPtr req)
+bool Omnidirectional3DIgnition::setPoseServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
+                                                       std::shared_ptr<rmw_request_id_t> request_id,
+                                                       const fuse_msgs::srv::SetPose::Request::SharedPtr req)
 {
-  try {
-    process(
-      req->pose,
-      [service, request_id]() {
-        fuse_msgs::srv::SetPose::Response response;
-        response.success = true;
-        service->send_response(*request_id, response);
-      });
-  } catch (const std::exception & e) {
+  try
+  {
+    process(req->pose, [service, request_id]() {
+      fuse_msgs::srv::SetPose::Response response;
+      response.success = true;
+      service->send_response(*request_id, response);
+    });
+  }
+  catch (const std::exception& e)
+  {
     fuse_msgs::srv::SetPose::Response response;
     response.success = false;
     response.message = e.what();
@@ -210,18 +193,18 @@ bool Omnidirectional3DIgnition::setPoseServiceCallback(
 }
 
 bool Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback(
-  rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
-  std::shared_ptr<rmw_request_id_t> request_id,
-  const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req)
+    rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service, std::shared_ptr<rmw_request_id_t> request_id,
+    const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req)
 {
-  try {
-    process(
-      req->pose,
-      [service, request_id]() {
-        fuse_msgs::srv::SetPoseDeprecated::Response response;
-        service->send_response(*request_id, response);
-      });
-  } catch (const std::exception & e) {
+  try
+  {
+    process(req->pose, [service, request_id]() {
+      fuse_msgs::srv::SetPoseDeprecated::Response response;
+      service->send_response(*request_id, response);
+    });
+  }
+  catch (const std::exception& e)
+  {
     fuse_msgs::srv::SetPoseDeprecated::Response response;
     RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring request.");
     service->send_response(*request_id, response);
@@ -229,33 +212,32 @@ bool Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback(
   return true;
 }
 
-void Omnidirectional3DIgnition::process(
-  const geometry_msgs::msg::PoseWithCovarianceStamped & pose, std::function<void()> post_process)
+void Omnidirectional3DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+                                        std::function<void()> post_process)
 {
   // Verify we are in the correct state to process set pose requests
-  if (!started_) {
+  if (!started_)
+  {
     throw std::runtime_error("Attempting to set the pose while the sensor is stopped.");
   }
   // Validate the requested pose and covariance before we do anything
-  if (!std::isfinite(pose.pose.pose.position.x) || !std::isfinite(pose.pose.pose.position.y) || !std::isfinite(pose.pose.pose.position.z)) {
+  if (!std::isfinite(pose.pose.pose.position.x) || !std::isfinite(pose.pose.pose.position.y) ||
+      !std::isfinite(pose.pose.pose.position.z))
+  {
     throw std::invalid_argument(
-            "Attempting to set the pose to an invalid position (" +
-            std::to_string(pose.pose.pose.position.x) + ", " +
-            std::to_string(pose.pose.pose.position.y) + ", " +
-            std::to_string(pose.pose.pose.position.z) + ").");
+        "Attempting to set the pose to an invalid position (" + std::to_string(pose.pose.pose.position.x) + ", " +
+        std::to_string(pose.pose.pose.position.y) + ", " + std::to_string(pose.pose.pose.position.z) + ").");
   }
-  auto orientation_norm = std::sqrt(
-    pose.pose.pose.orientation.x * pose.pose.pose.orientation.x +
-    pose.pose.pose.orientation.y * pose.pose.pose.orientation.y +
-    pose.pose.pose.orientation.z * pose.pose.pose.orientation.z +
-    pose.pose.pose.orientation.w * pose.pose.pose.orientation.w);
-  if (std::abs(orientation_norm - 1.0) > 1.0e-3) {
+  auto orientation_norm = std::sqrt(pose.pose.pose.orientation.x * pose.pose.pose.orientation.x +
+                                    pose.pose.pose.orientation.y * pose.pose.pose.orientation.y +
+                                    pose.pose.pose.orientation.z * pose.pose.pose.orientation.z +
+                                    pose.pose.pose.orientation.w * pose.pose.pose.orientation.w);
+  if (std::abs(orientation_norm - 1.0) > 1.0e-3)
+  {
     throw std::invalid_argument(
-            "Attempting to set the pose to an invalid orientation (" +
-            std::to_string(pose.pose.pose.orientation.x) + ", " +
-            std::to_string(pose.pose.pose.orientation.y) + ", " +
-            std::to_string(pose.pose.pose.orientation.z) + ", " +
-            std::to_string(pose.pose.pose.orientation.w) + ").");
+        "Attempting to set the pose to an invalid orientation (" + std::to_string(pose.pose.pose.orientation.x) + ", " +
+        std::to_string(pose.pose.pose.orientation.y) + ", " + std::to_string(pose.pose.pose.orientation.z) + ", " +
+        std::to_string(pose.pose.pose.orientation.w) + ").");
   }
   auto position_cov = fuse_core::Matrix3d();
   // for (size_t i = 0; i < 3; i++) {
@@ -263,18 +245,18 @@ void Omnidirectional3DIgnition::process(
   //     position_cov(i, j) = pose.pose.covariance[i * 6 + j];
   //   }
   // }
-  position_cov << pose.pose.covariance[0], pose.pose.covariance[1], pose.pose.covariance[2],
-                  pose.pose.covariance[6], pose.pose.covariance[7], pose.pose.covariance[8],
-                  pose.pose.covariance[12], pose.pose.covariance[13], pose.pose.covariance[14];
-  if (!fuse_core::isSymmetric(position_cov)) {
-    throw std::invalid_argument(
-            "Attempting to set the pose with a non-symmetric position covariance matrix\n " +
-            fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
+  position_cov << pose.pose.covariance[0], pose.pose.covariance[1], pose.pose.covariance[2], pose.pose.covariance[6],
+      pose.pose.covariance[7], pose.pose.covariance[8], pose.pose.covariance[12], pose.pose.covariance[13],
+      pose.pose.covariance[14];
+  if (!fuse_core::isSymmetric(position_cov))
+  {
+    throw std::invalid_argument("Attempting to set the pose with a non-symmetric position covariance matrix\n " +
+                                fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
-  if (!fuse_core::isPositiveDefinite(position_cov)) {
-    throw std::invalid_argument(
-            "Attempting to set the pose with a non-positive-definite position covariance matrix\n" +
-            fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
+  if (!fuse_core::isPositiveDefinite(position_cov))
+  {
+    throw std::invalid_argument("Attempting to set the pose with a non-positive-definite position covariance matrix\n" +
+                                fuse_core::to_string(position_cov, Eigen::FullPrecision) + ".");
   }
   auto orientation_cov = fuse_core::Matrix3d();
   // for (size_t i = 0; i < 3; i++) {
@@ -283,27 +265,28 @@ void Omnidirectional3DIgnition::process(
   //   }
   // }
   orientation_cov << pose.pose.covariance[21], pose.pose.covariance[22], pose.pose.covariance[23],
-                     pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29],
-                     pose.pose.covariance[33], pose.pose.covariance[34], pose.pose.covariance[35];
-  if (!fuse_core::isSymmetric(orientation_cov)) {
-    throw std::invalid_argument(
-            "Attempting to set the pose with a non-symmetric orientation covariance matrix\n " +
-            fuse_core::to_string(orientation_cov, Eigen::FullPrecision) + ".");
+      pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29], pose.pose.covariance[33],
+      pose.pose.covariance[34], pose.pose.covariance[35];
+  if (!fuse_core::isSymmetric(orientation_cov))
+  {
+    throw std::invalid_argument("Attempting to set the pose with a non-symmetric orientation covariance matrix\n " +
+                                fuse_core::to_string(orientation_cov, Eigen::FullPrecision) + ".");
   }
-  if (!fuse_core::isPositiveDefinite(orientation_cov)) {
+  if (!fuse_core::isPositiveDefinite(orientation_cov))
+  {
     throw std::invalid_argument(
-            "Attempting to set the pose with a non-positive-definite orientation_cov covariance matrix\n" +
-            fuse_core::to_string(orientation_cov, Eigen::FullPrecision) + ".");
+        "Attempting to set the pose with a non-positive-definite orientation_cov covariance matrix\n" +
+        fuse_core::to_string(orientation_cov, Eigen::FullPrecision) + ".");
   }
   // Tell the optimizer to reset before providing the initial state
-  if (!params_.reset_service.empty()) {
+  if (!params_.reset_service.empty())
+  {
     // Wait for the reset service
     while (!reset_client_->wait_for_service(std::chrono::seconds(10)) &&
-      interfaces_.get_node_base_interface()->get_context()->is_valid())
+           interfaces_.get_node_base_interface()->get_context()->is_valid())
     {
-      RCLCPP_WARN_STREAM(
-        logger_,
-        "Waiting for '" << reset_client_->get_service_name() << "' service to become avaiable.");
+      RCLCPP_WARN_STREAM(logger_,
+                         "Waiting for '" << reset_client_->get_service_name() << "' service to become avaiable.");
     }
 
     auto srv = std::make_shared<std_srvs::srv::Empty::Request>();
@@ -311,27 +294,30 @@ void Omnidirectional3DIgnition::process(
     // It needs to be free to handle the response to this service call.
     // Have a callback do the rest of the work when a response comes.
     auto result_future = reset_client_->async_send_request(
-      srv,
-      [this, post_process, pose](rclcpp::Client<std_srvs::srv::Empty>::SharedFuture result) {
-        (void)result;
-        // Now that the pose has been validated and the optimizer has been reset, actually send the
-        // initial state constraints to the optimizer
-        sendPrior(pose);
-        if (post_process) {
-          post_process();
-        }
-      });
-  } else {
+        srv, [this, post_process, pose](rclcpp::Client<std_srvs::srv::Empty>::SharedFuture result) {
+          (void)result;
+          // Now that the pose has been validated and the optimizer has been reset, actually send the
+          // initial state constraints to the optimizer
+          sendPrior(pose);
+          if (post_process)
+          {
+            post_process();
+          }
+        });
+  }
+  else
+  {
     sendPrior(pose);
-    if (post_process) {
+    if (post_process)
+    {
       post_process();
     }
   }
 }
 
-void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped & pose)
+void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose)
 {
-  const auto & stamp = pose.header.stamp;
+  const auto& stamp = pose.header.stamp;
 
   // Create variables for the full state.
   // The initial values of the pose are extracted from the provided PoseWithCovarianceStamped
@@ -379,55 +365,42 @@ void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCova
   //   }
   // }
 
-  position_cov << pose.pose.covariance[0], pose.pose.covariance[1], pose.pose.covariance[2],
-                  pose.pose.covariance[6], pose.pose.covariance[7], pose.pose.covariance[8],
-                  pose.pose.covariance[12], pose.pose.covariance[13], pose.pose.covariance[14];
+  position_cov << pose.pose.covariance[0], pose.pose.covariance[1], pose.pose.covariance[2], pose.pose.covariance[6],
+      pose.pose.covariance[7], pose.pose.covariance[8], pose.pose.covariance[12], pose.pose.covariance[13],
+      pose.pose.covariance[14];
 
   orientation_cov << pose.pose.covariance[21], pose.pose.covariance[22], pose.pose.covariance[23],
-                     pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29],
-                     pose.pose.covariance[33], pose.pose.covariance[34], pose.pose.covariance[35];
-  
-  linear_velocity_cov << params_.initial_sigma[6] * params_.initial_sigma[6], 0.0, 0.0,
-                         0.0, params_.initial_sigma[7] * params_.initial_sigma[7], 0.0,
-                         0.0, 0.0, params_.initial_sigma[8] * params_.initial_sigma[8];
- 
-  angular_velocity_cov << params_.initial_sigma[9] * params_.initial_sigma[9], 0.0, 0.0,
-                          0.0, params_.initial_sigma[10] * params_.initial_sigma[10], 0.0,
-                          0.0, 0.0, params_.initial_sigma[11] * params_.initial_sigma[11];
-  
-  linear_acceleration_cov << params_.initial_sigma[12] * params_.initial_sigma[12], 0.0, 0.0,
-                             0.0, params_.initial_sigma[13] * params_.initial_sigma[13], 0.0,
-                             0.0, 0.0, params_.initial_sigma[14] * params_.initial_sigma[14];
+      pose.pose.covariance[27], pose.pose.covariance[28], pose.pose.covariance[29], pose.pose.covariance[33],
+      pose.pose.covariance[34], pose.pose.covariance[35];
+
+  linear_velocity_cov << params_.initial_sigma[6] * params_.initial_sigma[6], 0.0, 0.0, 0.0,
+      params_.initial_sigma[7] * params_.initial_sigma[7], 0.0, 0.0, 0.0,
+      params_.initial_sigma[8] * params_.initial_sigma[8];
+
+  angular_velocity_cov << params_.initial_sigma[9] * params_.initial_sigma[9], 0.0, 0.0, 0.0,
+      params_.initial_sigma[10] * params_.initial_sigma[10], 0.0, 0.0, 0.0,
+      params_.initial_sigma[11] * params_.initial_sigma[11];
+
+  linear_acceleration_cov << params_.initial_sigma[12] * params_.initial_sigma[12], 0.0, 0.0, 0.0,
+      params_.initial_sigma[13] * params_.initial_sigma[13], 0.0, 0.0, 0.0,
+      params_.initial_sigma[14] * params_.initial_sigma[14];
   // Create absolute constraints for each variable
   auto position_constraint = fuse_constraints::AbsolutePosition3DStampedConstraint::make_shared(
-    name(),
-    *position,
-    fuse_core::Vector3d(position->x(), position->y(), position->z()),
-    position_cov);
-  auto orientation_constraint =
-    fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
-    name(),
-    *orientation,
-    Eigen::Quaterniond(orientation->w(), orientation->x(), orientation->y(), orientation->z()),
-    orientation_cov);
-  auto linear_velocity_constraint =
-    fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint::make_shared(
-    name(),
-    *linear_velocity,
-    fuse_core::Vector3d(linear_velocity->x(), linear_velocity->y(), linear_velocity->z()),
-    linear_velocity_cov);
-  auto angular_velocity_constraint =
-    fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint::make_shared(
-    name(),
-    *angular_velocity,
-    fuse_core::Vector3d(angular_velocity->roll(), angular_velocity->pitch(), angular_velocity->yaw()),
-    angular_velocity_cov);
-  auto linear_acceleration_constraint =
-    fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint::make_shared(
-    name(),
-    *linear_acceleration,
-    fuse_core::Vector3d(linear_acceleration->x(), linear_acceleration->y(), linear_acceleration->z()),
-    linear_acceleration_cov);
+      name(), *position, fuse_core::Vector3d(position->x(), position->y(), position->z()), position_cov);
+  auto orientation_constraint = fuse_constraints::AbsoluteOrientation3DStampedConstraint::make_shared(
+      name(), *orientation, Eigen::Quaterniond(orientation->w(), orientation->x(), orientation->y(), orientation->z()),
+      orientation_cov);
+  auto linear_velocity_constraint = fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint::make_shared(
+      name(), *linear_velocity, fuse_core::Vector3d(linear_velocity->x(), linear_velocity->y(), linear_velocity->z()),
+      linear_velocity_cov);
+  auto angular_velocity_constraint = fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint::make_shared(
+      name(), *angular_velocity,
+      fuse_core::Vector3d(angular_velocity->roll(), angular_velocity->pitch(), angular_velocity->yaw()),
+      angular_velocity_cov);
+  auto linear_acceleration_constraint = fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint::make_shared(
+      name(), *linear_acceleration,
+      fuse_core::Vector3d(linear_acceleration->x(), linear_acceleration->y(), linear_acceleration->z()),
+      linear_acceleration_cov);
 
   // Create the transaction
   auto transaction = fuse_core::Transaction::make_shared();
@@ -447,13 +420,9 @@ void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCova
   // Send the transaction to the optimizer.
   sendTransaction(transaction);
 
-  RCLCPP_INFO_STREAM(
-    logger_,
-    "Received a set_pose request (stamp: " << rclcpp::Time(stamp).nanoseconds()
-                                           << ", x: " << position->x() << ", y: "
-                                           << position->y() << ", z: " << position->z() 
-                                           << ", roll: " << orientation->roll()
-                                           << ", pitch: " << orientation->pitch()
-                                           << ", yaw: " << orientation->yaw() << ")");
+  RCLCPP_INFO_STREAM(logger_, "Received a set_pose request (stamp: "
+                                  << rclcpp::Time(stamp).nanoseconds() << ", x: " << position->x() << ", y: "
+                                  << position->y() << ", z: " << position->z() << ", roll: " << orientation->roll()
+                                  << ", pitch: " << orientation->pitch() << ", yaw: " << orientation->yaw() << ")");
 }
 }  // namespace fuse_models

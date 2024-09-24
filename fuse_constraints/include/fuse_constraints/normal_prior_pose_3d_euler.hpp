@@ -38,7 +38,6 @@
 
 #include <fuse_core/eigen.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -54,7 +53,7 @@ namespace fuse_constraints
  *   cost(x) = ||  A *        [  y - b(1)]          ||
  *             ||             [  z - b(2)]          ||
  *             ||     [  quat2eul(q) - b(3:5)  ]    ||
- * 
+ *
  * Here, the matrix A can be of variable size, thereby permitting the computation of errors for
  * partial measurements. The vector b is a fixed-size 6x1. In case the user is interested in
  * implementing a cost function of the form:
@@ -79,7 +78,7 @@ public:
    *              order (x, y, z, roll, pitch, yaw)
    * @param[in] b The pose measurement or prior in order (x, y, z, roll, pitch, yaw)
    */
-  NormalPriorPose3DEuler(const fuse_core::MatrixXd & A, const fuse_core::Vector6d & b);
+  NormalPriorPose3DEuler(const fuse_core::MatrixXd& A, const fuse_core::Vector6d& b);
 
   /**
    * @brief Destructor
@@ -90,10 +89,7 @@ public:
    * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided
    *        variable/parameter values
    */
-  virtual bool Evaluate(
-    double const * const * parameters,
-    double * residuals,
-    double ** jacobians) const;
+  virtual bool Evaluate(double const* const* parameters, double* residuals, double** jacobians) const;
 
 private:
   fuse_core::MatrixXd A_;  //!< The residual weighting matrix, most likely the square root

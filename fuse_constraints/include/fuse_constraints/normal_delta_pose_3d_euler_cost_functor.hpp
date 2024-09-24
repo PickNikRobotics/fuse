@@ -41,7 +41,6 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -76,62 +75,42 @@ public:
    *              order (dx, dy, dz, droll, dpitch, dyaw)
    * @param[in] b The exposed pose difference in order (dx, dy, dz, droll, dpitch, dyaw)
    */
-  NormalDeltaPose3DEulerCostFunctor(const fuse_core::MatrixXd & A, const fuse_core::Vector6d & b);
+  NormalDeltaPose3DEulerCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector6d& b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
    */
-  template<typename T>
-  bool operator()(
-    const T * const position1,
-    const T * const orientation1,
-    const T * const position2,
-    const T * const orientation2,
-    T * residual) const;
+  template <typename T>
+  bool operator()(const T* const position1, const T* const orientation1, const T* const position2,
+                  const T* const orientation2, T* residual) const;
 
 private:
   fuse_core::MatrixXd A_;
   fuse_core::Vector6d b_;
 };
 
-NormalDeltaPose3DEulerCostFunctor::NormalDeltaPose3DEulerCostFunctor(
-  const fuse_core::MatrixXd & A,
-  const fuse_core::Vector6d & b)
-: A_(A),
-  b_(b)
+NormalDeltaPose3DEulerCostFunctor::NormalDeltaPose3DEulerCostFunctor(const fuse_core::MatrixXd& A,
+                                                                     const fuse_core::Vector6d& b)
+  : A_(A), b_(b)
 {
   CHECK_GT(A_.rows(), 0);
   CHECK_EQ(A_.cols(), 6);
 }
 
-template<typename T>
-bool NormalDeltaPose3DEulerCostFunctor::operator()(
-  const T * const position1,
-  const T * const orientation1,
-  const T * const position2,
-  const T * const orientation2,
-  T * residual) const
+template <typename T>
+bool NormalDeltaPose3DEulerCostFunctor::operator()(const T* const position1, const T* const orientation1,
+                                                   const T* const position2, const T* const orientation2,
+                                                   T* residual) const
 {
   T full_residuals[6];
   T position_delta_rotated[3];
   T orientation_delta[4];
   T orientation_delta_rpy[3];
 
-  T orientation1_inverse[4] 
-  {
-    orientation1[0],
-    -orientation1[1],
-    -orientation1[2],
-    -orientation1[3]
-  };
+  T orientation1_inverse[4]{ orientation1[0], -orientation1[1], -orientation1[2], -orientation1[3] };
 
-  T position_delta[3] 
-  {
-    position2[0] - position1[0],
-    position2[1] - position1[1],
-    position2[2] - position1[2]
-  };
-  
+  T position_delta[3]{ position2[0] - position1[0], position2[1] - position1[1], position2[2] - position1[2] };
+
   // Compute the position residual
   ceres::QuaternionRotatePoint(orientation1_inverse, position_delta, position_delta_rotated);
   full_residuals[0] = position_delta_rotated[0] - T(b_(0));
@@ -140,9 +119,12 @@ bool NormalDeltaPose3DEulerCostFunctor::operator()(
 
   // Compute the orientation residual
   ceres::QuaternionProduct(orientation1_inverse, orientation2, orientation_delta);
-  orientation_delta_rpy[0] = fuse_core::getRoll(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
-  orientation_delta_rpy[1] = fuse_core::getPitch(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
-  orientation_delta_rpy[2] = fuse_core::getYaw(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
+  orientation_delta_rpy[0] =
+      fuse_core::getRoll(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
+  orientation_delta_rpy[1] =
+      fuse_core::getPitch(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
+  orientation_delta_rpy[2] =
+      fuse_core::getYaw(orientation_delta[0], orientation_delta[1], orientation_delta[2], orientation_delta[3]);
   full_residuals[3] = orientation_delta_rpy[0] - T(b_(3));
   full_residuals[4] = orientation_delta_rpy[1] - T(b_(4));
   full_residuals[5] = orientation_delta_rpy[2] - T(b_(5));

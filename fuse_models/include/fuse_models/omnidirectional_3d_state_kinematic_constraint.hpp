@@ -53,7 +53,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_models
 {
 
@@ -91,22 +90,21 @@ public:
    * @param[in] velocity_angular2     Angular velocity component variable of the second state
    * @param[in] acceleration_linear2  Linear acceleration component variable of the second state
    * @param[in] covariance            The covariance matrix used to weight the constraint. Order is (x, y, z,
-   *                                  roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+   *                                  roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *                                  x_acc, y_acc, z_acc)
    */
-  Omnidirectional3DStateKinematicConstraint(
-    const std::string & source,
-    const fuse_variables::Position3DStamped & position1,
-    const fuse_variables::Orientation3DStamped & orientation1,
-    const fuse_variables::VelocityLinear3DStamped & velocity_linear1,
-    const fuse_variables::VelocityAngular3DStamped & velocity_angular1,
-    const fuse_variables::AccelerationLinear3DStamped & acceleration_linear1,
-    const fuse_variables::Position3DStamped & position2,
-    const fuse_variables::Orientation3DStamped & orientation2,
-    const fuse_variables::VelocityLinear3DStamped & velocity_linear2,
-    const fuse_variables::VelocityAngular3DStamped & velocity_angular2,
-    const fuse_variables::AccelerationLinear3DStamped & acceleration_linear2,
-    const fuse_core::Matrix15d & covariance);
+  Omnidirectional3DStateKinematicConstraint(const std::string& source,
+                                            const fuse_variables::Position3DStamped& position1,
+                                            const fuse_variables::Orientation3DStamped& orientation1,
+                                            const fuse_variables::VelocityLinear3DStamped& velocity_linear1,
+                                            const fuse_variables::VelocityAngular3DStamped& velocity_angular1,
+                                            const fuse_variables::AccelerationLinear3DStamped& acceleration_linear1,
+                                            const fuse_variables::Position3DStamped& position2,
+                                            const fuse_variables::Orientation3DStamped& orientation2,
+                                            const fuse_variables::VelocityLinear3DStamped& velocity_linear2,
+                                            const fuse_variables::VelocityAngular3DStamped& velocity_angular2,
+                                            const fuse_variables::AccelerationLinear3DStamped& acceleration_linear2,
+                                            const fuse_core::Matrix15d& covariance);
 
   /**
    * @brief Destructor
@@ -117,20 +115,26 @@ public:
    * @brief Read-only access to the time delta between the first and second state (really, between
    *        the position1 and position2 variables in the constructor)
    */
-  double dt() const {return dt_;}
+  double dt() const
+  {
+    return dt_;
+  }
 
   /**
    * @brief Read-only access to the square root information matrix.
    *
-   * Order is (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+   * Order is (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *           x_acc, y_acc, z_acc)
    */
-  const fuse_core::Matrix15d & sqrtInformation() const {return sqrt_information_;}
+  const fuse_core::Matrix15d& sqrtInformation() const
+  {
+    return sqrt_information_;
+  }
 
   /**
    * @brief Compute the measurement covariance matrix.
    *
-   * Order is (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+   * Order is (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *           x_acc, y_acc, z_acc)
    */
   fuse_core::Matrix15d covariance() const
@@ -143,7 +147,7 @@ public:
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Construct an instance of this constraint's cost function
@@ -155,10 +159,10 @@ public:
    *
    * @return A base pointer to an instance of a derived CostFunction.
    */
-  ceres::CostFunction * costFunction() const override;
+  ceres::CostFunction* costFunction() const override;
 
 protected:
-  double dt_;  //!< The time delta for the constraint
+  double dt_;                              //!< The time delta for the constraint
   fuse_core::Matrix15d sqrt_information_;  //!< The square root information matrix
 
 private:
@@ -172,12 +176,12 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Constraint>(*this);
-    archive & dt_;
-    archive & sqrt_information_;
+    archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
+    archive& dt_;
+    archive& sqrt_information_;
   }
 };
 

@@ -40,32 +40,21 @@
 namespace fuse_constraints
 {
 
-NormalPriorOrientation3D::NormalPriorOrientation3D(const fuse_core::Matrix3d & A, const fuse_core::Vector4d & b)
-: A_(A),
-  b_(b)
+NormalPriorOrientation3D::NormalPriorOrientation3D(const fuse_core::Matrix3d& A, const fuse_core::Vector4d& b)
+  : A_(A), b_(b)
 {
 }
 
-bool NormalPriorOrientation3D::Evaluate(
-  double const * const * parameters,
-  double * residuals,
-  double ** jacobians) const
+bool NormalPriorOrientation3D::Evaluate(double const* const* parameters, double* residuals, double** jacobians) const
 {
-  double variable[4] =
-  {
+  double variable[4] = {
     parameters[0][0],
     parameters[0][1],
     parameters[0][2],
     parameters[0][3],
   };
 
-  double observation_inverse[4] =
-  {
-     b_(0),
-    -b_(1),
-    -b_(2),
-    -b_(3)
-  };
+  double observation_inverse[4] = { b_(0), -b_(1), -b_(2), -b_(3) };
 
   double difference[4];
   double j_product[16];
@@ -73,15 +62,17 @@ bool NormalPriorOrientation3D::Evaluate(
 
   // TODO(giafranchini): these jacobians should be populated only if jacobians[1] != nullptr
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
-  fuse_core::quaternionToAngleAxis(difference, residuals, j_quat2angle); // orientation angle-axis
- 
+  fuse_core::quaternionToAngleAxis(difference, residuals, j_quat2angle);  // orientation angle-axis
+
   // Scale the residuals by the square root information matrix to account for the measurement
   // uncertainty.
   Eigen::Map<Eigen::Vector3d> residuals_map(residuals);
   residuals_map.applyOnTheLeft(A_);
 
-  if (jacobians != nullptr) {
-    if (jacobians[0] != nullptr) {
+  if (jacobians != nullptr)
+  {
+    if (jacobians[0] != nullptr)
+    {
       Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_map(jacobians[0]);
       Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
       Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);

@@ -49,36 +49,26 @@ namespace fuse_models
 {
 
 Omnidirectional3DStateKinematicConstraint::Omnidirectional3DStateKinematicConstraint(
-  const std::string & source,
-  const fuse_variables::Position3DStamped & position1,
-  const fuse_variables::Orientation3DStamped & orientation1,
-  const fuse_variables::VelocityLinear3DStamped & velocity_linear1,
-  const fuse_variables::VelocityAngular3DStamped & velocity_angular1,
-  const fuse_variables::AccelerationLinear3DStamped & acceleration_linear1,
-  const fuse_variables::Position3DStamped & position2,
-  const fuse_variables::Orientation3DStamped & orientation2,
-  const fuse_variables::VelocityLinear3DStamped & velocity_linear2,
-  const fuse_variables::VelocityAngular3DStamped & velocity_angular2,
-  const fuse_variables::AccelerationLinear3DStamped & acceleration_linear2,
-  const fuse_core::Matrix15d & covariance)
-: fuse_core::Constraint(
-    source,
-    {position1.uuid(),
-      orientation1.uuid(),
-      velocity_linear1.uuid(),
-      velocity_angular1.uuid(),
-      acceleration_linear1.uuid(),
-      position2.uuid(),
-      orientation2.uuid(),
-      velocity_linear2.uuid(),
-      velocity_angular2.uuid(),
-      acceleration_linear2.uuid()}),   // NOLINT
-  dt_((position2.stamp() - position1.stamp()).seconds()),
-  sqrt_information_(covariance.inverse().llt().matrixU())
+    const std::string& source, const fuse_variables::Position3DStamped& position1,
+    const fuse_variables::Orientation3DStamped& orientation1,
+    const fuse_variables::VelocityLinear3DStamped& velocity_linear1,
+    const fuse_variables::VelocityAngular3DStamped& velocity_angular1,
+    const fuse_variables::AccelerationLinear3DStamped& acceleration_linear1,
+    const fuse_variables::Position3DStamped& position2, const fuse_variables::Orientation3DStamped& orientation2,
+    const fuse_variables::VelocityLinear3DStamped& velocity_linear2,
+    const fuse_variables::VelocityAngular3DStamped& velocity_angular2,
+    const fuse_variables::AccelerationLinear3DStamped& acceleration_linear2, const fuse_core::Matrix15d& covariance)
+  : fuse_core::Constraint(source,
+                          { position1.uuid(), orientation1.uuid(), velocity_linear1.uuid(), velocity_angular1.uuid(),
+                            acceleration_linear1.uuid(), position2.uuid(), orientation2.uuid(), velocity_linear2.uuid(),
+                            velocity_angular2.uuid(), acceleration_linear2.uuid() })
+  ,  // NOLINT
+  dt_((position2.stamp() - position1.stamp()).seconds())
+  , sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
-void Omnidirectional3DStateKinematicConstraint::print(std::ostream & stream) const
+void Omnidirectional3DStateKinematicConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -97,7 +87,7 @@ void Omnidirectional3DStateKinematicConstraint::print(std::ostream & stream) con
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-ceres::CostFunction * Omnidirectional3DStateKinematicConstraint::costFunction() const
+ceres::CostFunction* Omnidirectional3DStateKinematicConstraint::costFunction() const
 {
   return new Omnidirectional3DStateCostFunction(dt_, sqrt_information_);
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could

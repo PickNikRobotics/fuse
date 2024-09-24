@@ -44,33 +44,24 @@ namespace fuse_constraints
 {
 
 RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
-  const std::string & source,
-  const fuse_variables::Position3DStamped & position1,
-  const fuse_variables::Orientation3DStamped & orientation1,
-  const fuse_variables::Position3DStamped & position2,
-  const fuse_variables::Orientation3DStamped & orientation2,
-  const fuse_core::Vector6d & delta,
-  const fuse_core::Matrix6d & covariance)
-: fuse_core::Constraint(
-    source,
-    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}),  // NOLINT
-  delta_(delta),
-  sqrt_information_(covariance.inverse().llt().matrixU())
+    const std::string& source, const fuse_variables::Position3DStamped& position1,
+    const fuse_variables::Orientation3DStamped& orientation1, const fuse_variables::Position3DStamped& position2,
+    const fuse_variables::Orientation3DStamped& orientation2, const fuse_core::Vector6d& delta,
+    const fuse_core::Matrix6d& covariance)
+  : fuse_core::Constraint(source, { position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid() })
+  ,  // NOLINT
+  delta_(delta)
+  , sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
 RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
-  const std::string & source,
-  const fuse_variables::Position3DStamped & position1,
-  const fuse_variables::Orientation3DStamped & orientation1,
-  const fuse_variables::Position3DStamped & position2,
-  const fuse_variables::Orientation3DStamped & orientation2,
-  const fuse_core::Vector6d & partial_delta,
-  const fuse_core::MatrixXd & partial_covariance,
-  const std::vector<size_t> & variable_indices)
-: fuse_core::Constraint(
-    source,
-    {position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid()}),  // NOLINT
+    const std::string& source, const fuse_variables::Position3DStamped& position1,
+    const fuse_variables::Orientation3DStamped& orientation1, const fuse_variables::Position3DStamped& position2,
+    const fuse_variables::Orientation3DStamped& orientation2, const fuse_core::Vector6d& partial_delta,
+    const fuse_core::MatrixXd& partial_covariance, const std::vector<size_t>& variable_indices)
+  : fuse_core::Constraint(source, { position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid() })
+  ,  // NOLINT
   delta_(partial_delta)
 {
   // Compute the partial sqrt information matrix of the provided cov matrix
@@ -83,8 +74,8 @@ RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
   // dimensions. But the variable vectors will be full sized. We can make this all work out by
   // creating a non-square A, where each row computes a cost for one measured dimensions,
   // and the columns are in the order defined by the variable.
-  
-  // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions 
+
+  // Fill in the rows of the sqrt information matrix corresponding to the measured dimensions
   sqrt_information_ = fuse_core::MatrixXd::Zero(variable_indices.size(), 6);
   for (size_t i = 0; i < variable_indices.size(); ++i)
   {
@@ -106,7 +97,7 @@ fuse_core::Matrix6d RelativePose3DStampedEulerConstraint::covariance() const
   return pinv * pinv.transpose();
 }
 
-void RelativePose3DStampedEulerConstraint::print(std::ostream & stream) const
+void RelativePose3DStampedEulerConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -119,12 +110,11 @@ void RelativePose3DStampedEulerConstraint::print(std::ostream & stream) const
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
-ceres::CostFunction * RelativePose3DStampedEulerConstraint::costFunction() const
+ceres::CostFunction* RelativePose3DStampedEulerConstraint::costFunction() const
 {
   // TODO(giafranchini): implement cost function with analytical Jacobians
   return new ceres::AutoDiffCostFunction<NormalDeltaPose3DEulerCostFunctor, ceres::DYNAMIC, 3, 4, 3, 4>(
-    new NormalDeltaPose3DEulerCostFunctor(sqrt_information_, delta_),
-    sqrt_information_.rows());
+      new NormalDeltaPose3DEulerCostFunctor(sqrt_information_, delta_), sqrt_information_.rows());
 }
 
 }  // namespace fuse_constraints

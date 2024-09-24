@@ -65,17 +65,16 @@ namespace fuse_models
 {
 
 Odometry3DPublisher::Odometry3DPublisher()
-: fuse_core::AsyncPublisher(1),
-  device_id_(fuse_core::uuid::NIL),
-  logger_(rclcpp::get_logger("uninitialized")),
-  latest_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME)),
-  latest_covariance_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME))
+  : fuse_core::AsyncPublisher(1)
+  , device_id_(fuse_core::uuid::NIL)
+  , logger_(rclcpp::get_logger("uninitialized"))
+  , latest_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME))
+  , latest_covariance_stamp_(rclcpp::Time(0, 0, RCL_ROS_TIME))
 {
 }
 
 void Odometry3DPublisher::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const std::string & name)
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, const std::string& name)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncPublisher::initialize(interfaces, name);
@@ -93,54 +92,45 @@ void Odometry3DPublisher::onInit()
 
   params_.loadFromROS(interfaces_, name_);
 
-  if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id) {
+  if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id)
+  {
     tf_buffer_ = std::make_unique<tf2_ros::Buffer>(
-      clock_,
-      params_.tf_cache_time.to_chrono<std::chrono::nanoseconds>()
-      // , interfaces_  // NOTE(methylDragon): This one is pending a change on tf2_ros/buffer.h
-      // TODO(methylDragon): See above ^
+        clock_, params_.tf_cache_time.to_chrono<std::chrono::nanoseconds>()
+        // , interfaces_  // NOTE(methylDragon): This one is pending a change on tf2_ros/buffer.h
+        // TODO(methylDragon): See above ^
     );
 
-    tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
-      *tf_buffer_,
-      interfaces_.get_node_base_interface(),
-      interfaces_.get_node_logging_interface(),
-      interfaces_.get_node_parameters_interface(),
-      interfaces_.get_node_topics_interface());
+    tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, interfaces_.get_node_base_interface(),
+                                                                interfaces_.get_node_logging_interface(),
+                                                                interfaces_.get_node_parameters_interface(),
+                                                                interfaces_.get_node_topics_interface());
   }
 
   // Advertise the topics
   rclcpp::PublisherOptions pub_options;
   pub_options.callback_group = cb_group_;
 
-  odom_pub_ = rclcpp::create_publisher<nav_msgs::msg::Odometry>(
-    interfaces_,
-    params_.topic,
-    params_.queue_size,
-    pub_options);
+  odom_pub_ =
+      rclcpp::create_publisher<nav_msgs::msg::Odometry>(interfaces_, params_.topic, params_.queue_size, pub_options);
   acceleration_pub_ = rclcpp::create_publisher<geometry_msgs::msg::AccelWithCovarianceStamped>(
-    interfaces_,
-    params_.acceleration_topic,
-    params_.queue_size,
-    pub_options);
+      interfaces_, params_.acceleration_topic, params_.queue_size, pub_options);
 }
 
-void Odometry3DPublisher::notifyCallback(
-  fuse_core::Transaction::ConstSharedPtr transaction,
-  fuse_core::Graph::ConstSharedPtr graph)
+void Odometry3DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction,
+                                         fuse_core::Graph::ConstSharedPtr graph)
 {
   // Find the most recent common timestamp
   const auto latest_stamp = synchronizer_.findLatestCommonStamp(*transaction, *graph);
-  if (0u == latest_stamp.nanoseconds()) {
+  if (0u == latest_stamp.nanoseconds())
+  {
     {
       std::lock_guard<std::mutex> lock(mutex_);
       latest_stamp_ = latest_stamp;
     }
 
-    RCLCPP_WARN_STREAM_THROTTLE(
-      logger_, *clock_, 10.0 * 1000,
-      "Failed to find a matching set of state variables with device id '"
-        << device_id_ << "'.");
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
+                                "Failed to find a matching set of state variables with device id '" << device_id_
+                                                                                                    << "'.");
     return;
   }
 
@@ -153,17 +143,8 @@ void Odometry3DPublisher::notifyCallback(
 
   nav_msgs::msg::Odometry odom_output;
   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output;
-  if (!getState(
-      *graph,
-      latest_stamp,
-      device_id_,
-      position_uuid,
-      orientation_uuid,
-      velocity_linear_uuid,
-      velocity_angular_uuid,
-      acceleration_linear_uuid,
-      odom_output,
-      acceleration_output))
+  if (!getState(*graph, latest_stamp, device_id_, position_uuid, orientation_uuid, velocity_linear_uuid,
+                velocity_angular_uuid, acceleration_linear_uuid, odom_output, acceleration_output))
   {
     std::lock_guard<std::mutex> lock(mutex_);
     latest_stamp_ = latest_stamp;
@@ -180,14 +161,16 @@ void Odometry3DPublisher::notifyCallback(
   // Don't waste CPU computing the covariance if nobody is listening
   rclcpp::Time latest_covariance_stamp = latest_covariance_stamp_;
   bool latest_covariance_valid = latest_covariance_valid_;
-  if (odom_pub_->get_subscription_count() > 0 || acceleration_pub_->get_subscription_count() > 0) {
+  if (odom_pub_->get_subscription_count() > 0 || acceleration_pub_->get_subscription_count() > 0)
+  {
     // Throttle covariance computation
     if (params_.covariance_throttle_period.nanoseconds() == 0 ||
-      latest_stamp - latest_covariance_stamp > params_.covariance_throttle_period)
+        latest_stamp - latest_covariance_stamp > params_.covariance_throttle_period)
     {
       latest_covariance_stamp = latest_stamp;
 
-      try {
+      try
+      {
         std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> covariance_requests;
         covariance_requests.emplace_back(position_uuid, position_uuid);
         covariance_requests.emplace_back(position_uuid, orientation_uuid);
@@ -200,47 +183,47 @@ void Odometry3DPublisher::notifyCallback(
         std::vector<std::vector<double>> covariance_matrices;
         graph->getCovariance(covariance_requests, covariance_matrices, params_.covariance_options, true);
 
-        odom_output.pose.covariance[0] = covariance_matrices[0][0]; // cov(x, x)
-        odom_output.pose.covariance[1] = covariance_matrices[0][1]; // cov(x, y)
-        odom_output.pose.covariance[2] = covariance_matrices[0][2]; // cov(x, z)
-        odom_output.pose.covariance[3] = covariance_matrices[1][0]; // cov(x, roll)
-        odom_output.pose.covariance[4] = covariance_matrices[1][1]; // cov(x, pitch)
-        odom_output.pose.covariance[5] = covariance_matrices[1][2]; // cov(x, yaw)
-        
-        odom_output.pose.covariance[6] = covariance_matrices[0][3]; // cov(y, x)
-        odom_output.pose.covariance[7] = covariance_matrices[0][4]; // cov(y, y)
-        odom_output.pose.covariance[8] = covariance_matrices[0][5]; // cov(y, z)
-        odom_output.pose.covariance[9] = covariance_matrices[1][3]; // cov(y, roll)
-        odom_output.pose.covariance[10] = covariance_matrices[1][4]; // cov(y, pitch)
-        odom_output.pose.covariance[11] = covariance_matrices[1][5]; // cov(y, yaw)
+        odom_output.pose.covariance[0] = covariance_matrices[0][0];  // cov(x, x)
+        odom_output.pose.covariance[1] = covariance_matrices[0][1];  // cov(x, y)
+        odom_output.pose.covariance[2] = covariance_matrices[0][2];  // cov(x, z)
+        odom_output.pose.covariance[3] = covariance_matrices[1][0];  // cov(x, roll)
+        odom_output.pose.covariance[4] = covariance_matrices[1][1];  // cov(x, pitch)
+        odom_output.pose.covariance[5] = covariance_matrices[1][2];  // cov(x, yaw)
 
-        odom_output.pose.covariance[12] = covariance_matrices[0][6]; // cov(z, x)
-        odom_output.pose.covariance[13] = covariance_matrices[0][7]; // cov(z, y)
-        odom_output.pose.covariance[14] = covariance_matrices[0][8]; // cov(z, z)
-        odom_output.pose.covariance[15] = covariance_matrices[1][6]; // cov(z, roll)
-        odom_output.pose.covariance[16] = covariance_matrices[1][7]; // cov(z, pitch)
-        odom_output.pose.covariance[17] = covariance_matrices[1][8]; // cov(z, yaw)
+        odom_output.pose.covariance[6] = covariance_matrices[0][3];   // cov(y, x)
+        odom_output.pose.covariance[7] = covariance_matrices[0][4];   // cov(y, y)
+        odom_output.pose.covariance[8] = covariance_matrices[0][5];   // cov(y, z)
+        odom_output.pose.covariance[9] = covariance_matrices[1][3];   // cov(y, roll)
+        odom_output.pose.covariance[10] = covariance_matrices[1][4];  // cov(y, pitch)
+        odom_output.pose.covariance[11] = covariance_matrices[1][5];  // cov(y, yaw)
 
-        odom_output.pose.covariance[18] = covariance_matrices[1][0]; // cov(roll, x)
-        odom_output.pose.covariance[19] = covariance_matrices[1][3]; // cov(roll, y)
-        odom_output.pose.covariance[20] = covariance_matrices[1][6]; // cov(roll, z)
-        odom_output.pose.covariance[21] = covariance_matrices[2][0]; // cov(roll, roll)
-        odom_output.pose.covariance[22] = covariance_matrices[2][1]; // cov(roll, pitch)
-        odom_output.pose.covariance[23] = covariance_matrices[2][2]; // cov(roll, yaw)
+        odom_output.pose.covariance[12] = covariance_matrices[0][6];  // cov(z, x)
+        odom_output.pose.covariance[13] = covariance_matrices[0][7];  // cov(z, y)
+        odom_output.pose.covariance[14] = covariance_matrices[0][8];  // cov(z, z)
+        odom_output.pose.covariance[15] = covariance_matrices[1][6];  // cov(z, roll)
+        odom_output.pose.covariance[16] = covariance_matrices[1][7];  // cov(z, pitch)
+        odom_output.pose.covariance[17] = covariance_matrices[1][8];  // cov(z, yaw)
 
-        odom_output.pose.covariance[24] = covariance_matrices[1][1]; // cov(pitch, x)
-        odom_output.pose.covariance[25] = covariance_matrices[1][4]; // cov(pitch, y)
-        odom_output.pose.covariance[26] = covariance_matrices[1][7]; // cov(pitch, z)
-        odom_output.pose.covariance[27] = covariance_matrices[2][1]; // cov(pitch, roll)
-        odom_output.pose.covariance[28] = covariance_matrices[2][4]; // cov(pitch, pitch)
-        odom_output.pose.covariance[29] = covariance_matrices[2][5]; // cov(pitch, yaw)
+        odom_output.pose.covariance[18] = covariance_matrices[1][0];  // cov(roll, x)
+        odom_output.pose.covariance[19] = covariance_matrices[1][3];  // cov(roll, y)
+        odom_output.pose.covariance[20] = covariance_matrices[1][6];  // cov(roll, z)
+        odom_output.pose.covariance[21] = covariance_matrices[2][0];  // cov(roll, roll)
+        odom_output.pose.covariance[22] = covariance_matrices[2][1];  // cov(roll, pitch)
+        odom_output.pose.covariance[23] = covariance_matrices[2][2];  // cov(roll, yaw)
 
-        odom_output.pose.covariance[30] = covariance_matrices[1][2]; // cov(yaw, x)
-        odom_output.pose.covariance[31] = covariance_matrices[1][5]; // cov(yaw, y)
-        odom_output.pose.covariance[32] = covariance_matrices[1][8]; // cov(yaw, z)
-        odom_output.pose.covariance[33] = covariance_matrices[2][2]; // cov(yaw, roll)
-        odom_output.pose.covariance[34] = covariance_matrices[2][5]; // cov(yaw, pitch)
-        odom_output.pose.covariance[35] = covariance_matrices[2][8]; // cov(yaw, yaw)
+        odom_output.pose.covariance[24] = covariance_matrices[1][1];  // cov(pitch, x)
+        odom_output.pose.covariance[25] = covariance_matrices[1][4];  // cov(pitch, y)
+        odom_output.pose.covariance[26] = covariance_matrices[1][7];  // cov(pitch, z)
+        odom_output.pose.covariance[27] = covariance_matrices[2][1];  // cov(pitch, roll)
+        odom_output.pose.covariance[28] = covariance_matrices[2][4];  // cov(pitch, pitch)
+        odom_output.pose.covariance[29] = covariance_matrices[2][5];  // cov(pitch, yaw)
+
+        odom_output.pose.covariance[30] = covariance_matrices[1][2];  // cov(yaw, x)
+        odom_output.pose.covariance[31] = covariance_matrices[1][5];  // cov(yaw, y)
+        odom_output.pose.covariance[32] = covariance_matrices[1][8];  // cov(yaw, z)
+        odom_output.pose.covariance[33] = covariance_matrices[2][2];  // cov(yaw, roll)
+        odom_output.pose.covariance[34] = covariance_matrices[2][5];  // cov(yaw, pitch)
+        odom_output.pose.covariance[35] = covariance_matrices[2][8];  // cov(yaw, yaw)
 
         odom_output.twist.covariance[0] = covariance_matrices[3][0];
         odom_output.twist.covariance[1] = covariance_matrices[3][1];
@@ -262,7 +245,7 @@ void Odometry3DPublisher::notifyCallback(
         odom_output.twist.covariance[15] = covariance_matrices[4][6];
         odom_output.twist.covariance[16] = covariance_matrices[4][7];
         odom_output.twist.covariance[17] = covariance_matrices[4][8];
-        
+
         odom_output.twist.covariance[18] = covariance_matrices[4][0];
         odom_output.twist.covariance[19] = covariance_matrices[4][3];
         odom_output.twist.covariance[20] = covariance_matrices[4][6];
@@ -283,7 +266,7 @@ void Odometry3DPublisher::notifyCallback(
         odom_output.twist.covariance[33] = covariance_matrices[5][2];
         odom_output.twist.covariance[34] = covariance_matrices[5][5];
         odom_output.twist.covariance[35] = covariance_matrices[5][8];
-        
+
         acceleration_output.accel.covariance[0] = covariance_matrices[6][0];
         acceleration_output.accel.covariance[1] = covariance_matrices[6][1];
         acceleration_output.accel.covariance[2] = covariance_matrices[6][2];
@@ -296,37 +279,39 @@ void Odometry3DPublisher::notifyCallback(
 
         // test if covariances are symmetric
         Eigen::Map<fuse_core::Matrix6d> odom_cov_map(odom_output.pose.covariance.data());
-        if (!odom_cov_map.isApprox(odom_cov_map.transpose())) {
+        if (!odom_cov_map.isApprox(odom_cov_map.transpose()))
+        {
           throw std::runtime_error("Odometry covariance matrix is not symmetric");
         }
 
         Eigen::Map<fuse_core::Matrix6d> twist_cov_map(odom_output.twist.covariance.data());
-        if (!twist_cov_map.isApprox(twist_cov_map.transpose())) {
+        if (!twist_cov_map.isApprox(twist_cov_map.transpose()))
+        {
           throw std::runtime_error("Twist covariance matrix is not symmetric");
         }
 
         Eigen::Map<fuse_core::Matrix6d> accel_cov_map(acceleration_output.accel.covariance.data());
-        if (!accel_cov_map.isApprox(accel_cov_map.transpose())) {
+        if (!accel_cov_map.isApprox(accel_cov_map.transpose()))
+        {
           throw std::runtime_error("Acceleration covariance matrix is not symmetric");
         }
 
         latest_covariance_valid = true;
-      } catch (const std::exception & e) {
-        RCLCPP_WARN_STREAM(
-          logger_,
-          "An error occurred computing the covariance information for "
-            << latest_stamp.nanoseconds()
-            << ". The covariance will be set to zero.\n"
-            << e.what());
+      }
+      catch (const std::exception& e)
+      {
+        RCLCPP_WARN_STREAM(logger_, "An error occurred computing the covariance information for "
+                                        << latest_stamp.nanoseconds() << ". The covariance will be set to zero.\n"
+                                        << e.what());
         std::fill(odom_output.pose.covariance.begin(), odom_output.pose.covariance.end(), 0.0);
         std::fill(odom_output.twist.covariance.begin(), odom_output.twist.covariance.end(), 0.0);
-        std::fill(
-          acceleration_output.accel.covariance.begin(),
-          acceleration_output.accel.covariance.end(), 0.0);
+        std::fill(acceleration_output.accel.covariance.begin(), acceleration_output.accel.covariance.end(), 0.0);
 
         latest_covariance_valid = false;
       }
-    } else {
+    }
+    else
+    {
       // This covariance computation cycle has been skipped, so simply take the last covariance
       // computed
       //
@@ -358,13 +343,9 @@ void Odometry3DPublisher::onStart()
   acceleration_output_ = geometry_msgs::msg::AccelWithCovarianceStamped();
 
   // TODO(CH3): Add this to a separate callback group for async behavior
-  publish_timer_ = rclcpp::create_timer(
-    interfaces_,
-    clock_,
-    std::chrono::duration<double>(1.0 / params_.publish_frequency),
-    std::move(std::bind(&Odometry3DPublisher::publishTimerCallback, this)),
-    cb_group_
-  );
+  publish_timer_ =
+      rclcpp::create_timer(interfaces_, clock_, std::chrono::duration<double>(1.0 / params_.publish_frequency),
+                           std::move(std::bind(&Odometry3DPublisher::publishTimerCallback, this)), cb_group_);
 
   delayed_throttle_filter_.reset();
 }
@@ -374,40 +355,34 @@ void Odometry3DPublisher::onStop()
   publish_timer_->cancel();
 }
 
-bool Odometry3DPublisher::getState(
-  const fuse_core::Graph & graph,
-  const rclcpp::Time & stamp,
-  const fuse_core::UUID & device_id,
-  fuse_core::UUID & position_uuid,
-  fuse_core::UUID & orientation_uuid,
-  fuse_core::UUID & velocity_linear_uuid,
-  fuse_core::UUID & velocity_angular_uuid,
-  fuse_core::UUID & acceleration_linear_uuid,
-  nav_msgs::msg::Odometry & odometry,
-  geometry_msgs::msg::AccelWithCovarianceStamped & acceleration)
+bool Odometry3DPublisher::getState(const fuse_core::Graph& graph, const rclcpp::Time& stamp,
+                                   const fuse_core::UUID& device_id, fuse_core::UUID& position_uuid,
+                                   fuse_core::UUID& orientation_uuid, fuse_core::UUID& velocity_linear_uuid,
+                                   fuse_core::UUID& velocity_angular_uuid, fuse_core::UUID& acceleration_linear_uuid,
+                                   nav_msgs::msg::Odometry& odometry,
+                                   geometry_msgs::msg::AccelWithCovarianceStamped& acceleration)
 {
-  try {
+  try
+  {
     position_uuid = fuse_variables::Position3DStamped(stamp, device_id).uuid();
-    auto position_variable = dynamic_cast<const fuse_variables::Position3DStamped &>(
-      graph.getVariable(position_uuid));
+    auto position_variable = dynamic_cast<const fuse_variables::Position3DStamped&>(graph.getVariable(position_uuid));
 
     orientation_uuid = fuse_variables::Orientation3DStamped(stamp, device_id).uuid();
-    auto orientation_variable = dynamic_cast<const fuse_variables::Orientation3DStamped &>(
-      graph.getVariable(orientation_uuid));
+    auto orientation_variable =
+        dynamic_cast<const fuse_variables::Orientation3DStamped&>(graph.getVariable(orientation_uuid));
 
     velocity_linear_uuid = fuse_variables::VelocityLinear3DStamped(stamp, device_id).uuid();
-    auto velocity_linear_variable = dynamic_cast<const fuse_variables::VelocityLinear3DStamped &>(
-      graph.getVariable(velocity_linear_uuid));
+    auto velocity_linear_variable =
+        dynamic_cast<const fuse_variables::VelocityLinear3DStamped&>(graph.getVariable(velocity_linear_uuid));
 
     velocity_angular_uuid = fuse_variables::VelocityAngular3DStamped(stamp, device_id).uuid();
-    auto velocity_angular_variable = dynamic_cast<const fuse_variables::VelocityAngular3DStamped &>(
-      graph.getVariable(velocity_angular_uuid));
+    auto velocity_angular_variable =
+        dynamic_cast<const fuse_variables::VelocityAngular3DStamped&>(graph.getVariable(velocity_angular_uuid));
 
     acceleration_linear_uuid = fuse_variables::AccelerationLinear3DStamped(stamp, device_id).uuid();
     auto acceleration_linear_variable =
-      dynamic_cast<const fuse_variables::AccelerationLinear3DStamped &>(
-      graph.getVariable(acceleration_linear_uuid));
-    
+        dynamic_cast<const fuse_variables::AccelerationLinear3DStamped&>(graph.getVariable(acceleration_linear_uuid));
+
     odometry.pose.pose.position.x = position_variable.x();
     odometry.pose.pose.position.y = position_variable.y();
     odometry.pose.pose.position.z = position_variable.z();
@@ -428,15 +403,17 @@ bool Odometry3DPublisher::getState(
     acceleration.accel.accel.angular.x = 0.0;
     acceleration.accel.accel.angular.y = 0.0;
     acceleration.accel.accel.angular.z = 0.0;
-  } catch (const std::exception & e) {
-    RCLCPP_WARN_STREAM_THROTTLE(
-      logger_, *clock_, 10.0 * 1000,
-      "Failed to find a state at time " << stamp.nanoseconds() << ". Error: " << e.what());
+  }
+  catch (const std::exception& e)
+  {
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
+                                "Failed to find a state at time " << stamp.nanoseconds() << ". Error: " << e.what());
     return false;
-  } catch (...) {
-    RCLCPP_WARN_STREAM_THROTTLE(
-      logger_, *clock_, 10.0 * 1000,
-      "Failed to find a state at time " << stamp.nanoseconds() << ". Error: unknown");
+  }
+  catch (...)
+  {
+    RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
+                                "Failed to find a state at time " << stamp.nanoseconds() << ". Error: unknown");
     return false;
   }
 
@@ -460,10 +437,10 @@ void Odometry3DPublisher::publishTimerCallback()
     acceleration_output = acceleration_output_;
   }
 
-  if (0u == latest_stamp.nanoseconds()) {
-    RCLCPP_WARN_STREAM_EXPRESSION(
-      logger_, delayed_throttle_filter_.isEnabled(),
-      "No valid state data yet. Delaying tf broadcast.");
+  if (0u == latest_stamp.nanoseconds())
+  {
+    RCLCPP_WARN_STREAM_EXPRESSION(logger_, delayed_throttle_filter_.isEnabled(),
+                                  "No valid state data yet. Delaying tf broadcast.");
     return;
   }
 
@@ -471,7 +448,8 @@ void Odometry3DPublisher::publishTimerCallback()
   tf2::fromMsg(odom_output.pose.pose, pose);
 
   // If requested, we need to project our state forward in time using the 3D kinematic model
-  if (params_.predict_to_current_time) {
+  if (params_.predict_to_current_time)
+  {
     rclcpp::Time timer_now = interfaces_.get_node_clock_interface()->get_clock()->now();
 
     // Convert pose in Eigen representation
@@ -482,34 +460,24 @@ void Odometry3DPublisher::publishTimerCallback()
     orientation.y() = pose.getRotation().y();
     orientation.z() = pose.getRotation().z();
     orientation.w() = pose.getRotation().w();
-    velocity_linear << odom_output.twist.twist.linear.x, 
-      odom_output.twist.twist.linear.y, odom_output.twist.twist.linear.z;
-    velocity_angular << odom_output.twist.twist.angular.x, 
-      odom_output.twist.twist.angular.y, odom_output.twist.twist.angular.z;
+    velocity_linear << odom_output.twist.twist.linear.x, odom_output.twist.twist.linear.y,
+        odom_output.twist.twist.linear.z;
+    velocity_angular << odom_output.twist.twist.angular.x, odom_output.twist.twist.angular.y,
+        odom_output.twist.twist.angular.z;
 
     const double dt = timer_now.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
 
     fuse_core::Matrix15d jacobian;
 
     fuse_core::Vector3d acceleration_linear;
-    if (params_.predict_with_acceleration) {
-      acceleration_linear << acceleration_output.accel.accel.linear.x, 
-        acceleration_output.accel.accel.linear.y, acceleration_output.accel.accel.linear.z;
+    if (params_.predict_with_acceleration)
+    {
+      acceleration_linear << acceleration_output.accel.accel.linear.x, acceleration_output.accel.accel.linear.y,
+          acceleration_output.accel.accel.linear.z;
     }
 
-    predict(
-      position,
-      orientation,
-      velocity_linear,
-      velocity_angular,
-      acceleration_linear,
-      dt,
-      position,
-      orientation,
-      velocity_linear,
-      velocity_angular,
-      acceleration_linear,
-      jacobian);
+    predict(position, orientation, velocity_linear, velocity_angular, acceleration_linear, dt, position, orientation,
+            velocity_linear, velocity_angular, acceleration_linear, jacobian);
 
     // Convert back to tf2 representation
     pose.setOrigin(tf2::Vector3(position.x(), position.y(), position.z()));
@@ -530,7 +498,8 @@ void Odometry3DPublisher::publishTimerCallback()
     odom_output.twist.twist.angular.y = velocity_angular.y();
     odom_output.twist.twist.angular.z = velocity_angular.z();
 
-    if (params_.predict_with_acceleration) {
+    if (params_.predict_with_acceleration)
+    {
       acceleration_output.accel.accel.linear.x = acceleration_linear.x();
       acceleration_output.accel.accel.linear.y = acceleration_linear.y();
       acceleration_output.accel.accel.linear.z = acceleration_linear.z();
@@ -541,7 +510,8 @@ void Odometry3DPublisher::publishTimerCallback()
 
     // Either the last covariance computation was skipped because there was no subscriber,
     // or it failed
-    if (latest_covariance_valid) {
+    if (latest_covariance_valid)
+    {
       fuse_core::Matrix15d covariance;
       covariance.setZero();
       Eigen::Map<fuse_core::Matrix6d> pose_covariance(odom_output.pose.covariance.data());
@@ -555,13 +525,10 @@ void Odometry3DPublisher::publishTimerCallback()
       covariance = jacobian * covariance * jacobian.transpose();
 
       auto process_noise_covariance = params_.process_noise_covariance;
-      if (params_.scale_process_noise) {
-        common::scaleProcessNoiseCovariance(
-          process_noise_covariance, 
-          velocity_linear,
-          velocity_angular, 
-          params_.velocity_linear_norm_min_,
-          params_.velocity_angular_norm_min_);
+      if (params_.scale_process_noise)
+      {
+        common::scaleProcessNoiseCovariance(process_noise_covariance, velocity_linear, velocity_angular,
+                                            params_.velocity_linear_norm_min_, params_.velocity_angular_norm_min_);
       }
 
       covariance.noalias() += dt * process_noise_covariance;
@@ -575,11 +542,13 @@ void Odometry3DPublisher::publishTimerCallback()
   odom_pub_->publish(odom_output);
   acceleration_pub_->publish(acceleration_output);
 
-  if (params_.publish_tf) {
+  if (params_.publish_tf)
+  {
     auto frame_id = odom_output.header.frame_id;
     auto child_frame_id = odom_output.child_frame_id;
 
-    if (params_.invert_tf) {
+    if (params_.invert_tf)
+    {
       pose = pose.inverse();
       std::swap(frame_id, child_frame_id);
     }
@@ -588,24 +557,25 @@ void Odometry3DPublisher::publishTimerCallback()
     trans.header.stamp = odom_output.header.stamp;
     trans.header.frame_id = frame_id;
     trans.child_frame_id = child_frame_id;
-    trans.transform = tf2::toMsg(pose);    
-    if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id) {
-      try {
-        auto base_to_odom = tf_buffer_->lookupTransform(
-          params_.base_link_frame_id,
-          params_.odom_frame_id,
-          trans.header.stamp,
-          params_.tf_timeout);
+    trans.transform = tf2::toMsg(pose);
+    if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id)
+    {
+      try
+      {
+        auto base_to_odom = tf_buffer_->lookupTransform(params_.base_link_frame_id, params_.odom_frame_id,
+                                                        trans.header.stamp, params_.tf_timeout);
 
         geometry_msgs::msg::TransformStamped map_to_odom;
         tf2::doTransform(base_to_odom, map_to_odom, trans);
         map_to_odom.child_frame_id = params_.odom_frame_id;
         trans = map_to_odom;
-      } catch (const std::exception & e) {
-        RCLCPP_WARN_STREAM_THROTTLE(
-          logger_, *clock_, 5.0 * 1000,
-          "Could not lookup the " << params_.base_link_frame_id << "->"
-                                  << params_.odom_frame_id << " transform. Error: " << e.what());
+      }
+      catch (const std::exception& e)
+      {
+        RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
+                                    "Could not lookup the " << params_.base_link_frame_id << "->"
+                                                            << params_.odom_frame_id
+                                                            << " transform. Error: " << e.what());
 
         return;
       }

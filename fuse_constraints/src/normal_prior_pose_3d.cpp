@@ -40,33 +40,20 @@
 namespace fuse_constraints
 {
 
-NormalPriorPose3D::NormalPriorPose3D(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b)
-: A_(A),
-  b_(b)
+NormalPriorPose3D::NormalPriorPose3D(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) : A_(A), b_(b)
 {
 }
 
-bool NormalPriorPose3D::Evaluate(
-  double const * const * parameters,
-  double * residuals,
-  double ** jacobians) const
+bool NormalPriorPose3D::Evaluate(double const* const* parameters, double* residuals, double** jacobians) const
 {
-
-  double variable[4] =
-  {
+  double variable[4] = {
     parameters[1][0],
     parameters[1][1],
     parameters[1][2],
     parameters[1][3],
   };
 
-  double observation_inverse[4] =
-  {
-     b_(3),
-    -b_(4),
-    -b_(5),
-    -b_(6)
-  };
+  double observation_inverse[4] = { b_(3), -b_(4), -b_(5), -b_(6) };
 
   double difference[4];
   double j_product[16];
@@ -78,23 +65,26 @@ bool NormalPriorPose3D::Evaluate(
   residuals[2] = parameters[0][2] - b_[2];
   // Compute orientation residuals
 
-  // TODO(giafranchini): this is repeated code, it should be better to include normal_prior_orientation_3d.hpp 
-  // and use that to compute residuals and jacobians. 
+  // TODO(giafranchini): this is repeated code, it should be better to include normal_prior_orientation_3d.hpp
+  // and use that to compute residuals and jacobians.
   fuse_core::quaternionProduct(observation_inverse, variable, difference, j_product);
-  fuse_core::quaternionToAngleAxis(difference, &residuals[3], j_quat2angle); // orientation angle-axis
- 
+  fuse_core::quaternionToAngleAxis(difference, &residuals[3], j_quat2angle);  // orientation angle-axis
+
   // Scale the residuals by the square root information matrix to account for the measurement
   // uncertainty.
   Eigen::Map<fuse_core::Vector6d> residuals_map(residuals);
   residuals_map.applyOnTheLeft(A_);
 
-  if (jacobians != nullptr) {
+  if (jacobians != nullptr)
+  {
     // Jacobian of the residuals wrt position parameter block
-    if (jacobians[0] != nullptr) {
+    if (jacobians[0] != nullptr)
+    {
       Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), 3) = A_.leftCols<3>();
     }
     // Jacobian of the residuals wrt orientation parameter block
-    if (jacobians[1] != nullptr) {
+    if (jacobians[1] != nullptr)
+    {
       Eigen::Map<fuse_core::Matrix4d> j_product_map(j_product);
       Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_quat2angle_map(j_quat2angle);
       Eigen::Map<fuse_core::MatrixXd> j1_map(jacobians[1], num_residuals(), 4);

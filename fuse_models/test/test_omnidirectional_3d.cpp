@@ -21,9 +21,9 @@
 class Omnidirectional3DModelTest : public fuse_models::Omnidirectional3D
 {
 public:
-  using fuse_models::Omnidirectional3D::updateStateHistoryEstimates;
-  using fuse_models::Omnidirectional3D::StateHistoryElement;
   using fuse_models::Omnidirectional3D::StateHistory;
+  using fuse_models::Omnidirectional3D::StateHistoryElement;
+  using fuse_models::Omnidirectional3D::updateStateHistoryEstimates;
 };
 
 TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
@@ -33,8 +33,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto orientation1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(1, 0));
   auto linear_velocity1 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(1, 0));
   auto angular_velocity1 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(1, 0));
-  auto linear_acceleration1 =
-    fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(1, 0));
+  auto linear_acceleration1 = fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(1, 0));
   position1->x() = 1.1;
   position1->y() = 2.1;
   position1->z() = 0.0;
@@ -55,8 +54,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto orientation2 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(2, 0));
   auto linear_velocity2 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(2, 0));
   auto angular_velocity2 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(2, 0));
-  auto linear_acceleration2 =
-    fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(2, 0));
+  auto linear_acceleration2 = fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(2, 0));
   position2->x() = 1.2;
   position2->y() = 2.2;
   position2->z() = 0.0;
@@ -77,8 +75,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto orientation3 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3, 0));
   auto linear_velocity3 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(3, 0));
   auto angular_velocity3 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(3, 0));
-  auto linear_acceleration3 =
-    fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(3, 0));
+  auto linear_acceleration3 = fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(3, 0));
   position3->x() = 1.3;
   position3->y() = 2.3;
   position3->z() = 0.0;
@@ -99,8 +96,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto orientation4 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(4, 0));
   auto linear_velocity4 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(4, 0));
   auto angular_velocity4 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(4, 0));
-  auto linear_acceleration4 =
-    fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(4, 0));
+  auto linear_acceleration4 = fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(4, 0));
   position4->x() = 1.4;
   position4->y() = 2.4;
   position4->z() = 0.0;
@@ -121,8 +117,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   auto orientation5 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(5, 0));
   auto linear_velocity5 = fuse_variables::VelocityLinear3DStamped::make_shared(rclcpp::Time(5, 0));
   auto angular_velocity5 = fuse_variables::VelocityAngular3DStamped::make_shared(rclcpp::Time(5, 0));
-  auto linear_acceleration5 =
-    fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(5, 0));
+  auto linear_acceleration5 = fuse_variables::AccelerationLinear3DStamped::make_shared(rclcpp::Time(5, 0));
   position5->x() = 1.5;
   position5->y() = 2.5;
   position5->z() = 0.0;
@@ -156,76 +151,49 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
 
   // Add all of the variables to the state history
   Omnidirectional3DModelTest::StateHistory state_history;
-  state_history.emplace(
-    position1->stamp(),
-    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-    position1->uuid(),
-    orientation1->uuid(),
-    linear_velocity1->uuid(),
-    angular_velocity1->uuid(),
-    linear_acceleration1->uuid(),
-    fuse_core::Vector3d(1.0, 0.0, 0.0),
-    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
-  state_history.emplace(
-    position2->stamp(),
-    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-    position2->uuid(),
-    orientation2->uuid(),
-    linear_velocity2->uuid(),
-    angular_velocity2->uuid(),
-    linear_acceleration2->uuid(),
-    fuse_core::Vector3d(2.0, 0.0, 0.0),
-    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
-  state_history.emplace(
-    position3->stamp(),
-    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-    position3->uuid(),
-    orientation3->uuid(),
-    linear_velocity3->uuid(),
-    angular_velocity3->uuid(),
-    linear_acceleration3->uuid(),
-    fuse_core::Vector3d(3.0, 0.0, 0.0),
-    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
-  state_history.emplace(
-    position4->stamp(),
-    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-    position4->uuid(),
-    orientation4->uuid(),
-    linear_velocity4->uuid(),
-    angular_velocity4->uuid(),
-    linear_acceleration4->uuid(),
-    fuse_core::Vector3d(4.0, 0.0, 0.0),
-    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
-  state_history.emplace(
-    position5->stamp(),
-    Omnidirectional3DModelTest::StateHistoryElement{  // NOLINT(whitespace/braces)
-    position5->uuid(),
-    orientation5->uuid(),
-    linear_velocity5->uuid(),
-    angular_velocity5->uuid(),
-    linear_acceleration5->uuid(),
-    fuse_core::Vector3d(5.0, 0.0, 0.0),
-    Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0),
-    fuse_core::Vector3d(0.0, 0.0, 0.0)});    // NOLINT(whitespace/braces)
+  state_history.emplace(position1->stamp(),
+                        Omnidirectional3DModelTest::StateHistoryElement{
+                            // NOLINT(whitespace/braces)
+                            position1->uuid(), orientation1->uuid(), linear_velocity1->uuid(),
+                            angular_velocity1->uuid(), linear_acceleration1->uuid(), fuse_core::Vector3d(1.0, 0.0, 0.0),
+                            Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0), fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0) });  // NOLINT(whitespace/braces)
+  state_history.emplace(position2->stamp(),
+                        Omnidirectional3DModelTest::StateHistoryElement{
+                            // NOLINT(whitespace/braces)
+                            position2->uuid(), orientation2->uuid(), linear_velocity2->uuid(),
+                            angular_velocity2->uuid(), linear_acceleration2->uuid(), fuse_core::Vector3d(2.0, 0.0, 0.0),
+                            Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0), fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0) });  // NOLINT(whitespace/braces)
+  state_history.emplace(position3->stamp(),
+                        Omnidirectional3DModelTest::StateHistoryElement{
+                            // NOLINT(whitespace/braces)
+                            position3->uuid(), orientation3->uuid(), linear_velocity3->uuid(),
+                            angular_velocity3->uuid(), linear_acceleration3->uuid(), fuse_core::Vector3d(3.0, 0.0, 0.0),
+                            Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0), fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0) });  // NOLINT(whitespace/braces)
+  state_history.emplace(position4->stamp(),
+                        Omnidirectional3DModelTest::StateHistoryElement{
+                            // NOLINT(whitespace/braces)
+                            position4->uuid(), orientation4->uuid(), linear_velocity4->uuid(),
+                            angular_velocity4->uuid(), linear_acceleration4->uuid(), fuse_core::Vector3d(4.0, 0.0, 0.0),
+                            Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0), fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0) });  // NOLINT(whitespace/braces)
+  state_history.emplace(position5->stamp(),
+                        Omnidirectional3DModelTest::StateHistoryElement{
+                            // NOLINT(whitespace/braces)
+                            position5->uuid(), orientation5->uuid(), linear_velocity5->uuid(),
+                            angular_velocity5->uuid(), linear_acceleration5->uuid(), fuse_core::Vector3d(5.0, 0.0, 0.0),
+                            Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0), fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0),
+                            fuse_core::Vector3d(0.0, 0.0, 0.0) });  // NOLINT(whitespace/braces)
 
   // Update the state history
-  Omnidirectional3DModelTest::updateStateHistoryEstimates(
-    graph, state_history, rclcpp::Duration::from_seconds(
-      10.0));
+  Omnidirectional3DModelTest::updateStateHistoryEstimates(graph, state_history, rclcpp::Duration::from_seconds(10.0));
 
   // Check the state estimates in the state history
   {
@@ -262,7 +230,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   }
   {
     // The second entry is included in the graph. It will get updated directly.
-    auto expected_position = fuse_core::Vector3d(1.2, 2.2, 0.0); // <-- value in the Graph
+    auto expected_position = fuse_core::Vector3d(1.2, 2.2, 0.0);  // <-- value in the Graph
     auto expected_orientation = Eigen::Quaterniond(1.0, 0.0, 0.0, 0.0);
     auto actual_position = state_history[rclcpp::Time(2, 0)].position;
     auto actual_orientation = state_history[rclcpp::Time(2, 0)].orientation;
@@ -295,10 +263,9 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   {
     // The third entry is missing from the graph. It will get predicted from previous state.
     auto expected_position = fuse_core::Vector3d(1.2, 3.7, 0.0);
-    auto expected_orientation = 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) * 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
+    auto expected_orientation = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) *
+                                Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
+                                Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
     auto actual_position = state_history[rclcpp::Time(3, 0)].position;
     auto actual_orientation = state_history[rclcpp::Time(3, 0)].orientation;
     EXPECT_NEAR(expected_position.x(), actual_position.x(), 1.0e-9);
@@ -309,7 +276,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
     EXPECT_NEAR(expected_orientation.z(), actual_orientation.z(), 1.0e-9);
     EXPECT_NEAR(expected_orientation.w(), actual_orientation.w(), 1.0e-9);
 
-    auto expected_linear_velocity = fuse_core::Vector3d(0.0, 2.0, 0.0);    
+    auto expected_linear_velocity = fuse_core::Vector3d(0.0, 2.0, 0.0);
     auto actual_linear_velocity = state_history[rclcpp::Time(3, 0)].vel_linear;
     EXPECT_NEAR(expected_linear_velocity.x(), actual_linear_velocity.x(), 1.0e-9);
     EXPECT_NEAR(expected_linear_velocity.y(), actual_linear_velocity.y(), 1.0e-9);
@@ -329,11 +296,10 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   }
   {
     // The forth entry is included in the graph. It will get updated directly.
-    auto expected_position = fuse_core::Vector3d(1.4, 2.4, 0.0); // <-- value in the Graph
-    auto expected_orientation = 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) * 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
+    auto expected_position = fuse_core::Vector3d(1.4, 2.4, 0.0);  // <-- value in the Graph
+    auto expected_orientation = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) *
+                                Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
+                                Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
     auto actual_position = state_history[rclcpp::Time(4, 0)].position;
     auto actual_orientation = state_history[rclcpp::Time(4, 0)].orientation;
     EXPECT_NEAR(expected_position.x(), actual_position.x(), 1.0e-9);
@@ -365,10 +331,9 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
   {
     // The fifth entry is missing from the graph. It will get predicted from previous state.
     auto expected_position = fuse_core::Vector3d(9.5, 12.0, 0.0);
-    auto expected_orientation = 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) * 
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
-      Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
+    auto expected_orientation = Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()) *
+                                Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY()) *
+                                Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitX());
     auto actual_position = state_history[rclcpp::Time(5, 0)].position;
     auto actual_orientation = state_history[rclcpp::Time(5, 0)].orientation;
     EXPECT_NEAR(expected_position.x(), actual_position.x(), 1.0e-9);
@@ -389,7 +354,7 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
     auto actual_angular_velocity = state_history[rclcpp::Time(5, 0)].vel_angular;
     EXPECT_NEAR(expected_angular_velocity.x(), actual_angular_velocity.x(), 1.0e-9);
     EXPECT_NEAR(expected_angular_velocity.y(), actual_angular_velocity.y(), 1.0e-9);
-    EXPECT_NEAR(expected_angular_velocity.z(), actual_angular_velocity.z(), 1.0e-9);  
+    EXPECT_NEAR(expected_angular_velocity.z(), actual_angular_velocity.z(), 1.0e-9);
 
     auto expected_linear_acceleration = fuse_core::Vector3d(7.4, 8.4, 0.0);
     auto actual_linear_acceleration = state_history[rclcpp::Time(5, 0)].acc_linear;

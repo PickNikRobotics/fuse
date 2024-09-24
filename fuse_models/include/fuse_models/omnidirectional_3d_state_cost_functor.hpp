@@ -40,7 +40,6 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
 
-
 namespace fuse_models
 {
 
@@ -92,66 +91,52 @@ public:
    *
    * @param[in] dt The time delta across which to generate the kinematic model cost
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
-   *              order (x, y, z, qx, qy, qz, qw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, 
+   *              order (x, y, z, qx, qy, qz, qw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *                      x_acc, y_acc, z_acc)
    */
-  Omnidirectional3DStateCostFunctor(const double dt, const fuse_core::Matrix15d & A);
+  Omnidirectional3DStateCostFunctor(const double dt, const fuse_core::Matrix15d& A);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    * @param[in] position1    - First position (array with x at index 0, y at index 1, z at index 2)
-   * @param[in] orientation1 - First orientation (array with w at index 0, x at index 1, y at index 2, z at index 3) check this order
+   * @param[in] orientation1 - First orientation (array with w at index 0, x at index 1, y at index 2, z at index 3)
+   * check this order
    * @param[in] vel_linear1  - First linear velocity (array with x at index 0, y at index 1, z at index 2)
    * @param[in] vel_angular1 - First angular velocity (array with vroll at index 0, vpitch at index 1, vyaw at index 2)
    * @param[in] acc_linear1  - First linear acceleration (array with x at index 0, y at index 1, z at index 2)
    * @param[in] dt - The time delta across which to predict the state
    * @param[out] position2 - Second position (array with x at index 0, y at index 1, z at index 2)
-   * @param[out] orientation2 - Second orientation (array with w at index 0, x at index 1, y at index 2, z at index 3) check this order
+   * @param[out] orientation2 - Second orientation (array with w at index 0, x at index 1, y at index 2, z at index 3)
+   * check this order
    * @param[out] vel_linear2  - Second velocity (array with x at index 0, y at index 1, z at index 2)
-   * @param[out] vel_angular2 - Second angular velocity (array with vroll at index 0, vpitch at index 1, vyaw at index 2)
+   * @param[out] vel_angular2 - Second angular velocity (array with vroll at index 0, vpitch at index 1, vyaw at index
+   * 2)
    * @param[out] acc_linear2  - Second linear acceleration (array with x at index 0, y at index 1, z at index 2)
    */
-  template<typename T>
-  bool operator()(
-    const T * const position1,
-    const T * const orientation1,
-    const T * const vel_linear1,
-    const T * const vel_angular1,
-    const T * const acc_linear1,
-    const T * const position2,
-    const T * const orientation2,
-    const T * const vel_linear2,
-    const T * const vel_angular2,
-    const T * const acc_linear2,
-    T * residual) const;
+  template <typename T>
+  bool operator()(const T* const position1, const T* const orientation1, const T* const vel_linear1,
+                  const T* const vel_angular1, const T* const acc_linear1, const T* const position2,
+                  const T* const orientation2, const T* const vel_linear2, const T* const vel_angular2,
+                  const T* const acc_linear2, T* residual) const;
 
 private:
   double dt_;
   fuse_core::Matrix15d A_;  //!< The residual weighting matrix, most likely the square root
-                           //!< information matrix
+                            //!< information matrix
 };
 
-Omnidirectional3DStateCostFunctor::Omnidirectional3DStateCostFunctor(
-  const double dt,
-  const fuse_core::Matrix15d & A)
-: dt_(dt),
-  A_(A)
+Omnidirectional3DStateCostFunctor::Omnidirectional3DStateCostFunctor(const double dt, const fuse_core::Matrix15d& A)
+  : dt_(dt), A_(A)
 {
 }
 
-template<typename T>
-bool Omnidirectional3DStateCostFunctor::operator()(
-  const T * const position1,
-  const T * const orientation1,
-  const T * const vel_linear1,
-  const T * const vel_angular1,
-  const T * const acc_linear1,
-  const T * const position2,
-  const T * const orientation2,
-  const T * const vel_linear2,
-  const T * const vel_angular2,
-  const T * const acc_linear2,
-  T * residual) const
+template <typename T>
+bool Omnidirectional3DStateCostFunctor::operator()(const T* const position1, const T* const orientation1,
+                                                   const T* const vel_linear1, const T* const vel_angular1,
+                                                   const T* const acc_linear1, const T* const position2,
+                                                   const T* const orientation2, const T* const vel_linear2,
+                                                   const T* const vel_angular2, const T* const acc_linear2,
+                                                   T* residual) const
 {
   T position_pred[3];
   T orientation_pred[3];
@@ -160,30 +145,16 @@ bool Omnidirectional3DStateCostFunctor::operator()(
   T acc_linear_pred[3];
 
   // Convert orientation variables from quaternion to roll-pitch-yaw
-  const T orientation1_rpy[3] {
-    fuse_core::getRoll(orientation1[0], orientation1[1], orientation1[2], orientation1[3]),
-    fuse_core::getPitch(orientation1[0], orientation1[1], orientation1[2], orientation1[3]),
-    fuse_core::getYaw(orientation1[0], orientation1[1], orientation1[2], orientation1[3])
-  };
-  const T orientation2_rpy[3] {
-    fuse_core::getRoll(orientation2[0], orientation2[1], orientation2[2], orientation2[3]),
-    fuse_core::getPitch(orientation2[0], orientation2[1], orientation2[2], orientation2[3]),
-    fuse_core::getYaw(orientation2[0], orientation2[1], orientation2[2], orientation2[3])
-  };
+  const T orientation1_rpy[3]{ fuse_core::getRoll(orientation1[0], orientation1[1], orientation1[2], orientation1[3]),
+                               fuse_core::getPitch(orientation1[0], orientation1[1], orientation1[2], orientation1[3]),
+                               fuse_core::getYaw(orientation1[0], orientation1[1], orientation1[2], orientation1[3]) };
+  const T orientation2_rpy[3]{ fuse_core::getRoll(orientation2[0], orientation2[1], orientation2[2], orientation2[3]),
+                               fuse_core::getPitch(orientation2[0], orientation2[1], orientation2[2], orientation2[3]),
+                               fuse_core::getYaw(orientation2[0], orientation2[1], orientation2[2], orientation2[3]) };
 
-  predict(
-    position1,
-    orientation1_rpy,
-    vel_linear1,
-    vel_angular1,
-    acc_linear1,
-    T(dt_),
-    position_pred,
-    orientation_pred,
-    vel_linear_pred,
-    vel_angular_pred,
-    acc_linear_pred);
-  
+  predict(position1, orientation1_rpy, vel_linear1, vel_angular1, acc_linear1, T(dt_), position_pred, orientation_pred,
+          vel_linear_pred, vel_angular_pred, acc_linear_pred);
+
   Eigen::Map<Eigen::Matrix<T, 15, 1>> residuals_map(residual);
   residuals_map(0) = position2[0] - position_pred[0];
   residuals_map(1) = position2[1] - position_pred[1];

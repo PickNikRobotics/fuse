@@ -40,7 +40,6 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -76,40 +75,35 @@ public:
    *              order (x, y, z, roll, pitch, yaw)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, roll, pitch, yaw)
    */
-  NormalPriorPose3DEulerCostFunctor(const fuse_core::MatrixXd & A, const fuse_core::Vector6d & b);
+  NormalPriorPose3DEulerCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector6d& b);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    */
-  template<typename T>
-  bool operator()(const T * const position, const T * const orientation, T * residual) const;
+  template <typename T>
+  bool operator()(const T* const position, const T* const orientation, T* residual) const;
 
 private:
   fuse_core::MatrixXd A_;
   fuse_core::Vector6d b_;
 };
 
-NormalPriorPose3DEulerCostFunctor::NormalPriorPose3DEulerCostFunctor(
-  const fuse_core::MatrixXd & A,
-  const fuse_core::Vector6d & b)
-: A_(A),
-  b_(b)
+NormalPriorPose3DEulerCostFunctor::NormalPriorPose3DEulerCostFunctor(const fuse_core::MatrixXd& A,
+                                                                     const fuse_core::Vector6d& b)
+  : A_(A), b_(b)
 {
   CHECK_GT(A_.rows(), 0);
   CHECK_EQ(A_.cols(), 6);
 }
 
-template<typename T>
-bool NormalPriorPose3DEulerCostFunctor::operator()(
-  const T * const position, const T * const orientation,
-  T * residual) const
+template <typename T>
+bool NormalPriorPose3DEulerCostFunctor::operator()(const T* const position, const T* const orientation,
+                                                   T* residual) const
 {
   T full_residuals[6];
-  T orientation_rpy[3] = {
-    fuse_core::getRoll(orientation[0], orientation[1], orientation[2], orientation[3]),
-    fuse_core::getPitch(orientation[0], orientation[1], orientation[2], orientation[3]),
-    fuse_core::getYaw(orientation[0], orientation[1], orientation[2], orientation[3])
-  };
+  T orientation_rpy[3] = { fuse_core::getRoll(orientation[0], orientation[1], orientation[2], orientation[3]),
+                           fuse_core::getPitch(orientation[0], orientation[1], orientation[2], orientation[3]),
+                           fuse_core::getYaw(orientation[0], orientation[1], orientation[2], orientation[3]) };
 
   // Compute the position residual
   full_residuals[0] = position[0] - T(b_(0));
