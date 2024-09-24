@@ -44,7 +44,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_loss
 {
 
@@ -72,9 +71,8 @@ public:
    *                   'f(g(s))'. If it is nullptr the fuse_loss::TrivialLoss is used. Defaults to
    *                   nullptr.
    */
-  explicit ComposedLoss(
-    const std::shared_ptr<fuse_core::Loss> & f_loss = nullptr,
-    const std::shared_ptr<fuse_core::Loss> & g_loss = nullptr);
+  explicit ComposedLoss(const std::shared_ptr<fuse_core::Loss>& f_loss = nullptr,
+                        const std::shared_ptr<fuse_core::Loss>& g_loss = nullptr);
 
   /**
    * @brief Destructor
@@ -92,19 +90,17 @@ public:
    *                 server.
    */
   void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<
-      fuse_core::node_interfaces::Base,
-      fuse_core::node_interfaces::Logging,
-      fuse_core::node_interfaces::Parameters
-    > interfaces,
-    const std::string & name) override;
+      fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                                 fuse_core::node_interfaces::Parameters>
+          interfaces,
+      const std::string& name) override;
 
   /**
    * @brief Print a human-readable description of the loss function to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Return a raw pointer to a ceres::LossFunction that implements the loss function.
@@ -117,7 +113,7 @@ public:
    *
    * @return A base pointer to an instance of a derived ceres::LossFunction.
    */
-  ceres::LossFunction * lossFunction() const override;
+  ceres::LossFunction* lossFunction() const override;
 
   /**
    * @brief Parameter 'f_loss' accessor.
@@ -144,7 +140,7 @@ public:
    *
    * @param[in] loss Parameter 'f_loss'.
    */
-  void fLoss(const std::shared_ptr<fuse_core::Loss> & f_loss)
+  void fLoss(const std::shared_ptr<fuse_core::Loss>& f_loss)
   {
     f_loss_ = f_loss;
   }
@@ -154,16 +150,16 @@ public:
    *
    * @param[in] loss Parameter 'g_loss'.
    */
-  void gLoss(const std::shared_ptr<fuse_core::Loss> & g_loss)
+  void gLoss(const std::shared_ptr<fuse_core::Loss>& g_loss)
   {
     g_loss_ = g_loss;
   }
 
 private:
-  std::shared_ptr<fuse_core::Loss> f_loss_{nullptr};    //!< The 'f' loss function, which is
+  std::shared_ptr<fuse_core::Loss> f_loss_{ nullptr };  //!< The 'f' loss function, which is
                                                         //!< evaluated last to yield the composition
                                                         //!< 'f(g(s))'
-  std::shared_ptr<fuse_core::Loss> g_loss_{nullptr};    //!< The 'g' loss function, which is
+  std::shared_ptr<fuse_core::Loss> g_loss_{ nullptr };  //!< The 'g' loss function, which is
                                                         //!< evaluated first to yield the
                                                         //!< composition 'f(g(s))'
 
@@ -177,12 +173,12 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<fuse_core::Loss>(*this);
-    archive & f_loss_;
-    archive & g_loss_;
+    archive& boost::serialization::base_object<fuse_core::Loss>(*this);
+    archive& f_loss_;
+    archive& g_loss_;
   }
 };
 

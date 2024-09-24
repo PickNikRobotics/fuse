@@ -51,29 +51,28 @@
  * @param[in] cost_function The expected cost function
  * @param[in] actual_cost_function The actual cost function
  */
-static void ExpectCostFunctionsAreEqual(
-  const ceres::CostFunction & cost_function,
-  const ceres::CostFunction & actual_cost_function)
+static void ExpectCostFunctionsAreEqual(const ceres::CostFunction& cost_function,
+                                        const ceres::CostFunction& actual_cost_function)
 {
   EXPECT_EQ(cost_function.num_residuals(), actual_cost_function.num_residuals());
   const size_t num_residuals = cost_function.num_residuals();
-  const std::vector<int32_t> & parameter_block_sizes = cost_function.parameter_block_sizes();
-  const std::vector<int32_t> & actual_parameter_block_sizes =
-    actual_cost_function.parameter_block_sizes();
+  const std::vector<int32_t>& parameter_block_sizes = cost_function.parameter_block_sizes();
+  const std::vector<int32_t>& actual_parameter_block_sizes = actual_cost_function.parameter_block_sizes();
   EXPECT_EQ(parameter_block_sizes.size(), actual_parameter_block_sizes.size());
 
   size_t num_parameters = 0;
-  for (size_t i = 0; i < parameter_block_sizes.size(); ++i) {
+  for (size_t i = 0; i < parameter_block_sizes.size(); ++i)
+  {
     EXPECT_EQ(parameter_block_sizes[i], actual_parameter_block_sizes[i]);
     num_parameters += parameter_block_sizes[i];
   }
 
   std::unique_ptr<double[]> parameters(new double[num_parameters]);
-  if ((num_parameters == 7) && (parameter_block_sizes[0] == 3) &&
-    (parameter_block_sizes[1] == 4))
+  if ((num_parameters == 7) && (parameter_block_sizes[0] == 3) && (parameter_block_sizes[1] == 4))
   {
     // Special case for parameters[1] as quaternion
-    for (size_t i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 3; i++)
+    {
       parameters[i] = static_cast<double>(i) + 1.0;
     }
     Eigen::Quaterniond q = Eigen::Quaterniond::UnitRandom();
@@ -81,8 +80,11 @@ static void ExpectCostFunctionsAreEqual(
     parameters[4] = q.x();
     parameters[5] = q.y();
     parameters[6] = q.z();
-  } else {
-    for (size_t i = 0; i < num_parameters; ++i) {
+  }
+  else
+  {
+    for (size_t i = 0; i < num_parameters; ++i)
+    {
       parameters[i] = static_cast<double>(i) + 1.0;
     }
   }
@@ -93,12 +95,13 @@ static void ExpectCostFunctionsAreEqual(
   std::unique_ptr<double[]> actual_residuals(new double[num_residuals]);
   std::unique_ptr<double[]> actual_jacobians(new double[num_parameters * num_residuals]);
 
-  std::unique_ptr<double *[]> parameter_blocks(new double *[parameter_block_sizes.size()]);
-  std::unique_ptr<double *[]> jacobian_blocks(new double *[parameter_block_sizes.size()]);
-  std::unique_ptr<double *[]> actual_jacobian_blocks(new double *[parameter_block_sizes.size()]);
+  std::unique_ptr<double*[]> parameter_blocks(new double*[parameter_block_sizes.size()]);
+  std::unique_ptr<double*[]> jacobian_blocks(new double*[parameter_block_sizes.size()]);
+  std::unique_ptr<double*[]> actual_jacobian_blocks(new double*[parameter_block_sizes.size()]);
 
   num_parameters = 0;
-  for (size_t i = 0; i < parameter_block_sizes.size(); ++i) {
+  for (size_t i = 0; i < parameter_block_sizes.size(); ++i)
+  {
     parameter_blocks[i] = parameters.get() + num_parameters;
     jacobian_blocks[i] = jacobians.get() + num_parameters * num_residuals;
     actual_jacobian_blocks[i] = actual_jacobians.get() + num_parameters * num_residuals;
@@ -106,29 +109,24 @@ static void ExpectCostFunctionsAreEqual(
   }
 
   EXPECT_TRUE(cost_function.Evaluate(parameter_blocks.get(), residuals.get(), nullptr));
-  EXPECT_TRUE(
-    actual_cost_function.Evaluate(
-      parameter_blocks.get(), actual_residuals.get(),
-      nullptr));
-  for (size_t i = 0; i < num_residuals; ++i) {
+  EXPECT_TRUE(actual_cost_function.Evaluate(parameter_blocks.get(), actual_residuals.get(), nullptr));
+  for (size_t i = 0; i < num_residuals; ++i)
+  {
     EXPECT_DOUBLE_EQ(residuals[i], actual_residuals[i]) << "residual id: " << i;
   }
 
+  EXPECT_TRUE(cost_function.Evaluate(parameter_blocks.get(), residuals.get(), jacobian_blocks.get()));
   EXPECT_TRUE(
-    cost_function.Evaluate(
-      parameter_blocks.get(), residuals.get(),
-      jacobian_blocks.get()));
-  EXPECT_TRUE(
-    actual_cost_function.Evaluate(
-      parameter_blocks.get(), actual_residuals.get(),
-      actual_jacobian_blocks.get()));
-  for (size_t i = 0; i < num_residuals; ++i) {
+      actual_cost_function.Evaluate(parameter_blocks.get(), actual_residuals.get(), actual_jacobian_blocks.get()));
+  for (size_t i = 0; i < num_residuals; ++i)
+  {
     EXPECT_DOUBLE_EQ(residuals[i], actual_residuals[i]) << "residual : " << i;
   }
 
-  for (size_t i = 0; i < num_residuals * num_parameters; ++i) {
+  for (size_t i = 0; i < num_residuals * num_parameters; ++i)
+  {
     EXPECT_DOUBLE_EQ(jacobians[i], actual_jacobians[i])
-      << "jacobian : " << i << " " << jacobians[i] << " " << actual_jacobians[i];
+        << "jacobian : " << i << " " << jacobians[i] << " " << actual_jacobians[i];
   }
 }
 

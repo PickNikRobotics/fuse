@@ -53,7 +53,6 @@
 #include <nav_msgs/msg/path.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-
 /**
  * @brief Test fixture for the Path2DPublisher
  *
@@ -64,39 +63,33 @@ class Path2DPublisherTestFixture : public ::testing::Test
 {
 public:
   Path2DPublisherTestFixture()
-  : graph_(fuse_graphs::HashGraph::make_shared()),
-    transaction_(fuse_core::Transaction::make_shared()),
-    received_path_msg_(false),
-    received_pose_array_msg_(false)
+    : graph_(fuse_graphs::HashGraph::make_shared())
+    , transaction_(fuse_core::Transaction::make_shared())
+    , received_path_msg_(false)
+    , received_pose_array_msg_(false)
   {
     // Add a few pose variables
-    auto position1 =
-      fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
+    auto position1 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
     position1->x() = 1.01;
     position1->y() = 2.01;
-    auto orientation1 =
-      fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
+    auto orientation1 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1234, 10, RCL_ROS_TIME));
     orientation1->yaw() = 3.01;
-    auto position2 =
-      fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
+    auto position2 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
     position2->x() = 1.02;
     position2->y() = 2.02;
-    auto orientation2 =
-      fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
+    auto orientation2 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 10, RCL_ROS_TIME));
     orientation2->yaw() = 3.02;
-    auto position3 =
-      fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
+    auto position3 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
     position3->x() = 1.03;
     position3->y() = 2.03;
-    auto orientation3 =
-      fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
+    auto orientation3 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 9, RCL_ROS_TIME));
     orientation3->yaw() = 3.03;
-    auto position4 = fuse_variables::Position2DStamped::make_shared(
-      rclcpp::Time(1235, 11, RCL_ROS_TIME), fuse_core::uuid::generate("kitt"));
+    auto position4 = fuse_variables::Position2DStamped::make_shared(rclcpp::Time(1235, 11, RCL_ROS_TIME),
+                                                                    fuse_core::uuid::generate("kitt"));
     position4->x() = 1.04;
     position4->y() = 2.04;
-    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(
-      rclcpp::Time(1235, 11, RCL_ROS_TIME), fuse_core::uuid::generate("kitt"));
+    auto orientation4 = fuse_variables::Orientation2DStamped::make_shared(rclcpp::Time(1235, 11, RCL_ROS_TIME),
+                                                                          fuse_core::uuid::generate("kitt"));
     orientation4->yaw() = 3.04;
 
     transaction_->addInvolvedStamp(position1->stamp());
@@ -120,38 +113,34 @@ public:
     mean1 << 1.01, 2.01, 3.01;
     fuse_core::Matrix3d cov1;
     /* *INDENT-OFF* */
-    cov1 << 1.01, 0.0, 0.0,  0.0, 2.01, 0.0,  0.0, 0.0, 3.01;
+    cov1 << 1.01, 0.0, 0.0, 0.0, 2.01, 0.0, 0.0, 0.0, 3.01;
     /* *INDENT-ON* */
     auto constraint1 =
-      fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-      "test", *position1, *orientation1, mean1, cov1);
+        fuse_constraints::AbsolutePose2DStampedConstraint::make_shared("test", *position1, *orientation1, mean1, cov1);
     fuse_core::Vector3d mean2;
     mean2 << 1.02, 2.02, 3.02;
     fuse_core::Matrix3d cov2;
     /* *INDENT-OFF* */
-    cov2 << 1.02, 0.0, 0.0,  0.0, 2.02, 0.0,  0.0, 0.0, 3.02;
+    cov2 << 1.02, 0.0, 0.0, 0.0, 2.02, 0.0, 0.0, 0.0, 3.02;
     /* *INDENT-ON* */
     auto constraint2 =
-      fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-      "test", *position2, *orientation2, mean2, cov2);
+        fuse_constraints::AbsolutePose2DStampedConstraint::make_shared("test", *position2, *orientation2, mean2, cov2);
     fuse_core::Vector3d mean3;
     mean3 << 1.03, 2.03, 3.03;
     fuse_core::Matrix3d cov3;
     /* *INDENT-OFF* */
-    cov3 << 1.03, 0.0, 0.0,  0.0, 2.03, 0.0,  0.0, 0.0, 3.03;
+    cov3 << 1.03, 0.0, 0.0, 0.0, 2.03, 0.0, 0.0, 0.0, 3.03;
     /* *INDENT-ON* */
     auto constraint3 =
-      fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-      "test", *position3, *orientation3, mean3, cov3);
+        fuse_constraints::AbsolutePose2DStampedConstraint::make_shared("test", *position3, *orientation3, mean3, cov3);
     fuse_core::Vector3d mean4;
     mean4 << 1.04, 2.04, 3.04;
     fuse_core::Matrix3d cov4;
     /* *INDENT-OFF* */
-    cov4 << 1.04, 0.0, 0.0,  0.0, 2.04, 0.0,  0.0, 0.0, 3.04;
+    cov4 << 1.04, 0.0, 0.0, 0.0, 2.04, 0.0, 0.0, 0.0, 3.04;
     /* *INDENT-ON* */
     auto constraint4 =
-      fuse_constraints::AbsolutePose2DStampedConstraint::make_shared(
-      "test", *position4, *orientation4, mean4, cov4);
+        fuse_constraints::AbsolutePose2DStampedConstraint::make_shared("test", *position4, *orientation4, mean4, cov4);
     transaction_->addConstraint(constraint1);
     transaction_->addConstraint(constraint2);
     transaction_->addConstraint(constraint3);
@@ -166,35 +155,33 @@ public:
   {
     rclcpp::init(0, nullptr);
     executor_ = std::make_shared<rclcpp::executors::SingleThreadedExecutor>();
-    spinner_ = std::thread(
-      [&]() {
-        executor_->spin();
-      });
+    spinner_ = std::thread([&]() { executor_->spin(); });
   }
 
   void TearDown() override
   {
     executor_->cancel();
-    if (spinner_.joinable()) {
+    if (spinner_.joinable())
+    {
       spinner_.join();
     }
     executor_.reset();
     rclcpp::shutdown();
   }
 
-  void pathCallback(const nav_msgs::msg::Path & msg)
+  void pathCallback(const nav_msgs::msg::Path& msg)
   {
     path_msg_ = msg;
     received_path_msg_ = true;
   }
 
-  void poseArrayCallback(const geometry_msgs::msg::PoseArray & msg)
+  void poseArrayCallback(const geometry_msgs::msg::PoseArray& msg)
   {
     pose_array_msg_ = msg;
     received_pose_array_msg_ = true;
   }
 
-  std::thread spinner_;   //!< Internal thread for spinning the executor
+  std::thread spinner_;  //!< Internal thread for spinning the executor
   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 
 protected:
@@ -210,10 +197,7 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
 {
   // Test that the expected PoseStamped message is published
   rclcpp::NodeOptions options;
-  options.arguments(
-  {
-    "--ros-args",
-    "-p", "test_publisher.frame_id:=test_map"});
+  options.arguments({ "--ros-args", "-p", "test_publisher.frame_id:=test_map" });
   auto node = rclcpp::Node::make_shared("test_path_2d_publisher_node", options);
   executor_->add_node(node);
 
@@ -226,20 +210,20 @@ TEST_F(Path2DPublisherTestFixture, PublishPath)
 
   // Subscribe to the "path" topic
   auto subscriber1 = node->create_subscription<nav_msgs::msg::Path>(
-    "/test_publisher/path", 1,
-    std::bind(&Path2DPublisherTestFixture::pathCallback, this, std::placeholders::_1));
+      "/test_publisher/path", 1, std::bind(&Path2DPublisherTestFixture::pathCallback, this, std::placeholders::_1));
 
   // Subscribe to the "pose_array" topic
   auto subscriber2 = node->create_subscription<geometry_msgs::msg::PoseArray>(
-    "/test_publisher/pose_array", 1,
-    std::bind(&Path2DPublisherTestFixture::poseArrayCallback, this, std::placeholders::_1));
+      "/test_publisher/pose_array", 1,
+      std::bind(&Path2DPublisherTestFixture::poseArrayCallback, this, std::placeholders::_1));
 
   // Send the graph to the Publisher to trigger message publishing
   publisher.notify(transaction_, graph_);
 
   // Verify the subscriber received the expected pose
   rclcpp::Time timeout = node->now() + rclcpp::Duration::from_seconds(10.0);
-  while ((!received_path_msg_) && (node->now() < timeout)) {
+  while ((!received_path_msg_) && (node->now() < timeout))
+  {
     rclcpp::sleep_for(rclcpp::Duration::from_seconds(0.10).to_chrono<std::chrono::nanoseconds>());
   }
 

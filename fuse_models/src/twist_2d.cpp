@@ -46,17 +46,15 @@ namespace fuse_models
 {
 
 Twist2D::Twist2D()
-: fuse_core::AsyncSensorModel(1),
-  device_id_(fuse_core::uuid::NIL),
-  logger_(rclcpp::get_logger("uninitialized")),
-  throttled_callback_(std::bind(&Twist2D::process, this, std::placeholders::_1))
+  : fuse_core::AsyncSensorModel(1)
+  , device_id_(fuse_core::uuid::NIL)
+  , logger_(rclcpp::get_logger("uninitialized"))
+  , throttled_callback_(std::bind(&Twist2D::process, this, std::placeholders::_1))
 {
 }
 
-void Twist2D::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const std::string & name,
-  fuse_core::TransactionCallback transaction_callback)
+void Twist2D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                         const std::string& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -74,49 +72,36 @@ void Twist2D::onInit()
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
 
-  if (!params_.throttle_use_wall_time) {
+  if (!params_.throttle_use_wall_time)
+  {
     throttled_callback_.setClock(clock_);
   }
 
-  if (params_.linear_indices.empty() &&
-    params_.angular_indices.empty())
+  if (params_.linear_indices.empty() && params_.angular_indices.empty())
   {
-    RCLCPP_WARN_STREAM(
-      logger_,
-      "No dimensions were specified. Data from topic " << params_.topic
-                                                       << " will be ignored.");
+    RCLCPP_WARN_STREAM(logger_,
+                       "No dimensions were specified. Data from topic " << params_.topic << " will be ignored.");
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
-  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
-    *tf_buffer_,
-    interfaces_.get_node_base_interface(),
-    interfaces_.get_node_logging_interface(),
-    interfaces_.get_node_parameters_interface(),
-    interfaces_.get_node_topics_interface()
-  );
+  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, interfaces_.get_node_base_interface(),
+                                                              interfaces_.get_node_logging_interface(),
+                                                              interfaces_.get_node_parameters_interface(),
+                                                              interfaces_.get_node_topics_interface());
 }
 
 void Twist2D::onStart()
 {
-  if (!params_.linear_indices.empty() ||
-    !params_.angular_indices.empty())
+  if (!params_.linear_indices.empty() || !params_.angular_indices.empty())
   {
     rclcpp::SubscriptionOptions sub_options;
     sub_options.callback_group = cb_group_;
 
     sub_ = rclcpp::create_subscription<geometry_msgs::msg::TwistWithCovarianceStamped>(
-      interfaces_,
-      params_.topic,
-      params_.queue_size,
-      std::bind(
-        &TwistThrottledCallback::callback<
-          const geometry_msgs::msg::TwistWithCovarianceStamped &>,
-        &throttled_callback_,
-        std::placeholders::_1
-      ),
-      sub_options
-    );
+        interfaces_, params_.topic, params_.queue_size,
+        std::bind(&TwistThrottledCallback::callback<const geometry_msgs::msg::TwistWithCovarianceStamped&>,
+                  &throttled_callback_, std::placeholders::_1),
+        sub_options);
   }
 }
 
@@ -125,25 +110,15 @@ void Twist2D::onStop()
   sub_.reset();
 }
 
-void Twist2D::process(const geometry_msgs::msg::TwistWithCovarianceStamped & msg)
+void Twist2D::process(const geometry_msgs::msg::TwistWithCovarianceStamped& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
   transaction->stamp(msg.header.stamp);
 
-  common::processTwistWithCovariance(
-    name(),
-    device_id_,
-    msg,
-    params_.linear_loss,
-    params_.angular_loss,
-    params_.target_frame,
-    params_.linear_indices,
-    params_.angular_indices,
-    *tf_buffer_,
-    !params_.disable_checks,
-    *transaction,
-    params_.tf_timeout);
+  common::processTwistWithCovariance(name(), device_id_, msg, params_.linear_loss, params_.angular_loss,
+                                     params_.target_frame, params_.linear_indices, params_.angular_indices, *tf_buffer_,
+                                     !params_.disable_checks, *transaction, params_.tf_timeout);
 
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);

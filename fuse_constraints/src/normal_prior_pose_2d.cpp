@@ -40,23 +40,18 @@
 namespace fuse_constraints
 {
 
-NormalPriorPose2D::NormalPriorPose2D(const fuse_core::MatrixXd & A, const fuse_core::Vector3d & b)
-: A_(A),
-  b_(b)
+NormalPriorPose2D::NormalPriorPose2D(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b) : A_(A), b_(b)
 {
   CHECK_GT(A_.rows(), 0);
   CHECK_EQ(A_.cols(), 3);
   set_num_residuals(A_.rows());
 }
 
-bool NormalPriorPose2D::Evaluate(
-  double const * const * parameters,
-  double * residuals,
-  double ** jacobians) const
+bool NormalPriorPose2D::Evaluate(double const* const* parameters, double* residuals, double** jacobians) const
 {
   fuse_core::Vector3d full_residuals_vector;
-  full_residuals_vector[0] = parameters[0][0] - b_[0];  // position x
-  full_residuals_vector[1] = parameters[0][1] - b_[1];  // position y
+  full_residuals_vector[0] = parameters[0][0] - b_[0];                          // position x
+  full_residuals_vector[1] = parameters[0][1] - b_[1];                          // position y
   full_residuals_vector[2] = fuse_core::wrapAngle2D(parameters[1][0] - b_[2]);  // orientation
 
   // Scale the residuals by the square root information matrix to account for the measurement
@@ -64,14 +59,17 @@ bool NormalPriorPose2D::Evaluate(
   Eigen::Map<fuse_core::VectorXd> residuals_vector(residuals, num_residuals());
   residuals_vector = A_ * full_residuals_vector;
 
-  if (jacobians != nullptr) {
+  if (jacobians != nullptr)
+  {
     // Jacobian wrt position
-    if (jacobians[0] != nullptr) {
+    if (jacobians[0] != nullptr)
+    {
       Eigen::Map<fuse_core::MatrixXd>(jacobians[0], num_residuals(), 2) = A_.leftCols<2>();
     }
 
     // Jacobian wrt orientation
-    if (jacobians[1] != nullptr) {
+    if (jacobians[1] != nullptr)
+    {
       Eigen::Map<fuse_core::VectorXd>(jacobians[1], num_residuals()) = A_.col(2);
     }
   }

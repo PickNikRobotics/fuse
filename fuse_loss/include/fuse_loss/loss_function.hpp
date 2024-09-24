@@ -145,19 +145,18 @@ namespace ceres
 class DCSLoss : public ceres::LossFunction
 {
 public:
-  explicit DCSLoss(const double a)
-  : a_(a)
+  explicit DCSLoss(const double a) : a_(a)
   {
   }
 
-  void Evaluate(double, double * rho) const override;
+  void Evaluate(double, double* rho) const override;
 
 private:
   const double a_;
 };
 
-// Fair, similar to tthe L1 - L2 estimators, that try to take the advantage of the L1 estimators to
-// reduce the influence of large erros and that of L2 estimators to be convex. It behave like L2 for
+// Fair, similar to the L1 - L2 estimators, that try to take the advantage of the L1 estimators to
+// reduce the influence of large errors and that of L2 estimators to be convex. It behave like L2 for
 // small squared residuals 's' and like L1 for large ones.
 //
 // The term is computed as:
@@ -170,12 +169,11 @@ private:
 class FairLoss : public ceres::LossFunction
 {
 public:
-  explicit FairLoss(const double a)
-  : a_(a), b_(a * a)
+  explicit FairLoss(const double a) : a_(a), b_(a * a)
   {
   }
 
-  void Evaluate(double, double *) const override;
+  void Evaluate(double, double*) const override;
 
 private:
   const double a_;
@@ -195,7 +193,7 @@ private:
 //   http://www2.informatik.uni-freiburg.de/~agarwal/resources/agarwal-thesis.pdf (pp. 89-90)
 //
 // where the original Geman-McClure is presented in Eq. 5.21 and the generalized Geman-McClure is
-// defined introducing the parametr 'a'. It also shows how it is adapted to be a positive definite
+// defined introducing the parameter 'a'. It also shows how it is adapted to be a positive definite
 // function.
 //
 // Remember that in Ceres the implementation of rho(s) must be multiplied by 2 because the cost is
@@ -222,12 +220,11 @@ private:
 class GemanMcClureLoss : public ceres::LossFunction
 {
 public:
-  explicit GemanMcClureLoss(const double a)
-  : b_(a * a)
+  explicit GemanMcClureLoss(const double a) : b_(a * a)
   {
   }
 
-  void Evaluate(double, double *) const override;
+  void Evaluate(double, double*) const override;
 
 private:
   const double b_;
@@ -246,12 +243,11 @@ private:
 class WelschLoss : public ceres::LossFunction
 {
 public:
-  explicit WelschLoss(const double a)
-  : b_(a * a), c_(-1.0 / b_)
+  explicit WelschLoss(const double a) : b_(a * a), c_(-1.0 / b_)
   {
   }
 
-  void Evaluate(double, double *) const override;
+  void Evaluate(double, double*) const override;
 
 private:
   const double b_;

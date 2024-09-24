@@ -22,31 +22,46 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    pkg_dir = FindPackageShare('fuse_tutorials')
+    pkg_dir = FindPackageShare("fuse_tutorials")
 
-    return LaunchDescription([
-        ExecuteProcess(
-            cmd=['ros2', 'bag', 'play',
-                 PathJoinSubstitution([pkg_dir, 'data', 'turtlebot3.bag']),
-                 '--clock', '-l', '-d', '3'],
-            output='screen'
-        ),
-
-        SetParameter(name='use_sim_time', value=True),
-        Node(
-            package='fuse_optimizers',
-            executable='fixed_lag_smoother_node',
-            name='state_estimator',
-            parameters=[PathJoinSubstitution([
-                pkg_dir, 'config', 'fuse_simple_tutorial.yaml'
-            ])]
-        ),
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz',
-            arguments=[
-                '-d', [PathJoinSubstitution([pkg_dir, 'config', 'fuse_simple_tutorial.rviz'])]
-            ]
-        )
-    ])
+    return LaunchDescription(
+        [
+            ExecuteProcess(
+                cmd=[
+                    "ros2",
+                    "bag",
+                    "play",
+                    PathJoinSubstitution([pkg_dir, "data", "turtlebot3.bag"]),
+                    "--clock",
+                    "-l",
+                    "-d",
+                    "3",
+                ],
+                output="screen",
+            ),
+            SetParameter(name="use_sim_time", value=True),
+            Node(
+                package="fuse_optimizers",
+                executable="fixed_lag_smoother_node",
+                name="state_estimator",
+                parameters=[
+                    PathJoinSubstitution(
+                        [pkg_dir, "config", "fuse_simple_tutorial.yaml"]
+                    )
+                ],
+            ),
+            Node(
+                package="rviz2",
+                executable="rviz2",
+                name="rviz",
+                arguments=[
+                    "-d",
+                    [
+                        PathJoinSubstitution(
+                            [pkg_dir, "config", "fuse_simple_tutorial.rviz"]
+                        )
+                    ],
+                ],
+            ),
+        ]
+    )

@@ -42,29 +42,26 @@
 namespace fuse_loss
 {
 
-SoftLOneLoss::SoftLOneLoss(const double a)
-: a_(a)
+SoftLOneLoss::SoftLOneLoss(const double a) : a_(a)
 {
 }
 
 void SoftLOneLoss::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters
-  > interfaces,
-  const std::string & name)
+    fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                               fuse_core::node_interfaces::Parameters>
+        interfaces,
+    const std::string& name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void SoftLOneLoss::print(std::ostream & stream) const
+void SoftLOneLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction * SoftLOneLoss::lossFunction() const
+ceres::LossFunction* SoftLOneLoss::lossFunction() const
 {
   return new ceres::SoftLOneLoss(a_);
 }

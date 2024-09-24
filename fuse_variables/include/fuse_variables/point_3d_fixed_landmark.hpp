@@ -46,7 +46,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
-
 namespace fuse_variables
 {
 /**
@@ -81,49 +80,70 @@ public:
    *
    * @param[in] landmark_id  The id associated to a landmark
    */
-  explicit Point3DFixedLandmark(const uint64_t & landmark_id);
+  explicit Point3DFixedLandmark(const uint64_t& landmark_id);
 
   /**
    * @brief Read-write access to the X-axis position.
    */
-  double & x() {return data_[X];}
+  double& x()
+  {
+    return data_[X];
+  }
 
   /**
    * @brief Read-only access to the X-axis position.
    */
-  const double & x() const {return data_[X];}
+  const double& x() const
+  {
+    return data_[X];
+  }
 
   /**
    * @brief Read-write access to the Y-axis position.
    */
-  double & y() {return data_[Y];}
+  double& y()
+  {
+    return data_[Y];
+  }
 
   /**
    * @brief Read-only access to the Y-axis position.
    */
-  const double & y() const {return data_[Y];}
+  const double& y() const
+  {
+    return data_[Y];
+  }
 
   /**
    * @brief Read-write access to the Z-axis position.
    */
-  double & z() {return data_[Z];}
+  double& z()
+  {
+    return data_[Z];
+  }
 
   /**
    * @brief Read-only access to the Z-axis position.
    */
-  const double & z() const {return data_[Z];}
+  const double& z() const
+  {
+    return data_[Z];
+  }
 
   /**
    * @brief Read-only access to the id
    */
-  const uint64_t & id() const {return id_;}
+  const uint64_t& id() const
+  {
+    return id_;
+  }
 
   /**
    * @brief Print a human-readable description of the variable to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  void print(std::ostream & stream = std::cout) const override;
+  void print(std::ostream& stream = std::cout) const override;
 
   /**
    * @brief Specifies if the value of the variable should not be changed during optimization
@@ -136,13 +156,16 @@ public:
    *
    * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
    */
-  fuse_core::Manifold * manifold() const override {return nullptr;}
+  fuse_core::Manifold* manifold() const override
+  {
+    return nullptr;
+  }
 #endif
 
 private:
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;
-  uint64_t id_ {0};
+  uint64_t id_{ 0 };
 
   /**
    * @brief The Boost Serialize method that serializes all of the data members in to/out of the
@@ -151,11 +174,11 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & archive, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive & boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
-    archive & id_;
+    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive& id_;
   }
 };
 

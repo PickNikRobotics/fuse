@@ -38,12 +38,11 @@
 namespace fuse_core
 {
 
-Variable::Variable(const UUID & uuid)
-: uuid_(uuid)
+Variable::Variable(const UUID& uuid) : uuid_(uuid)
 {
 }
 
-std::ostream & operator<<(std::ostream & stream, const Variable & variable)
+std::ostream& operator<<(std::ostream& stream, const Variable& variable)
 {
   variable.print(stream);
   return stream;

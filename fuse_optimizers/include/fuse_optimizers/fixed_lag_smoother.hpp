@@ -55,7 +55,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
 
-
 namespace fuse_optimizers
 {
 
@@ -125,10 +124,8 @@ public:
    * @param[in] interfaces          The node interfaces for the node driving the optimizer
    * @param[in] graph               The graph used with the optimizer
    */
-  FixedLagSmoother(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    fuse_core::Graph::UniquePtr graph = nullptr
-  );
+  FixedLagSmoother(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                   fuse_core::Graph::UniquePtr graph = nullptr);
 
   /**
    * @brief Destructor
@@ -144,9 +141,18 @@ protected:
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
 
-    const rclcpp::Time & stamp() const {return transaction->stamp();}
-    const rclcpp::Time & minStamp() const {return transaction->minStamp();}
-    const rclcpp::Time & maxStamp() const {return transaction->maxStamp();}
+    const rclcpp::Time& stamp() const
+    {
+      return transaction->stamp();
+    }
+    const rclcpp::Time& minStamp() const
+    {
+      return transaction->minStamp();
+    }
+    const rclcpp::Time& maxStamp() const
+    {
+      return transaction->maxStamp();
+    }
   };
 
   /**
@@ -163,15 +169,15 @@ protected:
 
   // Read-only after construction
   std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
-  ParameterType params_;  //!< Configuration settings for this fixed-lag smoother
+  ParameterType params_;             //!< Configuration settings for this fixed-lag smoother
 
   // Inherently thread-safe
-  std::atomic<bool> ignited_;  //!< Flag indicating the optimizer has received a transaction from an
-                               //!< ignition sensor and it is queued but not processed yet
+  std::atomic<bool> ignited_;               //!< Flag indicating the optimizer has received a transaction from an
+                                            //!< ignition sensor and it is queued but not processed yet
   std::atomic<bool> optimization_running_;  //!< Flag indicating the optimization thread should be
                                             //!< running
-  std::atomic<bool> started_;  //!< Flag indicating the optimizer has received a transaction from an
-                               //!< ignition sensor
+  std::atomic<bool> started_;               //!< Flag indicating the optimizer has received a transaction from an
+                                            //!< ignition sensor
 
   // Guarded by pending_transactions_mutex_
   std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the
@@ -184,27 +190,27 @@ protected:
   // Guarded by optimization_mutex_
   std::mutex optimization_mutex_;  //!< Mutex held while the graph is begin optimized
   // fuse_core::Graph* graph_ member from the base class
-  rclcpp::Time lag_expiration_;  //!< The oldest stamp that is inside the fixed-lag smoother window
+  rclcpp::Time lag_expiration_;                  //!< The oldest stamp that is inside the fixed-lag smoother window
   fuse_core::Transaction marginal_transaction_;  //!< The marginals to add during the next
                                                  //!< optimization cycle
-  VariableStampIndex timestamp_tracking_;  //!< Object that tracks the timestamp associated with
-                                           //!< each variable
-  ceres::Solver::Summary summary_;  //!< Optimization summary, written by optimizationLoop and read
-                                    //!< by setDiagnostics
+  VariableStampIndex timestamp_tracking_;        //!< Object that tracks the timestamp associated with
+                                                 //!< each variable
+  ceres::Solver::Summary summary_;               //!< Optimization summary, written by optimizationLoop and read
+                                                 //!< by setDiagnostics
 
   // Guarded by optimization_requested_mutex_
-  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
-  rclcpp::Time optimization_deadline_;  //!< The deadline for the optimization to complete. Triggers
-                                        //!< a warning if exceeded.
-  bool optimization_request_;  //!< Flag to trigger a new optimization
+  std::mutex optimization_requested_mutex_;         //!< Required condition variable mutex
+  rclcpp::Time optimization_deadline_;              //!< The deadline for the optimization to complete. Triggers
+                                                    //!< a warning if exceeded.
+  bool optimization_request_;                       //!< Flag to trigger a new optimization
   std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization
                                                     //!< thread to wait until a new optimization is
                                                     //!< requested by the main thread
 
   // Guarded by start_time_mutex_
-  mutable std::mutex start_time_mutex_;  //!< Synchronize modification to the start_time_ variable
-  rclcpp::Time start_time_ {0, 0, RCL_ROS_TIME};  //!< The timestamp of the first ignition sensor
-                                                  //!< transaction
+  mutable std::mutex start_time_mutex_;            //!< Synchronize modification to the start_time_ variable
+  rclcpp::Time start_time_{ 0, 0, RCL_ROS_TIME };  //!< The timestamp of the first ignition sensor
+                                                   //!< transaction
 
   // Ordering ROS objects with callbacks last
   rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed
@@ -229,7 +235,7 @@ protected:
    * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to
    *                            the graph
    */
-  void preprocessMarginalization(const fuse_core::Transaction & new_transaction);
+  void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
 
   /**
    * @brief Compute the oldest timestamp that is part of the configured lag window
@@ -246,7 +252,7 @@ protected:
    * @return A container with the set of variables to marginalize out. Order of the variables is not
    *         specified.
    */
-  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const rclcpp::Time & lag_expiration);
+  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const rclcpp::Time& lag_expiration);
 
   /**
    * @brief Perform any required post-marginalization bookkeeping
@@ -257,7 +263,7 @@ protected:
    * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the
    *                                 requested variables.
    */
-  void postprocessMarginalization(const fuse_core::Transaction & marginal_transaction);
+  void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.
@@ -290,15 +296,13 @@ protected:
    *                         sensor transactions
    * @param[in]  lag_expiration The oldest timestamp that should remain in the graph
    */
-  void processQueue(fuse_core::Transaction & transaction, const rclcpp::Time & lag_expiration);
+  void processQueue(fuse_core::Transaction& transaction, const rclcpp::Time& lag_expiration);
 
   /**
    * @brief Service callback that resets the optimizer to its original state
    */
-  bool resetServiceCallback(
-    const std::shared_ptr<std_srvs::srv::Empty::Request>,
-    std::shared_ptr<std_srvs::srv::Empty::Response>
-  );
+  bool resetServiceCallback(const std::shared_ptr<std_srvs::srv::Empty::Request>,
+                            std::shared_ptr<std_srvs::srv::Empty::Response>);
 
   /**
    * @brief Thread-safe read-only access to the timestamp of the first transaction
@@ -312,7 +316,7 @@ protected:
   /**
    * @brief Thread-safe write access to the optimizer start time
    */
-  void setStartTime(const rclcpp::Time & start_time)
+  void setStartTime(const rclcpp::Time& start_time)
   {
     std::lock_guard<std::mutex> lock(start_time_mutex_);
     start_time_ = start_time;
@@ -331,15 +335,13 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel
    *                        plugin
    */
-  void transactionCallback(
-    const std::string & sensor_name,
-    fuse_core::Transaction::SharedPtr transaction) override;
+  void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) override;
 
   /**
-   * @brief Update and publish diagnotics
+   * @brief Update and publish diagnostics
    * @param[in] status The diagnostic status
    */
-  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & status) override;
+  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status) override;
 };
 
 }  // namespace fuse_optimizers

@@ -30,31 +30,36 @@ import pytest
 
 @pytest.fixture
 def test_proc():
-    test_root = '.'
-    test_path = os.path.join(test_root, 'test_fixed_lag_ignition')
+    test_root = "."
+    test_path = os.path.join(test_root, "test_fixed_lag_ignition")
     cmd = [test_path]
-    return ExecuteProcess(cmd=cmd, shell=True, output='screen', cached_output=True)
+    return ExecuteProcess(cmd=cmd, shell=True, output="screen", cached_output=True)
 
 
 @launch_pytest.fixture
 def generate_test_description(test_proc):
-    test_root = '.'
+    test_root = "."
 
     return LaunchDescription(
         [
             test_proc,
             Node(
-                package='fuse_optimizers',
-                executable='fixed_lag_smoother_node',
-                name='fixed_lag_node',
-                output='screen',
+                package="fuse_optimizers",
+                executable="fixed_lag_smoother_node",
+                name="fixed_lag_node",
+                output="screen",
                 parameters=[
                     PathJoinSubstitution(
-                        [test_root, 'launch_tests', 'config', 'fixed_lag_ignition_params.yaml']
+                        [
+                            test_root,
+                            "launch_tests",
+                            "config",
+                            "fixed_lag_ignition_params.yaml",
+                        ]
                     )
                 ],
             ),
-            ReadyToTest()
+            ReadyToTest(),
         ]
     )
 
@@ -62,4 +67,4 @@ def generate_test_description(test_proc):
 @pytest.mark.launch(fixture=generate_test_description)
 async def test_no_failed_gtests(test_proc, launch_context):
     await process_tools.wait_for_exit(launch_context, test_proc, timeout=30)
-    assert test_proc.return_code == 0, 'GTests failed'
+    assert test_proc.return_code == 0, "GTests failed"

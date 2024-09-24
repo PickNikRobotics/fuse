@@ -42,7 +42,6 @@
 #include <fuse_core/util.hpp>
 #include <fuse_variables/orientation_3d_stamped.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -80,37 +79,21 @@ public:
    *              order (x, y, z)
    * @param[in] b The measured change between the two orientation variables
    */
-  NormalDeltaOrientation3DCostFunctor(
-    const fuse_core::Matrix3d & A,
-    const fuse_core::Vector4d & b)
-  : A_(A),
-    b_(b)
+  NormalDeltaOrientation3DCostFunctor(const fuse_core::Matrix3d& A, const fuse_core::Vector4d& b) : A_(A), b_(b)
   {
   }
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
    */
-  template<typename T>
-  bool operator()(const T * const orientation1, const T * const orientation2, T * residuals) const
+  template <typename T>
+  bool operator()(const T* const orientation1, const T* const orientation2, T* residuals) const
   {
     using fuse_variables::Orientation3DStamped;
 
-    T orientation1_inverse[4] =
-    {
-      orientation1[0],
-      -orientation1[1],
-      -orientation1[2],
-      -orientation1[3]
-    };
+    T orientation1_inverse[4] = { orientation1[0], -orientation1[1], -orientation1[2], -orientation1[3] };
 
-    T observation_inverse[4] =
-    {
-      T(b_(0)),
-      T(-b_(1)),
-      T(-b_(2)),
-      T(-b_(3))
-    };
+    T observation_inverse[4] = { T(b_(0)), T(-b_(1)), T(-b_(2)), T(-b_(3)) };
 
     T difference[4];
     ceres::QuaternionProduct(orientation1_inverse, orientation2, difference);

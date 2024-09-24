@@ -62,7 +62,8 @@ class HSVColormap
 public:
   explicit HSVColormap(const size_t size = 256)
   {
-    if (size == 0) {
+    if (size == 0)
+    {
       return;
     }
 
@@ -70,7 +71,8 @@ public:
 
     double hue = 0.0;
     const double hue_increment = 1.0 / size;
-    for (size_t i = 0; i < size; ++i, hue += hue_increment) {
+    for (size_t i = 0; i < size; ++i, hue += hue_increment)
+    {
       QColor color;
       color.setHsvF(hue, 1.0, 1.0);
 
@@ -78,7 +80,7 @@ public:
     }
   }
 
-  const QColor & operator[](const size_t i) const
+  const QColor& operator[](const size_t i) const
   {
     return colormap_[i];
   }
@@ -95,12 +97,11 @@ private:
 class LossEvaluator
 {
 public:
-  explicit LossEvaluator(const std::vector<double> & residuals)
-  : residuals_(residuals)
+  explicit LossEvaluator(const std::vector<double>& residuals) : residuals_(residuals)
   {
   }
 
-  std::vector<double> rho(const ceres::LossFunction * loss_function) const
+  std::vector<double> rho(const ceres::LossFunction* loss_function) const
   {
     std::vector<double> rhos;
     rhos.reserve(residuals_.size());
@@ -113,18 +114,17 @@ public:
     //
     // See: https://github.com/ceres-solver/ceres-
     // solver/blob/master/internal/ceres/residual_block.cc#L165
-    std::transform(
-      residuals_.begin(), residuals_.end(), std::back_inserter(rhos),
-      [&loss_function](const auto & r) {              // NOLINT(whitespace/braces)
-        double rho[3];
-        loss_function->Evaluate(r * r, rho);
-        return 0.5 * rho[0];
-      });               // NOLINT(whitespace/braces)
+    std::transform(residuals_.begin(), residuals_.end(), std::back_inserter(rhos),
+                   [&loss_function](const auto& r) {  // NOLINT(whitespace/braces)
+                     double rho[3];
+                     loss_function->Evaluate(r * r, rho);
+                     return 0.5 * rho[0];
+                   });  // NOLINT(whitespace/braces)
 
     return rhos;
   }
 
-  std::vector<double> influence(const ceres::LossFunction * loss_function) const
+  std::vector<double> influence(const ceres::LossFunction* loss_function) const
   {
     std::vector<double> influence;
     influence.reserve(residuals_.size());
@@ -154,18 +154,17 @@ public:
     //
     // where \rho(r) = 0.5 * rho(r^2) is the inverse of rho(s) = 2 * \rho(sqrt(s)),
     // because s = r^2 and r = sqrt(s).
-    std::transform(
-      residuals_.begin(), residuals_.end(), std::back_inserter(influence),
-      [&loss_function](const auto & r) {              // NOLINT(whitespace/braces)
-        double rho[3];
-        loss_function->Evaluate(r * r, rho);
-        return r * rho[1];
-      });               // NOLINT(whitespace/braces)
+    std::transform(residuals_.begin(), residuals_.end(), std::back_inserter(influence),
+                   [&loss_function](const auto& r) {  // NOLINT(whitespace/braces)
+                     double rho[3];
+                     loss_function->Evaluate(r * r, rho);
+                     return r * rho[1];
+                   });  // NOLINT(whitespace/braces)
 
     return influence;
   }
 
-  std::vector<double> weight(const ceres::LossFunction * loss_function) const
+  std::vector<double> weight(const ceres::LossFunction* loss_function) const
   {
     std::vector<double> weight;
     weight.reserve(residuals_.size());
@@ -181,18 +180,17 @@ public:
     //                 ds             ds
     //
     // That is, rho[1].
-    std::transform(
-      residuals_.begin(), residuals_.end(), std::back_inserter(weight),
-      [&loss_function](const auto & r) {              // NOLINT(whitespace/braces)
-        double rho[3];
-        loss_function->Evaluate(r * r, rho);
-        return rho[1];
-      });               // NOLINT(whitespace/braces)
+    std::transform(residuals_.begin(), residuals_.end(), std::back_inserter(weight),
+                   [&loss_function](const auto& r) {  // NOLINT(whitespace/braces)
+                     double rho[3];
+                     loss_function->Evaluate(r * r, rho);
+                     return rho[1];
+                   });  // NOLINT(whitespace/braces)
 
     return weight;
   }
 
-  std::vector<double> secondDerivative(const ceres::LossFunction * loss_function) const
+  std::vector<double> secondDerivative(const ceres::LossFunction* loss_function) const
   {
     std::vector<double> second_derivative;
     second_derivative.reserve(residuals_.size());
@@ -204,18 +202,17 @@ public:
     //      ds^2
     //
     // That is, rho[2].
-    std::transform(
-      residuals_.begin(), residuals_.end(), std::back_inserter(second_derivative),
-      [&loss_function](const auto & r) {              // NOLINT(whitespace/braces)
-        double rho[3];
-        loss_function->Evaluate(r * r, rho);
-        return rho[2];
-      });               // NOLINT(whitespace/braces)
+    std::transform(residuals_.begin(), residuals_.end(), std::back_inserter(second_derivative),
+                   [&loss_function](const auto& r) {  // NOLINT(whitespace/braces)
+                     double rho[3];
+                     loss_function->Evaluate(r * r, rho);
+                     return rho[2];
+                   });  // NOLINT(whitespace/braces)
 
     return second_derivative;
   }
 
-  const std::vector<double> & getResiduals() const
+  const std::vector<double>& getResiduals() const
   {
     return residuals_;
   }
@@ -227,8 +224,8 @@ private:
 class QwtLossPlot
 {
 public:
-  QwtLossPlot(const std::vector<double> & residuals, const HSVColormap & colormap)
-  : residuals_(QVector<double>(residuals.begin(), residuals.end()))
+  QwtLossPlot(const std::vector<double>& residuals, const HSVColormap& colormap)
+    : residuals_(QVector<double>(residuals.begin(), residuals.end()))
     , loss_evaluator_(residuals)
     , colormap_(colormap)
     , magnifier_(plot_.canvas())
@@ -252,14 +249,14 @@ public:
     plot_.insertLegend(&legend_);
   }
 
-  static std::string getName(const std::string & type)
+  static std::string getName(const std::string& type)
   {
     return type.substr(11, type.size() - 15);
   }
 
-  QwtPlotCurve * createCurve(const std::string & name, const std::vector<double> & values)
+  QwtPlotCurve* createCurve(const std::string& name, const std::vector<double>& values)
   {
-    QwtPlotCurve * curve = new QwtPlotCurve(name.c_str());
+    QwtPlotCurve* curve = new QwtPlotCurve(name.c_str());
 
     curve->setSamples(residuals_, QVector<double>(values.begin(), values.end()));
 
@@ -269,45 +266,33 @@ public:
     return curve;
   }
 
-  void plotRho(const std::shared_ptr<fuse_core::Loss> & loss)
+  void plotRho(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    curves_.push_back(
-      createCurve(
-        getName(loss->type()),
-        loss_evaluator_.rho(loss->lossFunction())));
+    curves_.push_back(createCurve(getName(loss->type()), loss_evaluator_.rho(loss->lossFunction())));
   }
 
-  void plotInfluence(const std::shared_ptr<fuse_core::Loss> & loss)
+  void plotInfluence(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    curves_.push_back(
-      createCurve(
-        getName(loss->type()),
-        loss_evaluator_.influence(loss->lossFunction())));
+    curves_.push_back(createCurve(getName(loss->type()), loss_evaluator_.influence(loss->lossFunction())));
   }
 
-  void plotWeight(const std::shared_ptr<fuse_core::Loss> & loss)
+  void plotWeight(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    curves_.push_back(
-      createCurve(
-        getName(loss->type()),
-        loss_evaluator_.weight(loss->lossFunction())));
+    curves_.push_back(createCurve(getName(loss->type()), loss_evaluator_.weight(loss->lossFunction())));
   }
 
-  void plotSecondDerivative(const std::shared_ptr<fuse_core::Loss> & loss)
+  void plotSecondDerivative(const std::shared_ptr<fuse_core::Loss>& loss)
   {
-    curves_.push_back(
-      createCurve(
-        getName(loss->type()),
-        loss_evaluator_.secondDerivative(loss->lossFunction())));
+    curves_.push_back(createCurve(getName(loss->type()), loss_evaluator_.secondDerivative(loss->lossFunction())));
   }
 
-  void save(const std::string & filename)
+  void save(const std::string& filename)
   {
     QwtPlotRenderer renderer;
     renderer.renderDocument(&plot_, filename.c_str(), QSizeF(300, 200));
   }
 
-  QwtPlot & plot()
+  QwtPlot& plot()
   {
     return plot_;
   }
@@ -319,7 +304,7 @@ private:
   HSVColormap colormap_;
   // We don't use an std::shared_ptr<QwtPlotCurve> because QwtPlot takes ownership of the curves
   // attached to it and deletes them on destruction
-  std::vector<QwtPlotCurve *> curves_;
+  std::vector<QwtPlotCurve*> curves_;
 
   QwtPlot plot_;
   QwtPlotGrid grid_;

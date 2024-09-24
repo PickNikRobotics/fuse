@@ -47,7 +47,6 @@
 #include <geometry_msgs/msg/pose_array.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 
-
 namespace fuse_publishers
 {
 
@@ -79,9 +78,8 @@ public:
   /**
    * @brief Shadowing extension to the AsyncPublisher::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name) override;
 
   /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or
@@ -97,20 +95,17 @@ public:
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */
-  void notifyCallback(
-    fuse_core::Transaction::ConstSharedPtr transaction,
-    fuse_core::Graph::ConstSharedPtr graph) override;
+  void notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction,
+                      fuse_core::Graph::ConstSharedPtr graph) override;
 
 protected:
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncPublisher interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Parameters,
+                                             fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncPublisher interfaces_
 
   fuse_core::UUID device_id_;  //!< The UUID of the device to be published
-  std::string frame_id_;  //!< The name of the frame for this path
+  std::string frame_id_;       //!< The name of the frame for this path
 
   //!< The publisher that sends the entire robot trajectory as a path
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;

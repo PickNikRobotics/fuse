@@ -80,7 +80,7 @@ namespace fuse_core
  *   motion model needs access to the latest values of the state variables. In many cases, motion
  *   models will simply not need that information. If the motion model does need access the to
  *   graph, the most common implementation will simply be to move the provided pointer into a class
- *   memebr variable, for use in other callbacks.
+ *   member variable, for use in other callbacks.
  *   @code{.cpp}
  *   void onGraphUpdate(Graph::ConstSharedPtr graph) override { this->graph_ = std::move(graph); }
  *   @endcode
@@ -112,7 +112,7 @@ public:
    * @return                    True if the motion models were generated successfully, false
    *                            otherwise
    */
-  bool apply(Transaction & transaction) override;
+  bool apply(Transaction& transaction) override;
 
   /**
    * @brief Function to be executed whenever the optimizer has completed a Graph update
@@ -142,14 +142,16 @@ public:
    * @param[in] name A unique name to give this plugin instance
    * @throws runtime_error if already initialized
    */
-  void initialize(
-    node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name) override;
+  void initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name) override;
 
   /**
    * @brief Get the unique name of this motion model
    */
-  const std::string & name() const override {return name_;}
+  const std::string& name() const override
+  {
+    return name_;
+  }
 
   /**
    * @brief Function to be executed whenever the optimizer is ready to receive transactions
@@ -201,8 +203,8 @@ protected:
   //! A single/multi-threaded executor assigned to the local callback queue
   rclcpp::Executor::SharedPtr executor_;
 
-  size_t executor_thread_count_{1};
-  std::thread spinner_;  //!< Internal thread for spinning the executor
+  size_t executor_thread_count_{ 1 };
+  std::thread spinner_;                    //!< Internal thread for spinning the executor
   std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 
   /**
@@ -232,7 +234,7 @@ protected:
    * @return                    True if the motion models were generated successfully, false
    *                            otherwise
    */
-  virtual bool applyCallback(Transaction & transaction) = 0;
+  virtual bool applyCallback(Transaction& transaction) = 0;
 
   /**
    * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received
@@ -251,7 +253,9 @@ protected:
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
    *                  whenever needed.
    */
-  virtual void onGraphUpdate(Graph::ConstSharedPtr /*graph*/) {}
+  virtual void onGraphUpdate(Graph::ConstSharedPtr /*graph*/)
+  {
+  }
 
   /**
    * @brief Perform any required initialization for the motion model
@@ -260,7 +264,9 @@ protected:
    * The class's node will be properly initialized before onInit() is called. Spinning
    * of the callback queue will not begin until after the call to onInit() completes.
    */
-  virtual void onInit() {}
+  virtual void onInit()
+  {
+  }
 
   /**
    * @brief Perform any required operations to prepare for servicing calls to apply()
@@ -268,7 +274,9 @@ protected:
    * This function will be called once after initialize() but before any calls to apply(). It
    * may also be called at any time after a call to stop().
    */
-  virtual void onStart() {}
+  virtual void onStart()
+  {
+  }
 
   /**
    * @brief Perform any required operations to clean up the internal state
@@ -277,7 +285,9 @@ protected:
    * after a call to start(). No calls to apply() will occur after stop() is called, but before
    * start() is called.
    */
-  virtual void onStop() {}
+  virtual void onStop()
+  {
+  }
 
 private:
   //! Stop the internal executor thread (in order to use this class again it must be re-initialized)

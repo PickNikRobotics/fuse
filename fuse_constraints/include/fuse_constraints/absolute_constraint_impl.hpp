@@ -42,33 +42,28 @@
 
 #include <fuse_constraints/normal_prior_orientation_2d.hpp>
 
-
 namespace fuse_constraints
 {
 
-template<class Variable>
-AbsoluteConstraint<Variable>::AbsoluteConstraint(
-  const std::string & source,
-  const Variable & variable,
-  const fuse_core::VectorXd & mean,
-  const fuse_core::MatrixXd & covariance)
-: fuse_core::Constraint(source, {variable.uuid()}),    // NOLINT(whitespace/braces)
-  mean_(mean),
-  sqrt_information_(covariance.inverse().llt().matrixU())
+template <class Variable>
+AbsoluteConstraint<Variable>::AbsoluteConstraint(const std::string& source, const Variable& variable,
+                                                 const fuse_core::VectorXd& mean, const fuse_core::MatrixXd& covariance)
+  : fuse_core::Constraint(source, { variable.uuid() })
+  ,  // NOLINT(whitespace/braces)
+  mean_(mean)
+  , sqrt_information_(covariance.inverse().llt().matrixU())
 {
   assert(mean.rows() == static_cast<int>(variable.size()));
   assert(covariance.rows() == static_cast<int>(variable.size()));
   assert(covariance.cols() == static_cast<int>(variable.size()));
 }
 
-template<class Variable>
-AbsoluteConstraint<Variable>::AbsoluteConstraint(
-  const std::string & source,
-  const Variable & variable,
-  const fuse_core::VectorXd & partial_mean,
-  const fuse_core::MatrixXd & partial_covariance,
-  const std::vector<size_t> & indices)
-: fuse_core::Constraint(source, {variable.uuid()})    // NOLINT(whitespace/braces)
+template <class Variable>
+AbsoluteConstraint<Variable>::AbsoluteConstraint(const std::string& source, const Variable& variable,
+                                                 const fuse_core::VectorXd& partial_mean,
+                                                 const fuse_core::MatrixXd& partial_covariance,
+                                                 const std::vector<size_t>& indices)
+  : fuse_core::Constraint(source, { variable.uuid() })  // NOLINT(whitespace/braces)
 {
   assert(partial_mean.rows() == static_cast<int>(indices.size()));
   assert(partial_covariance.rows() == static_cast<int>(indices.size()));
@@ -86,13 +81,14 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(
   // and the columns are in the order defined by the variable.
   mean_ = fuse_core::VectorXd::Zero(variable.size());
   sqrt_information_ = fuse_core::MatrixXd::Zero(indices.size(), variable.size());
-  for (size_t i = 0; i < indices.size(); ++i) {
+  for (size_t i = 0; i < indices.size(); ++i)
+  {
     mean_(indices[i]) = partial_mean(i);
     sqrt_information_.col(indices[i]) = partial_sqrt_information.col(i);
   }
 }
 
-template<class Variable>
+template <class Variable>
 fuse_core::MatrixXd AbsoluteConstraint<Variable>::covariance() const
 {
   // We want to compute:
@@ -107,8 +103,8 @@ fuse_core::MatrixXd AbsoluteConstraint<Variable>::covariance() const
   return pinv * pinv.transpose();
 }
 
-template<class Variable>
-void AbsoluteConstraint<Variable>::print(std::ostream & stream) const
+template <class Variable>
+void AbsoluteConstraint<Variable>::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -117,14 +113,15 @@ void AbsoluteConstraint<Variable>::print(std::ostream & stream) const
          << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 
-  if (loss()) {
+  if (loss())
+  {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
-template<class Variable>
-ceres::CostFunction * AbsoluteConstraint<Variable>::costFunction() const
+template <class Variable>
+ceres::CostFunction* AbsoluteConstraint<Variable>::costFunction() const
 {
   // Ceres ships with a "prior" cost function. Just use that here.
   return new ceres::NormalPrior(sqrt_information_, mean_);
@@ -133,77 +130,74 @@ ceres::CostFunction * AbsoluteConstraint<Variable>::costFunction() const
 // Specialization for Orientation2D
 // We need to handle the 2*pi rollover for 2D orientations, so simple subtraction does not produce
 // the correct cost
-template<>
-inline ceres::CostFunction * AbsoluteConstraint<
-  fuse_variables::Orientation2DStamped
->::costFunction()
-const
+template <>
+inline ceres::CostFunction* AbsoluteConstraint<fuse_variables::Orientation2DStamped>::costFunction() const
 {
   return new NormalPriorOrientation2D(sqrt_information_(0, 0), mean_(0));
 }
 
 // Specialize the type() method to return the name that is registered with the plugins
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::AccelerationAngular2DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteAccelerationAngular2DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::AccelerationLinear2DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteAccelerationLinear2DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::AccelerationAngular3DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteAccelerationAngular3DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::AccelerationLinear3DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteAccelerationLinear3DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::Orientation2DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteOrientation2DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::Position2DStamped>::type() const
 {
   return "fuse_constraints::AbsolutePosition2DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::Position3DStamped>::type() const
 {
   return "fuse_constraints::AbsolutePosition3DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::VelocityAngular2DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteVelocityAngular2DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::VelocityLinear2DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteVelocityLinear2DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::VelocityAngular3DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteVelocityAngular3DStampedConstraint";
 }
 
-template<>
+template <>
 inline std::string AbsoluteConstraint<fuse_variables::VelocityLinear3DStamped>::type() const
 {
   return "fuse_constraints::AbsoluteVelocityLinear3DStampedConstraint";

@@ -23,56 +23,50 @@ find_package(tf2 REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
 
-###########
-## Build ##
-###########
+# ##############################################################################
+# Build ##
+# ##############################################################################
 
 # fuse_publishers library
-add_library(${PROJECT_NAME}
-  src/path_2d_publisher.cpp
-  src/pose_2d_publisher.cpp
-  src/serialized_publisher.cpp
-)
-target_include_directories(${PROJECT_NAME} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
-)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-  fuse_core::fuse_core
-  ${fuse_msgs_TARGETS}
-  fuse_variables::fuse_variables
-  ${geometry_msgs_TARGETS}
-  ${nav_msgs_TARGETS}
-  pluginlib::pluginlib
-  rclcpp::rclcpp
-  tf2::tf2
-  ${tf2_geometry_msgs_TARGETS}
-  tf2_ros::tf2_ros
-)
+add_library(${PROJECT_NAME} src/path_2d_publisher.cpp src/pose_2d_publisher.cpp
+                            src/serialized_publisher.cpp)
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+target_link_libraries(
+  ${PROJECT_NAME}
+  PUBLIC fuse_core::fuse_core
+         ${fuse_msgs_TARGETS}
+         fuse_variables::fuse_variables
+         ${geometry_msgs_TARGETS}
+         ${nav_msgs_TARGETS}
+         pluginlib::pluginlib
+         rclcpp::rclcpp
+         tf2::tf2
+         ${tf2_geometry_msgs_TARGETS}
+         tf2_ros::tf2_ros)
 
-#############
-## Testing ##
-#############
+# ##############################################################################
+# Testing ##
+# ##############################################################################
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
   add_subdirectory(test)
 endif()
 
-#############
-## Install ##
-#############
+# ##############################################################################
+# Install ##
+# ##############################################################################
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}-export
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
+  RUNTIME DESTINATION bin)
 
-install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME}
-)
+install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
 
 pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
 
@@ -88,7 +82,6 @@ ament_export_dependencies(
   rclcpp
   tf2
   tf2_geometry_msgs
-  tf2_ros
-)
+  tf2_ros)
 
 ament_package()

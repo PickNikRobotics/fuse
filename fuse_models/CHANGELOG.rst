@@ -7,7 +7,7 @@ Changelog for package fuse_models
 
 1.1.1 (2024-05-02)
 ------------------
-* Required formatting changes for the lastest version of ROS 2 Rolling (`#368 <https://github.com/locusrobotics/fuse/issues/368>`_)
+* Required formatting changes for the latest version of ROS 2 Rolling (`#368 <https://github.com/locusrobotics/fuse/issues/368>`_)
 * Contributors: Stephen Williams
 
 1.1.0 (2024-04-20)
@@ -90,11 +90,11 @@ Changelog for package fuse_models
 0.4.1 (2021-07-13)
 ------------------
 * Getting versions in sync
-* Substract minimum twist covariance from twist covariance (`#222 <https://github.com/locusrobotics/fuse/issues/222>`_)
-  * Substract min twist cov from twist cov
+* Subtract minimum twist covariance from twist covariance (`#222 <https://github.com/locusrobotics/fuse/issues/222>`_)
+  * Subtract min twist cov from twist cov
   If the twist covariance already had a minimum twist covariance added to
   it to prevent ill-conditioned covariance matrices, we need a way to
-  substract that minimum twist covariance from it before we compute the
+  subtract that minimum twist covariance from it before we compute the
   pose relative covariance. Otherwise, we cannot get the original pose
   relative covariance because the minimum twist covariance term is
   multiplies by the time delta, which could actually make the resulting

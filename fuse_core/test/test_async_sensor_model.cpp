@@ -56,9 +56,7 @@ void transactionCallback(fuse_core::Transaction::SharedPtr /*transaction*/)
 class MySensor : public fuse_core::AsyncSensorModel
 {
 public:
-  MySensor()
-  : fuse_core::AsyncSensorModel(1),
-    initialized(false)
+  MySensor() : fuse_core::AsyncSensorModel(1), initialized(false)
   {
   }
 
@@ -95,7 +93,8 @@ public:
 
 TEST_F(TestAsyncSensorModel, OnInit)
 {
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 50; i++)
+  {
     MySensor sensor;
     auto node = rclcpp::Node::make_shared("test_async_sensor_model_node");
     sensor.initialize(*node, "my_sensor_" + std::to_string(i), &transactionCallback);
@@ -126,12 +125,14 @@ TEST_F(TestAsyncSensorModel, OnGraphUpdate)
   auto clock = rclcpp::Clock(RCL_SYSTEM_TIME);
 
   // Test for multiple cycles of graphCallback to be sure
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < 50; i++)
+  {
     sensor.graph_received = false;
     sensor.graphCallback(graph);
     EXPECT_FALSE(sensor.graph_received);
     rclcpp::Time wait_time_elapsed = clock.now() + rclcpp::Duration::from_seconds(10);
-    while (!sensor.graph_received && clock.now() < wait_time_elapsed) {
+    while (!sensor.graph_received && clock.now() < wait_time_elapsed)
+    {
       rclcpp::sleep_for(std::chrono::milliseconds(10));
     }
     EXPECT_TRUE(sensor.graph_received);

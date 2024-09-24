@@ -21,34 +21,45 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    pkg_dir = FindPackageShare('fuse_tutorials')
+    pkg_dir = FindPackageShare("fuse_tutorials")
 
-    return LaunchDescription([
-        Node(package='tf2_ros',
-             executable='static_transform_publisher',
-             arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom']),
-        Node(
-            package='fuse_tutorials',
-            executable='range_sensor_simulator',
-            name='range_sensor_simulator',
-            output='screen'
-        ),
-        Node(
-            package='fuse_optimizers',
-            executable='fixed_lag_smoother_node',
-            name='state_estimation',
-            output='screen',
-            parameters=[PathJoinSubstitution([
-                pkg_dir, 'config', 'range_sensor_tutorial.yaml'
-            ])]
-        ),
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz',
-            output='screen',
-            arguments=[
-                '-d', [PathJoinSubstitution([pkg_dir, 'config', 'range_sensor_tutorial.rviz'])]
-            ]
-        )
-    ])
+    return LaunchDescription(
+        [
+            Node(
+                package="tf2_ros",
+                executable="static_transform_publisher",
+                arguments=["0", "0", "0", "0", "0", "0", "map", "odom"],
+            ),
+            Node(
+                package="fuse_tutorials",
+                executable="range_sensor_simulator",
+                name="range_sensor_simulator",
+                output="screen",
+            ),
+            Node(
+                package="fuse_optimizers",
+                executable="fixed_lag_smoother_node",
+                name="state_estimation",
+                output="screen",
+                parameters=[
+                    PathJoinSubstitution(
+                        [pkg_dir, "config", "range_sensor_tutorial.yaml"]
+                    )
+                ],
+            ),
+            Node(
+                package="rviz2",
+                executable="rviz2",
+                name="rviz",
+                output="screen",
+                arguments=[
+                    "-d",
+                    [
+                        PathJoinSubstitution(
+                            [pkg_dir, "config", "range_sensor_tutorial.rviz"]
+                        )
+                    ],
+                ],
+            ),
+        ]
+    )

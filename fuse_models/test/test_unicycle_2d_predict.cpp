@@ -61,24 +61,9 @@ TEST(Predict, predictDirectVals)
   double acc_linear2_x = 0.0;
   double acc_linear2_y = 0.0;
 
-  fuse_models::predict(
-    position1_x,
-    position1_y,
-    yaw1,
-    vel_linear1_x,
-    vel_linear1_y,
-    vel_yaw1,
-    acc_linear1_x,
-    acc_linear1_y,
-    dt,
-    position2_x,
-    position2_y,
-    yaw2,
-    vel_linear2_x,
-    vel_linear2_y,
-    vel_yaw2,
-    acc_linear2_x,
-    acc_linear2_y);
+  fuse_models::predict(position1_x, position1_y, yaw1, vel_linear1_x, vel_linear1_y, vel_yaw1, acc_linear1_x,
+                       acc_linear1_y, dt, position2_x, position2_y, yaw2, vel_linear2_x, vel_linear2_y, vel_yaw2,
+                       acc_linear2_x, acc_linear2_y);
 
   EXPECT_DOUBLE_EQ(0.105, position2_x);
   EXPECT_DOUBLE_EQ(0.0, position2_y);
@@ -90,24 +75,9 @@ TEST(Predict, predictDirectVals)
   EXPECT_DOUBLE_EQ(0.0, acc_linear2_y);
 
   // Carry on with the output state from last time - show in-place update support
-  fuse_models::predict(
-    position2_x,
-    position2_y,
-    yaw2,
-    vel_linear2_x,
-    vel_linear2_y,
-    vel_yaw2,
-    acc_linear2_x,
-    acc_linear2_y,
-    dt,
-    position2_x,
-    position2_y,
-    yaw2,
-    vel_linear2_x,
-    vel_linear2_y,
-    vel_yaw2,
-    acc_linear2_x,
-    acc_linear2_y);
+  fuse_models::predict(position2_x, position2_y, yaw2, vel_linear2_x, vel_linear2_y, vel_yaw2, acc_linear2_x,
+                       acc_linear2_y, dt, position2_x, position2_y, yaw2, vel_linear2_x, vel_linear2_y, vel_yaw2,
+                       acc_linear2_x, acc_linear2_y);
 
   EXPECT_DOUBLE_EQ(0.21858415916807189, position2_x);
   EXPECT_DOUBLE_EQ(0.017989963481956205, position2_y);
@@ -123,24 +93,9 @@ TEST(Predict, predictDirectVals)
   vel_yaw1 = -1.570796327;
   acc_linear1_y = -1.0;
 
-  fuse_models::predict(
-    position1_x,
-    position1_y,
-    yaw1,
-    vel_linear1_x,
-    vel_linear1_y,
-    vel_yaw1,
-    acc_linear1_x,
-    acc_linear1_y,
-    dt,
-    position2_x,
-    position2_y,
-    yaw2,
-    vel_linear2_x,
-    vel_linear2_y,
-    vel_yaw2,
-    acc_linear2_x,
-    acc_linear2_y);
+  fuse_models::predict(position1_x, position1_y, yaw1, vel_linear1_x, vel_linear1_y, vel_yaw1, acc_linear1_x,
+                       acc_linear1_y, dt, position2_x, position2_y, yaw2, vel_linear2_x, vel_linear2_y, vel_yaw2,
+                       acc_linear2_x, acc_linear2_y);
 
   EXPECT_DOUBLE_EQ(0.105, position2_x);
   EXPECT_DOUBLE_EQ(-0.105, position2_y);
@@ -169,18 +124,8 @@ TEST(Predict, predictPointers)
   double vel_yaw2 = 1.570796327;
   std::vector<double> acc_linear2(2, 0.0);
 
-  fuse_models::predict(
-    position1.data(),
-    &yaw1,
-    vel_linear1.data(),
-    &vel_yaw1,
-    acc_linear1.data(),
-    dt,
-    position2.data(),
-    &yaw2,
-    vel_linear2.data(),
-    &vel_yaw2,
-    acc_linear2.data());
+  fuse_models::predict(position1.data(), &yaw1, vel_linear1.data(), &vel_yaw1, acc_linear1.data(), dt, position2.data(),
+                       &yaw2, vel_linear2.data(), &vel_yaw2, acc_linear2.data());
 
   EXPECT_DOUBLE_EQ(0.105, position2[0]);
   EXPECT_DOUBLE_EQ(0.0, position2[1]);
@@ -192,18 +137,8 @@ TEST(Predict, predictPointers)
   EXPECT_DOUBLE_EQ(0.0, acc_linear2[1]);
 
   // Carry on with the output state from last time - show in-place update support
-  fuse_models::predict(
-    position2.data(),
-    &yaw2,
-    vel_linear2.data(),
-    &vel_yaw2,
-    acc_linear2.data(),
-    dt,
-    position2.data(),
-    &yaw2,
-    vel_linear2.data(),
-    &vel_yaw2,
-    acc_linear2.data());
+  fuse_models::predict(position2.data(), &yaw2, vel_linear2.data(), &vel_yaw2, acc_linear2.data(), dt, position2.data(),
+                       &yaw2, vel_linear2.data(), &vel_yaw2, acc_linear2.data());
 
   EXPECT_DOUBLE_EQ(0.21858415916807189, position2[0]);
   EXPECT_DOUBLE_EQ(0.017989963481956205, position2[1]);
@@ -219,18 +154,8 @@ TEST(Predict, predictPointers)
   vel_yaw1 = -1.570796327;
   acc_linear1[1] = -1.0;
 
-  fuse_models::predict(
-    position1.data(),
-    &yaw1,
-    vel_linear1.data(),
-    &vel_yaw1,
-    acc_linear1.data(),
-    dt,
-    position2.data(),
-    &yaw2,
-    vel_linear2.data(),
-    &vel_yaw2,
-    acc_linear2.data());
+  fuse_models::predict(position1.data(), &yaw1, vel_linear1.data(), &vel_yaw1, acc_linear1.data(), dt, position2.data(),
+                       &yaw2, vel_linear2.data(), &vel_yaw2, acc_linear2.data());
 
   EXPECT_DOUBLE_EQ(0.105, position2[0]);
   EXPECT_DOUBLE_EQ(-0.105, position2[1]);
@@ -256,16 +181,7 @@ TEST(Predict, predictObjects)
   double vel_yaw2 = 0.0;
   tf2_2d::Vector2 acc_linear2;
 
-  fuse_models::predict(
-    pose1,
-    vel_linear1,
-    vel_yaw1,
-    acc_linear1,
-    dt,
-    pose2,
-    vel_linear2,
-    vel_yaw2,
-    acc_linear2);
+  fuse_models::predict(pose1, vel_linear1, vel_yaw1, acc_linear1, dt, pose2, vel_linear2, vel_yaw2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(0.105, pose2.x());
   EXPECT_DOUBLE_EQ(0.0, pose2.y());
@@ -277,17 +193,7 @@ TEST(Predict, predictObjects)
   EXPECT_DOUBLE_EQ(0.0, acc_linear2.y());
 
   // Carry on with the output state from last time - show in-place update support
-  fuse_models::predict(
-    pose2,
-    vel_linear2,
-    vel_yaw2,
-    acc_linear2,
-    dt,
-    pose2,
-    vel_linear2,
-    vel_yaw2,
-    acc_linear2);
-
+  fuse_models::predict(pose2, vel_linear2, vel_yaw2, acc_linear2, dt, pose2, vel_linear2, vel_yaw2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(0.21858415916807189, pose2.x());
   EXPECT_DOUBLE_EQ(0.017989963481956205, pose2.y());
@@ -303,16 +209,7 @@ TEST(Predict, predictObjects)
   vel_yaw1 = -1.570796327;
   acc_linear1.setY(-1.0);
 
-  fuse_models::predict(
-    pose1,
-    vel_linear1,
-    vel_yaw1,
-    acc_linear1,
-    dt,
-    pose2,
-    vel_linear2,
-    vel_yaw2,
-    acc_linear2);
+  fuse_models::predict(pose1, vel_linear1, vel_yaw1, acc_linear1, dt, pose2, vel_linear2, vel_yaw2, acc_linear2);
 
   EXPECT_DOUBLE_EQ(0.105, pose2.x());
   EXPECT_DOUBLE_EQ(-0.105, pose2.y());
@@ -344,38 +241,23 @@ TEST(Predict, predictJacobians)
   double acc_linear2_x = 0.0;
   double acc_linear2_y = 0.0;
 
-  const std::array<size_t, 5> block_sizes = {2, 1, 2, 1, 2};
+  const std::array<size_t, 5> block_sizes = { 2, 1, 2, 1, 2 };
   const auto num_parameter_blocks = block_sizes.size();
 
-  const size_t num_residuals{8};
+  const size_t num_residuals{ 8 };
 
   std::array<fuse_core::MatrixXd, num_parameter_blocks> J;
-  std::array<double *, num_parameter_blocks> jacobians;
+  std::array<double*, num_parameter_blocks> jacobians;
 
-  for (size_t i = 0; i < num_parameter_blocks; ++i) {
+  for (size_t i = 0; i < num_parameter_blocks; ++i)
+  {
     J[i].resize(num_residuals, block_sizes[i]);
     jacobians[i] = J[i].data();
   }
 
-  fuse_models::predict(
-    position1_x,
-    position1_y,
-    yaw1,
-    vel_linear1_x,
-    vel_linear1_y,
-    vel_yaw1,
-    acc_linear1_x,
-    acc_linear1_y,
-    dt,
-    position2_x,
-    position2_y,
-    yaw2,
-    vel_linear2_x,
-    vel_linear2_y,
-    vel_yaw2,
-    acc_linear2_x,
-    acc_linear2_y,
-    jacobians.data());
+  fuse_models::predict(position1_x, position1_y, yaw1, vel_linear1_x, vel_linear1_y, vel_yaw1, acc_linear1_x,
+                       acc_linear1_y, dt, position2_x, position2_y, yaw2, vel_linear2_x, vel_linear2_y, vel_yaw2,
+                       acc_linear2_x, acc_linear2_y, jacobians.data());
 
   fuse_core::Matrix8d J_analytic;
   J_analytic << J[0], J[1], J[2], J[3], J[4];
@@ -410,41 +292,20 @@ TEST(Predict, predictJacobians)
   Jet jet_acc_linear2_x(acc_linear2_x, 6);
   Jet jet_acc_linear2_y(acc_linear2_y, 7);
 
-  fuse_models::predict(
-    jet_position1_x,
-    jet_position1_y,
-    jet_yaw1,
-    jet_vel_linear1_x,
-    jet_vel_linear1_y,
-    jet_vel_yaw1,
-    jet_acc_linear1_x,
-    jet_acc_linear1_y,
-    jet_dt,
-    jet_position2_x,
-    jet_position2_y,
-    jet_yaw2,
-    jet_vel_linear2_x,
-    jet_vel_linear2_y,
-    jet_vel_yaw2,
-    jet_acc_linear2_x,
-    jet_acc_linear2_y);
+  fuse_models::predict(jet_position1_x, jet_position1_y, jet_yaw1, jet_vel_linear1_x, jet_vel_linear1_y, jet_vel_yaw1,
+                       jet_acc_linear1_x, jet_acc_linear1_y, jet_dt, jet_position2_x, jet_position2_y, jet_yaw2,
+                       jet_vel_linear2_x, jet_vel_linear2_y, jet_vel_yaw2, jet_acc_linear2_x, jet_acc_linear2_y);
 
   fuse_core::Matrix8d J_autodiff;
-  J_autodiff << jet_position2_x.v,
-    jet_position2_y.v,
-    jet_yaw2.v,
-    jet_vel_linear2_x.v,
-    jet_vel_linear2_y.v,
-    jet_vel_yaw2.v,
-    jet_acc_linear2_x.v,
-    jet_acc_linear2_y.v;
+  J_autodiff << jet_position2_x.v, jet_position2_y.v, jet_yaw2.v, jet_vel_linear2_x.v, jet_vel_linear2_y.v,
+      jet_vel_yaw2.v, jet_acc_linear2_x.v, jet_acc_linear2_y.v;
 
   J_autodiff.transposeInPlace();
 
-  const Eigen::IOFormat HeavyFmt(
-    Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+  const Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
 
   EXPECT_MATRIX_NEAR(J_autodiff, J_analytic, std::numeric_limits<double>::epsilon())
-    << "Autodiff Jacobian =\n" << J_autodiff.format(HeavyFmt)
-    << "\nAnalytic Jacobian =\n" << J_analytic.format(HeavyFmt);
+      << "Autodiff Jacobian =\n"
+      << J_autodiff.format(HeavyFmt) << "\nAnalytic Jacobian =\n"
+      << J_analytic.format(HeavyFmt);
 }

@@ -46,17 +46,15 @@ namespace fuse_models
 {
 
 Acceleration2D::Acceleration2D()
-: fuse_core::AsyncSensorModel(1),
-  device_id_(fuse_core::uuid::NIL),
-  logger_(rclcpp::get_logger("uninitialized")),
-  throttled_callback_(std::bind(&Acceleration2D::process, this, std::placeholders::_1))
+  : fuse_core::AsyncSensorModel(1)
+  , device_id_(fuse_core::uuid::NIL)
+  , logger_(rclcpp::get_logger("uninitialized"))
+  , throttled_callback_(std::bind(&Acceleration2D::process, this, std::placeholders::_1))
 {
 }
 
-void Acceleration2D::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-  const std::string & name,
-  fuse_core::TransactionCallback transaction_callback)
+void Acceleration2D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                                const std::string& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -74,45 +72,36 @@ void Acceleration2D::onInit()
 
   throttled_callback_.setThrottlePeriod(params_.throttle_period);
 
-  if (!params_.throttle_use_wall_time) {
+  if (!params_.throttle_use_wall_time)
+  {
     throttled_callback_.setClock(clock_);
   }
 
-  if (params_.indices.empty()) {
-    RCLCPP_WARN_STREAM(
-      logger_,
-      "No dimensions were specified. Data from topic "
-        << fuse_core::joinTopicName(name_, params_.topic) << " will be ignored.");
+  if (params_.indices.empty())
+  {
+    RCLCPP_WARN_STREAM(logger_, "No dimensions were specified. Data from topic "
+                                    << fuse_core::joinTopicName(name_, params_.topic) << " will be ignored.");
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
-  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(
-    *tf_buffer_,
-    interfaces_.get_node_base_interface(),
-    interfaces_.get_node_logging_interface(),
-    interfaces_.get_node_parameters_interface(),
-    interfaces_.get_node_topics_interface()
-  );
+  tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, interfaces_.get_node_base_interface(),
+                                                              interfaces_.get_node_logging_interface(),
+                                                              interfaces_.get_node_parameters_interface(),
+                                                              interfaces_.get_node_topics_interface());
 }
 
 void Acceleration2D::onStart()
 {
-  if (!params_.indices.empty()) {
+  if (!params_.indices.empty())
+  {
     rclcpp::SubscriptionOptions sub_options;
     sub_options.callback_group = cb_group_;
 
     sub_ = rclcpp::create_subscription<geometry_msgs::msg::AccelWithCovarianceStamped>(
-      interfaces_,
-      params_.topic,
-      params_.queue_size,
-      std::bind(
-        &AccelerationThrottledCallback::callback<
-          const geometry_msgs::msg::AccelWithCovarianceStamped &>,
-        &throttled_callback_,
-        std::placeholders::_1
-      ),
-      sub_options
-    );
+        interfaces_, params_.topic, params_.queue_size,
+        std::bind(&AccelerationThrottledCallback::callback<const geometry_msgs::msg::AccelWithCovarianceStamped&>,
+                  &throttled_callback_, std::placeholders::_1),
+        sub_options);
   }
 }
 
@@ -121,23 +110,14 @@ void Acceleration2D::onStop()
   sub_.reset();
 }
 
-void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped & msg)
+void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
   transaction->stamp(msg.header.stamp);
 
-  common::processAccelWithCovariance(
-    name(),
-    device_id_,
-    msg,
-    params_.loss,
-    params_.target_frame,
-    params_.indices,
-    *tf_buffer_,
-    !params_.disable_checks,
-    *transaction,
-    params_.tf_timeout);
+  common::processAccelWithCovariance(name(), device_id_, msg, params_.loss, params_.target_frame, params_.indices,
+                                     *tf_buffer_, !params_.disable_checks, *transaction, params_.tf_timeout);
 
   // Send the transaction object to the plugin's parent
   sendTransaction(transaction);

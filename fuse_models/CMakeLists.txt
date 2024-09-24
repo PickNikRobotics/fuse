@@ -35,12 +35,13 @@ find_package(tf2_ros REQUIRED)
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-###########
-## Build ##
-###########
+# ##############################################################################
+# Build ##
+# ##############################################################################
 
-## Declare a C++ library
-add_library(${PROJECT_NAME}
+# Declare a C++ library
+add_library(
+  ${PROJECT_NAME}
   src/acceleration_2d.cpp
   src/graph_ignition.cpp
   src/imu_2d.cpp
@@ -57,13 +58,13 @@ add_library(${PROJECT_NAME}
   src/unicycle_2d_state_kinematic_constraint.cpp
   src/omnidirectional_3d.cpp
   src/omnidirectional_3d_ignition.cpp
-  src/omnidirectional_3d_state_kinematic_constraint.cpp
-)
-target_include_directories(${PROJECT_NAME} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
-)
-target_link_libraries(${PROJECT_NAME}
+  src/omnidirectional_3d_state_kinematic_constraint.cpp)
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+target_link_libraries(
+  ${PROJECT_NAME}
   covariance_geometry_ros::covariance_geometry_ros
   Ceres::ceres
   fuse_constraints::fuse_constraints
@@ -82,47 +83,35 @@ target_link_libraries(${PROJECT_NAME}
   tf2::tf2
   tf2_2d::tf2_2d
   ${tf2_geometry_msgs_TARGETS}
-  tf2_ros::tf2_ros
-)
+  tf2_ros::tf2_ros)
 
-#############
-## Testing ##
-#############
+# ##############################################################################
+# Testing ##
+# ##############################################################################
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-
-  # This is because these two files have unsuitable copyrights
-  set(_linter_excludes
-    test/test_sensor_proc.cpp
-    test/test_unicycle_2d.cpp
-  )
-  set(AMENT_LINT_AUTO_FILE_EXCLUDE ${_linter_excludes})
-  ament_lint_auto_find_test_dependencies()
   add_subdirectory(test)
   add_subdirectory(benchmark)
 endif()
 
-#############
-## Install ##
-#############
+# ##############################################################################
+# Install ##
+# ##############################################################################
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}-export
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
+  RUNTIME DESTINATION bin)
 
-install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME}
-)
+install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
 
 pluginlib_export_plugin_description_file(fuse_core fuse_plugins.xml)
 
 ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
 ament_export_dependencies(
   ament_cmake_ros
-
   covariance_geometry_ros
   fuse_constraints
   fuse_core
@@ -141,10 +130,8 @@ ament_export_dependencies(
   tf2_2d
   tf2_geometry_msgs
   tf2_ros
-
   Ceres
   Eigen3
-  Boost
-)
+  Boost)
 
 ament_package()

@@ -46,7 +46,6 @@
 using fuse_core::Transaction;
 using fuse_core::UUID;
 
-
 /**
  * @brief Test that a collection of stamps exist in a Transaction object's involved stamps container
  *
@@ -59,29 +58,31 @@ using fuse_core::UUID;
  * @return             True if the expected stamps, and only the expected stamps, exist in the
  *                     transaction, False otherwise.
  */
-template<typename TimeRange>
-bool testInvolvedStamps(const TimeRange & expected, const Transaction & transaction)
+template <typename TimeRange>
+bool testInvolvedStamps(const TimeRange& expected, const Transaction& transaction)
 {
   auto range = transaction.involvedStamps();
-  if (std::distance(
-      expected.begin(),
-      expected.end()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
 
-  for (auto iter = range.begin(); iter != range.end(); ++iter) {
-    const auto & actual_stamp = *iter;
+  for (auto iter = range.begin(); iter != range.end(); ++iter)
+  {
+    const auto& actual_stamp = *iter;
 
     bool found = false;
-    for (const auto & expected_stamp : expected) {
-      if (actual_stamp == expected_stamp) {
+    for (const auto& expected_stamp : expected)
+    {
+      if (actual_stamp == expected_stamp)
+      {
         found = true;
         break;
       }
     }
 
-    if (!found) {
+    if (!found)
+    {
       return false;
     }
   }
@@ -103,43 +104,44 @@ bool testInvolvedStamps(const TimeRange & expected, const Transaction & transact
  * @return                  True if the expected constraints, and only the expected constraints,
  *                          exist in the transaction, False otherwise.
  */
-template<typename ConstraintRange>
-bool testAddedConstraints(const ConstraintRange & expected, const Transaction & transaction)
+template <typename ConstraintRange>
+bool testAddedConstraints(const ConstraintRange& expected, const Transaction& transaction)
 {
   auto range = transaction.addedConstraints();
-  if (std::distance(
-      expected.begin(),
-      expected.end()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
 
-  for (auto iter = range.begin(); iter != range.end(); ++iter) {
-    const auto & actual_constraint = dynamic_cast<const ExampleConstraint &>(*iter);
+  for (auto iter = range.begin(); iter != range.end(); ++iter)
+  {
+    const auto& actual_constraint = dynamic_cast<const ExampleConstraint&>(*iter);
 
     bool found = false;
-    for (const auto & expected_constraint : expected) {
-      if (actual_constraint.uuid() == expected_constraint.uuid()) {
+    for (const auto& expected_constraint : expected)
+    {
+      if (actual_constraint.uuid() == expected_constraint.uuid())
+      {
         found = true;
         bool is_equal = true;
         is_equal = is_equal && (expected_constraint.type() == actual_constraint.type());
-        is_equal = is_equal &&
-          (expected_constraint.variables().size() == actual_constraint.variables().size());
-        for (size_t i = 0; i < expected_constraint.variables().size(); ++i) {
-          is_equal = is_equal &&
-            (expected_constraint.variables().at(i) == actual_constraint.variables().at(i));
+        is_equal = is_equal && (expected_constraint.variables().size() == actual_constraint.variables().size());
+        for (size_t i = 0; i < expected_constraint.variables().size(); ++i)
+        {
+          is_equal = is_equal && (expected_constraint.variables().at(i) == actual_constraint.variables().at(i));
         }
-        const auto & expected_derived =
-          dynamic_cast<const ExampleConstraint &>(expected_constraint);
+        const auto& expected_derived = dynamic_cast<const ExampleConstraint&>(expected_constraint);
         is_equal = is_equal && (expected_derived.data == actual_constraint.data);
 
-        if (!is_equal) {
+        if (!is_equal)
+        {
           return false;
         }
       }
     }
 
-    if (!found) {
+    if (!found)
+    {
       return false;
     }
   }
@@ -162,29 +164,31 @@ bool testAddedConstraints(const ConstraintRange & expected, const Transaction & 
  * @return             True if the expected constraints, and only the expected constraints, exist in
  *                     the transaction, False otherwise.
  */
-template<typename UuidRange>
-bool testRemovedConstraints(const UuidRange & expected, const Transaction & transaction)
+template <typename UuidRange>
+bool testRemovedConstraints(const UuidRange& expected, const Transaction& transaction)
 {
   auto range = transaction.removedConstraints();
-  if (std::distance(
-      expected.begin(),
-      expected.end()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
 
-  for (auto iter = range.begin(); iter != range.end(); ++iter) {
-    const auto & actual_constraint_uuid = *iter;
+  for (auto iter = range.begin(); iter != range.end(); ++iter)
+  {
+    const auto& actual_constraint_uuid = *iter;
 
     bool found = false;
-    for (const auto & expected_constraint_uuid : expected) {
-      if (actual_constraint_uuid == expected_constraint_uuid) {
+    for (const auto& expected_constraint_uuid : expected)
+    {
+      if (actual_constraint_uuid == expected_constraint_uuid)
+      {
         found = true;
         break;
       }
     }
 
-    if (!found) {
+    if (!found)
+    {
       return false;
     }
   }
@@ -205,36 +209,39 @@ bool testRemovedConstraints(const UuidRange & expected, const Transaction & tran
  * @return                True if the expected variables, and only the expected variables, exist in
  *                        the transaction, False otherwise.
  */
-template<typename VariableRange>
-bool testAddedVariables(const VariableRange & expected, const Transaction & transaction)
+template <typename VariableRange>
+bool testAddedVariables(const VariableRange& expected, const Transaction& transaction)
 {
   auto range = transaction.addedVariables();
-  if (std::distance(
-      expected.begin(),
-      expected.end()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
 
-  for (auto iter = range.begin(); iter != range.end(); ++iter) {
-    const auto & actual_variable = dynamic_cast<const ExampleVariable &>(*iter);
+  for (auto iter = range.begin(); iter != range.end(); ++iter)
+  {
+    const auto& actual_variable = dynamic_cast<const ExampleVariable&>(*iter);
 
     bool found = false;
-    for (const auto & expected_variable : expected) {
-      if (actual_variable.uuid() == expected_variable.uuid()) {
+    for (const auto& expected_variable : expected)
+    {
+      if (actual_variable.uuid() == expected_variable.uuid())
+      {
         found = true;
         bool is_equal = true;
         is_equal = is_equal && (expected_variable.type() == actual_variable.type());
         is_equal = is_equal && (expected_variable.size() == actual_variable.size());
         is_equal = is_equal && (expected_variable.data()[0] == actual_variable.data()[0]);
 
-        if (!is_equal) {
+        if (!is_equal)
+        {
           return false;
         }
       }
     }
 
-    if (!found) {
+    if (!found)
+    {
       return false;
     }
   }
@@ -256,29 +263,31 @@ bool testAddedVariables(const VariableRange & expected, const Transaction & tran
  * @return             True if the expected variables, and only the expected variables, exist in the
  *                     transaction, False otherwise.
  */
-template<typename UuidRange>
-bool testRemovedVariables(const UuidRange & expected, const Transaction & transaction)
+template <typename UuidRange>
+bool testRemovedVariables(const UuidRange& expected, const Transaction& transaction)
 {
   auto range = transaction.removedVariables();
-  if (std::distance(
-      expected.begin(),
-      expected.end()) != std::distance(range.begin(), range.end()))
+  if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
   {
     return false;
   }
 
-  for (auto iter = range.begin(); iter != range.end(); ++iter) {
-    const auto & actual_variable_uuid = *iter;
+  for (auto iter = range.begin(); iter != range.end(); ++iter)
+  {
+    const auto& actual_variable_uuid = *iter;
 
     bool found = false;
-    for (const auto & expected_variable_uuid : expected) {
-      if (actual_variable_uuid == expected_variable_uuid) {
+    for (const auto& expected_variable_uuid : expected)
+    {
+      if (actual_variable_uuid == expected_variable_uuid)
+      {
         found = true;
         break;
       }
     }
 
-    if (!found) {
+    if (!found)
+    {
       return false;
     }
   }
@@ -299,8 +308,7 @@ TEST(Transaction, Empty)
   // A transaction with added constraints cannot be empty
   {
     const auto variable_uuid = fuse_core::uuid::generate();
-    const auto constraint = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable_uuid});
+    const auto constraint = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable_uuid });
 
     Transaction transaction;
     transaction.addConstraint(constraint);
@@ -354,8 +362,7 @@ TEST(Transaction, AddConstraint)
   // Add a single constraint and verify it exists in the added constraints
   {
     UUID variable_uuid = fuse_core::uuid::generate();
-    auto constraint = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable_uuid});
+    auto constraint = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable_uuid });
 
     Transaction transaction;
     transaction.addConstraint(constraint);
@@ -368,8 +375,7 @@ TEST(Transaction, AddConstraint)
   // Add the same constraint multiple times. Verify only one constraint exists in the Transaction.
   {
     UUID variable_uuid = fuse_core::uuid::generate();
-    auto constraint = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable_uuid});
+    auto constraint = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable_uuid });
 
     Transaction transaction;
     transaction.addConstraint(constraint);
@@ -384,14 +390,11 @@ TEST(Transaction, AddConstraint)
   // Add multiple constraints. Verify they all exist in the Transaction.
   {
     UUID variable1_uuid = fuse_core::uuid::generate();
-    auto constraint1 = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable1_uuid});
+    auto constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable1_uuid });
     UUID variable2_uuid = fuse_core::uuid::generate();
-    auto constraint2 = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable2_uuid});
+    auto constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable2_uuid });
     UUID variable3_uuid = fuse_core::uuid::generate();
-    auto constraint3 = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable3_uuid});
+    auto constraint3 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable3_uuid });
 
     Transaction transaction;
     transaction.addConstraint(constraint1);
@@ -409,8 +412,7 @@ TEST(Transaction, AddConstraint)
   // also be deleted from the 'removed' container.
   {
     UUID variable1_uuid = fuse_core::uuid::generate();
-    auto constraint1 = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable1_uuid});
+    auto constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable1_uuid });
 
     UUID constraint2_uuid = fuse_core::uuid::generate();
 
@@ -430,8 +432,7 @@ TEST(Transaction, AddConstraint)
   {
     // Create and add the constraint to the transaction
     UUID variable_uuid = fuse_core::uuid::generate();
-    auto constraint1 = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable_uuid});
+    auto constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable_uuid });
     constraint1->data = 1.0;
 
     Transaction transaction;
@@ -521,12 +522,10 @@ TEST(Transaction, RemoveConstraint)
   // marked for removal; instead it should be deleted from the added constraints.
   {
     UUID variable1_uuid = fuse_core::uuid::generate();
-    auto constraint1 = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable1_uuid});
+    auto constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable1_uuid });
 
     UUID variable2_uuid = fuse_core::uuid::generate();
-    auto constraint2 = ExampleConstraint::make_shared(
-      "test", std::initializer_list<UUID>{variable2_uuid});
+    auto constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable2_uuid });
 
     Transaction transaction;
     transaction.addConstraint(constraint1);
@@ -729,12 +728,9 @@ TEST(Transaction, Merge)
   UUID variable1_uuid = fuse_core::uuid::generate();
   UUID variable2_uuid = fuse_core::uuid::generate();
   UUID variable3_uuid = fuse_core::uuid::generate();
-  auto added_constraint1 = ExampleConstraint::make_shared(
-    "test", std::initializer_list<UUID>{variable1_uuid});
-  auto added_constraint2 = ExampleConstraint::make_shared(
-    "test", std::initializer_list<UUID>{variable2_uuid});
-  auto added_constraint3 = ExampleConstraint::make_shared(
-    "test", std::initializer_list<UUID>{variable3_uuid});
+  auto added_constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable1_uuid });
+  auto added_constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable2_uuid });
+  auto added_constraint3 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable3_uuid });
 
   UUID removed_constraint1 = fuse_core::uuid::generate();
   UUID removed_constraint2 = fuse_core::uuid::generate();
@@ -818,10 +814,8 @@ TEST(Transaction, Clone)
 
   UUID variable1_uuid = fuse_core::uuid::generate();
   UUID variable2_uuid = fuse_core::uuid::generate();
-  auto added_constraint1 = ExampleConstraint::make_shared(
-    "test", std::initializer_list<UUID>{variable1_uuid});
-  auto added_constraint2 = ExampleConstraint::make_shared(
-    "test", std::initializer_list<UUID>{variable2_uuid});
+  auto added_constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable1_uuid });
+  auto added_constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable2_uuid });
 
   UUID removed_constraint1 = fuse_core::uuid::generate();
   UUID removed_constraint2 = fuse_core::uuid::generate();
@@ -882,10 +876,8 @@ TEST(Transaction, Serialize)
 
   UUID variable1_uuid = fuse_core::uuid::generate();
   UUID variable2_uuid = fuse_core::uuid::generate();
-  auto added_constraint1 = ExampleConstraint::make_shared(
-    "test", std::initializer_list<UUID>{variable1_uuid});
-  auto added_constraint2 = ExampleConstraint::make_shared(
-    "test", std::initializer_list<UUID>{variable2_uuid});
+  auto added_constraint1 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable1_uuid });
+  auto added_constraint2 = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable2_uuid });
 
   UUID removed_constraint1 = fuse_core::uuid::generate();
   UUID removed_constraint2 = fuse_core::uuid::generate();

@@ -41,7 +41,6 @@
 #include <fuse_core/fuse_macros.hpp>
 #include <fuse_core/util.hpp>
 
-
 namespace fuse_constraints
 {
 
@@ -78,18 +77,14 @@ public:
    *              order (dx, dy, dz, dqx, dqy, dqz)
    * @param[in] b The exposed pose difference in order (dx, dy, dz, dqw, dqx, dqy, dqz)
    */
-  NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d & A, const fuse_core::Vector7d & b);
+  NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
    */
-  template<typename T>
-  bool operator()(
-    const T * const position1,
-    const T * const orientation1,
-    const T * const position2,
-    const T * const orientation2,
-    T * residual) const;
+  template <typename T>
+  bool operator()(const T* const position1, const T* const orientation1, const T* const position2,
+                  const T* const orientation2, T* residual) const;
 
 private:
   fuse_core::Matrix6d A_;  //!< The residual weighting matrix, most likely the square root
@@ -99,43 +94,21 @@ private:
   NormalDeltaOrientation3DCostFunctor orientation_functor_;
 };
 
-NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(
-  const fuse_core::Matrix6d & A,
-  const fuse_core::Vector7d & b)
-: A_(A),
-  b_(b),
-  orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will
-                                                                       // not be scaled
+NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b)
+  : A_(A), b_(b), orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will
+                                                                                       // not be scaled
 {
 }
 
-template<typename T>
-bool NormalDeltaPose3DCostFunctor::operator()(
-  const T * const position1,
-  const T * const orientation1,
-  const T * const position2,
-  const T * const orientation2,
-  T * residual) const
+template <typename T>
+bool NormalDeltaPose3DCostFunctor::operator()(const T* const position1, const T* const orientation1,
+                                              const T* const position2, const T* const orientation2, T* residual) const
 {
   // Compute the position delta between pose1 and pose2
-  T orientation1_inverse[4] =
-  {
-    orientation1[0],
-    -orientation1[1],
-    -orientation1[2],
-    -orientation1[3]
-  };
-  T position_delta[3] =
-  {
-    position2[0] - position1[0],
-    position2[1] - position1[1],
-    position2[2] - position1[2]
-  };
+  T orientation1_inverse[4] = { orientation1[0], -orientation1[1], -orientation1[2], -orientation1[3] };
+  T position_delta[3] = { position2[0] - position1[0], position2[1] - position1[1], position2[2] - position1[2] };
   T position_delta_rotated[3];
-  ceres::QuaternionRotatePoint(
-    orientation1_inverse,
-    position_delta,
-    position_delta_rotated);
+  ceres::QuaternionRotatePoint(orientation1_inverse, position_delta, position_delta_rotated);
 
   // Compute the first three residual terms as (position_delta - b)
   residual[0] = position_delta_rotated[0] - T(b_[0]);

@@ -44,19 +44,19 @@
 namespace fuse_constraints
 {
 
-AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(
-  const std::string & source,
-  const fuse_variables::Position3DStamped & position,
-  const fuse_variables::Orientation3DStamped & orientation,
-  const fuse_core::Vector7d & mean,
-  const fuse_core::Matrix6d & covariance)
-: fuse_core::Constraint(source, {position.uuid(), orientation.uuid()}),  // NOLINT
-  mean_(mean),
-  sqrt_information_(covariance.inverse().llt().matrixU())
+AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(const std::string& source,
+                                                                 const fuse_variables::Position3DStamped& position,
+                                                                 const fuse_variables::Orientation3DStamped& orientation,
+                                                                 const fuse_core::Vector7d& mean,
+                                                                 const fuse_core::Matrix6d& covariance)
+  : fuse_core::Constraint(source, { position.uuid(), orientation.uuid() })
+  ,  // NOLINT
+  mean_(mean)
+  , sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
 
-void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
+void AbsolutePose3DStampedConstraint::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  source: " << source() << "\n"
@@ -66,13 +66,14 @@ void AbsolutePose3DStampedConstraint::print(std::ostream & stream) const
          << "  mean: " << mean().transpose() << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 
-  if (loss()) {
+  if (loss())
+  {
     stream << "  loss: ";
     loss()->print(stream);
   }
 }
 
-ceres::CostFunction * AbsolutePose3DStampedConstraint::costFunction() const
+ceres::CostFunction* AbsolutePose3DStampedConstraint::costFunction() const
 {
   return new NormalPriorPose3D(sqrt_information_, mean_);
 }

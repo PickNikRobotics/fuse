@@ -50,7 +50,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_srvs/srv/empty.hpp>
 
-
 namespace fuse_models
 {
 
@@ -96,10 +95,8 @@ public:
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name,
-    fuse_core::TransactionCallback transaction_callback) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
@@ -127,15 +124,14 @@ protected:
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  void subscriberCallback(const fuse_msgs::msg::SerializedGraph & msg);
+  void subscriberCallback(const fuse_msgs::msg::SerializedGraph& msg);
 
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  bool setGraphServiceCallback(
-    rclcpp::Service<fuse_msgs::srv::SetGraph>::SharedPtr service,
-    std::shared_ptr<rmw_request_id_t> request_id,
-    const fuse_msgs::srv::SetGraph::Request::SharedPtr req);
+  bool setGraphServiceCallback(rclcpp::Service<fuse_msgs::srv::SetGraph>::SharedPtr service,
+                               std::shared_ptr<rmw_request_id_t> request_id,
+                               const fuse_msgs::srv::SetGraph::Request::SharedPtr req);
 
   /**
    * @brief Perform any required initialization for the kinematic ignition sensor
@@ -150,8 +146,7 @@ protected:
    *
    * @param[in] msg - The graph message
    */
-  void process(
-    const fuse_msgs::msg::SerializedGraph & msg, std::function<void()> post_process = nullptr);
+  void process(const fuse_msgs::msg::SerializedGraph& msg, std::function<void()> post_process = nullptr);
 
   /**
    * @brief Create and send a transaction equivalent to the supplied graph
@@ -159,20 +154,16 @@ protected:
    * @param[in] graph - The graph
    * @param[in] stamp - The graph stamp
    */
-  void sendGraph(const fuse_core::Graph & graph, const rclcpp::Time & stamp);
+  void sendGraph(const fuse_core::Graph& graph, const rclcpp::Time& stamp);
 
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Graph,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters,
-    fuse_core::node_interfaces::Services,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Graph,
+                                             fuse_core::node_interfaces::Logging, fuse_core::node_interfaces::Parameters,
+                                             fuse_core::node_interfaces::Services, fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncSensorModel interfaces_
 
   std::atomic_bool started_;  //!< Flag indicating the sensor has been started
-  rclcpp::Logger logger_;  //!< The sensor model's logger
+  rclcpp::Logger logger_;     //!< The sensor model's logger
 
   ParameterType params_;  //!< Object containing all of the configuration parameters
 

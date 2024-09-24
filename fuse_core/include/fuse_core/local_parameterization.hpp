@@ -99,11 +99,8 @@ public:
    * @param[in] x variable of size \p GlobalSize()
    * @param[in] delta variable of size \p LocalSize()
    * @param[out] x_plus_delta of size \p GlobalSize()
-  */
-  virtual bool Plus(
-    const double * x,
-    const double * delta,
-    double * x_plus_delta) const = 0;
+   */
+  virtual bool Plus(const double* x, const double* delta, double* x_plus_delta) const = 0;
 
   /**
    * @brief The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
@@ -112,7 +109,7 @@ public:
    * @param[out] jacobian a row-major GlobalSize() x LocalSize() matrix.
    * @return
    */
-  virtual bool ComputeJacobian(const double * x, double * jacobian) const = 0;
+  virtual bool ComputeJacobian(const double* x, double* jacobian) const = 0;
 
   /**
    * @brief Generalization of the subtraction operation
@@ -129,10 +126,7 @@ public:
    *                       \p LocalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool Minus(
-    const double * x,
-    const double * y,
-    double * y_minus_x) const = 0;
+  virtual bool Minus(const double* x, const double* y, double* y_minus_x) const = 0;
 
   /**
    * @brief The jacobian of Minus(x, y) w.r.t y at x == y
@@ -142,9 +136,7 @@ public:
    *                      GlobalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool ComputeMinusJacobian(
-    const double * x,
-    double * jacobian) const = 0;
+  virtual bool ComputeMinusJacobian(const double* x, double* jacobian) const = 0;
 
 #if CERES_SUPPORTS_MANIFOLDS
   // If the fuse::LocalParameterization class does not inherit from the
@@ -164,27 +156,25 @@ public:
    * @param[in] global_matrix is a num_rows x GlobalSize  row major matrix.
    * @param[out] local_matrix is a num_rows x LocalSize row major matrix.
    */
-  virtual bool MultiplyByJacobian(
-    const double * x,
-    const int num_rows,
-    const double * global_matrix,
-    double * local_matrix) const
+  virtual bool MultiplyByJacobian(const double* x, const int num_rows, const double* global_matrix,
+                                  double* local_matrix) const
   {
     using Matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
     using MatrixRef = Eigen::Map<Matrix>;
     using ConstMatrixRef = Eigen::Map<const Matrix>;
 
-    if (LocalSize() == 0) {
+    if (LocalSize() == 0)
+    {
       return true;
     }
 
     Matrix jacobian(GlobalSize(), LocalSize());
-    if (!ComputeJacobian(x, jacobian.data())) {
+    if (!ComputeJacobian(x, jacobian.data()))
+    {
       return false;
     }
 
-    MatrixRef(local_matrix, num_rows, LocalSize()) =
-      ConstMatrixRef(global_matrix, num_rows, GlobalSize()) * jacobian;
+    MatrixRef(local_matrix, num_rows, LocalSize()) = ConstMatrixRef(global_matrix, num_rows, GlobalSize()) * jacobian;
     return true;
   }
 #endif
@@ -200,8 +190,10 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & /* archive */, const unsigned int /* version */) {}
+  template <class Archive>
+  void serialize(Archive& /* archive */, const unsigned int /* version */)
+  {
+  }
 };
 
 }  // namespace fuse_core

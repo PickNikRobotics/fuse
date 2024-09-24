@@ -42,29 +42,26 @@
 namespace fuse_loss
 {
 
-CauchyLoss::CauchyLoss(const double a)
-: a_(a)
+CauchyLoss::CauchyLoss(const double a) : a_(a)
 {
 }
 
 void CauchyLoss::initialize(
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Parameters
-  > interfaces,
-  const std::string & name)
+    fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                               fuse_core::node_interfaces::Parameters>
+        interfaces,
+    const std::string& name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }
 
-void CauchyLoss::print(std::ostream & stream) const
+void CauchyLoss::print(std::ostream& stream) const
 {
   stream << type() << "\n"
          << "  a: " << a_ << "\n";
 }
 
-ceres::LossFunction * CauchyLoss::lossFunction() const
+ceres::LossFunction* CauchyLoss::lossFunction() const
 {
   return new ceres::CauchyLoss(a_);
 }

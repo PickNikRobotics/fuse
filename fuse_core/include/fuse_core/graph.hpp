@@ -70,22 +70,22 @@
  * }
  * @endcode
  */
-#define FUSE_GRAPH_SERIALIZE_DEFINITION(...) \
-  void serialize(fuse_core::BinaryOutputArchive & archive) const override \
-  { \
-    archive << *this; \
-  }  /* NOLINT */ \
-  void serialize(fuse_core::TextOutputArchive & archive) const override \
-  { \
-    archive << *this; \
-  }  /* NOLINT */ \
-  void deserialize(fuse_core::BinaryInputArchive & archive) override \
-  { \
-    archive >> *this; \
-  }  /* NOLINT */ \
-  void deserialize(fuse_core::TextInputArchive & archive) override \
-  { \
-    archive >> *this; \
+#define FUSE_GRAPH_SERIALIZE_DEFINITION(...)                                                                           \
+  void serialize(fuse_core::BinaryOutputArchive& archive) const override                                               \
+  {                                                                                                                    \
+    archive << *this;                                                                                                  \
+  } /* NOLINT */                                                                                                       \
+  void serialize(fuse_core::TextOutputArchive& archive) const override                                                 \
+  {                                                                                                                    \
+    archive << *this;                                                                                                  \
+  } /* NOLINT */                                                                                                       \
+  void deserialize(fuse_core::BinaryInputArchive& archive) override                                                    \
+  {                                                                                                                    \
+    archive >> *this;                                                                                                  \
+  } /* NOLINT */                                                                                                       \
+  void deserialize(fuse_core::TextInputArchive& archive) override                                                      \
+  {                                                                                                                    \
+    archive >> *this;                                                                                                  \
   }
 
 /**
@@ -103,37 +103,36 @@
  * }
  * @endcode
  */
-#define FUSE_GRAPH_TYPE_DEFINITION(...) \
-  struct detail \
-  { \
-    static std::string type() \
-    { \
-      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name(); \
-    }  /* NOLINT */ \
-  };  /* NOLINT */ \
-  std::string type() const override \
-  { \
-    return detail::type(); \
+#define FUSE_GRAPH_TYPE_DEFINITION(...)                                                                                \
+  struct detail                                                                                                        \
+  {                                                                                                                    \
+    static std::string type()                                                                                          \
+    {                                                                                                                  \
+      return boost::typeindex::stl_type_index::type_id<__VA_ARGS__>().pretty_name();                                   \
+    } /* NOLINT */                                                                                                     \
+  };  /* NOLINT */                                                                                                     \
+  std::string type() const override                                                                                    \
+  {                                                                                                                    \
+    return detail::type();                                                                                             \
   }
 
 /**
-* @brief Convenience function that creates the required pointer aliases, and type() method
-*
-* Usage:
-* @code{.cpp}
-* class Derived : public Graph
-* {
-* public:
-*   FUSE_GRAPH_DEFINITIONS(Derived)
-*   // The rest of the derived graph implementation
-* }
-* @endcode
-*/
-#define FUSE_GRAPH_DEFINITIONS(...) \
-  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__) \
-  FUSE_GRAPH_TYPE_DEFINITION(__VA_ARGS__) \
+ * @brief Convenience function that creates the required pointer aliases, and type() method
+ *
+ * Usage:
+ * @code{.cpp}
+ * class Derived : public Graph
+ * {
+ * public:
+ *   FUSE_GRAPH_DEFINITIONS(Derived)
+ *   // The rest of the derived graph implementation
+ * }
+ * @endcode
+ */
+#define FUSE_GRAPH_DEFINITIONS(...)                                                                                    \
+  FUSE_SMART_PTR_DEFINITIONS(__VA_ARGS__)                                                                              \
+  FUSE_GRAPH_TYPE_DEFINITION(__VA_ARGS__)                                                                              \
   FUSE_GRAPH_SERIALIZE_DEFINITION(__VA_ARGS__)
-
 
 namespace fuse_core
 {
@@ -210,7 +209,7 @@ public:
    * @param[in] constraint_uuid The UUID of the constraint being searched for
    * @return                    True if this constraint already exists, False otherwise
    */
-  virtual bool constraintExists(const UUID & constraint_uuid) const = 0;
+  virtual bool constraintExists(const UUID& constraint_uuid) const = 0;
 
   /**
    * @brief Add a new constraint to the graph
@@ -230,7 +229,7 @@ public:
    * @param[in] constraint_uuid The UUID of the constraint to be removed
    * @return                    True if the constraint was removed, false otherwise
    */
-  virtual bool removeConstraint(const UUID & constraint_uuid) = 0;
+  virtual bool removeConstraint(const UUID& constraint_uuid) = 0;
 
   /**
    * @brief Read-only access to a constraint from the graph by UUID
@@ -240,7 +239,7 @@ public:
    * @param[in] constraint_uuid The UUID of the requested constraint
    * @return                    The constraint in the graph with the specified UUID
    */
-  virtual const Constraint & getConstraint(const UUID & constraint_uuid) const = 0;
+  virtual const Constraint& getConstraint(const UUID& constraint_uuid) const = 0;
 
   /**
    * @brief Read-only access to all of the constraints in the graph
@@ -257,7 +256,7 @@ public:
    * @return A read-only iterator range containing all constraints that involve the specified
    *         variable
    */
-  virtual const_constraint_range getConnectedConstraints(const UUID & variable_uuid) const = 0;
+  virtual const_constraint_range getConnectedConstraints(const UUID& variable_uuid) const = 0;
 
   /**
    * @brief Check if the variable already exists in the graph
@@ -265,7 +264,7 @@ public:
    * @param[in] variable_uuid The UUID of the variable being searched for
    * @return                  True if this variable already exists, False otherwise
    */
-  virtual bool variableExists(const UUID & variable_uuid) const = 0;
+  virtual bool variableExists(const UUID& variable_uuid) const = 0;
 
   /**
    * @brief Add a new variable to the graph
@@ -284,7 +283,7 @@ public:
    * @param[in] variable_uuid The UUID of the variable to be removed
    * @return                  True if the variable was removed, false otherwise
    */
-  virtual bool removeVariable(const UUID & variable_uuid) = 0;
+  virtual bool removeVariable(const UUID& variable_uuid) = 0;
 
   /**
    * @brief Read-only access to a variable in the graph by UUID
@@ -294,7 +293,7 @@ public:
    * @param[in] variable_uuid The UUID of the requested variable
    * @return                  The variable in the graph with the specified UUID
    */
-  virtual const Variable & getVariable(const UUID & variable_uuid) const = 0;
+  virtual const Variable& getVariable(const UUID& variable_uuid) const = 0;
 
   /**
    * @brief Read-only access to all of the variables in the graph
@@ -311,7 +310,7 @@ public:
    * @return A read-only iterator range containing all variables that involve the specified
    *         constraint
    */
-  virtual const_variable_range getConnectedVariables(const UUID & constraint_uuid) const;
+  virtual const_variable_range getConnectedVariables(const UUID& constraint_uuid) const;
 
   /**
    * @brief Configure a variable to hold its current value constant during optimization
@@ -325,7 +324,7 @@ public:
    *                          optimization, or if the variable's value is allowed to change during
    *                          optimization.
    */
-  virtual void holdVariable(const UUID & variable_uuid, bool hold_constant = true) = 0;
+  virtual void holdVariable(const UUID& variable_uuid, bool hold_constant = true) = 0;
 
   /**
    * @brief Check whether a variable is on hold or not
@@ -333,7 +332,7 @@ public:
    * @param[in] variable_uuid The variable to test
    * @return True if the variable is on hold, false otherwise
    */
-  virtual bool isVariableOnHold(const UUID & variable_uuid) const = 0;
+  virtual bool isVariableOnHold(const UUID& variable_uuid) const = 0;
 
   /**
    * @brief Compute the marginal covariance blocks for the requested set of variable pairs.
@@ -353,18 +352,17 @@ public:
    *                                 variable's tangent space/local coordinates. Otherwise it is
    *                                 computed in the variable's parameter space.
    */
-  virtual void getCovariance(
-    const std::vector<std::pair<UUID, UUID>> & covariance_requests,
-    std::vector<std::vector<double>> & covariance_matrices,
-    const ceres::Covariance::Options & options = ceres::Covariance::Options(),
-    const bool use_tangent_space = true) const = 0;
+  virtual void getCovariance(const std::vector<std::pair<UUID, UUID>>& covariance_requests,
+                             std::vector<std::vector<double>>& covariance_matrices,
+                             const ceres::Covariance::Options& options = ceres::Covariance::Options(),
+                             const bool use_tangent_space = true) const = 0;
 
   /**
    * @brief Update the graph with the contents of a transaction
    *
    * @param[in] transaction A set of variable and constraints additions and deletions
    */
-  void update(const Transaction & transaction);
+  void update(const Transaction& transaction);
 
   /**
    * @brief Optimize the values of the current set of variables, given the current set of
@@ -378,8 +376,7 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the
    *                    optimization process
    */
-  virtual ceres::Solver::Summary optimize(
-    const ceres::Solver::Options & options = ceres::Solver::Options()) = 0;
+  virtual ceres::Solver::Summary optimize(const ceres::Solver::Options& options = ceres::Solver::Options()) = 0;
 
   /**
    * @brief Optimize the values of the current set of variables, given the current set of
@@ -396,14 +393,14 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the
    *                    optimization process
    */
-  virtual ceres::Solver::Summary optimizeFor(
-    const rclcpp::Duration & max_optimization_time,
-    const ceres::Solver::Options & options = ceres::Solver::Options(),
-    rclcpp::Clock clock = rclcpp::Clock(RCL_STEADY_TIME)) = 0;  // NOTE(CH3): We need to copy
-                                                                // because clock.now() is non-const
+  virtual ceres::Solver::Summary
+  optimizeFor(const rclcpp::Duration& max_optimization_time,
+              const ceres::Solver::Options& options = ceres::Solver::Options(),
+              rclcpp::Clock clock = rclcpp::Clock(RCL_STEADY_TIME)) = 0;  // NOTE(CH3): We need to copy
+                                                                          // because clock.now() is non-const
 
   /**
-   * @brief Evalute the values of the current set of variables, given the current set of
+   * @brief Evaluate the values of the current set of variables, given the current set of
    *        constraints.
    *
    * The values in the graph do not change after the call.
@@ -425,20 +422,18 @@ public:
    *                       solver.googlesource.com/ceres-solver/+/master/include/ceres/problem.h#401
    * @return True if the problem evaluation was successful; False, otherwise.
    */
-  virtual bool evaluate(
-    double * cost, std::vector<double> * residuals = nullptr,
-    std::vector<double> * gradient = nullptr,
-    const ceres::Problem::EvaluateOptions & options = ceres::Problem::EvaluateOptions()) const = 0;
+  virtual bool evaluate(double* cost, std::vector<double>* residuals = nullptr, std::vector<double>* gradient = nullptr,
+                        const ceres::Problem::EvaluateOptions& options = ceres::Problem::EvaluateOptions()) const = 0;
 
   /**
    * @brief Structure containing the cost and residual information for a single constraint.
    */
   struct ConstraintCost
   {
-    double cost {};  //!< The pre-loss-function cost of the constraint, computed as the norm of the
-                     //!< residuals
-    double loss {};  //!< The final cost of the constraint after any loss functions have been
-                     //!< applied
+    double cost{};                  //!< The pre-loss-function cost of the constraint, computed as the norm of the
+                                    //!< residuals
+    double loss{};                  //!< The final cost of the constraint after any loss functions have been
+                                    //!< applied
     std::vector<double> residuals;  //!< The individual residuals for the constraint
   };
 
@@ -451,18 +446,15 @@ public:
    * @param[in]  last    An iterator pointing to one passed the last UUID of the desired constraints
    * @param[out] output  An output iterator capable of assignment to a ConstraintCost object
    */
-  template<class UuidForwardIterator, class OutputIterator>
-  void getConstraintCosts(
-    UuidForwardIterator first,
-    UuidForwardIterator last,
-    OutputIterator output);
+  template <class UuidForwardIterator, class OutputIterator>
+  void getConstraintCosts(UuidForwardIterator first, UuidForwardIterator last, OutputIterator output);
 
   /**
    * @brief Print a human-readable description of the graph to the provided stream.
    *
    * @param[out] stream The stream to write to. Defaults to stdout.
    */
-  virtual void print(std::ostream & stream = std::cout) const = 0;
+  virtual void print(std::ostream& stream = std::cout) const = 0;
 
   /**
    * @brief Serialize this graph into the provided binary archive
@@ -474,7 +466,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this graph into
    */
-  virtual void serialize(fuse_core::BinaryOutputArchive & /* archive */) const = 0;
+  virtual void serialize(fuse_core::BinaryOutputArchive& /* archive */) const = 0;
 
   /**
    * @brief Serialize this graph into the provided text archive
@@ -486,7 +478,7 @@ public:
    *
    * @param[out] archive - The archive to serialize this graph into
    */
-  virtual void serialize(fuse_core::TextOutputArchive & /* archive */) const = 0;
+  virtual void serialize(fuse_core::TextOutputArchive& /* archive */) const = 0;
 
   /**
    * @brief Deserialize data from the provided binary archive into this graph
@@ -498,7 +490,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized graph data
    */
-  virtual void deserialize(fuse_core::BinaryInputArchive & /* archive */) = 0;
+  virtual void deserialize(fuse_core::BinaryInputArchive& /* archive */) = 0;
 
   /**
    * @brief Deserialize data from the provided text archive into this graph
@@ -510,7 +502,7 @@ public:
    *
    * @param[in] archive - The archive holding serialized graph data
    */
-  virtual void deserialize(fuse_core::TextInputArchive & /* archive */) = 0;
+  virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
 private:
   // Allow Boost Serialization access to private methods
@@ -529,8 +521,8 @@ private:
    * @param[in/out] archive - The archive object that holds the serialized class members
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
-  template<class Archive>
-  void serialize(Archive & /* archive */, const unsigned int /* version */)
+  template <class Archive>
+  void serialize(Archive& /* archive */, const unsigned int /* version */)
   {
   }
 };
@@ -538,27 +530,25 @@ private:
 /**
  * Stream operator for printing Graph objects.
  */
-std::ostream & operator<<(std::ostream & stream, const Graph & graph);
+std::ostream& operator<<(std::ostream& stream, const Graph& graph);
 
-
-template<class UuidForwardIterator, class OutputIterator>
-void Graph::getConstraintCosts(
-  UuidForwardIterator first,
-  UuidForwardIterator last,
-  OutputIterator output)
+template <class UuidForwardIterator, class OutputIterator>
+void Graph::getConstraintCosts(UuidForwardIterator first, UuidForwardIterator last, OutputIterator output)
 {
   // @todo(swilliams) When I eventually refactor the Graph class to implement more of the
   //                  requirements in the base class, it should be possible to make better use of
   //                  the Problem object and avoid creating and deleting the cost and loss
   //                  functions.
-  while (first != last) {
+  while (first != last)
+  {
     // Get the next requested constraint
-    const auto & constraint = getConstraint(*first);
+    const auto& constraint = getConstraint(*first);
     // Collect all of the involved variables
-    auto parameter_blocks = std::vector<const double *>();
+    auto parameter_blocks = std::vector<const double*>();
     parameter_blocks.reserve(constraint.variables().size());
-    for (auto variable_uuid : constraint.variables()) {
-      const auto & variable = getVariable(variable_uuid);
+    for (auto variable_uuid : constraint.variables())
+    {
+      const auto& variable = getVariable(variable_uuid);
       parameter_blocks.push_back(variable.data());
     }
     // Compute the residuals for this constraint using the cost function
@@ -568,18 +558,18 @@ void Graph::getConstraintCosts(
     cost_function->Evaluate(parameter_blocks.data(), cost.residuals.data(), nullptr);
     // Compute the combined cost
     cost.cost =
-      std::sqrt(
-      std::inner_product(
-        cost.residuals.begin(), cost.residuals.end(),
-        cost.residuals.begin(), 0.0));
+        std::sqrt(std::inner_product(cost.residuals.begin(), cost.residuals.end(), cost.residuals.begin(), 0.0));
     // Apply the loss function, if one is configured
     auto loss_function = std::unique_ptr<ceres::LossFunction>(constraint.lossFunction());
-    if (loss_function) {
+    if (loss_function)
+    {
       double loss_result[3];  // The Loss function returns the loss-adjusted cost plus the first and
                               // second derivative
       loss_function->Evaluate(cost.cost, loss_result);
       cost.loss = loss_result[0];
-    } else {
+    }
+    else
+    {
       cost.loss = cost.cost;
     }
     // Add the final cost to the output

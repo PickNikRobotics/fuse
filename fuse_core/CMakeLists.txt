@@ -23,12 +23,13 @@ find_package(Eigen3 REQUIRED)
 
 include(boost-extras.cmake)
 
-###########
-## Build ##
-###########
+# ##############################################################################
+# Build ##
+# ##############################################################################
 
-## fuse_core library
-add_library(${PROJECT_NAME}
+# fuse_core library
+add_library(
+  ${PROJECT_NAME}
   src/async_motion_model.cpp
   src/async_publisher.cpp
   src/async_sensor_model.cpp
@@ -45,66 +46,62 @@ add_library(${PROJECT_NAME}
   src/transaction.cpp
   src/transaction_deserializer.cpp
   src/uuid.cpp
-  src/variable.cpp
-)
-target_include_directories(${PROJECT_NAME} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>"
-)
-target_link_libraries(${PROJECT_NAME} PUBLIC
-  Boost::serialization
-  Ceres::ceres
-  Eigen3::Eigen
-  ${fuse_msgs_TARGETS}
-  pluginlib::pluginlib
-  rclcpp::rclcpp
-  ${rcl_interfaces_TARGETS}
-)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-  rclcpp_components::component
-)
+  src/variable.cpp)
+target_include_directories(
+  ${PROJECT_NAME}
+  PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+         "$<INSTALL_INTERFACE:include/${PROJECT_NAME}>")
+target_link_libraries(
+  ${PROJECT_NAME}
+  PUBLIC Boost::serialization
+         Ceres::ceres
+         Eigen3::Eigen
+         ${fuse_msgs_TARGETS}
+         pluginlib::pluginlib
+         rclcpp::rclcpp
+         ${rcl_interfaces_TARGETS})
+target_link_libraries(${PROJECT_NAME} PRIVATE rclcpp_components::component)
 
-## fuse_echo executable
+# fuse_echo executable
 add_library(fuse_echo_component SHARED src/fuse_echo.cpp)
 target_link_libraries(fuse_echo_component PUBLIC ${PROJECT_NAME})
 target_link_libraries(fuse_echo_component PRIVATE rclcpp_components::component)
 
-rclcpp_components_register_node(fuse_echo_component
-  PLUGIN "fuse_core::FuseEcho"
-  EXECUTABLE fuse_echo
-  EXECUTOR SingleThreadedExecutor
-)
+rclcpp_components_register_node(
+  fuse_echo_component
+  PLUGIN
+  "fuse_core::FuseEcho"
+  EXECUTABLE
+  fuse_echo
+  EXECUTOR
+  SingleThreadedExecutor)
 
-#############
-## Testing ##
-#############
+# ##############################################################################
+# Testing ##
+# ##############################################################################
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-
   add_subdirectory(test)
 endif()
 
-#############
-## Install ##
-#############
+# ##############################################################################
+# Install ##
+# ##############################################################################
 
-install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-export
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}-export
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
+  RUNTIME DESTINATION bin)
 
-install(TARGETS fuse_echo_component
+install(
+  TARGETS fuse_echo_component
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
+  RUNTIME DESTINATION bin)
 
-install(DIRECTORY include/
-  DESTINATION include/${PROJECT_NAME}
-)
+install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
 
 ament_export_targets(${PROJECT_NAME}-export HAS_LIBRARY_TARGET)
 ament_export_dependencies(
@@ -115,7 +112,6 @@ ament_export_dependencies(
   rclcpp
   rclcpp_components
   Ceres
-  Eigen3
-)
+  Eigen3)
 
 ament_package(CONFIG_EXTRAS boost-extras.cmake)

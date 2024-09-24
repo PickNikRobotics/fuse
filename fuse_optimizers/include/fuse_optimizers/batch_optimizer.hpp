@@ -52,7 +52,6 @@
 #include <fuse_optimizers/optimizer.hpp>
 #include <fuse_graphs/hash_graph.hpp>
 
-
 namespace fuse_optimizers
 {
 
@@ -112,10 +111,8 @@ public:
    * @param[in] interfaces          The node interfaces for the node driving the optimizer
    * @param[in] graph               The graph used with the optimizer
    */
-  BatchOptimizer(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    fuse_core::Graph::UniquePtr graph = nullptr
-  );
+  BatchOptimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                 fuse_core::Graph::UniquePtr graph = nullptr);
 
   /**
    * @brief Destructor
@@ -131,11 +128,10 @@ protected:
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
 
-    TransactionQueueElement(
-      const std::string & sensor_name,
-      fuse_core::Transaction::SharedPtr transaction)
-    : sensor_name(sensor_name),
-      transaction(std::move(transaction)) {}
+    TransactionQueueElement(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction)
+      : sensor_name(sensor_name), transaction(std::move(transaction))
+    {
+    }
   };
 
   /**
@@ -151,24 +147,24 @@ protected:
                                                             //!< constraints and variables from
                                                             //!< multiple sensors and motions models
                                                             //!< before being applied to the graph.
-  std::mutex combined_transaction_mutex_;  //!< Synchronize access to the combined transaction
-                                           //!< across different threads
-  ParameterType params_;  //!< Configuration settings for this optimizer
-  std::atomic<bool> optimization_request_;  //!< Flag to trigger a new optimization
-  std::condition_variable optimization_requested_;  //!< Condition variable used by the optimization
-                                                    //!< thread to wait until a new optimization is
-                                                    //!< requested by the main thread
-  std::mutex optimization_requested_mutex_;  //!< Required condition variable mutex
-  std::thread optimization_thread_;  //!< Thread used to run the optimizer as a background process
+  std::mutex combined_transaction_mutex_;                   //!< Synchronize access to the combined transaction
+                                                            //!< across different threads
+  ParameterType params_;                                    //!< Configuration settings for this optimizer
+  std::atomic<bool> optimization_request_;                  //!< Flag to trigger a new optimization
+  std::condition_variable optimization_requested_;          //!< Condition variable used by the optimization
+                                                            //!< thread to wait until a new optimization is
+                                                            //!< requested by the main thread
+  std::mutex optimization_requested_mutex_;                 //!< Required condition variable mutex
+  std::thread optimization_thread_;              //!< Thread used to run the optimizer as a background process
   rclcpp::TimerBase::SharedPtr optimize_timer_;  //!< Trigger an optimization operation at a fixed
                                                  //!< frequency
-  TransactionQueue pending_transactions_;  //!< The set of received transactions that have not been
-                                           //!< added to the optimizer yet. Transactions are added
-                                           //!< by the main thread, and removed and processed by the
-                                           //!< optimization thread.
-  std::mutex pending_transactions_mutex_;  //!< Synchronize modification of the
-                                           //!< pending_transactions_ container
-  rclcpp::Time start_time_;  //!< The timestamp of the first ignition sensor transaction
+  TransactionQueue pending_transactions_;        //!< The set of received transactions that have not been
+                                                 //!< added to the optimizer yet. Transactions are added
+                                                 //!< by the main thread, and removed and processed by the
+                                                 //!< optimization thread.
+  std::mutex pending_transactions_mutex_;        //!< Synchronize modification of the
+                                                 //!< pending_transactions_ container
+  rclcpp::Time start_time_;                      //!< The timestamp of the first ignition sensor transaction
   bool started_;  //!< Flag indicating the optimizer is ready/has received a transaction from an
                   //!< ignition sensor
 
@@ -215,15 +211,13 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel
    *                        plugin
    */
-  void transactionCallback(
-    const std::string & sensor_name,
-    fuse_core::Transaction::SharedPtr transaction) override;
+  void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) override;
 
   /**
-   * @brief Update and publish diagnotics
+   * @brief Update and publish diagnostics
    * @param[in] status The diagnostic status
    */
-  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & status) override;
+  void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status) override;
 };
 
 }  // namespace fuse_optimizers

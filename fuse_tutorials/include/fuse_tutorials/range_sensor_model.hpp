@@ -43,7 +43,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-
 namespace fuse_tutorials
 {
 /**
@@ -129,16 +128,15 @@ public:
    * optimizer node. We do, however, specify the number of threads to use to spin the callback
    * queue. Generally this will be 1, unless you have a good reason to use a multi-threaded spinner.
    */
-  RangeSensorModel()
-  : fuse_core::AsyncSensorModel(1), logger_(rclcpp::get_logger("uninitialized")) {}
+  RangeSensorModel() : fuse_core::AsyncSensorModel(1), logger_(rclcpp::get_logger("uninitialized"))
+  {
+  }
 
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
-  void initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name,
-    fuse_core::TransactionCallback transaction_callback) override;
+  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Receives the set of known beacon positions
@@ -151,7 +149,7 @@ public:
    *
    * @param[in] msg - Message containing the database of known but noisy beacon positions.
    */
-  void priorBeaconsCallback(const sensor_msgs::msg::PointCloud2 & msg);
+  void priorBeaconsCallback(const sensor_msgs::msg::PointCloud2& msg);
 
   /**
    * @brief Callback for range measurement messages
@@ -162,7 +160,7 @@ public:
    *
    * @param[in] msg - The range message to process
    */
-  void rangesCallback(const sensor_msgs::msg::PointCloud2 & msg);
+  void rangesCallback(const sensor_msgs::msg::PointCloud2& msg);
 
 protected:
   /**
@@ -192,12 +190,10 @@ protected:
     double sigma;
   };
 
-  fuse_core::node_interfaces::NodeInterfaces<
-    fuse_core::node_interfaces::Base,
-    fuse_core::node_interfaces::Logging,
-    fuse_core::node_interfaces::Topics,
-    fuse_core::node_interfaces::Waitables
-  > interfaces_;  //!< Shadows AsyncSensorModel interfaces_
+  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
+                                             fuse_core::node_interfaces::Topics,
+                                             fuse_core::node_interfaces::Waitables>
+      interfaces_;  //!< Shadows AsyncSensorModel interfaces_
 
   rclcpp::Logger logger_;  //!< The sensor model's logger
 
@@ -205,7 +201,7 @@ protected:
 
   //!< ROS subscription for the database of prior beacon positions
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr beacon_sub_;
-  bool initialized_ {false};  //!< Flag indicating the initial beacon positions have been processed
+  bool initialized_{ false };  //!< Flag indicating the initial beacon positions have been processed
 
   //!< ROS subscription for the range sensor measurements
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_;

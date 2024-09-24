@@ -52,7 +52,6 @@
 #include <pluginlib/class_loader.hpp>
 #include <rclcpp/rclcpp.hpp>
 
-
 namespace fuse_optimizers
 {
 
@@ -104,10 +103,8 @@ public:
    * @param[in] interfaces          The node interfaces for the node driving the optimizer
    * @param[in] graph               The graph used with the optimizer
    */
-  Optimizer(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    fuse_core::Graph::UniquePtr graph = nullptr
-  );
+  Optimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+            fuse_core::Graph::UniquePtr graph = nullptr);
 
   /**
    * @brief Destructor
@@ -134,8 +131,7 @@ protected:
      * @param[in] model The sensor model
      * @param[in] ignition Whether this sensor model is an ignition one or not
      */
-    SensorModelInfo(SensorModelUniquePtr model, const bool ignition)
-    : model(std::move(model)), ignition(ignition)
+    SensorModelInfo(SensorModelUniquePtr model, const bool ignition) : model(std::move(model)), ignition(ignition)
     {
     }
 
@@ -157,12 +153,12 @@ protected:
 
   AssociatedMotionModels associated_motion_models_;  //!< Tracks what motion models should be used
                                                      //!< for each sensor
-  fuse_core::Graph::UniquePtr graph_;  //!< The graph object that holds all variables and
-                                       //!< constraints
+  fuse_core::Graph::UniquePtr graph_;                //!< The graph object that holds all variables and
+                                                     //!< constraints
 
   pluginlib::ClassLoader<fuse_core::MotionModel> motion_model_loader_;  //!< Pluginlib class loader
                                                                         //!< for MotionModels
-  MotionModels motion_models_;  //!< The set of motion models, addressable by name
+  MotionModels motion_models_;                                     //!< The set of motion models, addressable by name
   pluginlib::ClassLoader<fuse_core::Publisher> publisher_loader_;  //!< Pluginlib class loader for
                                                                    //!< Publishers
   Publishers publishers_;  //!< The set of publishers to execute after every graph optimization
@@ -174,7 +170,6 @@ protected:
 
   std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
 
-
   /**
    * @brief Callback fired every time a SensorModel plugin creates a new transaction
    *
@@ -184,9 +179,7 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel
    *                        plugin
    */
-  virtual void transactionCallback(
-    const std::string & sensor_name,
-    fuse_core::Transaction::SharedPtr transaction) = 0;
+  virtual void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) = 0;
 
   /**
    * @brief Configure the motion model plugins specified on the parameter server
@@ -225,9 +218,7 @@ protected:
    * @return                 Flag indicating if all motion model constraints were successfully
    *                         generated
    */
-  bool applyMotionModels(
-    const std::string & sensor_name,
-    fuse_core::Transaction & transaction) const;
+  bool applyMotionModels(const std::string& sensor_name, fuse_core::Transaction& transaction) const;
 
   /**
    * @brief Send the sensors, motion models, and publishers updated graph information
@@ -236,9 +227,7 @@ protected:
    *                        removals
    * @param[in] graph       A read-only pointer to the graph object
    */
-  void notify(
-    fuse_core::Transaction::ConstSharedPtr transaction,
-    fuse_core::Graph::ConstSharedPtr graph);
+  void notify(fuse_core::Transaction::ConstSharedPtr transaction, fuse_core::Graph::ConstSharedPtr graph);
 
   /**
    * @brief Inject a transaction callback function into the global callback queue
@@ -247,9 +236,7 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel
    *                        plugin
    */
-  void injectCallback(
-    const std::string & sensor_name,
-    fuse_core::Transaction::SharedPtr transaction);
+  void injectCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction);
 
   /**
    * @brief Clear all of the callbacks inserted into the callback queue by the injectCallback()
@@ -268,10 +255,10 @@ protected:
   void stopPlugins();
 
   /**
-   * @brief Update and publish diagnotics
+   * @brief Update and publish diagnostics
    * @param[in] status The diagnostic status
    */
-  virtual void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper & status);
+  virtual void setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& status);
 };
 
 }  // namespace fuse_optimizers

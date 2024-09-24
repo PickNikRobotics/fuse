@@ -127,10 +127,8 @@ public:
    * @param[in] transaction_callback The function to call every time a transaction is published
    * @throws runtime_error if already initialized
    */
-  void initialize(
-    node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-    const std::string & name,
-    TransactionCallback transaction_callback) override;
+  void initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, const std::string& name,
+                  TransactionCallback transaction_callback) override;
 
   /**
    * @brief Send a transaction to the Optimizer
@@ -152,7 +150,10 @@ public:
   /**
    * @brief Get the unique name of this sensor
    */
-  const std::string & name() const override {return name_;}
+  const std::string& name() const override
+  {
+    return name_;
+  }
 
   /**
    * @brief Function to be executed whenever the optimizer is ready to receive transactions
@@ -205,8 +206,8 @@ protected:
 
   //! The function to be executed every time a Transaction is "published"
   TransactionCallback transaction_callback_;
-  size_t executor_thread_count_{1};
-  std::thread spinner_;  //!< Internal thread for spinning the executor
+  size_t executor_thread_count_{ 1 };
+  std::thread spinner_;                    //!< Internal thread for spinning the executor
   std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
 
   /**
@@ -235,7 +236,9 @@ protected:
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
    *                  whenever needed.
    */
-  virtual void onGraphUpdate(Graph::ConstSharedPtr /*graph*/) {}
+  virtual void onGraphUpdate(Graph::ConstSharedPtr /*graph*/)
+  {
+  }
 
   /**
    * @brief Perform any required initialization for the sensor model
@@ -247,7 +250,9 @@ protected:
    * Derived sensor models classes must implement this function, because otherwise I'm not sure
    * how the derived sensor model would actually do anything.
    */
-  virtual void onInit() {}
+  virtual void onInit()
+  {
+  }
 
   /**
    * @brief Perform any required operations to prepare for sending transactions to the optimizer
@@ -258,7 +263,9 @@ protected:
    * The sensor model must not send any transactions to the optimizer before onStart() is
    * called.
    */
-  virtual void onStart() {}
+  virtual void onStart()
+  {
+  }
 
   /**
    * @brief Perform any required operations to stop sending transactions to the optimizer
@@ -268,7 +275,9 @@ protected:
    *
    * The sensor model must not send any transactions to the optimizer after stop() is called.
    */
-  virtual void onStop() {}
+  virtual void onStop()
+  {
+  }
 
 private:
   //! Stop the internal executor thread (in order to use this class again it must be re-initialized)

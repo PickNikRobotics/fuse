@@ -7,7 +7,7 @@ Changelog for package fuse_core
 
 1.1.1 (2024-05-02)
 ------------------
-* Required formatting changes for the lastest version of ROS 2 Rolling (`#368 <https://github.com/locusrobotics/fuse/issues/368>`_)
+* Required formatting changes for the latest version of ROS 2 Rolling (`#368 <https://github.com/locusrobotics/fuse/issues/368>`_)
 * Contributors: Stephen Williams
 
 1.1.0 (2024-04-20)

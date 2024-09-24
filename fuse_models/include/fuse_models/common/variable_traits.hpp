@@ -45,106 +45,105 @@
 #include <fuse_variables/velocity_linear_2d_stamped.hpp>
 #include <fuse_variables/velocity_linear_3d_stamped.hpp>
 
-
 namespace fuse_models
 {
 
 namespace common
 {
 
-template<typename T>
+template <typename T>
 struct is_linear_2d
 {
   static const bool value = false;
 };
 
-template<>
+template <>
 struct is_linear_2d<fuse_variables::AccelerationLinear2DStamped>
 {
   static const bool value = true;
 };
 
-template<>
+template <>
 struct is_linear_2d<fuse_variables::VelocityLinear2DStamped>
 {
   static const bool value = true;
 };
 
-template<>
+template <>
 struct is_linear_2d<fuse_variables::Position2DStamped>
 {
   static const bool value = true;
 };
 
-template<typename T>
+template <typename T>
 struct is_linear_3d
 {
   static const bool value = false;
 };
 
-template<>
+template <>
 struct is_linear_3d<fuse_variables::AccelerationLinear3DStamped>
 {
   static const bool value = true;
 };
 
-template<>
+template <>
 struct is_linear_3d<fuse_variables::VelocityLinear3DStamped>
 {
   static const bool value = true;
 };
 
-template<>
+template <>
 struct is_linear_3d<fuse_variables::Position3DStamped>
 {
   static const bool value = true;
 };
 
-template<typename T>
+template <typename T>
 struct is_angular_2d
 {
   static const bool value = false;
 };
 
-template<>
+template <>
 struct is_angular_2d<fuse_variables::Orientation2DStamped>
 {
   static const bool value = true;
 };
 
-template<>
+template <>
 struct is_angular_2d<fuse_variables::VelocityAngular2DStamped>
 {
   static const bool value = true;
 };
 
-template<typename T>
+template <typename T>
 struct is_angular_3d
 {
   static const bool value = false;
 };
-template<>
+template <>
 struct is_angular_3d<fuse_variables::Orientation3DStamped>
 {
   static const bool value = true;
 };
-template<>
+template <>
 struct is_angular_3d<fuse_variables::VelocityAngular3DStamped>
 {
   static const bool value = true;
 };
 
-template<typename T>
+template <typename T>
 struct is_orientation
 {
   static const bool value = false;
 };
-template<>
+template <>
 struct is_orientation<fuse_variables::Orientation2DStamped>
 {
   static const bool value = true;
 };
-template<>
+template <>
 struct is_orientation<fuse_variables::Orientation3DStamped>
 {
   static const bool value = true;
