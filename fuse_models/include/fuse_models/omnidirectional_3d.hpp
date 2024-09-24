@@ -31,12 +31,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__UNICYCLE_3D_HPP_
-#define FUSE_MODELS__UNICYCLE_3D_HPP_
+#ifndef FUSE_MODELS__OMNIDIRECTIONAL_3D_HPP_
+#define FUSE_MODELS__OMNIDIRECTIONAL_3D_HPP_
 
 #include <map>
 #include <string>
-#include <utility>
 #include <vector>
 
 #include <fuse_core/async_motion_model.hpp>
@@ -229,8 +228,8 @@ protected:
   StateHistory state_history_;                     //!< History of optimized graph pose estimates
 };
 
-std::ostream& operator<<(std::ostream& stream, const Omnidirectional3D& unicycle_2d);
+std::ostream& operator<<(std::ostream& stream, const Omnidirectional3D& omnidirectional_3d);
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__UNICYCLE_3D_HPP_
+#endif  // FUSE_MODELS__OMNIDIRECTIONAL_3D_HPP_

@@ -34,7 +34,6 @@
 #ifndef FUSE_TUTORIALS__RANGE_SENSOR_MODEL_HPP_
 #define FUSE_TUTORIALS__RANGE_SENSOR_MODEL_HPP_
 
-#include <memory>
 #include <string>
 #include <unordered_map>
 

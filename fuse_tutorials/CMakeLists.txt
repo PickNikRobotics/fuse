@@ -45,6 +45,10 @@ target_link_libraries(
 add_executable(range_sensor_simulator src/range_sensor_simulator.cpp)
 target_link_libraries(range_sensor_simulator ${PROJECT_NAME})
 
+add_executable(three_dimensional_IMU_simulator
+               src/three_dimensional_imu_simulator.cpp)
+target_link_libraries(three_dimensional_IMU_simulator ${PROJECT_NAME})
+
 # ##############################################################################
 # Install ##
 # ##############################################################################
@@ -59,6 +63,7 @@ install(
 install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
 
 install(TARGETS range_sensor_simulator DESTINATION lib/${PROJECT_NAME})
+install(TARGETS three_dimensional_IMU_simulator DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch config data DESTINATION share/${PROJECT_NAME})
 
