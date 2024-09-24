@@ -61,7 +61,7 @@ jobs:
         run: |
           . /opt/ros/rolling/setup.sh
           . /colcon_ws/install/local_setup.sh
-          colcon test --event-handlers console_direct+ --retest-until-pass 3
+          colcon test --event-handlers console_direct+ --packages-select-regex fuse*
         working-directory: /colcon_ws
 
       # `colcon test` does not actually error on failure - run `colcon test-result` to generate a summary and an error code.
