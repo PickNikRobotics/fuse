@@ -24,9 +24,6 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: VCS import
-        run: vcs import src --input src/fuse/fuse.repos; rosdep install --ignore-src --from-paths src -y -r
-
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
 
