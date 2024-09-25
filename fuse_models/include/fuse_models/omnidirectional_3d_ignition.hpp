@@ -57,7 +57,7 @@ namespace fuse_models
  *        motion model.
  *
  * This class publishes a transaction that contains a prior on each state subvariable used in the
- * Omnidirectional 3D motion model (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel,
+ * omnidirectional 3D motion model (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel,
  * yaw_vel, x_acc, y_acc, z_acc). When the sensor is first loaded, it publishes a single transaction
  * with the configured initial state and covariance.
  * Additionally, whenever a pose is received, either on the set_pose service or the topic, this
