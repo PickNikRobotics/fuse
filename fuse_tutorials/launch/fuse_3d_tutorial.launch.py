@@ -33,7 +33,6 @@ def generate_launch_description():
                 output="screen",
                 # prefix=["gdbserver localhost:3000"],
             ),
-            SetParameter(name="use_sim_time", value=True),
             Node(
                 package="fuse_optimizers",
                 executable="fixed_lag_smoother_node",
@@ -41,6 +40,7 @@ def generate_launch_description():
                 parameters=[
                     PathJoinSubstitution([pkg_dir, "config", "fuse_3d_tutorial.yaml"])
                 ],
+                # prefix=["gdbserver localhost:3000"],
             ),
             Node(
                 package="rviz2",

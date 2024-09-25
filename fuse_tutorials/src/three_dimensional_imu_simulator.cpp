@@ -32,7 +32,10 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <tf2/LinearMath/Quaternion.h>
+#include <chrono>
 #include <cmath>
+#include <fuse_core/eigen.hpp>
+#include <Eigen/Core>
 #include <memory>
 #include <random>
 
@@ -185,7 +188,69 @@ sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
   msg->angular_velocity_covariance[0] = IMU_SIGMA * IMU_SIGMA;
   msg->angular_velocity_covariance[4] = IMU_SIGMA * IMU_SIGMA;
   msg->angular_velocity_covariance[8] = IMU_SIGMA * IMU_SIGMA;
+
+  Eigen::Matrix3d acov;
+  Eigen::Matrix3d cov;
+  for (std::size_t i = 0; i < 9; ++i)
+  {
+    acov(i) = msg->angular_velocity_covariance[i];
+    cov(i) = msg->linear_acceleration_covariance[i];
+  }
+  if (!fuse_core::isSymmetric(cov) || !fuse_core::isSymmetric(acov))
+  {
+    std::cout << "Help" << std::endl;
+  }
   return msg;
+}
+
+void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                               const Robot& state, const rclcpp::Clock::SharedPtr& clock, const rclcpp::Logger& logger)
+{
+  // Send the initial localization signal to the state estimator
+  auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();
+  srv->pose.header.frame_id = MAP_FRAME;
+  srv->pose.pose.pose.position.x = state.x;
+  srv->pose.pose.pose.position.y = state.y;
+  srv->pose.pose.pose.position.z = state.z;
+  tf2::Quaternion q;
+  q.setEuler(state.yaw, state.pitch, state.roll);
+  srv->pose.pose.pose.orientation.w = q.w();
+  srv->pose.pose.pose.orientation.x = q.x();
+  srv->pose.pose.pose.orientation.y = q.y();
+  srv->pose.pose.pose.orientation.z = q.z();
+  srv->pose.pose.covariance[0] = 1.0;
+  srv->pose.pose.covariance[7] = 1.0;
+  srv->pose.pose.covariance[14] = 1.0;
+  srv->pose.pose.covariance[21] = 1.0;
+  srv->pose.pose.covariance[28] = 1.0;
+  srv->pose.pose.covariance[35] = 1.0;
+
+  auto client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
+      interfaces.get_node_base_interface(), interfaces.get_node_graph_interface(),
+      interfaces.get_node_services_interface(), "/state_estimation/set_pose_service", rclcpp::ServicesQoS());
+
+  while (!client->wait_for_service(std::chrono::seconds(30)) &&
+         interfaces.get_node_base_interface()->get_context()->is_valid())
+  {
+    RCLCPP_WARN_STREAM(logger, "Waiting for '" << client->get_service_name() << "' service to become available.");
+  }
+
+  auto success = false;
+  while (!success)
+  {
+    clock->sleep_for(std::chrono::milliseconds(100));
+    srv->pose.header.stamp = clock->now();
+    auto result_future = client->async_send_request(srv);
+
+    if (rclcpp::spin_until_future_complete(interfaces.get_node_base_interface(), result_future,
+                                           std::chrono::seconds(1)) != rclcpp::FutureReturnCode::SUCCESS)
+    {
+      RCLCPP_ERROR(logger, "service call failed :(");
+      client->remove_pending_request(result_future);
+      return;
+    }
+    success = result_future.get()->success;
+  }
 }
 
 int main(int argc, char** argv)
@@ -208,7 +273,9 @@ int main(int argc, char** argv)
   state.stamp = node->now();
   state.mass = 10;  // kg
 
-  auto rate = rclcpp::Rate(10.0);
+  auto rate = rclcpp::Rate(100.0);
+
+  // initializeStateEstimation(*node, state, clock, logger);
 
   while (rclcpp::ok())
   {

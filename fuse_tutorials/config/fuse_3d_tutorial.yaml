@@ -25,13 +25,14 @@ state_estimator:
     initial_localization_sensor:
       publish_on_startup: true
       # x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, x_acc, y_acc, z_acc
-      initial_state: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
-      initial_sigma: [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.000]
+      initial_state: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      initial_sigma: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
     imu_sensor:
       topic: 'imu'
-      twist_target_frame: 'base_footprint'
-      angular_velocity_dimensions: ['yaw']
+      twist_target_frame: 'base_link'
+      linear_acceleration_dimensions: ['x', 'y', 'z']
+      angular_velocity_dimensions: ['roll', 'pitch', 'yaw']
 
     publishers:
       filtered_publisher:
@@ -39,7 +40,7 @@ state_estimator:
 
     filtered_publisher:
       topic: 'odom_filtered'
-      base_link_frame_id: 'base_footprint'
+      base_link_frame_id: 'base_link'
       odom_frame_id: 'odom'
       map_frame_id: 'map'
       world_frame_id: 'odom'
