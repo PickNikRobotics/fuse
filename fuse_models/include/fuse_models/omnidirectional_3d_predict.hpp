@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__UNICYCLE_3D_PREDICT_HPP_
-#define FUSE_MODELS__UNICYCLE_3D_PREDICT_HPP_
+#ifndef FUSE_MODELS__OMNIDIRECTIONAL_3D_PREDICT_HPP_
+#define FUSE_MODELS__OMNIDIRECTIONAL_3D_PREDICT_HPP_
 
 #include <Eigen/Core>
 
@@ -503,4 +503,4 @@ inline void predict(const fuse_core::Vector3d& position1, const Eigen::Quaternio
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__UNICYCLE_3D_PREDICT_HPP_
+#endif  // FUSE_MODELS__OMNIDIRECTIONAL_3D_PREDICT_HPP_
