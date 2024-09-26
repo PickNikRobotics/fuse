@@ -30,7 +30,7 @@ state_estimator:
 
     imu_sensor:
       topic: 'imu'
-      twist_target_frame: 'base_link'
+      acceleration_target_frame: 'base_link'
       linear_acceleration_dimensions: ['x', 'y', 'z']
       angular_velocity_dimensions: ['roll', 'pitch', 'yaw']
 

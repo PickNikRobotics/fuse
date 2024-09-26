@@ -188,18 +188,6 @@ sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
   msg->angular_velocity_covariance[0] = IMU_SIGMA * IMU_SIGMA;
   msg->angular_velocity_covariance[4] = IMU_SIGMA * IMU_SIGMA;
   msg->angular_velocity_covariance[8] = IMU_SIGMA * IMU_SIGMA;
-
-  Eigen::Matrix3d acov;
-  Eigen::Matrix3d cov;
-  for (std::size_t i = 0; i < 9; ++i)
-  {
-    acov(i) = msg->angular_velocity_covariance[i];
-    cov(i) = msg->linear_acceleration_covariance[i];
-  }
-  if (!fuse_core::isSymmetric(cov) || !fuse_core::isSymmetric(acov))
-  {
-    std::cout << "Help" << std::endl;
-  }
   return msg;
 }
 
