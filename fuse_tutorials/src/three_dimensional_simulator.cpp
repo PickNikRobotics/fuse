@@ -53,6 +53,9 @@ static constexpr char BASELINK_FRAME[] = "base_link";  //!< The base_link frame 
 static constexpr char MAP_FRAME[] = "map";             //!< The map frame id used when publishing ground truth
                                                        //!< data
 static constexpr double IMU_SIGMA = 0.1;               //!< Std dev of simulated Imu measurement noise
+static constexpr char ODOM_FRAME[] = "odom";           //!< The odom frame id used when publishing wheel
+static constexpr double ODOM_POSITION_SIGMA = 0.5;     //!< Std dev of simulated odom position measurement noise
+static constexpr double ODOM_ORIENTATION_SIGMA = 0.1;  //!< Std dev of simulated odom orientation measurement noise
 
 /**
  * @brief The true pose and velocity of the robot
@@ -191,6 +194,38 @@ sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
   return msg;
 }
 
+nav_msgs::msg::Odometry::SharedPtr simulateOdometry(const Robot& robot)
+{
+  static std::random_device rd{};
+  static std::mt19937 generator{ rd() };
+  static std::normal_distribution<> position_noise{ 0.0, ODOM_POSITION_SIGMA };
+
+  auto msg = std::make_shared<nav_msgs::msg::Odometry>();
+  msg->header.stamp = robot.stamp;
+  msg->header.frame_id = ODOM_FRAME;
+  msg->child_frame_id = BASELINK_FRAME;
+
+  // noisy position measurement
+  msg->pose.pose.position.x = robot.x + position_noise(generator);
+  msg->pose.pose.position.y = robot.y + position_noise(generator);
+  msg->pose.pose.position.z = robot.z + position_noise(generator);
+  msg->pose.covariance[0] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
+  msg->pose.covariance[7] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
+  msg->pose.covariance[14] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
+
+  // noisy orientation measurement
+  tf2::Quaternion q;
+  q.setEuler(robot.yaw, robot.pitch, robot.roll);
+  msg->pose.pose.orientation.w = q.w();
+  msg->pose.pose.orientation.x = q.x();
+  msg->pose.pose.orientation.y = q.y();
+  msg->pose.pose.orientation.z = q.z();
+  msg->pose.covariance[21] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
+  msg->pose.covariance[28] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
+  msg->pose.covariance[35] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
+  return msg;
+}
+
 void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
                                const Robot& state, const rclcpp::Clock::SharedPtr& clock, const rclcpp::Logger& logger)
 {
@@ -243,54 +278,71 @@ void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FU
 
 int main(int argc, char** argv)
 {
-  double const motion_duration = 5;
-  double const N_cycles = 2;
+  // set up our ROS node
   rclcpp::init(argc, argv);
-  auto node = rclcpp::Node::make_shared("range_sensor_simulator");
-  auto logger = node->get_logger();
-  auto clock = node->get_clock();
+  auto node = rclcpp::Node::make_shared("three_dimensional_simulator");
 
-  auto latched_qos = rclcpp::QoS(1);
-  latched_qos.transient_local();
-
+  // create our sensor publishers
   auto imu_publisher = node->create_publisher<sensor_msgs::msg::Imu>("imu", 1);
+  auto odom_publisher = node->create_publisher<nav_msgs::msg::Odometry>("odom", 1);
+
+  // create the ground truth publisher
   auto ground_truth_publisher = node->create_publisher<nav_msgs::msg::Odometry>("ground_truth", 1);
 
-  // Initialize the robot state
+  // Initialize the robot state (state variables are zero-initialized)
   auto state = Robot();
   state.stamp = node->now();
   state.mass = 10;  // kg
 
+  // you can modify the rate at which this loop runs to see the different performance of the estimator and the effect of
+  // integration inaccuracy on the ground truth
   auto rate = rclcpp::Rate(100.0);
 
-  // initializeStateEstimation(*node, state, clock, logger);
+  // normally we would have to initialize the state estimation, but we included an ignition 'sensor' in our config,
+  // which takes care of that.
+
+  // parameters that control the motion pattern of the robot
+  double const motion_duration = 5;  // length of time to oscillate on a given axis, in seconds
+  double const N_cycles = 2;         // number of oscillations per `motion_duration`
 
   while (rclcpp::ok())
   {
+    // store the first time this runs (since it won't start running exactly at a multiple of `motion_duration`)
     static auto const first_time = node->now();
-    // Apply a harmonic force in x, y, and z sequentially to the robot
     auto const now = node->now();
 
+    // compensate for the original time offset
     double now_d = (now - first_time).seconds();
-
+    // store how long it has been (resetting at `motion_duration` seconds)
     double mod_time = std::fmod(now_d, motion_duration);
 
     // apply a harmonic force (oscillates `N_cycles` times per `motion_duration`)
-    double const force = 100 * std::cos(2 * M_PI * N_cycles * mod_time / motion_duration);
+    double const force_magnitude = 100 * std::cos(2 * M_PI * N_cycles * mod_time / motion_duration);
     Eigen::Vector3d external_force = { 0, 0, 0 };
 
-    // switch oscillation axes every `motion_duration` seconds (with one rest period)
+    // switch oscillation axes every `motion_duration` seconds (with one 'rest period')
     if (std::fmod(now_d, 4 * motion_duration) < motion_duration)
     {
-      external_force.x() = force;
+      external_force.x() = force_magnitude;
     }
     else if (std::fmod(now_d, 4 * motion_duration) < 2 * motion_duration)
     {
-      external_force.y() = force;
+      external_force.y() = force_magnitude;
     }
     else if (std::fmod(now_d, 4 * motion_duration) < 3 * motion_duration)
     {
-      external_force.z() = force;
+      external_force.z() = force_magnitude;
+    }
+    else
+    {
+      // reset the robot's position and velocity, leave the external force as 0
+      // we do this so the ground truth doesn't drift (due to inaccuracy from euler integration)
+      state.x = 0;
+      state.y = 0;
+      state.z = 0;
+      state.vx = 0;
+      state.vy = 0;
+      state.vz = 0;
     }
 
     // Simulate the robot motion
@@ -299,8 +351,9 @@ int main(int argc, char** argv)
     // Publish the new ground truth
     ground_truth_publisher->publish(*robotToOdometry(new_state));
 
-    // Generate and publish simulated measurement from the new robot state
+    // Generate and publish simulated measurements from the new robot state
     imu_publisher->publish(*simulateImu(new_state));
+    odom_publisher->publish(*simulateOdometry(new_state));
 
     // Wait for the next time step
     state = new_state;

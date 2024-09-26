@@ -26,13 +26,21 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            # tell tf2 that map is the same as odom
+            # without this, visualization won't work as we have no reference
+            Node(
+                package="tf2_ros",
+                executable="static_transform_publisher",
+                arguments=["0", "0", "0", "0", "0", "0", "map", "odom"],
+            ),
+            # run our simulator
             Node(
                 package="fuse_tutorials",
-                executable="three_dimensional_IMU_simulator",
-                name="three_dimensional_IMU_simulator",
+                executable="three_dimensional_simulator",
+                name="three_dimensional_simulator",
                 output="screen",
-                # prefix=["gdbserver localhost:3000"],
             ),
+            # run our estimator
             Node(
                 package="fuse_optimizers",
                 executable="fixed_lag_smoother_node",
@@ -40,20 +48,20 @@ def generate_launch_description():
                 parameters=[
                     PathJoinSubstitution([pkg_dir, "config", "fuse_3d_tutorial.yaml"])
                 ],
-                # prefix=["gdbserver localhost:3000"],
             ),
+            # run visualization
             Node(
                 package="rviz2",
                 executable="rviz2",
                 name="rviz",
-                # arguments=[
-                #     "-d",
-                #     [
-                #         PathJoinSubstitution(
-                #             [pkg_dir, "config", "fuse_3d_tutorial.rviz"]
-                #         )
-                #     ],
-                # ],
+                arguments=[
+                    "-d",
+                    [
+                        PathJoinSubstitution(
+                            [pkg_dir, "config", "fuse_3d_tutorial.rviz"]
+                        )
+                    ],
+                ],
             ),
         ]
     )
