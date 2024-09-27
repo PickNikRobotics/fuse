@@ -50,7 +50,7 @@ state_estimator:
       filtered_publisher:
         type: fuse_models::Odometry3DPublisher
 
-    # the configuration of our
+    # the configuration of our output publisher
     filtered_publisher:
       topic: 'odom_filtered'
       base_link_frame_id: 'base_link'
