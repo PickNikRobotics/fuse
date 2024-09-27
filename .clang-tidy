@@ -1,26 +1,29 @@
----
-# This was copied over from the moveit_studio repository.
-#
-# TODO(henningkayser): Re-enable performance-unnecessary-value-param once #214 is resolved
-Checks:          '-*,
-                  performance-*,
-                  -performance-unnecessary-value-param,
-                  llvm-namespace-comment,
-                  modernize-redundant-void-arg,
-                  modernize-use-nullptr,
-                  modernize-use-default,
-                  modernize-use-override,
-                  modernize-loop-convert,
-                  readability-braces-around-statements,
-                  readability-named-parameter,
-                  readability-redundant-smartptr-get,
-                  readability-redundant-string-cstr,
-                  readability-simplify-boolean-expr,
-                  readability-container-size-empty,
-                  readability-identifier-naming,
-                  '
+Checks: -*,
+  bugprone-*,
+  clang-analyzer-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  google-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-exception-escape,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -google-readability-casting,
+  -misc-non-private-member-variables-in-classes,
+  -misc-use-anonymous-namespace,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -readability-function-cognitive-complexity,
+  -readability-magic-numbers,
+  -readability-uppercase-literal-suffix,
+  -cppcoreguidelines-pro-type-union-access,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -cppcoreguidelines-pro-type-vararg,
 HeaderFilterRegex: ''
-AnalyzeTemporaryDtors: false
 CheckOptions:
   - key:             llvm-namespace-comment.ShortNamespaceLines
     value:           '10'
