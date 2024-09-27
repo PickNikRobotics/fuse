@@ -37,11 +37,11 @@
 #ifndef FUSE_VARIABLES_PINHOLE_CAMERA_FIXED_H
 #define FUSE_VARIABLES_PINHOLE_CAMERA_FIXED_H
 
-#include <fuse_core/ceres_macros.h>
-#include <fuse_core/fuse_macros.h>
-#include <fuse_core/manifold.h>
-#include <fuse_core/serialization.h>
-#include <fuse_variables/pinhole_camera.h>
+#include <fuse_core/ceres_macros.hpp>
+#include <fuse_core/fuse_macros.hpp>
+#include <fuse_core/manifold.hpp>
+#include <fuse_core/serialization.hpp>
+#include <fuse_variables/pinhole_camera.hpp>
 
 #include <boost/serialization/access.hpp>
 #include <boost/serialization/base_object.hpp>

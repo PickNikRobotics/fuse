@@ -34,11 +34,11 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#include <fuse_variables/pinhole_camera_fixed.h>
+#include <fuse_variables/pinhole_camera_fixed.hpp>
 
-#include <fuse_core/uuid.h>
-#include <fuse_core/variable.h>
-#include <fuse_variables/point_2d_landmark.h>
+#include <fuse_core/uuid.hpp>
+#include <fuse_core/variable.hpp>
+#include <fuse_variables/point_2d_landmark.hpp>
 #include <pluginlib/class_list_macros.hpp>
 
 #include <boost/serialization/export.hpp>
