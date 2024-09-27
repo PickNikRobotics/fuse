@@ -57,8 +57,8 @@ PinholeCamera::PinholeCamera(const uint64_t& camera_id)
 {
 }
 
-PinholeCamera::PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id, const double& fx, const double& fy,
-                             const double& cx, const double& cy)
+PinholeCamera::PinholeCamera(const fuse_core::UUID& /*uuid*/, const uint64_t& camera_id, const double& fx,
+                             const double& fy, const double& cx, const double& cy)
   : PinholeCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id)
 {
   data_[FX] = fx;
