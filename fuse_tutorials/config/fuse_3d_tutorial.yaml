@@ -1,3 +1,4 @@
+# this yaml file is adapted from `fuse_simple_tutorial.yaml`
 state_estimator:
   ros__parameters:
     # Fixed-lag smoother configuration
