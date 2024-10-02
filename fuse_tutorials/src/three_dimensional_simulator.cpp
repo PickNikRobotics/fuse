@@ -130,7 +130,7 @@ nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
  */
 Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now, Eigen::Vector3d external_force)
 {
-  auto dt = (now - previous_state.stamp).seconds();
+  const auto dt = (now - previous_state.stamp).seconds();
   auto next_state = Robot();
   next_state.stamp = now;
   next_state.mass = previous_state.mass;
