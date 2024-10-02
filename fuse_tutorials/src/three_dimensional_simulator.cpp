@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2021, Locus Robotics
+ *  Copyright (c) 2024, PickNik Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -48,6 +48,8 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
+namespace
+{
 static constexpr char BASELINK_FRAME[] = "base_link";  //!< The base_link frame id used when
                                                        //!< publishing sensor data
 static constexpr char MAP_FRAME[] = "map";             //!< The map frame id used when publishing ground truth
@@ -56,6 +58,7 @@ static constexpr double IMU_SIGMA = 0.1;               //!< Std dev of simulated
 static constexpr char ODOM_FRAME[] = "odom";           //!< The odom frame id used when publishing wheel
 static constexpr double ODOM_POSITION_SIGMA = 0.5;     //!< Std dev of simulated odom position measurement noise
 static constexpr double ODOM_ORIENTATION_SIGMA = 0.1;  //!< Std dev of simulated odom orientation measurement noise
+}  // namespace
 
 /**
  * @brief The true pose and velocity of the robot
@@ -86,51 +89,51 @@ struct Robot
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
-nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
+nav_msgs::msg::Odometry robotToOdometry(Robot const& state)
 {
-  auto msg = std::make_shared<nav_msgs::msg::Odometry>();
-  msg->header.stamp = state.stamp;
-  msg->header.frame_id = MAP_FRAME;
-  msg->child_frame_id = BASELINK_FRAME;
-  msg->pose.pose.position.x = state.x;
-  msg->pose.pose.position.y = state.y;
-  msg->pose.pose.position.z = state.z;
+  nav_msgs::msg::Odometry msg;
+  msg.header.stamp = state.stamp;
+  msg.header.frame_id = MAP_FRAME;
+  msg.child_frame_id = BASELINK_FRAME;
+  msg.pose.pose.position.x = state.x;
+  msg.pose.pose.position.y = state.y;
+  msg.pose.pose.position.z = state.z;
 
   tf2::Quaternion q;
   q.setEuler(state.yaw, state.pitch, state.roll);
-  msg->pose.pose.orientation.w = q.w();
-  msg->pose.pose.orientation.x = q.x();
-  msg->pose.pose.orientation.y = q.y();
-  msg->pose.pose.orientation.z = q.z();
-  msg->twist.twist.linear.x = state.vx;
-  msg->twist.twist.linear.y = state.vy;
-  msg->twist.twist.linear.z = state.vz;
-  msg->twist.twist.angular.x = state.vroll;
-  msg->twist.twist.angular.y = state.vpitch;
-  msg->twist.twist.angular.z = state.vyaw;
+  msg.pose.pose.orientation.w = q.w();
+  msg.pose.pose.orientation.x = q.x();
+  msg.pose.pose.orientation.y = q.y();
+  msg.pose.pose.orientation.z = q.z();
+  msg.twist.twist.linear.x = state.vx;
+  msg.twist.twist.linear.y = state.vy;
+  msg.twist.twist.linear.z = state.vz;
+  msg.twist.twist.angular.x = state.vroll;
+  msg.twist.twist.angular.y = state.vpitch;
+  msg.twist.twist.angular.z = state.vyaw;
 
   // set covariances
-  msg->pose.covariance[0] = 0.1;
-  msg->pose.covariance[7] = 0.1;
-  msg->pose.covariance[14] = 0.1;
-  msg->pose.covariance[21] = 0.1;
-  msg->pose.covariance[28] = 0.1;
-  msg->pose.covariance[35] = 0.1;
-  msg->twist.covariance[0] = 0.1;
-  msg->twist.covariance[7] = 0.1;
-  msg->twist.covariance[14] = 0.1;
-  msg->twist.covariance[21] = 0.1;
-  msg->twist.covariance[28] = 0.1;
-  msg->twist.covariance[35] = 0.1;
+  msg.pose.covariance[0] = 0.1;
+  msg.pose.covariance[7] = 0.1;
+  msg.pose.covariance[14] = 0.1;
+  msg.pose.covariance[21] = 0.1;
+  msg.pose.covariance[28] = 0.1;
+  msg.pose.covariance[35] = 0.1;
+  msg.twist.covariance[0] = 0.1;
+  msg.twist.covariance[7] = 0.1;
+  msg.twist.covariance[14] = 0.1;
+  msg.twist.covariance[21] = 0.1;
+  msg.twist.covariance[28] = 0.1;
+  msg.twist.covariance[35] = 0.1;
   return msg;
 }
 
 /**
  * @brief Compute the next robot state given the current robot state and a simulated step time
  */
-Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now, Eigen::Vector3d external_force)
+Robot simulateRobotMotion(Robot const& previous_state, rclcpp::Time const& now, Eigen::Vector3d const& external_force)
 {
-  const auto dt = (now - previous_state.stamp).seconds();
+  auto const dt = (now - previous_state.stamp).seconds();
   auto next_state = Robot();
   next_state.stamp = now;
   next_state.mass = previous_state.mass;
@@ -162,67 +165,67 @@ Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now, 
 /**
  * @brief Create a simulated Imu measurement from the current state
  */
-sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
+sensor_msgs::msg::Imu simulateImu(Robot const& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
   static std::normal_distribution<> noise{ 0.0, IMU_SIGMA };
 
-  auto msg = std::make_shared<sensor_msgs::msg::Imu>();
-  msg->header.stamp = robot.stamp;
-  msg->header.frame_id = BASELINK_FRAME;
+  sensor_msgs::msg::Imu msg;
+  msg.header.stamp = robot.stamp;
+  msg.header.frame_id = BASELINK_FRAME;
 
   // measure accel
-  msg->linear_acceleration.x = robot.ax + noise(generator);
-  msg->linear_acceleration.y = robot.ay + noise(generator);
-  msg->linear_acceleration.z = robot.az + noise(generator);
-  msg->linear_acceleration_covariance[0] = IMU_SIGMA * IMU_SIGMA;
-  msg->linear_acceleration_covariance[4] = IMU_SIGMA * IMU_SIGMA;
-  msg->linear_acceleration_covariance[8] = IMU_SIGMA * IMU_SIGMA;
+  msg.linear_acceleration.x = robot.ax + noise(generator);
+  msg.linear_acceleration.y = robot.ay + noise(generator);
+  msg.linear_acceleration.z = robot.az + noise(generator);
+  msg.linear_acceleration_covariance[0] = IMU_SIGMA * IMU_SIGMA;
+  msg.linear_acceleration_covariance[4] = IMU_SIGMA * IMU_SIGMA;
+  msg.linear_acceleration_covariance[8] = IMU_SIGMA * IMU_SIGMA;
 
-  // Simulated IMU does not provide orientation
-  msg->orientation_covariance[0] = -1;
-  msg->orientation_covariance[4] = -1;
-  msg->orientation_covariance[8] = -1;
+  // Simulated IMU does not provide orientation (negative covariance indicates this)
+  msg.orientation_covariance[0] = -1;
+  msg.orientation_covariance[4] = -1;
+  msg.orientation_covariance[8] = -1;
 
-  msg->angular_velocity.x = robot.vroll + noise(generator);
-  msg->angular_velocity.y = robot.vpitch + noise(generator);
-  msg->angular_velocity.z = robot.vyaw + noise(generator);
-  msg->angular_velocity_covariance[0] = IMU_SIGMA * IMU_SIGMA;
-  msg->angular_velocity_covariance[4] = IMU_SIGMA * IMU_SIGMA;
-  msg->angular_velocity_covariance[8] = IMU_SIGMA * IMU_SIGMA;
+  msg.angular_velocity.x = robot.vroll + noise(generator);
+  msg.angular_velocity.y = robot.vpitch + noise(generator);
+  msg.angular_velocity.z = robot.vyaw + noise(generator);
+  msg.angular_velocity_covariance[0] = IMU_SIGMA * IMU_SIGMA;
+  msg.angular_velocity_covariance[4] = IMU_SIGMA * IMU_SIGMA;
+  msg.angular_velocity_covariance[8] = IMU_SIGMA * IMU_SIGMA;
   return msg;
 }
 
-nav_msgs::msg::Odometry::SharedPtr simulateOdometry(const Robot& robot)
+nav_msgs::msg::Odometry simulateOdometry(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
   static std::normal_distribution<> position_noise{ 0.0, ODOM_POSITION_SIGMA };
 
-  auto msg = std::make_shared<nav_msgs::msg::Odometry>();
-  msg->header.stamp = robot.stamp;
-  msg->header.frame_id = ODOM_FRAME;
-  msg->child_frame_id = BASELINK_FRAME;
+  nav_msgs::msg::Odometry msg;
+  msg.header.stamp = robot.stamp;
+  msg.header.frame_id = ODOM_FRAME;
+  msg.child_frame_id = BASELINK_FRAME;
 
   // noisy position measurement
-  msg->pose.pose.position.x = robot.x + position_noise(generator);
-  msg->pose.pose.position.y = robot.y + position_noise(generator);
-  msg->pose.pose.position.z = robot.z + position_noise(generator);
-  msg->pose.covariance[0] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
-  msg->pose.covariance[7] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
-  msg->pose.covariance[14] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
+  msg.pose.pose.position.x = robot.x + position_noise(generator);
+  msg.pose.pose.position.y = robot.y + position_noise(generator);
+  msg.pose.pose.position.z = robot.z + position_noise(generator);
+  msg.pose.covariance[0] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
+  msg.pose.covariance[7] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
+  msg.pose.covariance[14] = ODOM_POSITION_SIGMA * ODOM_POSITION_SIGMA;
 
   // noisy orientation measurement
   tf2::Quaternion q;
   q.setEuler(robot.yaw, robot.pitch, robot.roll);
-  msg->pose.pose.orientation.w = q.w();
-  msg->pose.pose.orientation.x = q.x();
-  msg->pose.pose.orientation.y = q.y();
-  msg->pose.pose.orientation.z = q.z();
-  msg->pose.covariance[21] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
-  msg->pose.covariance[28] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
-  msg->pose.covariance[35] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
+  msg.pose.pose.orientation.w = q.w();
+  msg.pose.pose.orientation.x = q.x();
+  msg.pose.pose.orientation.y = q.y();
+  msg.pose.pose.orientation.z = q.z();
+  msg.pose.covariance[21] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
+  msg.pose.covariance[28] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
+  msg.pose.covariance[35] = ODOM_ORIENTATION_SIGMA * ODOM_ORIENTATION_SIGMA;
   return msg;
 }
 
@@ -248,7 +251,7 @@ void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FU
   srv->pose.pose.covariance[28] = 1.0;
   srv->pose.pose.covariance[35] = 1.0;
 
-  auto client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
+  auto const client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
       interfaces.get_node_base_interface(), interfaces.get_node_graph_interface(),
       interfaces.get_node_services_interface(), "/state_estimation/set_pose_service", rclcpp::ServicesQoS());
 
@@ -268,7 +271,7 @@ void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FU
     if (rclcpp::spin_until_future_complete(interfaces.get_node_base_interface(), result_future,
                                            std::chrono::seconds(1)) != rclcpp::FutureReturnCode::SUCCESS)
     {
-      RCLCPP_ERROR(logger, "service call failed :(");
+      RCLCPP_ERROR(logger, "set pose service call failed");
       client->remove_pending_request(result_future);
       return;
     }
@@ -349,11 +352,11 @@ int main(int argc, char** argv)
     auto new_state = simulateRobotMotion(state, now, external_force);
 
     // Publish the new ground truth
-    ground_truth_publisher->publish(*robotToOdometry(new_state));
+    ground_truth_publisher->publish(robotToOdometry(new_state));
 
     // Generate and publish simulated measurements from the new robot state
-    imu_publisher->publish(*simulateImu(new_state));
-    odom_publisher->publish(*simulateOdometry(new_state));
+    imu_publisher->publish(simulateImu(new_state));
+    odom_publisher->publish(simulateOdometry(new_state));
 
     // Wait for the next time step
     state = new_state;
