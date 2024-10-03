@@ -33,3 +33,6 @@
 
 # Python compiled bytecode files
 *.pyc
+
+# clang tidy fixes
+clang-tidy-fixes.yaml
