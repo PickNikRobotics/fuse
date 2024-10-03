@@ -8,7 +8,8 @@ set(TEST_TARGETS
     test_unicycle_2d_ignition
     test_omnidirectional_3d
     test_omnidirectional_3d_predict
-    test_omnidirectional_3d_state_cost_function)
+    test_omnidirectional_3d_state_cost_function
+    test_omnidirectional_3d_ignition)
 
 foreach(test_name ${TEST_TARGETS})
   ament_add_gtest("${test_name}" "${test_name}.cpp")
