@@ -94,7 +94,7 @@ jobs:
       - name: enable clang tidy in pre-commit
         run: export PRE_COMMIT_CLANG_TIDY=1
       - name: change pip cache owner
-        run: chown -R $(whoami) /github
+        run: chown -R $(whoami) /github && chown -R $(whoami) /home/runner/work/
       - uses: pre-commit/action@v3.0.1
         id: precommit
       - name: Upload pre-commit changes
