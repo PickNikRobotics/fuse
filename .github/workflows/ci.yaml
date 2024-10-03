@@ -89,6 +89,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install clang-format-18
       - name: Install clang-tidy
         run: sudo apt-get install clang-tidy-18
+      - name: Change directory
+        run: cd /colcon_ws/src/fuse
       - name: enable clang tidy in pre-commit
         run: export PRE_COMMIT_CLANG_TIDY=1
       - uses: pre-commit/action@v3.0.1
