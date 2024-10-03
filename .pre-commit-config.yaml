@@ -85,7 +85,7 @@ repos:
   - repo: local
     hooks:
       - id: clang-tidy
-        name: clang tidy
+        name: clang-tidy
         entry: run_clang_tidy.bash
         files: \.(cpp|hpp)$
         language: script
