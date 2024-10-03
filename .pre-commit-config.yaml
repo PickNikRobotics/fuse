@@ -81,3 +81,11 @@ repos:
           - "prettier@3.1.0"
           - "@prettier/plugin-xml@3.3.1"
         files: \.(xml|xacro)$
+
+  - repo: local
+    hooks:
+      - id: clang-tidy
+        name: clang tidy
+        entry: run_clang_tidy.bash
+        files: \.(cpp|hpp)$
+        language: script
