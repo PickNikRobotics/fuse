@@ -77,9 +77,6 @@ jobs:
       # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
       - build-ws
     runs-on: ubuntu-24.04
-    container:
-      # Run on the Docker image we tagged and pushed to a private repo in the job above
-      image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -94,7 +91,7 @@ jobs:
       - name: enable clang tidy in pre-commit
         run: export PRE_COMMIT_CLANG_TIDY=1
       - name: change pip cache owner
-        run: chown -R $(whoami) /github && chown -R $(whoami) /home/runner/work/
+        run: chown -R $(whoami) /github
       - uses: pre-commit/action@v3.0.1
         id: precommit
       - name: Upload pre-commit changes
