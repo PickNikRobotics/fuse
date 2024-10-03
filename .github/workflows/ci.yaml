@@ -93,6 +93,8 @@ jobs:
         run: cd /colcon_ws/src/fuse
       - name: enable clang tidy in pre-commit
         run: export PRE_COMMIT_CLANG_TIDY=1
+      - name: change pip cache owner
+        run: chown -R $(whoami) /github
       - uses: pre-commit/action@v3.0.1
         id: precommit
       - name: Upload pre-commit changes
