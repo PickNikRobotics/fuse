@@ -71,8 +71,8 @@ jobs:
         run: colcon test-result --verbose
         working-directory: /colcon_ws
 
-  clang-tidy:
-    name: Run clang-tidy
+  pre-commit:
+    name: Pre-commit
     needs:
       # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
       - build-ws
@@ -81,7 +81,20 @@ jobs:
       # Run on the Docker image we tagged and pushed to a private repo in the job above
       image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
     steps:
-      - name: Unit test workspace
-        run: |
-          run-clang-tidy -j $(nproc --all) -p /colcon_ws/build/
-        working-directory: /colcon_ws
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install clang-format
+        run: sudo apt-get install clang-format
+      - name: Install clang-tidy
+        run: sudo apt-get install clang-tidy
+      - name: enable clang tidy in pre-commit
+        run: export PRE_COMMIT_CLANG_TIDY=1
+      - uses: pre-commit/action@v3.0.1
+        id: precommit
+      - name: Upload pre-commit changes
+        if: failure() && steps.precommit.outcome == 'failure'
+        uses: rhaschke/upload-git-patch-action@main
+        with:
+          name: pre-commit
