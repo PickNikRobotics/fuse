@@ -86,7 +86,7 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install clang-format
-        run: sudo apt-get install clang-format-18
+        run: sudo apt-get update && sudo apt-get install clang-format-18
       - name: Install clang-tidy
         run: sudo apt-get install clang-tidy-18
       - name: enable clang tidy in pre-commit
