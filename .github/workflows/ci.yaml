@@ -89,7 +89,7 @@ jobs:
           files: |
             **.cpp
             **.hpp
-      - run: run-clang-tidy -j $(nproc --all) -p build/ src/fuse ${{ steps.changed-cpp-files.outputs.all_changed_files }} -export-fixes clang-tidy-fixes.yaml
+      - run: run-clang-tidy -j $(nproc --all) -p build/ src/fuse ${{ steps.changed-cpp-files.outputs.all_changed_files }} -export-fixes clang-tidy-fixes.yaml -config-file src/fuse/.clang-tidy
         working-directory: /colcon_ws
       - uses: asarium/clang-tidy-action@v1.0
         with:
