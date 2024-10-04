@@ -81,7 +81,15 @@ jobs:
       # Run on the Docker image we tagged and pushed to a private repo in the job above
       image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
     steps:
-      - run: run-clang-tidy -j $(nproc --all) -p build/ src/fuse -export-fixes clang-tidy-fixes.yaml
+      - name: Changed Files
+        id: changed-cpp-files
+        uses: tj-actions/changed-files@v45.0.3
+        with:
+          # Avoid using single or double quotes for multiline patterns
+          files: |
+            **.cpp
+            **.hpp
+      - run: run-clang-tidy -j $(nproc --all) -p build/ src/fuse ${{ steps.changed-cpp-files.outputs.all_changed_files }} -export-fixes clang-tidy-fixes.yaml
         working-directory: /colcon_ws
       - uses: asarium/clang-tidy-action@v1.0
         with:
