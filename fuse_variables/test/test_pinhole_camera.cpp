@@ -52,7 +52,7 @@ using fuse_variables::PinholeCamera;
 
 TEST(PinholeCamera, Type)
 {
-  PinholeCamera variable(0);
+  PinholeCamera const variable(0);
   EXPECT_EQ("fuse_variables::PinholeCamera", variable.type());
 }
 
@@ -60,24 +60,22 @@ TEST(PinholeCamera, UUID)
 {
   // Verify two positions with the same landmark ids produce the same uuids
   {
-    PinholeCamera variable1(0);
-    PinholeCamera variable2(0);
+    PinholeCamera const variable1(0);
+    PinholeCamera const variable2(0);
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two positions with the different landmark ids  produce different uuids
   {
-    PinholeCamera variable1(0);
-    PinholeCamera variable2(1);
+    PinholeCamera const variable1(0);
+    PinholeCamera const variable2(1);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 struct CostFunctor
 {
-  CostFunctor()
-  {
-  }
+  CostFunctor() = default;
 
   template <typename T>
   bool operator()(const T* const k, T* residual) const
@@ -273,7 +271,7 @@ struct ProjectionCostFunctor
   bool operator()(const T* const k, T* residual) const
   {
     // Do Projection Manually
-    std::array<std::array<T, 2>, 8> xp;
+    std::array<std::array<T, 2>, 8> xp{};
     for (uint i = 0; i < 8; i++)
     {
       xp[i][0] = (T(X[i][0]) * k[0] + T(X[i][2]) * k[2]) / T(X[i][2]);  // x = (x*f_x + z * c_x)/z
@@ -315,7 +313,7 @@ TEST(PinholeCamera, ProjectionOptimization)
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 
@@ -413,7 +411,7 @@ TEST(PinholeCamera, PerPointProjectionCostFunctor)
   }
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 
