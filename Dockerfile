@@ -20,7 +20,6 @@ WORKDIR /colcon_ws
 # hadolint ignore=SC1091
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=cache,target=/$HOME/.cache,sharing=locked \
     apt-get update && apt-get upgrade -y && \
     . /opt/ros/rolling/setup.sh && \
     rosdep install --from-paths src -y --ignore-src && \
