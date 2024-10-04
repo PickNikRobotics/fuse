@@ -427,7 +427,7 @@ TEST(PinholeCameraFixed, PerPointProjectionCostFunctor)
   }
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 
