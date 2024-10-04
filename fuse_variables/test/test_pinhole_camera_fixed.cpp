@@ -34,6 +34,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <cstddef>
 #include <fuse_core/serialization.hpp>
 #include <fuse_variables/pinhole_camera_fixed.hpp>
 #include <fuse_variables/stamped.hpp>
@@ -92,24 +93,24 @@ struct CostFunctor
 TEST(PinholeCameraFixed, Optimization)
 {
   // Create a Point3DLandmark
-  PinholeCameraFixed K(0);
-  K.fx() = 4.10;
-  K.fy() = 3.50;
-  K.cx() = 5.00;
-  K.cy() = 2.49;
+  PinholeCameraFixed k(0);
+  k.fx() = 4.10;
+  k.fy() = 3.50;
+  k.cx() = 5.00;
+  k.cy() = 2.49;
 
   // Create a simple a constraint
   ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<CostFunctor, 4, 4>(new CostFunctor());
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(K.data(), K.size());
+  problem.AddParameterBlock(k.data(), static_cast<int>(k.size()));
   std::vector<double*> parameter_blocks;
-  parameter_blocks.push_back(K.data());
+  parameter_blocks.push_back(k.data());
 
-  if (K.holdConstant())
+  if (k.holdConstant())
   {
-    problem.SetParameterBlockConstant(K.data());
+    problem.SetParameterBlockConstant(k.data());
   }
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
@@ -120,10 +121,10 @@ TEST(PinholeCameraFixed, Optimization)
   ceres::Solve(options, &problem, &summary);
 
   // Check
-  EXPECT_NEAR(4.10, K.fx(), 1.0e-5);
-  EXPECT_NEAR(3.50, K.fy(), 1.0e-5);
-  EXPECT_NEAR(5.00, K.cx(), 1.0e-5);
-  EXPECT_NEAR(2.49, K.cy(), 1.0e-5);
+  EXPECT_NEAR(4.10, k.fx(), 1.0e-5);
+  EXPECT_NEAR(3.50, k.fy(), 1.0e-5);
+  EXPECT_NEAR(5.00, k.cx(), 1.0e-5);
+  EXPECT_NEAR(2.49, k.cy(), 1.0e-5);
 }
 
 struct FuseProjectionCostFunctor
@@ -162,16 +163,16 @@ struct FuseProjectionCostFunctor
    */
 
   template <typename T>
-  bool operator()(const T* const k, T* residual) const
+  bool operator()(const T* const points, T* residual) const
   {
     // Create Matrix
-    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> K(3, 3);
-    K << k[0], T(0.0), k[2],     // NOLINT
-        T(0.0), k[1], k[3],      // NOLINT
-        T(0.0), T(0.0), T(1.0);  // NOLINT
+    Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> k(3, 3);
+    k << points[0], T(0.0), points[2],  // NOLINT
+        T(0.0), points[1], points[3],   // NOLINT
+        T(0.0), T(0.0), T(1.0);         // NOLINT
 
     Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> xp(8, 3);
-    xp = (K * X.cast<T>().transpose());
+    xp = (k * X.cast<T>().transpose());
 
     // TODO(omendez): There is probably a better way to do this using hnormalized on operation above.
     xp.transposeInPlace();
@@ -181,8 +182,8 @@ struct FuseProjectionCostFunctor
 
     for (uint i = 0; i < 8; i++)
     {
-      residual[i * 2] = T(d.row(i)[0]);
-      residual[i * 2 + 1] = T(d.row(i)[1]);
+      residual[static_cast<size_t>(i * 2)] = T(d.row(i)[0]);
+      residual[static_cast<size_t>(i * 2) + 1] = T(d.row(i)[1]);
     }
 
     return true;
@@ -192,11 +193,11 @@ struct FuseProjectionCostFunctor
 TEST(PinholeCameraFixed, FuseProjectionOptimization)
 {
   // Create a Camera to Optimize
-  PinholeCameraFixed K(0);
-  K.fx() = 640.0;  // fx == w
-  K.fy() = 640.0;  // fy == w
-  K.cx() = 320.0;  // cx == w/2
-  K.cy() = 240.0;  // cy == h/2
+  PinholeCameraFixed k(0);
+  k.fx() = 640.0;  // fx == w
+  k.fy() = 640.0;  // fy == w
+  k.cx() = 320.0;  // cx == w/2
+  k.cy() = 240.0;  // cy == h/2
 
   // Expected Intrinsics
   PinholeCameraFixed expected(0);
@@ -213,14 +214,14 @@ TEST(PinholeCameraFixed, FuseProjectionOptimization)
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(K.data(), K.size());
+  problem.AddParameterBlock(k.data(), static_cast<int>(k.size()));
   std::vector<double*> parameter_blocks;
-  parameter_blocks.push_back(K.data());
+  parameter_blocks.push_back(k.data());
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
-  if (K.holdConstant())
+  if (k.holdConstant())
   {
-    problem.SetParameterBlockConstant(K.data());
+    problem.SetParameterBlockConstant(k.data());
   }
 
   // Run the solver
@@ -230,16 +231,16 @@ TEST(PinholeCameraFixed, FuseProjectionOptimization)
   ceres::Solve(options, &problem, &summary);
 
   // Check
-  EXPECT_NEAR(expected.fx(), K.fx(), 0.1);  // 0.1 Pixel Error
-  EXPECT_NEAR(expected.fy(), K.fy(), 0.1);
-  EXPECT_NEAR(expected.cx(), K.cx(), 0.1);
-  EXPECT_NEAR(expected.cy(), K.cy(), 0.1);
+  EXPECT_NEAR(expected.fx(), k.fx(), 0.1);  // 0.1 Pixel Error
+  EXPECT_NEAR(expected.fy(), k.fy(), 0.1);
+  EXPECT_NEAR(expected.cx(), k.cx(), 0.1);
+  EXPECT_NEAR(expected.cy(), k.cy(), 0.1);
 }
 
 struct ProjectionCostFunctor
 {
-  double X[8][3];  // 3D Points (2x2 Cube at 0,0,10)
-  double x[8][2];  // 2D Points (Projection of Cube w/GT intrinsics)
+  std::array<std::array<double, 3>, 8> X;  // 3D Points (2x2 Cube at 0,0,10)
+  std::array<std::array<double, 2>, 8> x;  // 2D Points (Projection of Cube w/GT intrinsics)
   ProjectionCostFunctor()
     :  // Define 3D Points (2x2 Cube at 0,0,10)
     X  // NOLINT
@@ -282,7 +283,7 @@ struct ProjectionCostFunctor
   bool operator()(const T* const k, T* residual) const
   {
     // Do Projection Manually
-    T xp[8][2];
+    std::array<std::array<T, 2>, 8> xp;
     for (uint i = 0; i < 8; i++)
     {
       xp[i][0] = (T(X[i][0]) * k[0] + T(X[i][2]) * k[2]) / T(X[i][2]);  // x = (x*f_x + z * c_x)/z
@@ -290,8 +291,8 @@ struct ProjectionCostFunctor
 
       T xerr = xp[i][0] - T(x[i][0]);
       T yerr = xp[i][1] - T(x[i][1]);
-      residual[i * 2] = xerr;
-      residual[i * 2 + 1] = yerr;
+      residual[static_cast<size_t>(i * 2)] = xerr;
+      residual[static_cast<size_t>(i * 2) + 1] = yerr;
     }
     return true;
   }
@@ -300,7 +301,7 @@ struct ProjectionCostFunctor
 TEST(PinholeCameraFixed, ProjectionOptimization)
 {
   // Create a Camera to Optimize
-  PinholeCameraFixed K(0, 640, 640, 320, 240);
+  PinholeCameraFixed k(0, 640, 640, 320, 240);
 
   PinholeCameraFixed expected(0);
   expected.fx() = 640.0;
@@ -314,14 +315,14 @@ TEST(PinholeCameraFixed, ProjectionOptimization)
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(K.data(), K.size());
+  problem.AddParameterBlock(k.data(), static_cast<int>(k.size()));
   std::vector<double*> parameter_blocks;
-  parameter_blocks.push_back(K.data());
+  parameter_blocks.push_back(k.data());
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
-  if (K.holdConstant())
+  if (k.holdConstant())
   {
-    problem.SetParameterBlockConstant(K.data());
+    problem.SetParameterBlockConstant(k.data());
   }
 
   // Run the solver
@@ -330,10 +331,10 @@ TEST(PinholeCameraFixed, ProjectionOptimization)
   ceres::Solve(options, &problem, &summary);
 
   // Check
-  EXPECT_NEAR(expected.fx(), K.fx(), 1e-5);  // 0.1 Pixel Error
-  EXPECT_NEAR(expected.fy(), K.fy(), 1e-5);
-  EXPECT_NEAR(expected.cx(), K.cx(), 1e-5);
-  EXPECT_NEAR(expected.cy(), K.cy(), 1e-5);
+  EXPECT_NEAR(expected.fx(), k.fx(), 1e-5);  // 0.1 Pixel Error
+  EXPECT_NEAR(expected.fy(), k.fy(), 1e-5);
+  EXPECT_NEAR(expected.cx(), k.cx(), 1e-5);
+  EXPECT_NEAR(expected.cy(), k.cy(), 1e-5);
 }
 
 struct PerPointProjectionCostFunctor
@@ -376,11 +377,11 @@ struct PerPointProjectionCostFunctor
 TEST(PinholeCameraFixed, PerPointProjectionCostFunctor)
 {
   // Create a Camera to Optimize
-  PinholeCameraFixed K(0);
-  K.fx() = 645.0;  // fx == w
-  K.fy() = 635.0;  // fy == w
-  K.cx() = 325.0;  // cx == w/2
-  K.cy() = 245.0;  // cy == h/2
+  PinholeCameraFixed k(0);
+  k.fx() = 645.0;  // fx == w
+  k.fy() = 635.0;  // fy == w
+  k.cx() = 325.0;  // cx == w/2
+  k.cy() = 245.0;  // cy == h/2
 
   PinholeCameraFixed expected(0);
   expected.fx() = 645.0;
@@ -409,14 +410,14 @@ TEST(PinholeCameraFixed, PerPointProjectionCostFunctor)
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(K.data(), K.size());
+  problem.AddParameterBlock(k.data(), static_cast<int>(k.size()));
 
   std::vector<double*> camera_parameter_blocks;
-  camera_parameter_blocks.push_back(K.data());
+  camera_parameter_blocks.push_back(k.data());
 
-  if (K.holdConstant())
+  if (k.holdConstant())
   {
-    problem.SetParameterBlockConstant(K.data());
+    problem.SetParameterBlockConstant(k.data());
   }
 
   for (uint i = 0; i < 8; i++)
@@ -424,7 +425,7 @@ TEST(PinholeCameraFixed, PerPointProjectionCostFunctor)
     // Create a simple a constraint
     ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<PerPointProjectionCostFunctor, 2, 4>(
         new PerPointProjectionCostFunctor(X[i][0], X[i][1], X[i][2], pts2d[i][0], pts2d[i][1]));
-    problem.AddResidualBlock(cost_function, nullptr, K.data());
+    problem.AddResidualBlock(cost_function, nullptr, k.data());
   }
 
   // Run the solver
@@ -433,10 +434,10 @@ TEST(PinholeCameraFixed, PerPointProjectionCostFunctor)
   ceres::Solve(options, &problem, &summary);
 
   // Check
-  EXPECT_NEAR(expected.fx(), K.fx(), 0.1);  // 0.1 Pixel Error
-  EXPECT_NEAR(expected.fy(), K.fy(), 0.1);
-  EXPECT_NEAR(expected.cx(), K.cx(), 0.1);
-  EXPECT_NEAR(expected.cy(), K.cy(), 0.1);
+  EXPECT_NEAR(expected.fx(), k.fx(), 0.1);  // 0.1 Pixel Error
+  EXPECT_NEAR(expected.fy(), k.fy(), 0.1);
+  EXPECT_NEAR(expected.cx(), k.cx(), 0.1);
+  EXPECT_NEAR(expected.cy(), k.cy(), 0.1);
 }
 
 TEST(PinholeCameraFixed, Serialization)

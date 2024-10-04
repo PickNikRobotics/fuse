@@ -189,11 +189,11 @@ public:
 
 protected:
   /**
-   * @brief Construct a point 3D variable given a landmarks id
+   * @brief Construct a point 3D variable given a camera id
    *
-   * @param[in] landmark_id  The id associated to a landmark
+   * @param[in] camera_id  The id associated to a camera
    */
-  PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& landmark_id);
+  PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id);
 
 private:
   // Allow Boost Serialization access to private methods
