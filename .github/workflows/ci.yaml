@@ -71,33 +71,19 @@ jobs:
         run: colcon test-result --verbose
         working-directory: /colcon_ws
 
-  pre-commit:
-    name: Pre-commit
+  clang_tidy:
     needs:
       # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
       - build-ws
+    name: clang-tidy
     runs-on: ubuntu-24.04
     container:
       # Run on the Docker image we tagged and pushed to a private repo in the job above
       image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
     steps:
-      - uses: actions/setup-python@v5
+      - run: run-clang-tidy -j $(nproc --all) -p build/ src/fuse -export-fixes clang-tidy-fixes.yaml
+        working-directory: /colcon_ws
+      - uses: asarium/clang-tidy-action@v1.0
         with:
-          python-version: '3.10'
-      - name: Install clang-format
-        run: sudo apt-get update && sudo apt-get install clang-format-18
-      - name: Install clang-tidy
-        run: sudo apt-get install clang-tidy-18
-      - name: Change directory
-        run: cd /colcon_ws/src/fuse
-      - name: enable clang tidy in pre-commit
-        run: export PRE_COMMIT_CLANG_TIDY=1
-      - name: change pip cache owner
-        run: chown -R $(whoami) /github
-      - uses: pre-commit/action@v3.0.1
-        id: precommit
-      - name: Upload pre-commit changes
-        if: failure() && steps.precommit.outcome == 'failure'
-        uses: rhaschke/upload-git-patch-action@main
-        with:
-          name: pre-commit
+          fixesFile: /colcon_ws/clang-tidy-fixes.yaml
+          noFailOnIssue: false
