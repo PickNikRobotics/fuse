@@ -65,6 +65,7 @@ public:
     executor_.reset();
   }
 
+private:
   std::thread spinner_;  //!< Internal thread for spinning the executor
   rclcpp::executors::SingleThreadedExecutor::SharedPtr executor_;
 };
