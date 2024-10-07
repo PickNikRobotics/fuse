@@ -8,6 +8,8 @@ set(TEST_TARGETS
     test_fixed_size_variable
     test_orientation_2d_stamped
     test_orientation_3d_stamped
+    test_pinhole_camera_fixed
+    test_pinhole_camera
     test_point_2d_fixed_landmark
     test_point_2d_landmark
     test_point_3d_fixed_landmark
