@@ -116,7 +116,7 @@ include(suitesparse-extras.cmake)
 # plain_matrix_type<Src>::type tmp(src); | ^~~
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION
                                             VERSION_GREATER_EQUAL 12.0)
-  add_compile_options(-Wall -Werror -Wno-array-bounds)
+  add_compile_options(-Wall -Werror -Wno-array-bounds -Wno-stringop-overread)
 else()
   add_compile_options(-Wall -Werror)
 endif()
@@ -129,6 +129,7 @@ add_library(
   src/absolute_orientation_3d_stamped_euler_constraint.cpp
   src/absolute_pose_2d_stamped_constraint.cpp
   src/absolute_pose_3d_stamped_constraint.cpp
+  src/absolute_pose_3d_stamped_euler_constraint.cpp
   src/marginal_constraint.cpp
   src/marginal_cost_function.cpp
   src/marginalize_variables.cpp
@@ -136,11 +137,15 @@ add_library(
   src/normal_delta_orientation_2d.cpp
   src/normal_delta_pose_2d.cpp
   src/normal_prior_orientation_2d.cpp
+  src/normal_prior_orientation_3d.cpp
   src/normal_prior_pose_2d.cpp
+  src/normal_prior_pose_3d.cpp
+  src/normal_prior_pose_3d_euler.cpp
   src/relative_constraint.cpp
   src/relative_orientation_3d_stamped_constraint.cpp
   src/relative_pose_2d_stamped_constraint.cpp
   src/relative_pose_3d_stamped_constraint.cpp
+  src/relative_pose_3d_stamped_euler_constraint.cpp
   src/uuid_ordering.cpp
   src/variable_constraints.cpp)
 target_include_directories(

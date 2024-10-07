@@ -9,6 +9,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get upgrade -y && \
     apt-get install -y --no-install-recommends \
       clang-tidy \
+      python3-vcstool \
       # use cyclonedds instead of fastdds
       ros-rolling-rmw-cyclonedds-cpp
 
@@ -22,6 +23,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get upgrade -y && \
     . /opt/ros/rolling/setup.sh && \
+    vcs import src --input src/fuse/fuse.repos && \
     rosdep install --from-paths src -y --ignore-src && \
     colcon build --mixin compile-commands coverage-gcc coverage-pytest
 

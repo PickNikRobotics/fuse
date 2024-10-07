@@ -34,7 +34,7 @@ by accepting, at a minimum, the UUID of each involved Variable.
 The derived Constraints provided by the [fuse_constraints](../fuse_constraints) package go one step further, and
 require instances of full Variable types rather than just the Variable's UUID. This is done solely to enforce
 type-safety; e.g. a specific Constraint must involve two
-[Position2DStamped](../fuse_variables/include/fuse_variables/position_2d_stamped.h) variables, no other variable types
+[Position2DStamped](../fuse_variables/include/fuse_variables/position_2d_stamped.hpp) variables, no other variable types
 are acceptable.
 
 ### Cost Function
