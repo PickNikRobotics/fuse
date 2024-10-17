@@ -317,9 +317,9 @@ static inline void quaternionToAngleAxis(const double* q, double* angle_axis, do
     else
     {
       jacobian_map.setZero();
-      jacobian_map(0, 0) = 2.0;
-      jacobian_map(1, 1) = 2.0;
-      jacobian_map(2, 2) = 2.0;
+      jacobian_map(0, 1) = 2.0;
+      jacobian_map(1, 2) = 2.0;
+      jacobian_map(2, 3) = 2.0;
     }
   }
 }
