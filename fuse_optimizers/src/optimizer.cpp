@@ -32,10 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <chrono>
 #include <functional>
 #include <numeric>
-#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -70,7 +68,7 @@ Optimizer::Optimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NO
   {
     fuse_graphs::HashGraphParams hash_graph_params;
     hash_graph_params.loadFromROS(interfaces_);
-    graph_ = std::move(fuse_graphs::HashGraph::make_unique(hash_graph_params));
+    graph_ = fuse_graphs::HashGraph::make_unique(hash_graph_params);
   }
 
   // add a ros1 style callback queue so that transactions can be processed in the optimiser's
@@ -376,44 +374,45 @@ bool Optimizer::applyMotionModels(const std::string& sensor_name, fuse_core::Tra
   return success;
 }
 
-void Optimizer::notify(fuse_core::Transaction::ConstSharedPtr transaction, fuse_core::Graph::ConstSharedPtr graph)
+void Optimizer::notify(fuse_core::Transaction::ConstSharedPtr const& transaction,
+                       fuse_core::Graph::ConstSharedPtr const& graph)
 {
-  for (const auto& name__sensor_model : sensor_models_)
+  for (const auto& name_sensor_model : sensor_models_)
   {
     try
     {
-      name__sensor_model.second.model->graphCallback(graph);
+      name_sensor_model.second.model->graphCallback(graph);
     }
     catch (const std::exception& e)
     {
-      RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on sensor '" << name__sensor_model.first
+      RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on sensor '" << name_sensor_model.first
                                                                                 << "'. Error: " << e.what());
       continue;
     }
   }
-  for (const auto& name__motion_model : motion_models_)
+  for (const auto& name_motion_model : motion_models_)
   {
     try
     {
-      name__motion_model.second->graphCallback(graph);
+      name_motion_model.second->graphCallback(graph);
     }
     catch (const std::exception& e)
     {
-      RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on motion model '" << name__motion_model.first
+      RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on motion model '" << name_motion_model.first
                                                                                       << ". Error: " << e.what());
       continue;
     }
   }
-  for (const auto& name__publisher : publishers_)
+  for (const auto& name_publisher : publishers_)
   {
     try
     {
-      name__publisher.second->notify(transaction, graph);
+      name_publisher.second->notify(transaction, graph);
     }
     catch (const std::exception& e)
     {
       RCLCPP_ERROR_STREAM(logger_,
-                          "Failed calling notify() on publisher '" << name__publisher.first << ". Error: " << e.what());
+                          "Failed calling notify() on publisher '" << name_publisher.first << ". Error: " << e.what());
       continue;
     }
   }

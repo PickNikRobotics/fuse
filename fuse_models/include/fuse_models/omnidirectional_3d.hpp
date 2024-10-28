@@ -85,6 +85,10 @@ public:
    * @brief Destructor
    */
   ~Omnidirectional3D() = default;
+  Omnidirectional3D(Omnidirectional3D const&) = delete;
+  Omnidirectional3D(Omnidirectional3D&&) = delete;
+  Omnidirectional3D& operator=(Omnidirectional3D const&) = delete;
+  Omnidirectional3D& operator=(Omnidirectional3D&&) = delete;
 
   /**
    * @brief Shadowing extension to the AsyncMotionModel::initialize call

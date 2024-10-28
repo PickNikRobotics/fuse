@@ -67,7 +67,7 @@ namespace std
 
 inline bool isfinite(const fuse_core::Vector3d& vector)
 {
-  return std::isfinite(vector.x()) && std::isfinite(vector.y() && std::isfinite(vector.z()));
+  return std::isfinite(vector.x()) && std::isfinite(vector.y()) && std::isfinite(vector.z());
 }
 
 inline bool isNormalized(const Eigen::Quaterniond& q)

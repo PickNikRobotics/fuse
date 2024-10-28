@@ -103,13 +103,17 @@ public:
    * @param[in] interfaces          The node interfaces for the node driving the optimizer
    * @param[in] graph               The graph used with the optimizer
    */
-  Optimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-            fuse_core::Graph::UniquePtr graph = nullptr);
+  explicit Optimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                     fuse_core::Graph::UniquePtr graph = nullptr);
 
   /**
    * @brief Destructor
    */
   virtual ~Optimizer();
+  Optimizer(Optimizer const&) = delete;
+  Optimizer(Optimizer&&) = delete;
+  Optimizer& operator=(Optimizer&&) = delete;
+  Optimizer& operator=(Optimizer const&) = delete;
 
 protected:
   // The unique ptrs returned by pluginlib have a custom deleter. This makes specifying the type
@@ -227,7 +231,7 @@ protected:
    *                        removals
    * @param[in] graph       A read-only pointer to the graph object
    */
-  void notify(fuse_core::Transaction::ConstSharedPtr transaction, fuse_core::Graph::ConstSharedPtr graph);
+  void notify(fuse_core::Transaction::ConstSharedPtr const& transaction, fuse_core::Graph::ConstSharedPtr const& graph);
 
   /**
    * @brief Inject a transaction callback function into the global callback queue

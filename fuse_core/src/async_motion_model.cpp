@@ -52,7 +52,7 @@ AsyncMotionModel::AsyncMotionModel(size_t thread_count) : name_("uninitialized")
 
 AsyncMotionModel::~AsyncMotionModel()
 {
-  internal_stop();
+  internalStop();
 }
 
 bool AsyncMotionModel::apply(Transaction& transaction)
@@ -156,12 +156,12 @@ void AsyncMotionModel::stop()
     // Can't run in executor's thread because the executor won't service more
     // callbacks after the context is shutdown.
     // Join executor's threads right away.
-    internal_stop();
+    internalStop();
     onStop();
   }
 }
 
-void AsyncMotionModel::internal_stop()
+void AsyncMotionModel::internalStop()
 {
   if (spinner_.joinable())
   {
