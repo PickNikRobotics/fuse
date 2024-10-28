@@ -1,4 +1,5 @@
 #include <mujoco/mujoco.h>
+#include <fuse_core/timestamp_manager.hpp>
 
 /*
  * Software License Agreement (BSD License)
@@ -78,9 +79,6 @@ namespace fuse_models
  *   models will simply not need that information. If the motion model does need access the to
  *   graph, the most common implementation will simply be to move the provided pointer into a class
  *   member variable, for use in other callbacks.
- *   @code{.cpp}
- *   void onGraphUpdate(Graph::ConstSharedPtr graph) override { this->graph_ = std::move(graph); }
- *   @endcode
  */
 class MujocoMotionModel : public fuse_core::AsyncMotionModel
 {
@@ -90,133 +88,21 @@ public:
   /**
    * @brief Destructor
    */
-  virtual ~MujocoMotionModel();
+  ~MujocoMotionModel() = default;
   MujocoMotionModel(MujocoMotionModel const&) = delete;
   MujocoMotionModel(MujocoMotionModel&&) = delete;
   MujocoMotionModel& operator=(MujocoMotionModel&&) = delete;
   MujocoMotionModel& operator=(MujocoMotionModel const&) = delete;
 
-  /**
-   * @brief Augment a transaction object such that all involved timestamps are connected by motion
-   *        model constraints.
-   *
-   * This method will be called by the optimizer, in the optimizer's thread, before each sensor
-   * transaction is applied to the Graph. This implementation packages a call to the pure
-   * virtual method applyCallback() and inserts it into this motion model's local callback
-   * queue. This allows the applyCallback() function to be executed from the same thread as any
-   * other configured callbacks. Despite the fact that the queryCallback() function call runs
-   * in a different thread than this function, this function blocks until the query callback
-   * returns.
-   *
-   * @param[in,out] transaction The transaction object that should be augmented with motion model
-   *                            constraints
-   * @return                    True if the motion models were generated successfully, false
-   *                            otherwise
-   */
-  bool apply(fuse_core::Transaction& transaction) override;
-
-  /**
-   * @brief Function to be executed whenever the optimizer has completed a Graph update
-   *
-   * This method will be called by the optimizer, in the optimizer's thread, after each Graph
-   * update is complete. This implementation repackages the provided \p graph, and inserts a
-   * call to onGraphUpdate() into this motion model's callback queue. This is meant to simplify
-   * thread synchronization. If this motion model uses a single-threaded executor, then all
-   * callbacks will fire sequentially and no semaphores are needed. If this motion model uses a
-   * multi-threaded executor, then normal multithreading rules apply and data accessed in more
-   * than one place should be guarded.
-   *
-   * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
-   *                  whenever needed.
-   */
-  void graphCallback(fuse_core::Graph::ConstSharedPtr graph) override;
-
-  /**
-   * @brief Perform any required post-construction initialization, such as subscribing to topics or
-   *        reading from the parameter server.
-   *
-   * This will be called for each plugin after construction and after the ros node has been
-   * initialized. The provided node will be in a namespace based on the plugin's name. This should
-   * prevent conflicts and allow the same plugin to be used multiple times with different settings
-   * and topics.
-   *
-   * @param[in] name A unique name to give this plugin instance
-   * @throws runtime_error if already initialized
-   */
-  void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name) override;
-
-  /**
-   * @brief Get the unique name of this motion model
-   */
-  [[nodiscard]] std::string const& name() const override
-  {
-    return name_;
-  }
-
-  /**
-   * @brief Function to be executed whenever the optimizer is ready to receive transactions
-   *
-   * This method will be called by the optimizer, in the optimizer's thread, once the optimizer
-   * has been initialized and is ready to receive transactions. It may also be called as part
-   * of a stop-start cycle when the optimizer has been requested to reset itself. This allows
-   * the motion model to reset any internal state back before the optimizer begins processing
-   * after a reset. No calls to apply() will happen before the optimizer calls start().
-   *
-   * This implementation inserts a call to onStart() into this motion model's callback queue.
-   * This method then blocks until the call to onStart() has completed. This is meant to
-   * simplify thread synchronization. If this motion model uses a single-threaded executor, then
-   * all callbacks will fire sequentially and no semaphores are needed. If this motion model
-   * uses a multithreaded executor, then normal multithreading rules apply and data accessed in
-   * more than one place should be guarded.
-   */
-  void start() override;
-
-  /**
-   * @brief Function to be executed whenever the optimizer is no longer ready to receive
-   *        transactions
-   *
-   * This method will be called by the optimizer, in the optimizer's thread, before the
-   * optimizer shutdowns. It may also be called as part of a stop-start cycle when the
-   * optimizer has been requested to reset itself. This allows the motion model to reset any
-   * internal state back before the optimizer begins processing after a reset. No calls to
-   * apply() will happen until start() has been called again.
-   *
-   * This implementation inserts a call to onStop() into this motion model's callback queue.
-   * This method then blocks until the call to onStop() has completed. This is meant to
-   * simplify thread synchronization. If this motion model uses a single-threaded executor, then
-   * all callbacks will fire sequentially and no semaphores are needed. If this motion model
-   * uses a multithreaded executor, then normal multithreading rules apply and data accessed in
-   * more than one place should be guarded.
-   */
-  void stop() override;
-
 protected:
-  //! The callback queue used for fuse internal callbacks
-  std::shared_ptr<fuse_core::CallbackAdapter> callback_queue_;
-
-  std::string name_;  //!< The unique name for this motion model instance
-
-  //! The node interfaces
-  fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Waitables>
-      interfaces_;
-  rclcpp::CallbackGroup::SharedPtr cb_group_;  //!< Internal re-entrant callback group
-
-  //! A single/multi-threaded executor assigned to the local callback queue
-  rclcpp::Executor::SharedPtr executor_;
-
-  size_t executor_thread_count_{ 1 };
-  std::thread spinner_;                    //!< Internal thread for spinning the executor
-  std::atomic<bool> initialized_ = false;  //!< True if instance has been fully initialized
-
   /**
    * @brief Constructor
    *
    * Construct a new motion model and create a local callback queue and internal executor.
    *
-   * @param[in] thread_count The number of threads used to service the local callback queue
+   * @param[in] model The mujoco model
    */
-  explicit MujocoMotionModel(size_t thread_count = 1);
+  explicit MujocoMotionModel(std::unique_ptr<mjModel> model);
 
   /**
    * @brief Augment a transaction object such that all involved timestamps are connected by motion
@@ -237,6 +123,10 @@ protected:
    *                            otherwise
    */
   bool applyCallback(fuse_core::Transaction& transaction) override;
+
+  void generateMotionModel(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
+                           std::vector<fuse_core::Constraint::SharedPtr>& constraints,
+                           std::vector<fuse_core::Variable::SharedPtr>& variables);
 
   /**
    * @brief Callback fired in the local callback queue thread(s) whenever a new Graph is received
@@ -266,26 +156,13 @@ protected:
    */
   void onInit() override;
 
-  /**
-   * @brief Perform any required operations to prepare for servicing calls to apply()
-   *
-   * This function will be called once after initialize() but before any calls to apply(). It
-   * may also be called at any time after a call to stop().
-   */
-  void onStart() override;
-
-  /**
-   * @brief Perform any required operations to clean up the internal state
-   *
-   * This function will be called once before destruction. It may also be called at any time
-   * after a call to start(). No calls to apply() will occur after stop() is called, but before
-   * start() is called.
-   */
-  void onStop() override;
-
-private:
-  //! Stop the internal executor thread (in order to use this class again it must be re-initialized)
-  void internalStop();
+  rclcpp::Clock::SharedPtr clock_;                 //!< The sensor model's clock, for timestamping and logging
+  rclcpp::Logger logger_;                          //!< The sensor model's logger
+  fuse_core::UUID device_id_;                      //!< The UUID of the device to be published
+  fuse_core::TimestampManager timestamp_manager_;  //!< Tracks timestamps and previously created
+                                                   //!< motion model segments
+  std::shared_ptr<fuse_core::Graph const> graph_;
+  std::unique_ptr<mjModel> model_;
 };
 
 }  // namespace fuse_models
