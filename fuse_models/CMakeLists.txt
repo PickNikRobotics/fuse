@@ -31,6 +31,7 @@ find_package(tf2 REQUIRED)
 find_package(tf2_2d REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(mujoco REQUIRED)
 
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -46,6 +47,7 @@ add_library(
   src/graph_ignition.cpp
   src/imu_2d.cpp
   src/imu_3d.cpp
+  src/mujoco_model.cpp
   src/odometry_2d.cpp
   src/odometry_2d_publisher.cpp
   src/odometry_3d.cpp
@@ -74,6 +76,7 @@ target_link_libraries(
   fuse_publishers::fuse_publishers
   fuse_variables::fuse_variables
   ${geometry_msgs_TARGETS}
+  mujoco::mujoco
   ${nav_msgs_TARGETS}
   pluginlib::pluginlib
   rclcpp_components::component
@@ -132,6 +135,7 @@ ament_export_dependencies(
   tf2_ros
   Ceres
   Eigen3
-  Boost)
+  Boost
+  mujoco)
 
 ament_package()
