@@ -65,10 +65,8 @@ static inline T getPitch(const T w, const T x, const T y, const T z)
   {
     return (sin_pitch >= T(0.0) ? T(1.0) : T(-1.0)) * T(M_PI / 2.0);
   }
-  else
-  {
-    return ceres::asin(sin_pitch);
-  }
+
+  return ceres::asin(sin_pitch);
 }
 
 /**
@@ -117,11 +115,11 @@ template <typename T>
 void wrapAngle2D(T& angle)
 {
   // Define some necessary variations of PI with the correct type (double or Jet)
-  static const T PI = T(M_PI);
-  static const T TAU = T(2 * M_PI);
+  static const T pi = T(M_PI);
+  static const T tau = T(2 * M_PI);
   // Handle the 1*Tau roll-over (https://tauday.com/tau-manifesto)
   // Use ceres::floor because it is specialized for double and Jet types.
-  angle -= TAU * ceres::floor((angle + PI) / TAU);
+  angle -= tau * ceres::floor((angle + pi) / tau);
 }
 
 /**
@@ -167,7 +165,7 @@ static inline void quaternion2rpy(const double* q, double* rpy, double* jacobian
   rpy[1] = fuse_core::getPitch(q[0], q[1], q[2], q[3]);
   rpy[2] = fuse_core::getYaw(q[0], q[1], q[2], q[3]);
 
-  if (jacobian)
+  if (jacobian != nullptr)
   {
     Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> jacobian_map(jacobian);
     const double qw = q[0];
@@ -185,7 +183,7 @@ static inline void quaternion2rpy(const double* q, double* rpy, double* jacobian
       jacobian_map(2, 1) = -2.0 / (qw * ((qx * qx / qw * qw) + 1.0));
       return;
     }
-    else if (discr < -gl_limit)
+    if (discr < -gl_limit)
     {
       // pitch = -90 deg
       jacobian_map.setZero();
@@ -193,52 +191,46 @@ static inline void quaternion2rpy(const double* q, double* rpy, double* jacobian
       jacobian_map(2, 1) = 2.0 / (qw * ((qx * qx / qw * qw) + 1.0));
       return;
     }
-    else
-    {
-      // Non-degenerate case:
-      jacobian_map(0, 0) =
-          -(2.0 * qx) /
-          ((std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) +
-            1.0) *
-           (2.0 * qx * qx + 2.0 * qy * qy - 1.0));
-      jacobian_map(0, 1) =
-          -((2.0 * qw) / (2.0 * qx * qx + 2.0 * qy * qy - 1.0) -
-            (4.0 * qx * (2.0 * qw * qx + 2.0 * qy * qz)) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0)) /
-          (std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) + 1.0);
-      jacobian_map(0, 2) =
-          -((2.0 * qz) / (2.0 * qx * qx + 2.0 * qy * qy - 1.0) -
-            (4.0 * qy * (2.0 * qw * qx + 2.0 * qy * qz)) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0)) /
-          (std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) + 1.0);
-      jacobian_map(0, 3) =
-          -(2.0 * qy) /
-          ((std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) +
-            1.0) *
-           (2.0 * qx * qx + 2.0 * qy * qy - 1.0));
 
-      jacobian_map(1, 0) = (2.0 * qy) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
-      jacobian_map(1, 1) = -(2.0 * qz) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
-      jacobian_map(1, 2) = (2.0 * qw) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
-      jacobian_map(1, 3) = -(2.0 * qx) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+    // Non-degenerate case:
+    jacobian_map(0, 0) =
+        -(2.0 * qx) /
+        ((std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) + 1.0) *
+         (2.0 * qx * qx + 2.0 * qy * qy - 1.0));
+    jacobian_map(0, 1) =
+        -((2.0 * qw) / (2.0 * qx * qx + 2.0 * qy * qy - 1.0) -
+          (4.0 * qx * (2.0 * qw * qx + 2.0 * qy * qz)) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0)) /
+        (std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) + 1.0);
+    jacobian_map(0, 2) =
+        -((2.0 * qz) / (2.0 * qx * qx + 2.0 * qy * qy - 1.0) -
+          (4.0 * qy * (2.0 * qw * qx + 2.0 * qy * qz)) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0)) /
+        (std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) + 1.0);
+    jacobian_map(0, 3) =
+        -(2.0 * qy) /
+        ((std::pow((2.0 * qw * qx + 2.0 * qy * qz), 2.0) / std::pow((2.0 * qx * qx + 2.0 * qy * qy - 1.0), 2.0) + 1.0) *
+         (2.0 * qx * qx + 2.0 * qy * qy - 1.0));
 
-      jacobian_map(2, 0) =
-          -(2.0 * qz) /
-          ((std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) +
-            1.0) *
-           (2.0 * qy * qy + 2.0 * qz * qz - 1.0));
-      jacobian_map(2, 1) =
-          -(2.0 * qy) /
-          ((std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) +
-            1.0) *
-           (2.0 * qy * qy + 2.0 * qz * qz - 1.0));
-      jacobian_map(2, 2) =
-          -((2.0 * qx) / (2.0 * qy * qy + 2.0 * qz * qz - 1.0) -
-            (4.0 * qy * (2.0 * qw * qz + 2.0 * qx * qy)) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0)) /
-          (std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0);
-      jacobian_map(2, 3) =
-          -((2.0 * qw) / (2.0 * qy * qy + 2.0 * qz * qz - 1.0) -
-            (4.0 * qz * (2.0 * qw * qz + 2.0 * qx * qy)) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0)) /
-          (std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0);
-    }
+    jacobian_map(1, 0) = (2.0 * qy) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+    jacobian_map(1, 1) = -(2.0 * qz) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+    jacobian_map(1, 2) = (2.0 * qw) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+    jacobian_map(1, 3) = -(2.0 * qx) / std::sqrt(1.0 - std::pow((2.0 * qw * qy - 2.0 * qx * qz), 2.0));
+
+    jacobian_map(2, 0) =
+        -(2.0 * qz) /
+        ((std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0) *
+         (2.0 * qy * qy + 2.0 * qz * qz - 1.0));
+    jacobian_map(2, 1) =
+        -(2.0 * qy) /
+        ((std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0) *
+         (2.0 * qy * qy + 2.0 * qz * qz - 1.0));
+    jacobian_map(2, 2) =
+        -((2.0 * qx) / (2.0 * qy * qy + 2.0 * qz * qz - 1.0) -
+          (4.0 * qy * (2.0 * qw * qz + 2.0 * qx * qy)) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0)) /
+        (std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0);
+    jacobian_map(2, 3) =
+        -((2.0 * qw) / (2.0 * qy * qy + 2.0 * qz * qz - 1.0) -
+          (4.0 * qz * (2.0 * qw * qz + 2.0 * qx * qy)) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0)) /
+        (std::pow((2.0 * qw * qz + 2.0 * qx * qy), 2.0) / std::pow((2.0 * qy * qy + 2.0 * qz * qz - 1.0), 2.0) + 1.0);
   }
 }
 
@@ -256,7 +248,7 @@ static inline void quaternion2rpy(const double* q, double* rpy, double* jacobian
 static inline void quaternionProduct(const double* z, const double* w, double* zw, double* jacobian = nullptr)
 {
   ceres::QuaternionProduct(z, w, zw);
-  if (jacobian)
+  if (jacobian != nullptr)
   {
     Eigen::Map<Eigen::Matrix<double, 4, 4, Eigen::RowMajor>> jacobian_map(jacobian);
     jacobian_map << z[0], -z[1], -z[2], -z[3], z[1], z[0], -z[3], z[2], z[2], z[3], z[0], -z[1], z[3], -z[2], z[1],
@@ -274,7 +266,7 @@ static inline void quaternionProduct(const double* z, const double* w, double* z
 static inline void quaternionToAngleAxis(const double* q, double* angle_axis, double* jacobian = nullptr)
 {
   ceres::QuaternionToAngleAxis(q, angle_axis);
-  if (jacobian)
+  if (jacobian != nullptr)
   {
     Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> jacobian_map(jacobian);
     const double& q0 = q[0];
@@ -283,36 +275,31 @@ static inline void quaternionToAngleAxis(const double* q, double* angle_axis, do
     const double& q3 = q[3];
     const double q_sum2 = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3;
     const double sin_theta2 = q1 * q1 + q2 * q2 + q3 * q3;
-    const double sin_theta = std::sqrt(sin_theta2);
+    const double sin_theta = std::hypot(q1, q2, q3);
     const double cos_theta = q0;
 
-    if (std::fpclassify(sin_theta) != FP_ZERO)
+    const double cond = std::pow(sin_theta2, 1.5);
+    if (std::fpclassify(cond) != FP_ZERO)
     {
       const double two_theta =
           2.0 * (cos_theta < 0.0 ? std::atan2(-sin_theta, -cos_theta) : std::atan2(sin_theta, cos_theta));
+      // const double a = two_theta / sin_theta;
+      const double b = sin_theta2 * q_sum2;
+      const double c = two_theta / cond;
       jacobian_map(0, 0) = -2.0 * q1 / q_sum2;
-      jacobian_map(0, 1) = two_theta / sin_theta + (2.0 * q0 * q1 * q1) / (sin_theta2 * q_sum2) -
-                           (q1 * q1 * two_theta) / std::pow(sin_theta2, 1.5);
-      jacobian_map(0, 2) =
-          (2.0 * q0 * q1 * q2) / (sin_theta2 * q_sum2) - (q1 * q2 * two_theta) / std::pow(sin_theta2, 1.5);
-      jacobian_map(0, 3) =
-          (2.0 * q0 * q1 * q3) / (sin_theta2 * q_sum2) - (q1 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(0, 1) = two_theta / sin_theta + (2.0 * q0 * q1 * q1) / b - (q1 * q1 * c);
+      jacobian_map(0, 2) = (2.0 * q0 * q1 * q2) / b - (q1 * q2 * c);
+      jacobian_map(0, 3) = (2.0 * q0 * q1 * q3) / b - (q1 * q3 * c);
 
       jacobian_map(1, 0) = -2.0 * q2 / q_sum2;
-      jacobian_map(1, 1) =
-          (2.0 * q0 * q1 * q2) / (sin_theta2 * q_sum2) - (q1 * q2 * two_theta) / std::pow(sin_theta2, 1.5);
-      jacobian_map(1, 2) = two_theta / sin_theta + (2.0 * q0 * q2 * q2) / (sin_theta2 * q_sum2) -
-                           (q2 * q2 * two_theta) / std::pow(sin_theta2, 1.5);
-      jacobian_map(1, 3) =
-          (2.0 * q0 * q2 * q3) / (sin_theta2 * q_sum2) - (q2 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(1, 1) = (2.0 * q0 * q1 * q2) / b - (q1 * q2 * c);
+      jacobian_map(1, 2) = two_theta / sin_theta + (2.0 * q0 * q2 * q2) / b - (q2 * q2 * c);
+      jacobian_map(1, 3) = (2.0 * q0 * q2 * q3) / b - (q2 * q3 * c);
 
       jacobian_map(2, 0) = -2.0 * q3 / q_sum2;
-      jacobian_map(2, 1) =
-          (2.0 * q0 * q1 * q3) / (sin_theta2 * q_sum2) - (q1 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
-      jacobian_map(2, 2) =
-          (2.0 * q0 * q2 * q3) / (sin_theta2 * q_sum2) - (q2 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
-      jacobian_map(2, 3) = two_theta / sin_theta + (2.0 * q0 * q3 * q3) / (sin_theta2 * q_sum2) -
-                           (q3 * q3 * two_theta) / std::pow(sin_theta2, 1.5);
+      jacobian_map(2, 1) = (2.0 * q0 * q1 * q3) / b - (q1 * q3 * c);
+      jacobian_map(2, 2) = (2.0 * q0 * q2 * q3) / b - (q2 * q3 * c);
+      jacobian_map(2, 3) = two_theta / sin_theta + (2.0 * q0 * q3 * q3) / b - (q3 * q3 * c);
     }
     else
     {

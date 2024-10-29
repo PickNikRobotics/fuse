@@ -58,6 +58,10 @@ public:
    * @brief Destructor
    */
   virtual ~MotionModel() = default;
+  MotionModel(MotionModel const&) = default;
+  MotionModel(MotionModel&&) = default;
+  MotionModel& operator=(MotionModel&&) = default;
+  MotionModel& operator=(MotionModel const&) = default;
 
   /**
    * @brief Augment a transaction object such that all involved timestamps are connected by motion
@@ -87,6 +91,7 @@ public:
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
    *                  whenever needed.
    */
+  // NOLINTNEXTLINE
   virtual void graphCallback(Graph::ConstSharedPtr /*graph*/)
   {
   }

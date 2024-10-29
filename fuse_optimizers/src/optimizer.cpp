@@ -32,10 +32,8 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <chrono>
 #include <functional>
 #include <numeric>
-#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -70,7 +68,7 @@ Optimizer::Optimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NO
   {
     fuse_graphs::HashGraphParams hash_graph_params;
     hash_graph_params.loadFromROS(interfaces_);
-    graph_ = std::move(fuse_graphs::HashGraph::make_unique(hash_graph_params));
+    graph_ = fuse_graphs::HashGraph::make_unique(hash_graph_params);
   }
 
   // add a ros1 style callback queue so that transactions can be processed in the optimiser's
@@ -92,11 +90,15 @@ Optimizer::Optimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NO
   startPlugins();
 }
 
+// the classloader destructor makes clang-tidy complain...
+// TODO(henrygerardmoore): maybe look into this
+// NOLINTBEGIN(clang-analyzer-optin.cplusplus.VirtualCall)
 Optimizer::~Optimizer()
 {
   // Stop all the plugins
   stopPlugins();
 }
+// NOLINTEND(clang-analyzer-optin.cplusplus.VirtualCall)
 
 void Optimizer::loadMotionModels()
 {
@@ -111,7 +113,7 @@ void Optimizer::loadMotionModels()
   // the configurations used to load models
   std::vector<ModelConfig> motion_model_config;
 
-  std::unordered_set<std::string> motion_model_names =
+  std::unordered_set<std::string> const motion_model_names =
       fuse_core::list_parameter_override_prefixes(interfaces_, "motion_models.");
 
   // declare config parameters for each model
@@ -130,7 +132,7 @@ void Optimizer::loadMotionModels()
     }
 
     // get the type parameter for the motion model
-    rclcpp::Parameter motion_model_type_param =
+    rclcpp::Parameter const motion_model_type_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.param_name);
     // extract the type string from the parameter
     if (motion_model_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
@@ -139,7 +141,7 @@ void Optimizer::loadMotionModels()
     }
 
     // quickly check for common errors
-    if (config.type == "")
+    if (config.type.empty())
     {
       RCLCPP_WARN_STREAM(logger_, "parameter '" << config.param_name << "' should be the string of a motion_model type "
                                                 << "for the motion_model named '" << config.name << "'.");
@@ -165,11 +167,11 @@ void Optimizer::loadMotionModels()
 void Optimizer::loadSensorModels()
 {
   // struct for readability
-  typedef struct
+  typedef struct ModelConfig
   {
     std::string name;
     std::string type;
-    bool ignition;
+    bool ignition = false;
     std::vector<std::string> associated_motion_models;
     std::string type_param_name;
     std::string models_param_name;
@@ -179,7 +181,7 @@ void Optimizer::loadSensorModels()
   // the configurations used to load models
   std::vector<ModelConfig> sensor_model_config;
 
-  std::unordered_set<std::string> sensor_model_names =
+  std::unordered_set<std::string> const sensor_model_names =
       fuse_core::list_parameter_override_prefixes(interfaces_, "sensor_models.");
 
   // declare config parameters for each model
@@ -202,7 +204,7 @@ void Optimizer::loadSensorModels()
     }
 
     // get the type parameter for the sensor model
-    rclcpp::Parameter sensor_model_type_param =
+    rclcpp::Parameter const sensor_model_type_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.type_param_name);
     // extract the type string from the parameter
     if (sensor_model_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
@@ -220,7 +222,7 @@ void Optimizer::loadSensorModels()
     }
 
     // get the model_list parameter for the sensor model
-    rclcpp::Parameter sensor_model_model_list_param =
+    rclcpp::Parameter const sensor_model_model_list_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.models_param_name);
     // extract the model_list string from the parameter
     if (sensor_model_model_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY)
@@ -238,7 +240,7 @@ void Optimizer::loadSensorModels()
     }
 
     // get the model list parameter for the sensor model
-    rclcpp::Parameter sensor_model_ignition_param =
+    rclcpp::Parameter const sensor_model_ignition_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.ignition_param_name);
     // extract the ignition bool from the parameter
     if (sensor_model_ignition_param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL)
@@ -247,7 +249,7 @@ void Optimizer::loadSensorModels()
     }
 
     // quickly check for common errors
-    if (config.type == "")
+    if (config.type.empty())
     {
       RCLCPP_WARN_STREAM(logger_, "parameter '" << config.type_param_name
                                                 << "' should be the string of a sensor_model type "
@@ -297,7 +299,7 @@ void Optimizer::loadPublishers()
   // the configurations used to load models
   std::vector<PublisherConfig> publisher_config;
 
-  std::unordered_set<std::string> publisher_names =
+  std::unordered_set<std::string> const publisher_names =
       fuse_core::list_parameter_override_prefixes(interfaces_, "publishers.");
 
   // declare config parameters for each model
@@ -317,7 +319,7 @@ void Optimizer::loadPublishers()
     }
 
     // get the type parameter for the publisher
-    rclcpp::Parameter publisher_type_param =
+    rclcpp::Parameter const publisher_type_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.param_name);
     // extract the type string from the parameter
     if (publisher_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
@@ -326,7 +328,7 @@ void Optimizer::loadPublishers()
     }
 
     // quickly check for common errors
-    if (config.type == "")
+    if (config.type.empty())
     {
       RCLCPP_WARN_STREAM(logger_, "parameter '" << config.param_name << "' should be the string of a publisher type "
                                                 << "for the publisher named '" << config.name << "'.");
@@ -376,44 +378,45 @@ bool Optimizer::applyMotionModels(const std::string& sensor_name, fuse_core::Tra
   return success;
 }
 
-void Optimizer::notify(fuse_core::Transaction::ConstSharedPtr transaction, fuse_core::Graph::ConstSharedPtr graph)
+void Optimizer::notify(fuse_core::Transaction::ConstSharedPtr const& transaction,
+                       fuse_core::Graph::ConstSharedPtr const& graph)
 {
-  for (const auto& name__sensor_model : sensor_models_)
+  for (const auto& name_sensor_model : sensor_models_)
   {
     try
     {
-      name__sensor_model.second.model->graphCallback(graph);
+      name_sensor_model.second.model->graphCallback(graph);
     }
     catch (const std::exception& e)
     {
-      RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on sensor '" << name__sensor_model.first
+      RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on sensor '" << name_sensor_model.first
                                                                                 << "'. Error: " << e.what());
       continue;
     }
   }
-  for (const auto& name__motion_model : motion_models_)
+  for (const auto& name_motion_model : motion_models_)
   {
     try
     {
-      name__motion_model.second->graphCallback(graph);
+      name_motion_model.second->graphCallback(graph);
     }
     catch (const std::exception& e)
     {
-      RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on motion model '" << name__motion_model.first
+      RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on motion model '" << name_motion_model.first
                                                                                       << ". Error: " << e.what());
       continue;
     }
   }
-  for (const auto& name__publisher : publishers_)
+  for (const auto& name_publisher : publishers_)
   {
     try
     {
-      name__publisher.second->notify(transaction, graph);
+      name_publisher.second->notify(transaction, graph);
     }
     catch (const std::exception& e)
     {
       RCLCPP_ERROR_STREAM(logger_,
-                          "Failed calling notify() on publisher '" << name__publisher.first << ". Error: " << e.what());
+                          "Failed calling notify() on publisher '" << name_publisher.first << ". Error: " << e.what());
       continue;
     }
   }

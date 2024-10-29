@@ -94,6 +94,10 @@ public:
    * @brief Destructor
    */
   virtual ~AsyncMotionModel();
+  AsyncMotionModel(AsyncMotionModel const&) = delete;
+  AsyncMotionModel(AsyncMotionModel&&) = delete;
+  AsyncMotionModel& operator=(AsyncMotionModel&&) = delete;
+  AsyncMotionModel& operator=(AsyncMotionModel const&) = delete;
 
   /**
    * @brief Augment a transaction object such that all involved timestamps are connected by motion
@@ -253,6 +257,7 @@ protected:
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
    *                  whenever needed.
    */
+  // NOLINTNEXTLINE
   virtual void onGraphUpdate(Graph::ConstSharedPtr /*graph*/)
   {
   }
@@ -291,7 +296,7 @@ protected:
 
 private:
   //! Stop the internal executor thread (in order to use this class again it must be re-initialized)
-  void internal_stop();
+  void internalStop();
 };
 
 }  // namespace fuse_core
