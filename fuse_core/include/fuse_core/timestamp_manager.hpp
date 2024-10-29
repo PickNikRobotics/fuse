@@ -112,6 +112,11 @@ public:
   explicit TimestampManager(MotionModelFunction generator,
                             const rclcpp::Duration& buffer_length = rclcpp::Duration::max());
 
+  TimestampManager(TimestampManager const&) = default;
+  TimestampManager(TimestampManager&&) = default;
+  TimestampManager& operator=(TimestampManager const&) = default;
+  TimestampManager& operator=(TimestampManager&&) = default;
+
   /**
    * @brief Constructor that accepts the motion model generator as a member function pointer and
    *        object pointer

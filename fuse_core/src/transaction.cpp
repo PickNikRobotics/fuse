@@ -47,10 +47,8 @@ const rclcpp::Time& Transaction::minStamp() const
   {
     return stamp_;
   }
-  else
-  {
-    return std::min(*involved_stamps_.begin(), stamp_);
-  }
+
+  return std::min(*involved_stamps_.begin(), stamp_);
 }
 
 const rclcpp::Time& Transaction::maxStamp() const
@@ -59,10 +57,8 @@ const rclcpp::Time& Transaction::maxStamp() const
   {
     return stamp_;
   }
-  else
-  {
-    return std::max(*involved_stamps_.rbegin(), stamp_);
-  }
+
+  return std::max(*involved_stamps_.rbegin(), stamp_);
 }
 
 void Transaction::addInvolvedStamp(const rclcpp::Time& stamp)

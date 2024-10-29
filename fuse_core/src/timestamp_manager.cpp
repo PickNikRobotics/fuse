@@ -44,7 +44,7 @@ namespace fuse_core
 {
 
 TimestampManager::TimestampManager(MotionModelFunction generator, const rclcpp::Duration& buffer_length)
-  : generator_(generator), buffer_length_(buffer_length)
+  : generator_(std::move(generator)), buffer_length_(buffer_length)
 {
 }
 

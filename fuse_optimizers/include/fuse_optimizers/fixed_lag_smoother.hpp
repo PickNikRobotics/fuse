@@ -37,7 +37,6 @@
 
 #include <atomic>
 #include <condition_variable>
-#include <functional>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -124,13 +123,17 @@ public:
    * @param[in] interfaces          The node interfaces for the node driving the optimizer
    * @param[in] graph               The graph used with the optimizer
    */
-  FixedLagSmoother(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                   fuse_core::Graph::UniquePtr graph = nullptr);
+  explicit FixedLagSmoother(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                            fuse_core::Graph::UniquePtr graph = nullptr);
 
   /**
    * @brief Destructor
    */
   virtual ~FixedLagSmoother();
+  FixedLagSmoother(FixedLagSmoother const&) = delete;
+  FixedLagSmoother(FixedLagSmoother&&) = delete;
+  FixedLagSmoother& operator=(FixedLagSmoother const&) = delete;
+  FixedLagSmoother& operator=(FixedLagSmoother&&) = delete;
 
 protected:
   /**
@@ -301,8 +304,8 @@ protected:
   /**
    * @brief Service callback that resets the optimizer to its original state
    */
-  bool resetServiceCallback(const std::shared_ptr<std_srvs::srv::Empty::Request>,
-                            std::shared_ptr<std_srvs::srv::Empty::Response>);
+  bool resetServiceCallback(std::shared_ptr<std_srvs::srv::Empty::Request> const&,
+                            std::shared_ptr<std_srvs::srv::Empty::Response> const&);
 
   /**
    * @brief Thread-safe read-only access to the timestamp of the first transaction
