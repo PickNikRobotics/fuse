@@ -172,8 +172,8 @@ TEST(Util, quaternion2rpy)
   std::array<double, 3> rpy_autodiff{};
   quat2rpy_cf->Evaluate(parameters.data(), rpy_autodiff.data(), jacobians.data());
 
-  Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_autodiff_map(jacobians[0]);
-  Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_analytic_map(j_analytic.data());
+  Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_autodiff_map(jacobians[0]);
+  Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_analytic_map(j_analytic.data());
 
   EXPECT_TRUE(j_analytic_map.isApprox(j_autodiff_map));
 }
@@ -211,11 +211,11 @@ TEST(Util, quaternionProduct)
   std::array<double, 4> q_out_autodiff{};
   quat_prod_cf->Evaluate(parameters.data(), q_out_autodiff.data(), jacobians.data());
 
-  Eigen::Map<fuse_core::Matrix<double, 4, 4>> j_autodiff_q1_map(jacobians[0]);
-  Eigen::Map<fuse_core::Matrix<double, 4, 4>> j_autodiff_q2_map(jacobians[1]);
+  Eigen::Map<fuse_core::Matrix<double, 4, 4>> const j_autodiff_q1_map(jacobians[0]);
+  Eigen::Map<fuse_core::Matrix<double, 4, 4>> const j_autodiff_q2_map(jacobians[1]);
 
   // Eigen::Map<fuse_core::Matrix<double, 4, 4>> J_analytic_q1_map(J_analytic_q1);
-  Eigen::Map<fuse_core::Matrix<double, 4, 4>> j_analytic_q2_map(j_analytic_q2.data());
+  Eigen::Map<fuse_core::Matrix<double, 4, 4>> const j_analytic_q2_map(j_analytic_q2.data());
 
   EXPECT_TRUE(j_analytic_q2_map.isApprox(j_autodiff_q2_map));
 }
@@ -242,8 +242,8 @@ TEST(Util, quaternionToAngleAxis)
     std::array<double, 3> angle_axis_autodiff{};
     quat2angle_axis_cf->Evaluate(parameters.data(), angle_axis_autodiff.data(), jacobians.data());
 
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_autodiff_map(jacobians[0]);
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_analytic_map(j_analytic.data());
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_autodiff_map(jacobians[0]);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_analytic_map(j_analytic.data());
 
     EXPECT_TRUE(j_analytic_map.isApprox(j_autodiff_map));
   }
@@ -265,8 +265,8 @@ TEST(Util, quaternionToAngleAxis)
     std::array<double, 3> angle_axis_autodiff{};
     quat2angle_axis_cf->Evaluate(parameters.data(), angle_axis_autodiff.data(), jacobians.data());
 
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_autodiff_map(jacobians[0]);
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_analytic_map(j_analytic.data());
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_autodiff_map(jacobians[0]);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_analytic_map(j_analytic.data());
 
     EXPECT_TRUE(j_analytic_map.isApprox(j_autodiff_map));
   }
@@ -275,7 +275,7 @@ TEST(Util, quaternionToAngleAxis)
     // Test that approximate conversion and jacobian computation work for very small angles that
     // could potentially cause underflow.
 
-    double theta = std::pow(std::numeric_limits<double>::min(), 0.75);
+    double const theta = std::pow(std::numeric_limits<double>::min(), 0.75);
     std::array<double, 4> q = { cos(theta / 2.0), sin(theta / 2.0), 0, 0 };
     std::array<double, 3> angle_axis{};
     std::array<double, 3> expected = { theta, 0, 0 };
@@ -294,8 +294,8 @@ TEST(Util, quaternionToAngleAxis)
     std::array<double, 3> angle_axis_autodiff{};
     quat2angle_axis_cf->Evaluate(parameters.data(), angle_axis_autodiff.data(), jacobians.data());
 
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_autodiff_map(jacobians[0]);
-    Eigen::Map<fuse_core::Matrix<double, 3, 4>> j_analytic_map(j_analytic.data());
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_autodiff_map(jacobians[0]);
+    Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_analytic_map(j_analytic.data());
 
     EXPECT_TRUE(j_analytic_map.isApprox(j_autodiff_map));
   }

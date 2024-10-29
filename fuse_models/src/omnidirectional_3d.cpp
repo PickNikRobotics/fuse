@@ -376,9 +376,6 @@ void Omnidirectional3D::generateMotionModel(const rclcpp::Time& beginning_stamp,
   state2.vel_angular_uuid = velocity_angular2->uuid();
   state2.acc_linear_uuid = acceleration_linear2->uuid();
 
-  state_history_.emplace(beginning_stamp, std::move(state1));
-  state_history_.emplace(ending_stamp, std::move(state2));
-
   // Scale process noise covariance pose by the norm of the current state twist
   auto process_noise_covariance = process_noise_covariance_;
   if (scale_process_noise_)
@@ -403,6 +400,9 @@ void Omnidirectional3D::generateMotionModel(const rclcpp::Time& beginning_stamp,
       return;
     }
   }
+
+  state_history_.emplace(beginning_stamp, std::move(state1));
+  state_history_.emplace(ending_stamp, std::move(state2));
 
   // Create the constraints for this motion model segment
   auto constraint = fuse_models::Omnidirectional3DStateKinematicConstraint::make_shared(

@@ -1,10 +1,11 @@
+#include <mujoco/mjdata.h>
 #include <mujoco/mujoco.h>
 #include <fuse_core/timestamp_manager.hpp>
 
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2024, PickNik Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -102,7 +103,7 @@ protected:
    *
    * @param[in] model The mujoco model
    */
-  explicit MujocoMotionModel(std::unique_ptr<mjModel> model);
+  explicit MujocoMotionModel();
 
   /**
    * @brief Augment a transaction object such that all involved timestamps are connected by motion
@@ -163,6 +164,7 @@ protected:
                                                    //!< motion model segments
   std::shared_ptr<fuse_core::Graph const> graph_;
   std::unique_ptr<mjModel> model_;
+  std::unique_ptr<mjData> data_;
 };
 
 }  // namespace fuse_models

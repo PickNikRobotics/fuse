@@ -10,4 +10,4 @@ repositories:
   mujoco:
     type: git
     url: https://github.com/google-deepmind/mujoco.git
-    version: c2024ef6d1f7658698165abf212c9cd5b78f28df  # 3.2.4
+    version: 3.2.4

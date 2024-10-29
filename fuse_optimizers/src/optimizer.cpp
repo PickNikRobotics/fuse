@@ -90,11 +90,15 @@ Optimizer::Optimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NO
   startPlugins();
 }
 
+// the classloader destructor makes clang-tidy complain...
+// TODO(henrygerardmoore): maybe look into this
+// NOLINTBEGIN(clang-analyzer-optin.cplusplus.VirtualCall)
 Optimizer::~Optimizer()
 {
   // Stop all the plugins
   stopPlugins();
 }
+// NOLINTEND(clang-analyzer-optin.cplusplus.VirtualCall)
 
 void Optimizer::loadMotionModels()
 {
@@ -109,7 +113,7 @@ void Optimizer::loadMotionModels()
   // the configurations used to load models
   std::vector<ModelConfig> motion_model_config;
 
-  std::unordered_set<std::string> motion_model_names =
+  std::unordered_set<std::string> const motion_model_names =
       fuse_core::list_parameter_override_prefixes(interfaces_, "motion_models.");
 
   // declare config parameters for each model
@@ -163,11 +167,11 @@ void Optimizer::loadMotionModels()
 void Optimizer::loadSensorModels()
 {
   // struct for readability
-  typedef struct
+  typedef struct ModelConfig
   {
     std::string name;
     std::string type;
-    bool ignition;
+    bool ignition = false;
     std::vector<std::string> associated_motion_models;
     std::string type_param_name;
     std::string models_param_name;
@@ -177,7 +181,7 @@ void Optimizer::loadSensorModels()
   // the configurations used to load models
   std::vector<ModelConfig> sensor_model_config;
 
-  std::unordered_set<std::string> sensor_model_names =
+  std::unordered_set<std::string> const sensor_model_names =
       fuse_core::list_parameter_override_prefixes(interfaces_, "sensor_models.");
 
   // declare config parameters for each model
@@ -200,7 +204,7 @@ void Optimizer::loadSensorModels()
     }
 
     // get the type parameter for the sensor model
-    rclcpp::Parameter sensor_model_type_param =
+    rclcpp::Parameter const sensor_model_type_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.type_param_name);
     // extract the type string from the parameter
     if (sensor_model_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
@@ -218,7 +222,7 @@ void Optimizer::loadSensorModels()
     }
 
     // get the model_list parameter for the sensor model
-    rclcpp::Parameter sensor_model_model_list_param =
+    rclcpp::Parameter const sensor_model_model_list_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.models_param_name);
     // extract the model_list string from the parameter
     if (sensor_model_model_list_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING_ARRAY)
@@ -236,7 +240,7 @@ void Optimizer::loadSensorModels()
     }
 
     // get the model list parameter for the sensor model
-    rclcpp::Parameter sensor_model_ignition_param =
+    rclcpp::Parameter const sensor_model_ignition_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.ignition_param_name);
     // extract the ignition bool from the parameter
     if (sensor_model_ignition_param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL)
@@ -245,7 +249,7 @@ void Optimizer::loadSensorModels()
     }
 
     // quickly check for common errors
-    if (config.type == "")
+    if (config.type.empty())
     {
       RCLCPP_WARN_STREAM(logger_, "parameter '" << config.type_param_name
                                                 << "' should be the string of a sensor_model type "
@@ -295,7 +299,7 @@ void Optimizer::loadPublishers()
   // the configurations used to load models
   std::vector<PublisherConfig> publisher_config;
 
-  std::unordered_set<std::string> publisher_names =
+  std::unordered_set<std::string> const publisher_names =
       fuse_core::list_parameter_override_prefixes(interfaces_, "publishers.");
 
   // declare config parameters for each model
@@ -315,7 +319,7 @@ void Optimizer::loadPublishers()
     }
 
     // get the type parameter for the publisher
-    rclcpp::Parameter publisher_type_param =
+    rclcpp::Parameter const publisher_type_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.param_name);
     // extract the type string from the parameter
     if (publisher_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
@@ -324,7 +328,7 @@ void Optimizer::loadPublishers()
     }
 
     // quickly check for common errors
-    if (config.type == "")
+    if (config.type.empty())
     {
       RCLCPP_WARN_STREAM(logger_, "parameter '" << config.param_name << "' should be the string of a publisher type "
                                                 << "for the publisher named '" << config.name << "'.");

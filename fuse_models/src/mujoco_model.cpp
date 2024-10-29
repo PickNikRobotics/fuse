@@ -2,12 +2,11 @@
 
 namespace fuse_models
 {
-MujocoMotionModel::MujocoMotionModel(std::unique_ptr<mjModel> model)
+MujocoMotionModel::MujocoMotionModel()
   : fuse_core::AsyncMotionModel(1)
   , logger_(rclcpp::get_logger("mujoco_model"))
   , device_id_(fuse_core::uuid::NIL)
   , timestamp_manager_(&MujocoMotionModel::generateMotionModel, this, rclcpp::Duration::max())
-  , model_(std::move(model))
 {
 }
 
@@ -27,6 +26,8 @@ void MujocoMotionModel::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
 void MujocoMotionModel::onInit()
 {
   // TODO(henrygerardmoore): implement this
+  // model_ = fuse::getParam...
+  // data_ = ...
 }
 
 bool MujocoMotionModel::applyCallback(fuse_core::Transaction& transaction)
