@@ -132,7 +132,7 @@ void Optimizer::loadMotionModels()
     }
 
     // get the type parameter for the motion model
-    rclcpp::Parameter motion_model_type_param =
+    rclcpp::Parameter const motion_model_type_param =
         interfaces_.get_node_parameters_interface()->get_parameter(config.param_name);
     // extract the type string from the parameter
     if (motion_model_type_param.get_type() == rclcpp::ParameterType::PARAMETER_STRING)
@@ -141,7 +141,7 @@ void Optimizer::loadMotionModels()
     }
 
     // quickly check for common errors
-    if (config.type == "")
+    if (config.type.empty())
     {
       RCLCPP_WARN_STREAM(logger_, "parameter '" << config.param_name << "' should be the string of a motion_model type "
                                                 << "for the motion_model named '" << config.name << "'.");
