@@ -34,10 +34,8 @@
 #ifndef FUSE_CORE__ASYNC_PUBLISHER_HPP_
 #define FUSE_CORE__ASYNC_PUBLISHER_HPP_
 
-#include <functional>
 #include <memory>
 #include <string>
-#include <utility>
 
 #include <fuse_core/callback_wrapper.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -73,6 +71,10 @@ public:
    * @brief Destructor
    */
   virtual ~AsyncPublisher();
+  AsyncPublisher(AsyncPublisher const&) = delete;
+  AsyncPublisher(AsyncPublisher&&) = delete;
+  AsyncPublisher& operator=(AsyncPublisher const&) = delete;
+  AsyncPublisher& operator=(AsyncPublisher&&) = delete;
 
   /**
    * @brief Initialize the AsyncPublisher object
@@ -203,6 +205,7 @@ protected:
    * @param[in] graph       A read-only pointer to the graph object, allowing queries to be
    *                        performed whenever needed
    */
+  // NOLINTNEXTLINE
   virtual void notifyCallback(Transaction::ConstSharedPtr /*transaction*/, Graph::ConstSharedPtr /*graph*/)
   {
   }
@@ -230,7 +233,7 @@ protected:
 
 private:
   //! Stop the internal executor thread (in order to use this class again it must be re-initialized)
-  void internal_stop();
+  void internalStop();
 };
 
 }  // namespace fuse_core

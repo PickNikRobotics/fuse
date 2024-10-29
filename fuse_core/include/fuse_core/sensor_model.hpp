@@ -76,6 +76,10 @@ public:
    * @brief Destructor
    */
   virtual ~SensorModel() = default;
+  SensorModel(SensorModel const&) = default;
+  SensorModel(SensorModel&&) = default;
+  SensorModel& operator=(SensorModel const&) = default;
+  SensorModel& operator=(SensorModel&&) = default;
 
   /**
    * @brief Function to be executed whenever the optimizer has completed a Graph update
@@ -91,6 +95,7 @@ public:
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
    *                  whenever needed.
    */
+  // NOLINTNEXTLINE
   virtual void graphCallback(Graph::ConstSharedPtr /*graph*/)
   {
   }
@@ -113,7 +118,7 @@ public:
   /**
    * @brief Get the unique name of this sensor
    */
-  virtual const std::string& name() const = 0;
+  [[nodiscard]] virtual const std::string& name() const = 0;
 
   /**
    * @brief Function to be executed whenever the optimizer is ready to receive transactions

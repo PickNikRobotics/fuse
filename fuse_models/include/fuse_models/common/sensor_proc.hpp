@@ -87,7 +87,7 @@
 
 #include <boost/range/join.hpp>
 
-static auto sensor_proc_clock = rclcpp::Clock();
+static auto const sensorProcClock = rclcpp::Clock();
 
 namespace tf2
 {
@@ -99,23 +99,23 @@ namespace tf2
  * \param transform The timestamped transform to apply, as a TransformStamped message.
  */
 template <>
-inline void doTransform(const geometry_msgs::msg::TwistWithCovarianceStamped& t_in,
-                        geometry_msgs::msg::TwistWithCovarianceStamped& t_out,
+inline void doTransform(const geometry_msgs::msg::TwistWithCovarianceStamped& data_in,
+                        geometry_msgs::msg::TwistWithCovarianceStamped& data_out,
                         const geometry_msgs::msg::TransformStamped& transform)  // NOLINT
 {
   tf2::Vector3 vl;
-  fromMsg(t_in.twist.twist.linear, vl);
+  fromMsg(data_in.twist.twist.linear, vl);
   tf2::Vector3 va;
-  fromMsg(t_in.twist.twist.angular, va);
+  fromMsg(data_in.twist.twist.angular, va);
 
   tf2::Transform t;
   fromMsg(transform.transform, t);
-  t_out.twist.twist.linear = tf2::toMsg(t.getBasis() * vl);
-  t_out.twist.twist.angular = tf2::toMsg(t.getBasis() * va);
-  t_out.header.stamp = transform.header.stamp;
-  t_out.header.frame_id = transform.header.frame_id;
+  data_out.twist.twist.linear = tf2::toMsg(t.getBasis() * vl);
+  data_out.twist.twist.angular = tf2::toMsg(t.getBasis() * va);
+  data_out.header.stamp = transform.header.stamp;
+  data_out.header.frame_id = transform.header.frame_id;
 
-  t_out.twist.covariance = transformCovariance(t_in.twist.covariance, t);
+  data_out.twist.covariance = transformCovariance(data_in.twist.covariance, t);
 }
 
 /** \brief Apply a geometry_msgs TransformStamped to a geometry_msgs AccelWithCovarianceStamped type.
@@ -125,23 +125,23 @@ inline void doTransform(const geometry_msgs::msg::TwistWithCovarianceStamped& t_
  * \param transform The timestamped transform to apply, as a TransformStamped message.
  */
 template <>
-inline void doTransform(const geometry_msgs::msg::AccelWithCovarianceStamped& t_in,
-                        geometry_msgs::msg::AccelWithCovarianceStamped& t_out,
-                        const geometry_msgs::msg::TransformStamped& transform)  // NOLINT
+inline void doTransform(const geometry_msgs::msg::AccelWithCovarianceStamped& data_in,
+                        geometry_msgs::msg::AccelWithCovarianceStamped& data_out,
+                        const geometry_msgs::msg::TransformStamped& transform)
 {
   tf2::Vector3 al;
-  fromMsg(t_in.accel.accel.linear, al);
+  fromMsg(data_in.accel.accel.linear, al);
   tf2::Vector3 aa;
-  fromMsg(t_in.accel.accel.angular, aa);
+  fromMsg(data_in.accel.accel.angular, aa);
 
   tf2::Transform t;
   fromMsg(transform.transform, t);
-  t_out.accel.accel.linear = tf2::toMsg(t.getBasis() * al);
-  t_out.accel.accel.angular = tf2::toMsg(t.getBasis() * aa);
-  t_out.header.stamp = transform.header.stamp;
-  t_out.header.frame_id = transform.header.frame_id;
+  data_out.accel.accel.linear = tf2::toMsg(t.getBasis() * al);
+  data_out.accel.accel.angular = tf2::toMsg(t.getBasis() * aa);
+  data_out.header.stamp = transform.header.stamp;
+  data_out.header.frame_id = transform.header.frame_id;
 
-  t_out.accel.covariance = transformCovariance(t_in.accel.covariance, t);
+  data_out.accel.covariance = transformCovariance(data_in.accel.covariance, t);
 }
 
 }  // namespace tf2
@@ -164,7 +164,7 @@ inline std::vector<size_t> mergeIndices(const std::vector<size_t>& lhs_indices, 
 {
   auto merged_indices = boost::copy_range<std::vector<size_t>>(boost::range::join(lhs_indices, rhs_indices));
 
-  const auto rhs_it = merged_indices.begin() + lhs_indices.size();
+  const auto rhs_it = merged_indices.begin() + static_cast<int64_t>(lhs_indices.size());
   std::transform(rhs_it, merged_indices.end(), rhs_it,
                  std::bind(std::plus<size_t>(), std::placeholders::_1, rhs_offset));
 
@@ -186,13 +186,13 @@ inline void populatePartialMeasurement(const fuse_core::VectorXd& mean_full, con
                                        const std::vector<size_t>& indices, fuse_core::VectorXd& mean_partial,
                                        fuse_core::MatrixXd& covariance_partial)
 {
-  for (size_t r = 0; r < indices.size(); ++r)
+  for (int64_t r = 0; r < static_cast<int64_t>(indices.size()); ++r)
   {
-    mean_partial(r) = mean_full(indices[r]);
+    mean_partial(r) = mean_full(static_cast<int64_t>(indices[r]));
 
-    for (size_t c = 0; c < indices.size(); ++c)
+    for (int64_t c = 0; c < static_cast<int64_t>(indices.size()); ++c)
     {
-      covariance_partial(r, c) = covariance_full(indices[r], indices[c]);
+      covariance_partial(r, c) = covariance_full(static_cast<int64_t>(indices[r]), static_cast<int64_t>(indices[c]));
     }
   }
 }
@@ -209,11 +209,11 @@ inline void populatePartialMeasurement(const fuse_core::VectorXd& mean_full, con
 inline void populatePartialMeasurement(const fuse_core::MatrixXd& covariance_full, const std::vector<size_t>& indices,
                                        fuse_core::MatrixXd& covariance_partial)
 {
-  for (size_t r = 0; r < indices.size(); ++r)
+  for (int64_t r = 0; r < static_cast<int64_t>(indices.size()); ++r)
   {
-    for (size_t c = 0; c < indices.size(); ++c)
+    for (int64_t c = 0; c < static_cast<int64_t>(indices.size()); ++c)
     {
-      covariance_partial(r, c) = covariance_full(indices[r], indices[c]);
+      covariance_partial(r, c) = covariance_full(static_cast<int64_t>(indices[r]), static_cast<int64_t>(indices[c]));
     }
   }
 }
@@ -298,7 +298,7 @@ bool transformMessage(const tf2_ros::Buffer& tf_buffer, const T& input, T& outpu
   }
   catch (const tf2::TransformException& ex)
   {
-    RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 5.0 * 1000,
+    RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 5.0 * 1000,
                                           "Could not transform message from " << input.header.frame_id << " to "
                                                                               << output.header.frame_id
                                                                               << ". Error was " << ex.what());
@@ -353,7 +353,7 @@ inline bool processAbsolutePoseWithCovariance(const std::string& source, const f
 
     if (!transformMessage(tf_buffer, pose, transformed_message, tf_timeout))
     {
-      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                             "Failed to transform pose message with stamp "
                                                 << rclcpp::Time(pose.header.stamp).nanoseconds()
                                                 << ". Cannot create constraint.");
@@ -400,7 +400,7 @@ inline bool processAbsolutePoseWithCovariance(const std::string& source, const f
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                    "Invalid partial absolute pose measurement from '" << source
                                                                                       << "' source: " << ex.what());
       return false;
@@ -470,7 +470,7 @@ inline bool processAbsolutePose3DWithCovariance(const std::string& source, const
 
     if (!transformMessage(tf_buffer, pose, transformed_message, tf_timeout))
     {
-      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                             "Failed to transform pose message with stamp "
                                                 << rclcpp::Time(pose.header.stamp).nanoseconds()
                                                 << ". Cannot create constraint.");
@@ -507,7 +507,7 @@ inline bool processAbsolutePose3DWithCovariance(const std::string& source, const
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                      "Invalid partial absolute pose measurement from '" << source
                                                                                         << "' source: " << ex.what());
         return false;
@@ -556,7 +556,7 @@ inline bool processAbsolutePose3DWithCovariance(const std::string& source, const
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                    "Invalid partial absolute pose measurement from '" << source
                                                                                       << "' source: " << ex.what());
       return false;
@@ -874,7 +874,7 @@ inline bool processDifferentialPoseWithCovariance(const std::string& source, con
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                    "Invalid partial differential pose measurement from '" << source
                                                                                           << "' source: " << ex.what());
       return false;
@@ -973,7 +973,9 @@ inline bool processDifferentialPose3DWithCovariance(const std::string& source, c
   // by José Luis Blanco Claraco (https://arxiv.org/abs/2103.15980)
 
   // Convert from ROS msg to covariance geometry types
-  covariance_geometry::PoseQuaternionCovarianceRPY p1, p2, p12;
+  covariance_geometry::PoseQuaternionCovarianceRPY p1;
+  covariance_geometry::PoseQuaternionCovarianceRPY p2;
+  covariance_geometry::PoseQuaternionCovarianceRPY p12;
   covariance_geometry::fromROS(pose1.pose, p1);
   covariance_geometry::fromROS(pose2.pose, p2);
 
@@ -1011,14 +1013,18 @@ inline bool processDifferentialPose3DWithCovariance(const std::string& source, c
       // C12 = J_p12^-1 * (C2 - J_p1 * C1 * J_p1^T) * J_p12^-T
 
       // First we need to convert covariances from RPY (6x6) to quaternion (7x7)
-      covariance_geometry::PoseQuaternionCovariance p1_q, p2_q, p12_q;
+      covariance_geometry::PoseQuaternionCovariance p1_q;
+      covariance_geometry::PoseQuaternionCovariance p2_q;
+      covariance_geometry::PoseQuaternionCovariance p12_q;
       covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(p1, p1_q);
       covariance_geometry::Pose3DQuaternionCovarianceRPYTo3DQuaternionCovariance(p2, p2_q);
       // Then we need to compute the delta pose
       covariance_geometry::ComposePose3DQuaternion(covariance_geometry::InversePose(p1_q.first), p2_q.first,
                                                    p12_q.first);
       // Now we have to compute pose composition jacobians so we can rotate covariances
-      Eigen::Matrix7d j_p1, j_p12, j_p12_inv;
+      Eigen::Matrix7d j_p1;
+      Eigen::Matrix7d j_p12;
+      Eigen::Matrix7d j_p12_inv;
       Eigen::Matrix4d j_qn;
 
       covariance_geometry::jacobianQuaternionNormalization(p12_q.first.second, j_qn);
@@ -1057,7 +1063,7 @@ inline bool processDifferentialPose3DWithCovariance(const std::string& source, c
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                      "Invalid partial differential pose measurement from '"
                                          << source << "' source: " << ex.what());
         return false;
@@ -1112,7 +1118,7 @@ inline bool processDifferentialPose3DWithCovariance(const std::string& source, c
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                    "Invalid partial differential pose measurement from '" << source
                                                                                           << "' source: " << ex.what());
       return false;
@@ -1255,7 +1261,7 @@ inline bool processDifferentialPoseWithTwistCovariance(const std::string& source
 
   if (dt < 1e-6)
   {
-    RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+    RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                  "Very small time difference " << dt << "s from '" << source << "' source.");
     return false;
   }
@@ -1285,7 +1291,7 @@ inline bool processDifferentialPoseWithTwistCovariance(const std::string& source
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                    "Invalid partial differential pose measurement using the twist covariance from '"
                                        << source << "' source: " << ex.what());
       return false;
@@ -1359,7 +1365,8 @@ inline bool processDifferentialPose3DWithTwistCovariance(const std::string& sour
   }
 
   // Convert the poses into tf2 transforms
-  tf2::Transform pose1_tf2, pose2_tf2;
+  tf2::Transform pose1_tf2;
+  tf2::Transform pose2_tf2;
   tf2::fromMsg(pose1.pose.pose, pose1_tf2);
   tf2::fromMsg(pose2.pose.pose, pose2_tf2);
 
@@ -1394,7 +1401,7 @@ inline bool processDifferentialPose3DWithTwistCovariance(const std::string& sour
 
   if (dt < 1e-6)
   {
-    RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+    RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                  "Very small time difference " << dt << "s from '" << source << "' source.");
     return false;
   }
@@ -1421,7 +1428,7 @@ inline bool processDifferentialPose3DWithTwistCovariance(const std::string& sour
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                      "Invalid partial differential pose measurement using the twist covariance from '"
                                          << source << "' source: " << ex.what());
         return false;
@@ -1470,7 +1477,7 @@ inline bool processDifferentialPose3DWithTwistCovariance(const std::string& sour
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                    "Invalid partial differential pose measurement using the twist covariance from '"
                                        << source << "' source: " << ex.what());
       return false;
@@ -1547,7 +1554,7 @@ inline bool processTwistWithCovariance(const std::string& source, const fuse_cor
 
     if (!transformMessage(tf_buffer, twist, transformed_message, tf_timeout))
     {
-      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                             "Failed to transform twist message with stamp "
                                                 << rclcpp::Time(twist.header.stamp).nanoseconds()
                                                 << ". Cannot create constraint.");
@@ -1590,7 +1597,7 @@ inline bool processTwistWithCovariance(const std::string& source, const fuse_cor
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                      "Invalid partial linear velocity measurement from '" << source
                                                                                           << "' source: " << ex.what());
         add_constraint = false;
@@ -1632,7 +1639,7 @@ inline bool processTwistWithCovariance(const std::string& source, const fuse_cor
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0,
                                      "Invalid partial angular velocity measurement from '"
                                          << source << "' source: " << ex.what());
         add_constraint = false;
@@ -1714,7 +1721,7 @@ inline bool processTwist3DWithCovariance(const std::string& source, const fuse_c
 
     if (!transformMessage(tf_buffer, twist, transformed_message, tf_timeout))
     {
-      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                             "Failed to transform twist message with stamp "
                                                 << rclcpp::Time(twist.header.stamp).nanoseconds()
                                                 << ". Cannot create constraint.");
@@ -1758,7 +1765,7 @@ inline bool processTwist3DWithCovariance(const std::string& source, const fuse_c
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                      "Invalid partial linear velocity measurement from '" << source
                                                                                           << "' source: " << ex.what());
         add_constraint = false;
@@ -1810,7 +1817,7 @@ inline bool processTwist3DWithCovariance(const std::string& source, const fuse_c
       }
       catch (const std::runtime_error& ex)
       {
-        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0,
+        RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0,
                                      "Invalid partial angular velocity measurement from '"
                                          << source << "' source: " << ex.what());
         add_constraint = false;
@@ -1884,7 +1891,7 @@ inline bool processAccelWithCovariance(const std::string& source, const fuse_cor
 
     if (!transformMessage(tf_buffer, acceleration, transformed_message, tf_timeout))
     {
-      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0,
+      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0,
                                             "Failed to transform acceleration message with stamp "
                                                 << rclcpp::Time(acceleration.header.stamp).nanoseconds()
                                                 << ". Cannot create constraint.");
@@ -1920,7 +1927,7 @@ inline bool processAccelWithCovariance(const std::string& source, const fuse_cor
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                    "Invalid partial linear acceleration measurement from '"
                                        << source << "' source: " << ex.what());
       return false;
@@ -1987,7 +1994,7 @@ inline bool processAccel3DWithCovariance(const std::string& source, const fuse_c
 
     if (!transformMessage(tf_buffer, acceleration, transformed_message, tf_timeout))
     {
-      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0,
+      RCLCPP_WARN_STREAM_SKIPFIRST_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0,
                                             "Failed to transform acceleration message with stamp "
                                                 << rclcpp::Time(acceleration.header.stamp).nanoseconds()
                                                 << ". Cannot create constraint.");
@@ -2017,7 +2024,7 @@ inline bool processAccel3DWithCovariance(const std::string& source, const fuse_c
     }
     catch (const std::runtime_error& ex)
     {
-      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensor_proc_clock, 10.0 * 1000,
+      RCLCPP_ERROR_STREAM_THROTTLE(rclcpp::get_logger("fuse"), sensorProcClock, 10.0 * 1000,
                                    "Invalid partial linear acceleration measurement from '"
                                        << source << "' source: " << ex.what());
       return false;
