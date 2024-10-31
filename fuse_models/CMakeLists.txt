@@ -43,6 +43,7 @@ find_package(Eigen3 REQUIRED)
 # Declare a C++ library
 add_library(
   ${PROJECT_NAME}
+  src/april_tag_pose.cpp
   src/acceleration_2d.cpp
   src/graph_ignition.cpp
   src/imu_2d.cpp
