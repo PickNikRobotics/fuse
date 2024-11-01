@@ -15,7 +15,7 @@ documentation is highly recommended.
 
 The nonlinear least-squares system used by the Ceres Solver is written as:
 
-![least squares equation](constraints-least_squares_equation.gif)
+$$ \mathrm{arg\ min}_{x} \left(\frac{1}{2} \sum_i \rho_i \left(||f(x_{i_1},...,x_{i_k})||^2\right)\right)$$
 
 In Ceres Solver parlance, &rho;() is called a "loss function". f() is called a "cost function", which accepts one or
 more inputs, x. And the inputs, x, are called "parameter blocks". The "parameter blocks" themselves may be
@@ -43,7 +43,8 @@ The "cost function" is the main component of the Constraint object. It is respon
 minimized by the Ceres Solver optimizer. The cost function must implement some sort of equation to generate a score
 for arbitrary input values. In its most generic form, that equation is written simply as:
 
-![generic cost equation](constraints-generic_cost_equation.gif)
+$$ \begin{bmatrix} r_1 \\ ... \\ r_i\end{bmatrix} = f\left(\begin{bmatrix}x_{1_1} \\ ... \\ x_{1_j}\end{bmatrix}, ..., \begin{bmatrix}x_{n_1} \\ ... \\ x_{n_k}\end{bmatrix}\right)$$
+
 
 where f() is the cost function, x<sub>1</sub> through x<sub>n</sub> are the input Variables, each of which may contain
 multi-dimensional data, and r<sub>i</sub> are one or more dimensions of the computed costs. In Ceres Solver notation,
@@ -58,7 +59,7 @@ An observation model, sometimes called a sensor model, predicts a sensor measure
 of the system Variables. The cost is then computed as the difference between the predicted sensor measurement and the
 actual sensor measurement, normalized by the measurement uncertainty.
 
-![observation model equation](constraints-observation_model_equation.gif)
+$$ \begin{bmatrix} r_1 \\ ... \\ r_i\end{bmatrix} = \left(\begin{bmatrix}z_1 \\ ... \\ z_i\end{bmatrix} - h\left(\begin{bmatrix}x_{1_1} \\ ... \\ x_{1_j}\end{bmatrix}, ..., \begin{bmatrix}x_{n_1} \\ ... \\ x_{n_k}\end{bmatrix}\right)\right) \cdot \Sigma ^{-\frac{1}{2}}$$
 
 where z is the sensor measured, h() is the sensor prediction function, and &Sigma; is the covariance matrix. Within
 the least-squares minimization, the entire cost function will get squared. By dividing by the square root of the
@@ -72,7 +73,7 @@ A state transition model, sometimes called a motion model, predicts the value of
 current estimates of the system Variables. This is generally used to enforce a physical model of the system, such
 as known vehicle kinematics.
 
-![state transition model equation](constraints-state_transition_model_equation.gif)
+$$ \begin{bmatrix} r_1 \\ ... \\ r_i\end{bmatrix} = \left(\begin{bmatrix}x_{t_1} \\ ... \\ x_{t_i}\end{bmatrix} - f\left(\begin{bmatrix}x_{{t-1}_1} \\ ... \\ x_{{t-1}_i}\end{bmatrix}\right)\right) \cdot \Sigma ^{-\frac{1}{2}}$$
 
 where x<sub>t</sub> is the current Variable estimate for time _t_, x<sub>t-1</sub> is the current Variable estimate
 for time _t-1_, f() is the state prediction function that implements the desired kinematic or dynamic model
@@ -245,7 +246,10 @@ modeled this way. Our cost function will follow the "observation model", where t
 predict the sensor measurement, and the cost will be the different between the measured and the prediction normalized
 by the measurement uncertainty.
 
-![2D pose prior cost equation](constraints-pose_2d_prior_equation.gif)
+$$ \begin{bmatrix} \mathrm{cost}_1 \\ \mathrm{cost}_2 \\ \mathrm{cost}_3\end{bmatrix}
+= \left(\begin{bmatrix}z_x \\ z_y \\ z_{yaw}\end{bmatrix}
+- \begin{bmatrix}position_x \\ position_y \\ orientation_{yaw}\end{bmatrix}\right)
+\cdot \Sigma ^{-\frac{1}{2}}$$
 
 We will make use of Ceres Solver's automatic derivative system to compute the Jacobians. For that to work, we must
 implement the cost function equation as a functor object (has an `operator()` method). To compute the cost, our
