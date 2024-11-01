@@ -224,11 +224,15 @@ public:
    * @brief Destructor
    */
   virtual ~Variable() = default;
+  Variable(Variable const&) = default;
+  Variable(Variable&&) = default;
+  Variable& operator=(Variable const&) = default;
+  Variable& operator=(Variable&&) = default;
 
   /**
    * @brief Returns a UUID for this variable.
    */
-  const UUID& uuid() const
+  [[nodiscard]] const UUID& uuid() const
   {
     return uuid_;
   }
@@ -247,7 +251,7 @@ public:
    * To make this easy to implement in all derived classes, the FUSE_VARIABLE_TYPE_DEFINITION()
    * and FUSE_VARIABLE_DEFINITIONS() macro functions have been provided.
    */
-  virtual std::string type() const = 0;
+  [[nodiscard]] virtual std::string type() const = 0;
 
   /**
    * @brief Returns the number of elements of this variable.
@@ -257,7 +261,7 @@ public:
    * exception is a 3D rotation represented as a quaternion. It only has 3 degrees of freedom,
    * but it is represented as four elements, (w, x, y, z), so it's size will be 4.
    */
-  virtual size_t size() const = 0;
+  [[nodiscard]] virtual size_t size() const = 0;
 
   /**
    * @brief Returns the number of elements of the local parameterization space.
@@ -266,7 +270,7 @@ public:
    * override the \p localSize() method. By default, the \p size() method is used for \p
    * localSize() as well.
    */
-  virtual size_t localSize() const
+  [[nodiscard]] virtual size_t localSize() const
   {
     return size();
   }
@@ -279,7 +283,7 @@ public:
    * Variable::size() elements will be accessed externally. This interface is provided for
    * integration with Ceres, which uses raw pointers.
    */
-  virtual const double* data() const = 0;
+  [[nodiscard]] virtual const double* data() const = 0;
 
   /**
    * @brief Read-write access to the variable data
@@ -314,7 +318,7 @@ public:
    *
    * @return A unique pointer to a new instance of the most-derived Variable
    */
-  virtual Variable::UniquePtr clone() const = 0;
+  [[nodiscard]] virtual Variable::UniquePtr clone() const = 0;
 
   /**
    * @brief Create a new Ceres local parameterization object to apply to updates of this variable
@@ -331,7 +335,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  virtual fuse_core::LocalParameterization* localParameterization() const
+  [[nodiscard]] virtual std::unique_ptr<fuse_core::LocalParameterization> localParameterization() const
   {
     return nullptr;
   }
@@ -354,21 +358,19 @@ public:
    *
    * @return A base pointer to an instance of a derived Manifold
    */
-  virtual fuse_core::Manifold* manifold() const
+  [[nodiscard]] virtual std::unique_ptr<fuse_core::Manifold> manifold() const
   {
     // To support legacy Variable classes that still implements the localParameterization() method,
     // construct a ManifoldAdapter object from the LocalParameterization pointer as the default
     // action. If the Variable has been updated to use the new Manifold classes, then the Variable
     // should override this method and return a pointer to the appropriate derived Manifold object.
     auto local_parameterization = localParameterization();
-    if (!local_parameterization)
+    if (local_parameterization == nullptr)
     {
       return nullptr;
     }
-    else
-    {
-      return new fuse_core::ManifoldAdapter(local_parameterization);
-    }
+
+    return std::unique_ptr<fuse_core::Manifold>(new fuse_core::ManifoldAdapter(local_parameterization.get()));
   }
 #endif
 
@@ -455,7 +457,7 @@ public:
   virtual void deserialize(fuse_core::TextInputArchive& /* archive */) = 0;
 
 private:
-  fuse_core::UUID uuid_;  //!< The unique ID number for this variable
+  fuse_core::UUID uuid_{};  //!< The unique ID number for this variable
 
   // Allow Boost Serialization access to private methods
   friend class boost::serialization::access;

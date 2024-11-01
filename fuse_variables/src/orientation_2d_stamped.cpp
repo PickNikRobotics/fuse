@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <memory>
 #include <ostream>
 
 #include <boost/serialization/export.hpp>
@@ -62,15 +63,15 @@ void Orientation2DStamped::print(std::ostream& stream) const
          << "  - yaw: " << yaw() << "\n";
 }
 
-fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
+std::unique_ptr<fuse_core::LocalParameterization> Orientation2DStamped::localParameterization() const
 {
-  return new Orientation2DLocalParameterization();
+  return std::unique_ptr<fuse_core::LocalParameterization>(new Orientation2DLocalParameterization());
 }
 
 #if CERES_SUPPORTS_MANIFOLDS
-fuse_core::Manifold* Orientation2DStamped::manifold() const
+[[nodiscard]] std::unique_ptr<fuse_core::Manifold> Orientation2DStamped::manifold() const
 {
-  return new Orientation2DManifold();
+  return std::unique_ptr<fuse_core::Manifold>(new Orientation2DManifold());
 }
 #endif
 

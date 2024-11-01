@@ -266,7 +266,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  fuse_core::LocalParameterization* localParameterization() const override;
+  [[nodiscard]] std::unique_ptr<fuse_core::LocalParameterization> localParameterization() const override;
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**
@@ -277,7 +277,7 @@ public:
    *
    * @return A base pointer to an instance of a derived manifold
    */
-  fuse_core::Manifold* manifold() const override;
+  [[nodiscard]] std::unique_ptr<fuse_core::Manifold> manifold() const override;
 #endif
 
 private:
@@ -294,7 +294,7 @@ private:
   template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& boost::serialization::base_object<Stamped>(*this);
   }
 };

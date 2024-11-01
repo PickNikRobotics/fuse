@@ -79,7 +79,7 @@ public:
    *
    * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
    */
-  fuse_core::Manifold* manifold() const override
+  [[nodiscard]] std::unique_ptr<fuse_core::Manifold> manifold() const override
   {
     return nullptr;
   }
@@ -127,8 +127,8 @@ public:
   bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     double q_delta[4];
-    ceres::AngleAxisToQuaternion(delta, q_delta);
-    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    ceres::AngleAxisToQuaternion(delta, static_cast<double*>(q_delta));
+    ceres::QuaternionProduct(x, static_cast<double*>(q_delta), x_plus_delta);
     return true;
   }
 
@@ -164,8 +164,8 @@ public:
     x_inverse[3] = -x[3];
 
     double q_delta[4];
-    ceres::QuaternionProduct(x_inverse, y, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
+    ceres::QuaternionProduct(static_cast<double*>(x_inverse), y, static_cast<double*>(q_delta));
+    ceres::QuaternionToAngleAxis(static_cast<double*>(q_delta), y_minus_x);
     return true;
   }
 
@@ -219,17 +219,17 @@ public:
   {
   }
 
-  size_t size() const override
+  [[nodiscard]] size_t size() const override
   {
     return 4;
   }
-  const double* data() const override
+  [[nodiscard]] const double* data() const override
   {
-    return data_;
+    return static_cast<double const*>(data_);
   }
   double* data() override
   {
-    return data_;
+    return static_cast<double*>(data_);
   }
   void print(std::ostream& /*stream = std::cout*/) const override
   {
@@ -251,9 +251,9 @@ public:
    *
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
    */
-  fuse_core::LocalParameterization* localParameterization() const override
+  [[nodiscard]] std::unique_ptr<fuse_core::LocalParameterization> localParameterization() const override
   {
-    return new LegacyParameterization();
+    return std::unique_ptr<fuse_core::LocalParameterization>(new LegacyParameterization());
   }
 
 private:

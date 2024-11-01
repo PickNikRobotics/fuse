@@ -82,7 +82,7 @@ TEST(LegacyVariable, Serialization)
 #if CERES_SUPPORTS_MANIFOLDS
 struct QuaternionCostFunction
 {
-  explicit QuaternionCostFunction(double* observation)
+  explicit QuaternionCostFunction(const double* observation)
   {
     observation_[0] = observation[0];
     observation_[1] = observation[1];
@@ -109,7 +109,7 @@ struct QuaternionCostFunction
     return true;
   }
 
-  double observation_[4];
+  double observation_[4]{};
 };
 
 TEST(LegacyVariable, ManifoldAdapter)
@@ -123,12 +123,12 @@ TEST(LegacyVariable, ManifoldAdapter)
 
   // Create a simple a constraint with an identity quaternion
   double target_quat[4] = { 1.0, 0.0, 0.0, 0.0 };
-  ceres::CostFunction* cost_function =
-      new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(new QuaternionCostFunction(target_quat));
+  ceres::CostFunction* cost_function = new ceres::AutoDiffCostFunction<QuaternionCostFunction, 3, 4>(
+      new QuaternionCostFunction(static_cast<double*>(target_quat)));
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.manifold());
+  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold().get());
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
@@ -179,10 +179,10 @@ TEST(LegacyVariable, Deserialization)
 
   // Test the manifold interface, and that the Legacy LocalParameterization is wrapped
   // in a ManifoldAdapter
-  fuse_core::Manifold* actual_manifold = nullptr;
+  std::unique_ptr<fuse_core::Manifold> actual_manifold = nullptr;
   ASSERT_NO_THROW(actual_manifold = actual.manifold());
   ASSERT_NE(actual_manifold, nullptr);
-  auto actual_manifold_adapter = dynamic_cast<fuse_core::ManifoldAdapter*>(actual_manifold);
+  auto* actual_manifold_adapter = dynamic_cast<fuse_core::ManifoldAdapter*>(actual_manifold.get());
   ASSERT_NE(actual_manifold_adapter, nullptr);
 }
 #endif

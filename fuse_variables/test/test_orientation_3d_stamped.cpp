@@ -162,8 +162,6 @@ TEST(Orientation3DStamped, Plus)
   EXPECT_NEAR(0.360184, result[1], 1.0e-5);
   EXPECT_NEAR(0.194124, result[2], 1.0e-5);
   EXPECT_NEAR(0.526043, result[3], 1.0e-5);
-
-  delete parameterization;
 }
 
 TEST(Orientation3DStamped, Minus)
@@ -179,8 +177,6 @@ TEST(Orientation3DStamped, Minus)
   EXPECT_NEAR(0.15, result[0], 1.0e-5);
   EXPECT_NEAR(-0.2, result[1], 1.0e-5);
   EXPECT_NEAR(0.433012702, result[2], 1.0e-5);
-
-  delete parameterization;
 }
 
 TEST(Orientation3DStamped, PlusJacobian)
@@ -220,8 +216,6 @@ TEST(Orientation3DStamped, PlusJacobian)
       }
     }
   }
-
-  delete parameterization;
 }
 
 TEST(Orientation3DStamped, MinusJacobian)
@@ -261,8 +255,6 @@ TEST(Orientation3DStamped, MinusJacobian)
       }
     }
   }
-
-  delete parameterization;
 }
 
 TEST(Orientation3DStamped, Stamped)
@@ -282,7 +274,7 @@ TEST(Orientation3DStamped, Stamped)
 
 struct QuaternionCostFunction
 {
-  explicit QuaternionCostFunction(double* observation)
+  explicit QuaternionCostFunction(double const* observation)
   {
     observation_[0] = observation[0];
     observation_[1] = observation[1];
@@ -309,7 +301,7 @@ struct QuaternionCostFunction
     return true;
   }
 
-  double observation_[4];
+  double observation_[4]{};
 };
 
 TEST(Orientation3DStamped, Optimization)
@@ -331,7 +323,7 @@ TEST(Orientation3DStamped, Optimization)
 #if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.localParameterization());
 #else
-  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.manifold());
+  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold().get());
 #endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
@@ -351,7 +343,7 @@ TEST(Orientation3DStamped, Optimization)
 
 TEST(Orientation3DStamped, Euler)
 {
-  const double RAD_TO_DEG = 180.0 / M_PI;
+  const double rad_to_deg = 180.0 / M_PI;
 
   // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
   Orientation3DStamped orientation_r(rclcpp::Time(12345678, 910111213));
@@ -360,7 +352,7 @@ TEST(Orientation3DStamped, Euler)
   orientation_r.y() = 0.0;
   orientation_r.z() = 0.0;
 
-  EXPECT_NEAR(10.0, RAD_TO_DEG * orientation_r.roll(), 1e-5);
+  EXPECT_NEAR(10.0, rad_to_deg * orientation_r.roll(), 1e-5);
 
   Orientation3DStamped orientation_p(rclcpp::Time(12345678, 910111213));
   orientation_p.w() = 0.9848078;
@@ -368,7 +360,7 @@ TEST(Orientation3DStamped, Euler)
   orientation_p.y() = -0.1736482;
   orientation_p.z() = 0.0;
 
-  EXPECT_NEAR(-20.0, RAD_TO_DEG * orientation_p.pitch(), 1e-5);
+  EXPECT_NEAR(-20.0, rad_to_deg * orientation_p.pitch(), 1e-5);
 
   Orientation3DStamped orientation_y(rclcpp::Time(12345678, 910111213));
   orientation_y.w() = 0.9659258;
@@ -376,7 +368,7 @@ TEST(Orientation3DStamped, Euler)
   orientation_y.y() = 0.0;
   orientation_y.z() = 0.258819;
 
-  EXPECT_NEAR(30.0, RAD_TO_DEG * orientation_y.yaw(), 1e-5);
+  EXPECT_NEAR(30.0, rad_to_deg * orientation_y.yaw(), 1e-5);
 }
 
 TEST(Orientation3DStamped, Serialization)
@@ -417,6 +409,7 @@ TEST(Orientation3DStamped, Serialization)
 struct Orientation3DFunctor
 {
   template <typename T>
+  // NOLINTNEXTLINE
   bool Plus(const T* x, const T* delta, T* x_plus_delta) const
   {
     T q_delta[4];
@@ -425,6 +418,7 @@ struct Orientation3DFunctor
     return true;
   }
   template <typename T>
+  // NOLINTNEXTLINE
   bool Minus(const T* y, const T* x, T* y_minus_x) const
   {
     T x_inverse[4];
@@ -452,8 +446,6 @@ TEST(Orientation3DStamped, ManifoldPlus)
   EXPECT_NEAR(0.360184, result[1], 1.0e-5);
   EXPECT_NEAR(0.194124, result[2], 1.0e-5);
   EXPECT_NEAR(0.526043, result[3], 1.0e-5);
-
-  delete manifold;
 }
 
 TEST(Orientation3DStamped, ManifoldPlusJacobian)
@@ -493,8 +485,6 @@ TEST(Orientation3DStamped, ManifoldPlusJacobian)
       }
     }
   }
-
-  delete manifold;
 }
 
 TEST(Orientation3DStamped, ManifoldMinus)
@@ -510,8 +500,6 @@ TEST(Orientation3DStamped, ManifoldMinus)
   EXPECT_NEAR(0.15, result[0], 1.0e-5);
   EXPECT_NEAR(-0.2, result[1], 1.0e-5);
   EXPECT_NEAR(0.433012702, result[2], 1.0e-5);
-
-  delete manifold;
 }
 
 TEST(Orientation3DStamped, ManifoldMinusJacobian)
@@ -551,8 +539,6 @@ TEST(Orientation3DStamped, ManifoldMinusJacobian)
       }
     }
   }
-
-  delete manifold;
 }
 
 TEST(Orientation3DStamped, ManifoldSerialization)

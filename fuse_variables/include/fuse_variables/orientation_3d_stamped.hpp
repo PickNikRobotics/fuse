@@ -36,6 +36,7 @@
 
 #include <ceres/rotation.h>
 
+#include <memory>
 #include <ostream>
 
 #include <fuse_core/ceres_macros.hpp>
@@ -98,8 +99,8 @@ public:
   bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     double q_delta[4];
-    ceres::AngleAxisToQuaternion(delta, q_delta);
-    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    ceres::AngleAxisToQuaternion(delta, static_cast<double*>(q_delta));
+    ceres::QuaternionProduct(x, static_cast<double*>(q_delta), x_plus_delta);
     return true;
   }
 
@@ -129,10 +130,10 @@ public:
   bool Minus(const double* x, const double* y, double* y_minus_x) const override
   {
     double x_inverse[4];
-    QuaternionInverse(x, x_inverse);
+    QuaternionInverse(x, static_cast<double*>(x_inverse));
     double q_delta[4];
-    ceres::QuaternionProduct(x_inverse, y, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
+    ceres::QuaternionProduct(static_cast<double*>(x_inverse), y, static_cast<double*>(q_delta));
+    ceres::QuaternionToAngleAxis(static_cast<double*>(q_delta), y_minus_x);
     return true;
   }
 
@@ -203,8 +204,8 @@ public:
   bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
   {
     double q_delta[4];
-    ceres::AngleAxisToQuaternion(delta, q_delta);
-    ceres::QuaternionProduct(x, q_delta, x_plus_delta);
+    ceres::AngleAxisToQuaternion(delta, static_cast<double*>(q_delta));
+    ceres::QuaternionProduct(x, static_cast<double*>(q_delta), x_plus_delta);
     return true;
   }
 
@@ -234,10 +235,10 @@ public:
   bool Minus(const double* y, const double* x, double* y_minus_x) const override
   {
     double x_inverse[4];
-    QuaternionInverse(x, x_inverse);
+    QuaternionInverse(x, static_cast<double*>(x_inverse));
     double q_delta[4];
-    ceres::QuaternionProduct(x_inverse, y, q_delta);
-    ceres::QuaternionToAngleAxis(q_delta, y_minus_x);
+    ceres::QuaternionProduct(static_cast<double*>(x_inverse), y, static_cast<double*>(q_delta));
+    ceres::QuaternionToAngleAxis(static_cast<double*>(q_delta), static_cast<double*>(y_minus_x));
     return true;
   }
 
@@ -445,7 +446,7 @@ public:
    * @return A pointer to a local parameterization object that indicates how to "add" increments to
    *         the quaternion
    */
-  fuse_core::LocalParameterization* localParameterization() const override;
+  [[nodiscard]] std::unique_ptr<fuse_core::LocalParameterization> localParameterization() const override;
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**
@@ -453,7 +454,7 @@ public:
    *
    * @return A pointer to a manifold object that indicates how to "add" increments to the quaternion
    */
-  fuse_core::Manifold* manifold() const override;
+  [[nodiscard]] std::unique_ptr<fuse_core::Manifold> manifold() const override;
 #endif
 
 private:
@@ -470,7 +471,7 @@ private:
   template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& boost::serialization::base_object<Stamped>(*this);
   }
 };

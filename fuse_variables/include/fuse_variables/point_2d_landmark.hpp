@@ -134,7 +134,7 @@ public:
    *
    * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
    */
-  fuse_core::Manifold* manifold() const override
+  [[nodiscard]] std::unique_ptr<fuse_core::Manifold> manifold() const override
   {
     return nullptr;
   }
@@ -155,7 +155,7 @@ private:
   template <class Archive>
   void serialize(Archive& archive, const unsigned int /* version */)
   {
-    archive& boost::serialization::base_object<FixedSizeVariable<SIZE>>(*this);
+    archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& id_;
   }
 };

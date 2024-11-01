@@ -125,7 +125,7 @@ TEST(AccelerationLinear2DStamped, Optimization)
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(acceleration.data(), acceleration.size());
+  problem.AddParameterBlock(acceleration.data(), static_cast<int>(acceleration.size()));
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(acceleration.data());
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);

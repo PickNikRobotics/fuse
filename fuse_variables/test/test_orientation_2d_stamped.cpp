@@ -134,7 +134,8 @@ TEST(Orientation2DStamped, Plus)
     double x[1] = { 1.0 };
     double delta[1] = { 0.5 };
     double actual[1] = { 0.0 };
-    bool success = parameterization->Plus(x, delta, actual);
+    bool success =
+        parameterization->Plus(static_cast<double*>(x), static_cast<double*>(delta), static_cast<double*>(actual));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(1.5, actual[0], 1.0e-5);
@@ -145,13 +146,12 @@ TEST(Orientation2DStamped, Plus)
     double x[1] = { 2.0 };
     double delta[1] = { 3.0 };
     double actual[1] = { 0.0 };
-    bool success = parameterization->Plus(x, delta, actual);
+    bool success =
+        parameterization->Plus(static_cast<double*>(x), static_cast<double*>(delta), static_cast<double*>(actual));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(5 - 2 * M_PI, actual[0], 1.0e-5);
   }
-
-  delete parameterization;
 }
 
 TEST(Orientation2DStamped, PlusJacobian)
@@ -164,16 +164,14 @@ TEST(Orientation2DStamped, PlusJacobian)
   {
     double x[1] = { test_value };
     double actual[1] = { 0.0 };
-    bool success = parameterization->ComputeJacobian(x, actual);
+    bool success = parameterization->ComputeJacobian(static_cast<double*>(x), static_cast<double*>(actual));
 
     double expected[1] = { 0.0 };
-    reference.ComputeJacobian(x, expected);
+    reference.ComputeJacobian(static_cast<double*>(x), static_cast<double*>(expected));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
   }
-
-  delete parameterization;
 }
 
 TEST(Orientation2DStamped, Minus)
@@ -185,7 +183,8 @@ TEST(Orientation2DStamped, Minus)
     double x1[1] = { 1.0 };
     double x2[1] = { 1.5 };
     double actual[1] = { 0.0 };
-    bool success = parameterization->Minus(x1, x2, actual);
+    bool success =
+        parameterization->Minus(static_cast<double*>(x1), static_cast<double*>(x2), static_cast<double*>(actual));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(0.5, actual[0], 1.0e-5);
@@ -196,7 +195,8 @@ TEST(Orientation2DStamped, Minus)
     double x1[1] = { 2.0 };
     double x2[1] = { 5 - 2 * M_PI };
     double actual[1] = { 0.0 };
-    bool success = parameterization->Minus(x1, x2, actual);
+    bool success =
+        parameterization->Minus(static_cast<double*>(x1), static_cast<double*>(x2), static_cast<double*>(actual));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(3.0, actual[0], 1.0e-5);
@@ -213,16 +213,14 @@ TEST(Orientation2DStamped, MinusJacobian)
   {
     double x[1] = { test_value };
     double actual[1] = { 0.0 };
-    bool success = parameterization->ComputeMinusJacobian(x, actual);
+    bool success = parameterization->ComputeMinusJacobian(static_cast<double*>(x), static_cast<double*>(actual));
 
     double expected[1] = { 0.0 };
-    reference.ComputeMinusJacobian(x, expected);
+    reference.ComputeMinusJacobian(static_cast<double*>(x), static_cast<double*>(expected));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
   }
-
-  delete parameterization;
 }
 
 struct CostFunctor
@@ -253,7 +251,7 @@ TEST(Orientation2DStamped, Optimization)
 #if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.localParameterization());
 #else
-  problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.manifold());
+  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold().get());
 #endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
@@ -300,6 +298,7 @@ TEST(Orientation2DStamped, Serialization)
 struct Orientation2DFunctor
 {
   template <typename T>
+  // NOLINTNEXTLINE
   bool Plus(const T* x, const T* delta, T* x_plus_delta) const
   {
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
@@ -307,6 +306,7 @@ struct Orientation2DFunctor
   }
 
   template <typename T>
+  // NOLINTNEXTLINE
   bool Minus(const T* y, const T* x, T* y_minus_x) const
   {
     y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
@@ -325,7 +325,7 @@ TEST(Orientation2DStamped, ManifoldPlus)
     double x[1] = { 1.0 };
     double delta[1] = { 0.5 };
     double actual[1] = { 0.0 };
-    bool success = manifold->Plus(x, delta, actual);
+    bool success = manifold->Plus(static_cast<double*>(x), static_cast<double*>(delta), static_cast<double*>(actual));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(1.5, actual[0], 1.0e-5);
@@ -336,13 +336,11 @@ TEST(Orientation2DStamped, ManifoldPlus)
     double x[1] = { 2.0 };
     double delta[1] = { 3.0 };
     double actual[1] = { 0.0 };
-    bool success = manifold->Plus(x, delta, actual);
+    bool success = manifold->Plus(static_cast<double*>(x), static_cast<double*>(delta), static_cast<double*>(actual));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(5 - 2 * M_PI, actual[0], 1.0e-5);
   }
-
-  delete manifold;
 }
 
 TEST(Orientation2DStamped, ManifoldPlusJacobian)
@@ -355,16 +353,14 @@ TEST(Orientation2DStamped, ManifoldPlusJacobian)
   {
     double x[1] = { test_value };
     double actual[1] = { 0.0 };
-    bool success = manifold->PlusJacobian(x, actual);
+    bool success = manifold->PlusJacobian(static_cast<double*>(x), static_cast<double*>(actual));
 
     double expected[1] = { 0.0 };
-    reference.PlusJacobian(x, expected);
+    reference.PlusJacobian(static_cast<double*>(x), static_cast<double*>(expected));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
   }
-
-  delete manifold;
 }
 
 TEST(Orientation2DStamped, ManifoldMinus)
@@ -376,7 +372,7 @@ TEST(Orientation2DStamped, ManifoldMinus)
     double x1[1] = { 1.0 };
     double x2[1] = { 1.5 };
     double actual[1] = { 0.0 };
-    bool success = manifold->Minus(x2, x1, actual);
+    bool success = manifold->Minus(static_cast<double*>(x2), static_cast<double*>(x1), static_cast<double*>(actual));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(0.5, actual[0], 1.0e-5);
@@ -387,7 +383,7 @@ TEST(Orientation2DStamped, ManifoldMinus)
     double x1[1] = { 2.0 };
     double x2[1] = { 5 - 2 * M_PI };
     double actual[1] = { 0.0 };
-    bool success = manifold->Minus(x2, x1, actual);
+    bool success = manifold->Minus(static_cast<double*>(x2), static_cast<double*>(x1), static_cast<double*>(actual));
 
     EXPECT_TRUE(success);
     EXPECT_NEAR(3.0, actual[0], 1.0e-5);
@@ -404,7 +400,7 @@ TEST(Orientation2DStamped, ManifoldMinusJacobian)
   {
     double x[1] = { test_value };
     double actual[1] = { 0.0 };
-    bool success = manifold->MinusJacobian(x, actual);
+    bool success = manifold->MinusJacobian(static_cast<double*>(x), static_cast<double*>(actual));
 
     double expected[1] = { 0.0 };
     reference.MinusJacobian(x, expected);
@@ -412,7 +408,5 @@ TEST(Orientation2DStamped, ManifoldMinusJacobian)
     EXPECT_TRUE(success);
     EXPECT_NEAR(expected[0], actual[0], 1.0e-5);
   }
-
-  delete manifold;
 }
 #endif

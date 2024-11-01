@@ -48,6 +48,10 @@ public:
   {
   }
   virtual ~TestVariable() = default;
+  TestVariable(TestVariable const&) = default;
+  TestVariable(TestVariable&&) = default;
+  TestVariable& operator=(TestVariable const&) = default;
+  TestVariable& operator=(TestVariable&&) = default;
 
   void print(std::ostream& /*stream = std::cout*/) const override
   {
@@ -75,8 +79,8 @@ TEST(FixedSizeVariable, Size)
 {
   // Verify the expected size is returned
   TestVariable variable;
-  EXPECT_EQ(2u, variable.size());     // base class interface
-  EXPECT_EQ(2u, TestVariable::SIZE);  // static member variable
+  EXPECT_EQ(2u, variable.size());        // base class interface
+  EXPECT_EQ(2u, TestVariable::varSize);  // static member variable
 }
 
 TEST(FixedSizeVariable, Data)

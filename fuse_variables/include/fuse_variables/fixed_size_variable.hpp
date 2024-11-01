@@ -68,12 +68,16 @@ public:
   /**
    * @brief A static version of the variable size
    */
-  constexpr static size_t SIZE = N;
+  constexpr static size_t varSize = N;
 
   /**
    * @brief Default constructor
    */
   FixedSizeVariable() = default;
+  FixedSizeVariable(FixedSizeVariable const&) = default;
+  FixedSizeVariable(FixedSizeVariable&&) = default;
+  FixedSizeVariable& operator=(FixedSizeVariable const&) = default;
+  FixedSizeVariable& operator=(FixedSizeVariable&&) = default;
 
   /**
    * @brief Constructor
@@ -152,10 +156,6 @@ protected:
     archive& data_;
   }
 };
-
-// Define the constant that was declared above
-template <size_t N>
-constexpr size_t FixedSizeVariable<N>::SIZE;
 }  // namespace fuse_variables
 
 #endif  // FUSE_VARIABLES__FIXED_SIZE_VARIABLE_HPP_
