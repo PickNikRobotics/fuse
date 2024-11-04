@@ -355,7 +355,7 @@ public:
   virtual void getCovariance(const std::vector<std::pair<UUID, UUID>>& covariance_requests,
                              std::vector<std::vector<double>>& covariance_matrices,
                              const ceres::Covariance::Options& options = ceres::Covariance::Options(),
-                             const bool use_tangent_space = true) const = 0;
+                             bool use_tangent_space = true) const = 0;
 
   /**
    * @brief Update the graph with the contents of a transaction

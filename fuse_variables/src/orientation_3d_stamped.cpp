@@ -65,15 +65,15 @@ void Orientation3DStamped::print(std::ostream& stream) const
          << "  - z: " << z() << "\n";
 }
 
-std::unique_ptr<fuse_core::LocalParameterization> Orientation3DStamped::localParameterization() const
+fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() const
 {
-  return std::unique_ptr<fuse_core::LocalParameterization>(new Orientation3DLocalParameterization());
+  return new Orientation3DLocalParameterization();
 }
 
 #if CERES_SUPPORTS_MANIFOLDS
-[[nodiscard]] std::unique_ptr<fuse_core::Manifold> Orientation3DStamped::manifold() const
+[[nodiscard]] fuse_core::Manifold* Orientation3DStamped::manifold() const
 {
-  return std::unique_ptr<fuse_core::Manifold>(new Orientation3DManifold());
+  return new Orientation3DManifold();
 }
 #endif
 

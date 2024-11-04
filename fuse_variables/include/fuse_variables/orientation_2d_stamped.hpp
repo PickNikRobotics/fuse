@@ -266,7 +266,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  [[nodiscard]] std::unique_ptr<fuse_core::LocalParameterization> localParameterization() const override;
+  [[nodiscard]] fuse_core::LocalParameterization* localParameterization() const override;
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**
@@ -277,7 +277,7 @@ public:
    *
    * @return A base pointer to an instance of a derived manifold
    */
-  [[nodiscard]] std::unique_ptr<fuse_core::Manifold> manifold() const override;
+  [[nodiscard]] fuse_core::Manifold* manifold() const override;
 #endif
 
 private:

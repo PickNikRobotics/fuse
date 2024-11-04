@@ -36,7 +36,6 @@
 
 #include <iostream>
 #include <limits>
-#include <memory>
 #include <string>
 
 #include <boost/serialization/access.hpp>
@@ -335,7 +334,7 @@ public:
    *
    * @return A base pointer to an instance of a derived LocalParameterization
    */
-  [[nodiscard]] virtual std::unique_ptr<fuse_core::LocalParameterization> localParameterization() const
+  [[nodiscard]] virtual fuse_core::LocalParameterization* localParameterization() const
   {
     return nullptr;
   }
@@ -358,19 +357,19 @@ public:
    *
    * @return A base pointer to an instance of a derived Manifold
    */
-  [[nodiscard]] virtual std::unique_ptr<fuse_core::Manifold> manifold() const
+  [[nodiscard]] virtual fuse_core::Manifold* manifold() const
   {
     // To support legacy Variable classes that still implements the localParameterization() method,
     // construct a ManifoldAdapter object from the LocalParameterization pointer as the default
     // action. If the Variable has been updated to use the new Manifold classes, then the Variable
     // should override this method and return a pointer to the appropriate derived Manifold object.
-    auto local_parameterization = localParameterization();
+    auto* local_parameterization = localParameterization();
     if (local_parameterization == nullptr)
     {
       return nullptr;
     }
 
-    return std::unique_ptr<fuse_core::Manifold>(new fuse_core::ManifoldAdapter(local_parameterization.get()));
+    return new fuse_core::ManifoldAdapter(local_parameterization);
   }
 #endif
 

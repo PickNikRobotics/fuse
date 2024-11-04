@@ -446,7 +446,7 @@ public:
    * @return A pointer to a local parameterization object that indicates how to "add" increments to
    *         the quaternion
    */
-  [[nodiscard]] std::unique_ptr<fuse_core::LocalParameterization> localParameterization() const override;
+  [[nodiscard]] fuse_core::LocalParameterization* localParameterization() const override;
 
 #if CERES_SUPPORTS_MANIFOLDS
   /**
@@ -454,7 +454,7 @@ public:
    *
    * @return A pointer to a manifold object that indicates how to "add" increments to the quaternion
    */
-  [[nodiscard]] std::unique_ptr<fuse_core::Manifold> manifold() const override;
+  [[nodiscard]] fuse_core::Manifold* manifold() const override;
 #endif
 
 private:

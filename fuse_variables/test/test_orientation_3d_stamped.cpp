@@ -323,7 +323,7 @@ TEST(Orientation3DStamped, Optimization)
 #if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.localParameterization());
 #else
-  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold().get());
+  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold());
 #endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());

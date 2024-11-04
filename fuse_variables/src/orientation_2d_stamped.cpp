@@ -63,15 +63,15 @@ void Orientation2DStamped::print(std::ostream& stream) const
          << "  - yaw: " << yaw() << "\n";
 }
 
-std::unique_ptr<fuse_core::LocalParameterization> Orientation2DStamped::localParameterization() const
+fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() const
 {
-  return std::unique_ptr<fuse_core::LocalParameterization>(new Orientation2DLocalParameterization());
+  return new Orientation2DLocalParameterization();
 }
 
 #if CERES_SUPPORTS_MANIFOLDS
-[[nodiscard]] std::unique_ptr<fuse_core::Manifold> Orientation2DStamped::manifold() const
+[[nodiscard]] fuse_core::Manifold* Orientation2DStamped::manifold() const
 {
-  return std::unique_ptr<fuse_core::Manifold>(new Orientation2DManifold());
+  return new Orientation2DManifold();
 }
 #endif
 

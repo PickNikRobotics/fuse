@@ -251,7 +251,7 @@ TEST(Orientation2DStamped, Optimization)
 #if !CERES_SUPPORTS_MANIFOLDS
   problem.AddParameterBlock(orientation.data(), orientation.size(), orientation.localParameterization());
 #else
-  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold().get());
+  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold());
 #endif
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
@@ -318,7 +318,7 @@ using Orientation2DManifold = ceres::AutoDiffManifold<Orientation2DFunctor, 1, 1
 
 TEST(Orientation2DStamped, ManifoldPlus)
 {
-  auto manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
+  auto* manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
 
   // Simple test
   {
@@ -345,7 +345,7 @@ TEST(Orientation2DStamped, ManifoldPlus)
 
 TEST(Orientation2DStamped, ManifoldPlusJacobian)
 {
-  auto manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
+  auto* manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation2DManifold();
 
   auto test_values = std::vector<double>{ -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };
@@ -365,7 +365,7 @@ TEST(Orientation2DStamped, ManifoldPlusJacobian)
 
 TEST(Orientation2DStamped, ManifoldMinus)
 {
-  auto manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
+  auto* manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
 
   // Simple test
   {
@@ -392,7 +392,7 @@ TEST(Orientation2DStamped, ManifoldMinus)
 
 TEST(Orientation2DStamped, ManifoldMinusJacobian)
 {
-  auto manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
+  auto* manifold = Orientation2DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation2DManifold();
 
   auto test_values = std::vector<double>{ -2 * M_PI, -1 * M_PI, -1.0, 0.0, 1.0, M_PI, 2 * M_PI };

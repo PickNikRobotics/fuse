@@ -355,16 +355,16 @@ TEST(MarginalizeVariables, Linearize)
   auto actual = fuse_constraints::detail::linearize(*constraint, graph, elimination_order);
 
   // Define the expected values
-  fuse_core::MatrixXd expected_A0(3, 3);
+  fuse_core::MatrixXd expected_a0(3, 3);
   /* *INDENT-OFF* */
-  expected_A0 << -0.91999992754510684367, -0.39191852892782985673, -2.8735440640859089001e-07, 0.27712824947756498073,
+  expected_a0 << -0.91999992754510684367, -0.39191852892782985673, -2.8735440640859089001e-07, 0.27712824947756498073,
       -0.65053818745824854020, -2.5352112979770691226e-07, 7.1505019336171038447e-08, 2.5546009342625186633e-07,
       -0.57735026918958520792;
   /* *INDENT-ON* */
 
-  fuse_core::MatrixXd expected_A1(3, 3);
+  fuse_core::MatrixXd expected_a1(3, 3);
   /* *INDENT-OFF* */
-  expected_A1 << 0.99999999999996114219, -1.8482708254510815671e-07, -2.873543621662033587e-07,
+  expected_a1 << 0.99999999999996114219, -1.8482708254510815671e-07, -2.873543621662033587e-07,
       1.3069243487082160549e-07, 0.70710678118650927004, -2.5352115484711390536e-07, 1.6590414383954588118e-07,
       2.0699913566568639567e-07, 0.57735026918958520792;
   /* *INDENT-ON* */
@@ -377,8 +377,8 @@ TEST(MarginalizeVariables, Linearize)
   EXPECT_EQ(3u, actual.variables[0]);
   EXPECT_EQ(1u, actual.variables[1]);
 
-  EXPECT_MATRIX_NEAR(expected_A0, actual.A[0], 1.0e-9);
-  EXPECT_MATRIX_NEAR(expected_A1, actual.A[1], 1.0e-9);
+  EXPECT_MATRIX_NEAR(expected_a0, actual.A[0], 1.0e-9);
+  EXPECT_MATRIX_NEAR(expected_a1, actual.A[1], 1.0e-9);
   EXPECT_MATRIX_NEAR(expected_b, actual.b, 1.0e-9);
 }
 
@@ -387,13 +387,13 @@ TEST(MarginalizeVariables, MarginalizeNext)
   // Construct a couple of linear terms
   auto term1 = fuse_constraints::detail::LinearTerm();
   term1.variables.push_back(1);
-  auto A1 = fuse_core::MatrixXd(3, 3);
+  auto a1 = fuse_core::MatrixXd(3, 3);
   /* *INDENT-OFF* */
-  A1 << 0.99999999999999922284, 4.4999993911720714834e-08, -2.9999995598828377297e-08, -3.181980062078038074e-08,
+  a1 << 0.99999999999999922284, 4.4999993911720714834e-08, -2.9999995598828377297e-08, -3.181980062078038074e-08,
       0.70710678118654701763, 1.0606600528428877794e-08, 1.7320505793505525105e-08, -8.6602525498080673572e-09,
       0.57735026918962550901;
   /* *INDENT-ON* */
-  term1.A.push_back(A1);
+  term1.A.push_back(a1);
   auto b1 = fuse_core::VectorXd(3);
   b1 << -2.9999995786018886696e-08, -4.2426400911723613558e-08, -5.1961516896187549911e-08;
   term1.b = b1;
@@ -401,20 +401,20 @@ TEST(MarginalizeVariables, MarginalizeNext)
   auto term2 = fuse_constraints::detail::LinearTerm();
   term2.variables.push_back(3);
   term2.variables.push_back(1);
-  auto A21 = fuse_core::MatrixXd(3, 3);
+  auto a21 = fuse_core::MatrixXd(3, 3);
   /* *INDENT-OFF* */
-  A21 << 0.99999999999996114219, -1.8482708254510815671e-07, -2.873543621662033587e-07, 1.3069243487082160549e-07,
+  a21 << 0.99999999999996114219, -1.8482708254510815671e-07, -2.873543621662033587e-07, 1.3069243487082160549e-07,
       0.70710678118650927004, -2.5352115484711390536e-07, 1.6590414383954588118e-07, 2.0699913566568639567e-07,
       0.57735026918958520792;
   /* *INDENT-ON* */
-  auto A22 = fuse_core::MatrixXd(3, 3);
+  auto a22 = fuse_core::MatrixXd(3, 3);
   /* *INDENT-OFF* */
-  A22 << -0.91999992754510684367, -0.39191852892782985673, -2.8735440640859089001e-07, 0.27712824947756498073,
+  a22 << -0.91999992754510684367, -0.39191852892782985673, -2.8735440640859089001e-07, 0.27712824947756498073,
       -0.6505381874582485402, -2.5352112979770691226e-07, 7.1505019336171038447e-08, 2.5546009342625186633e-07,
       -0.57735026918958520792;
   /* *INDENT-ON* */
-  term2.A.push_back(A21);
-  term2.A.push_back(A22);
+  term2.A.push_back(a21);
+  term2.A.push_back(a22);
   auto b2 = fuse_core::VectorXd(3);
   b2 << 7.1706607563166841896e-07, -4.0638046747479327072e-07, 2.1341989211309879704e-07;
   term2.b = b2;
@@ -429,12 +429,12 @@ TEST(MarginalizeVariables, MarginalizeNext)
   // Define the expected marginal
   auto expected = fuse_constraints::detail::LinearTerm();
   expected.variables.push_back(3);
-  auto A_expected = fuse_core::MatrixXd(3, 3);
+  auto a_expected = fuse_core::MatrixXd(3, 3);
   /* *INDENT-OFF* */
-  A_expected << -0.686835139329528, 0.064384601986636, 0.000000153209328, 0.000000000000000, -0.509885650799691,
+  a_expected << -0.686835139329528, 0.064384601986636, 0.000000153209328, 0.000000000000000, -0.509885650799691,
       0.000000079984512, 0.000000000000000, 0.000000000000000, 0.408248290463911;
   /* *INDENT-ON* */
-  expected.A.push_back(A_expected);
+  expected.A.push_back(a_expected);
   auto b_expected = fuse_core::VectorXd(3);
   b_expected << -0.000000497197868, 0.000000315186479, 0.000000114168337;
   expected.b = b_expected;
@@ -451,22 +451,22 @@ TEST(MarginalizeVariables, MarginalizeNext)
 TEST(MarginalizeVariables, MarginalizeVariables)
 {
   // Create variables
-  auto x1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(1.0));
+  auto x1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(1, 0));
   x1->w() = 0.927362;
   x1->x() = 0.1;
   x1->y() = 0.2;
   x1->z() = 0.3;
-  auto x2 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(2.0));
+  auto x2 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(2, 0));
   x2->w() = 0.848625;
   x2->x() = 0.13798;
   x2->y() = 0.175959;
   x2->z() = 0.479411;
-  auto x3 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3.0));
+  auto x3 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3, 0));
   x3->w() = 0.735597;
   x3->x() = 0.170384;
   x3->y() = 0.144808;
   x3->z() = 0.63945;
-  auto l1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3.5));
+  auto l1 = fuse_variables::Orientation3DStamped::make_shared(rclcpp::Time(3, 500000000));
   l1->w() = 0.803884;
   l1->x() = 0.304917;
   l1->y() = 0.268286;

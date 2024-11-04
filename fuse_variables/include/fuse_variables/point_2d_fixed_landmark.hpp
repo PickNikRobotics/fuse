@@ -139,7 +139,7 @@ public:
    *
    * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
    */
-  [[nodiscard]] std::unique_ptr<fuse_core::Manifold> manifold() const override
+  [[nodiscard]] fuse_core::Manifold* manifold() const override
   {
     return nullptr;
   }

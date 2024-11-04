@@ -128,7 +128,7 @@ TEST(LegacyVariable, ManifoldAdapter)
 
   // Build the problem.
   ceres::Problem problem;
-  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold().get());
+  problem.AddParameterBlock(orientation.data(), static_cast<int>(orientation.size()), orientation.manifold());
   std::vector<double*> parameter_blocks;
   parameter_blocks.push_back(orientation.data());
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
@@ -179,10 +179,10 @@ TEST(LegacyVariable, Deserialization)
 
   // Test the manifold interface, and that the Legacy LocalParameterization is wrapped
   // in a ManifoldAdapter
-  std::unique_ptr<fuse_core::Manifold> actual_manifold = nullptr;
+  fuse_core::Manifold* actual_manifold = nullptr;
   ASSERT_NO_THROW(actual_manifold = actual.manifold());
   ASSERT_NE(actual_manifold, nullptr);
-  auto* actual_manifold_adapter = dynamic_cast<fuse_core::ManifoldAdapter*>(actual_manifold.get());
+  auto* actual_manifold_adapter = dynamic_cast<fuse_core::ManifoldAdapter*>(actual_manifold);
   ASSERT_NE(actual_manifold_adapter, nullptr);
 }
 #endif

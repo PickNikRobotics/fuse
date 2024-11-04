@@ -79,7 +79,7 @@ public:
    *
    * Overriding the manifold() method prevents additional processing with the ManifoldAdapter
    */
-  [[nodiscard]] std::unique_ptr<fuse_core::Manifold> manifold() const override
+  [[nodiscard]] fuse_core::Manifold* manifold() const override
   {
     return nullptr;
   }
@@ -251,9 +251,9 @@ public:
    *
    * @return A pointer to a local parameterization object that indicates how to "add" increments to the quaternion
    */
-  [[nodiscard]] std::unique_ptr<fuse_core::LocalParameterization> localParameterization() const override
+  [[nodiscard]] fuse_core::LocalParameterization* localParameterization() const override
   {
-    return std::unique_ptr<fuse_core::LocalParameterization>(new LegacyParameterization());
+    return new LegacyParameterization();
   }
 
 private:
