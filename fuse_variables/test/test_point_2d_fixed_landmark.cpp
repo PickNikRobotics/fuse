@@ -48,7 +48,7 @@ using fuse_variables::Point2DFixedLandmark;
 
 TEST(Point2DFixedLandmark, Type)
 {
-  Point2DFixedLandmark variable(0);
+  Point2DFixedLandmark const variable(0);
   EXPECT_EQ("fuse_variables::Point2DFixedLandmark", variable.type());
 }
 
@@ -56,24 +56,22 @@ TEST(Point2DFixedLandmark, UUID)
 {
   // Verify two positions with the same landmark ids produce the same uuids
   {
-    Point2DFixedLandmark variable1(0);
-    Point2DFixedLandmark variable2(0);
+    Point2DFixedLandmark const variable1(0);
+    Point2DFixedLandmark const variable2(0);
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two positions with the different landmark ids  produce different uuids
   {
-    Point2DFixedLandmark variable1(0);
-    Point2DFixedLandmark variable2(1);
+    Point2DFixedLandmark const variable1(0);
+    Point2DFixedLandmark const variable2(1);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 struct CostFunctor
 {
-  CostFunctor()
-  {
-  }
+  CostFunctor() = default;
 
   template <typename T>
   bool operator()(const T* const x, T* residual) const
@@ -106,7 +104,7 @@ TEST(Point2DFixedLandmark, Optimization)
   }
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 

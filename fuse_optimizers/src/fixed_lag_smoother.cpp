@@ -187,7 +187,7 @@ void FixedLagSmoother::optimizationLoop()
     }
     // Optimize
     {
-      std::lock_guard<std::mutex> lock(optimization_mutex_);
+      std::lock_guard<std::mutex> const lock(optimization_mutex_);
       // Apply motion models
       auto new_transaction = fuse_core::Transaction::make_shared();
       // DANGER: processQueue obtains a lock from the pending_transactions_mutex_
@@ -276,13 +276,13 @@ void FixedLagSmoother::optimizerTimerCallback()
   // will not be waiting on the condition variable signal, so nothing will happen.
   auto optimization_request = false;
   {
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
     optimization_request = !pending_transactions_.empty();
   }
   if (optimization_request)
   {
     {
-      std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+      std::lock_guard<std::mutex> const lock(optimization_requested_mutex_);
       optimization_request_ = true;
       optimization_deadline_ = clock_->now() + optimize_timer_->time_until_trigger();
     }
@@ -293,7 +293,7 @@ void FixedLagSmoother::optimizerTimerCallback()
 void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const rclcpp::Time& lag_expiration)
 {
   // We need to get the pending transactions from the queue
-  std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
+  std::lock_guard<std::mutex> const pending_transactions_lock(pending_transactions_mutex_);
 
   if (pending_transactions_.empty())
   {
@@ -445,7 +445,7 @@ bool FixedLagSmoother::resetServiceCallback(std::shared_ptr<std_srvs::srv::Empty
   stopPlugins();
   // Reset the optimizer state
   {
-    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+    std::lock_guard<std::mutex> const lock(optimization_requested_mutex_);
     optimization_request_ = false;
   }
   started_ = false;
@@ -455,10 +455,10 @@ bool FixedLagSmoother::resetServiceCallback(std::shared_ptr<std_srvs::srv::Empty
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme
   //         here to prevent the possibility of deadlocks.
   {
-    std::lock_guard<std::mutex> lock(optimization_mutex_);
+    std::lock_guard<std::mutex> const lock(optimization_mutex_);
     // Clear all pending transactions
     {
-      std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+      std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
       pending_transactions_.clear();
     }
     // Clear the graph and marginal tracking states
@@ -489,7 +489,7 @@ void FixedLagSmoother::transactionCallback(const std::string& sensor_name, fuse_
     return;
   }
   // We need to add the new transaction to the pending_transactions_ queue
-  std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
+  std::lock_guard<std::mutex> const pending_transactions_lock(pending_transactions_mutex_);
 
   // Add the new transaction to the pending set
   // The pending set is arranged "smallest stamp last" to making popping off the back more
@@ -602,7 +602,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
 
   status.add("Started", started);
   {
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
     status.add("Pending Transactions", pending_transactions_.size());
   }
 

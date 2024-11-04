@@ -68,11 +68,11 @@ void Transaction::addInvolvedStamp(const rclcpp::Time& stamp)
 
 Transaction::const_constraint_range Transaction::addedConstraints() const
 {
-  std::function<const Constraint&(const Constraint::SharedPtr&)> to_constraint_ref =
+  std::function<const Constraint&(const Constraint::SharedPtr&)> const to_constraint_ref =
       [](const Constraint::SharedPtr& constraint) -> const Constraint& { return *constraint; };
 
-  return const_constraint_range(boost::make_transform_iterator(added_constraints_.cbegin(), to_constraint_ref),
-                                boost::make_transform_iterator(added_constraints_.cend(), to_constraint_ref));
+  return { boost::make_transform_iterator(added_constraints_.cbegin(), to_constraint_ref),
+           boost::make_transform_iterator(added_constraints_.cend(), to_constraint_ref) };
 }
 
 void Transaction::addConstraint(Constraint::SharedPtr constraint, bool overwrite)
@@ -126,11 +126,11 @@ void Transaction::removeConstraint(const UUID& constraint_uuid)
 
 Transaction::const_variable_range Transaction::addedVariables() const
 {
-  std::function<const Variable&(const Variable::SharedPtr&)> to_variable_ref =
+  std::function<const Variable&(const Variable::SharedPtr&)> const to_variable_ref =
       [](const Variable::SharedPtr& variable) -> const Variable& { return *variable; };
 
-  return const_variable_range(boost::make_transform_iterator(added_variables_.cbegin(), to_variable_ref),
-                              boost::make_transform_iterator(added_variables_.cend(), to_variable_ref));
+  return { boost::make_transform_iterator(added_variables_.cbegin(), to_variable_ref),
+           boost::make_transform_iterator(added_variables_.cend(), to_variable_ref) };
 }
 
 bool Transaction::empty() const

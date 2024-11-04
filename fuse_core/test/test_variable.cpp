@@ -45,7 +45,7 @@
 
 TEST(Variable, Type)
 {
-  ExampleVariable variable;
+  ExampleVariable const variable;
   ASSERT_EQ("ExampleVariable", variable.type());
 }
 
@@ -135,7 +135,7 @@ TEST(LegacyVariable, ManifoldAdapter)
 
   // Run the solver
   ceres::Solver::Summary summary;
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solve(options, &problem, &summary);
 
   // Check

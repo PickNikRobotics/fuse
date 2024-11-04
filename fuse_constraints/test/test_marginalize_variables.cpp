@@ -71,12 +71,12 @@ public:
   {
   }
 
-  size_t size() const override
+  [[nodiscard]] size_t size() const override
   {
     return 1;
   }
 
-  const double* data() const override
+  [[nodiscard]] const double* data() const override
   {
     return &data_;
   }
@@ -138,7 +138,7 @@ public:
   {
   }
 
-  ceres::CostFunction* costFunction() const override
+  [[nodiscard]] ceres::CostFunction* costFunction() const override
   {
     return nullptr;
   }
@@ -173,7 +173,7 @@ public:
   {
   }
 
-  bool holdConstant() const override
+  [[nodiscard]] bool holdConstant() const override
   {
     return true;
   }

@@ -48,7 +48,7 @@ using fuse_variables::Position3DStamped;
 
 TEST(Position3DStamped, Type)
 {
-  Position3DStamped variable(rclcpp::Time(12345678, 910111213));
+  Position3DStamped const variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::Position3DStamped", variable.type());
 }
 
@@ -56,8 +56,8 @@ TEST(Position3DStamped, UUID)
 {
   // Verify two positions at the same timestamp produce the same UUID
   {
-    Position3DStamped variable1(rclcpp::Time(12345678, 910111213));
-    Position3DStamped variable2(rclcpp::Time(12345678, 910111213));
+    Position3DStamped const variable1(rclcpp::Time(12345678, 910111213));
+    Position3DStamped const variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
@@ -66,46 +66,46 @@ TEST(Position3DStamped, UUID)
 
   // Verify two positions at the same timestamp and same hardware ID produce the same UUID
   {
-    Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped const variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped const variable2(rclcpp::Time(12345678, 910111213), uuid_1);
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two positions with the same timestamp but different hardware IDs generate different
   // UUIDs
   {
-    Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_2);
+    Position3DStamped const variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped const variable2(rclcpp::Time(12345678, 910111213), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two positions with the same hardware ID and different timestamps produce different UUIDs
   {
-    Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_1);
+    Position3DStamped const variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped const variable2(rclcpp::Time(12345678, 910111214), uuid_1);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
 
-    Position3DStamped variable3(rclcpp::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable4(rclcpp::Time(12345679, 910111213), uuid_1);
+    Position3DStamped const variable3(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped const variable4(rclcpp::Time(12345679, 910111213), uuid_1);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two positions with different hardware IDs and different timestamps produce different
   // UUIDs
   {
-    Position3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_2);
+    Position3DStamped const variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped const variable2(rclcpp::Time(12345678, 910111214), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
 
-    Position3DStamped variable3(rclcpp::Time(12345678, 910111213), uuid_1);
-    Position3DStamped variable4(rclcpp::Time(12345679, 910111213), uuid_2);
+    Position3DStamped const variable3(rclcpp::Time(12345678, 910111213), uuid_1);
+    Position3DStamped const variable4(rclcpp::Time(12345679, 910111213), uuid_2);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 }
 
 TEST(Position3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base =
+  fuse_core::Variable::SharedPtr const base =
       Position3DStamped::make_shared(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Position3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
@@ -120,9 +120,7 @@ TEST(Position3DStamped, Stamped)
 
 struct CostFunctor
 {
-  CostFunctor()
-  {
-  }
+  CostFunctor() = default;
 
   template <typename T>
   bool operator()(const T* const x, T* residual) const
@@ -153,7 +151,7 @@ TEST(Position3DStamped, Optimization)
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 

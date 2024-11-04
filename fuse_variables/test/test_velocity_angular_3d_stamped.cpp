@@ -48,7 +48,7 @@ using fuse_variables::VelocityAngular3DStamped;
 
 TEST(VelocityAngular3DStamped, Type)
 {
-  VelocityAngular3DStamped variable(rclcpp::Time(12345678, 910111213));
+  VelocityAngular3DStamped const variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::VelocityAngular3DStamped", variable.type());
 }
 
@@ -56,20 +56,20 @@ TEST(VelocityAngular3DStamped, UUID)
 {
   // Verify two velocities at the same timestamp produce the same UUID
   {
-    VelocityAngular3DStamped variable1(rclcpp::Time(12345678, 910111213));
-    VelocityAngular3DStamped variable2(rclcpp::Time(12345678, 910111213));
+    VelocityAngular3DStamped const variable1(rclcpp::Time(12345678, 910111213));
+    VelocityAngular3DStamped const variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    VelocityAngular3DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    VelocityAngular3DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    VelocityAngular3DStamped const variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    VelocityAngular3DStamped const variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two velocities at different timestamps produce different UUIDs
   {
-    VelocityAngular3DStamped variable1(rclcpp::Time(12345678, 910111213));
-    VelocityAngular3DStamped variable2(rclcpp::Time(12345678, 910111214));
-    VelocityAngular3DStamped variable3(rclcpp::Time(12345679, 910111213));
+    VelocityAngular3DStamped const variable1(rclcpp::Time(12345678, 910111213));
+    VelocityAngular3DStamped const variable2(rclcpp::Time(12345678, 910111214));
+    VelocityAngular3DStamped const variable3(rclcpp::Time(12345679, 910111213));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
     EXPECT_NE(variable1.uuid(), variable3.uuid());
     EXPECT_NE(variable2.uuid(), variable3.uuid());
@@ -77,15 +77,15 @@ TEST(VelocityAngular3DStamped, UUID)
 
   // Verify two velocities with different hardware IDs produce different UUIDs
   {
-    VelocityAngular3DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("8d8"));
-    VelocityAngular3DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
+    VelocityAngular3DStamped const variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("8d8"));
+    VelocityAngular3DStamped const variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r4-p17"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(VelocityAngular3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base =
+  fuse_core::Variable::SharedPtr const base =
       VelocityAngular3DStamped::make_shared(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<VelocityAngular3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
@@ -100,9 +100,7 @@ TEST(VelocityAngular3DStamped, Stamped)
 
 struct CostFunctor
 {
-  CostFunctor()
-  {
-  }
+  CostFunctor() = default;
 
   template <typename T>
   bool operator()(const T* const x, T* residual) const
@@ -133,7 +131,7 @@ TEST(VelocityAngular3DStamped, Optimization)
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 

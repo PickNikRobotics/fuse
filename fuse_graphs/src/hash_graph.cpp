@@ -165,14 +165,13 @@ const fuse_core::Constraint& HashGraph::getConstraint(const fuse_core::UUID& con
 
 fuse_core::Graph::const_constraint_range HashGraph::getConstraints() const noexcept
 {
-  std::function<const fuse_core::Constraint&(const Constraints::value_type& uuid_constraint)> to_constraint_ref =
+  std::function<const fuse_core::Constraint&(const Constraints::value_type& uuid_constraint)> const to_constraint_ref =
       [](const Constraints::value_type& uuid_constraint) -> const fuse_core::Constraint& {
     return *uuid_constraint.second;
   };
 
-  return fuse_core::Graph::const_constraint_range(
-      boost::make_transform_iterator(constraints_.cbegin(), to_constraint_ref),
-      boost::make_transform_iterator(constraints_.cend(), to_constraint_ref));
+  return { boost::make_transform_iterator(constraints_.cbegin(), to_constraint_ref),
+           boost::make_transform_iterator(constraints_.cend(), to_constraint_ref) };
 }
 
 fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(const fuse_core::UUID& variable_uuid) const
@@ -180,15 +179,14 @@ fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(cons
   auto cross_reference_iter = constraints_by_variable_uuid_.find(variable_uuid);
   if (cross_reference_iter != constraints_by_variable_uuid_.end())
   {
-    std::function<const fuse_core::Constraint&(const fuse_core::UUID& constraint_uuid)> uuid_to_constraint_ref =
+    std::function<const fuse_core::Constraint&(const fuse_core::UUID& constraint_uuid)> const uuid_to_constraint_ref =
         [this](const fuse_core::UUID& constraint_uuid) -> const fuse_core::Constraint& {
       return this->getConstraint(constraint_uuid);
     };
 
     const auto& constraints = cross_reference_iter->second;
-    return fuse_core::Graph::const_constraint_range(
-        boost::make_transform_iterator(constraints.cbegin(), uuid_to_constraint_ref),
-        boost::make_transform_iterator(constraints.cend(), uuid_to_constraint_ref));
+    return { boost::make_transform_iterator(constraints.cbegin(), uuid_to_constraint_ref),
+             boost::make_transform_iterator(constraints.cend(), uuid_to_constraint_ref) };
   }
   if (variableExists(variable_uuid))
   {
@@ -264,11 +262,11 @@ const fuse_core::Variable& HashGraph::getVariable(const fuse_core::UUID& variabl
 
 fuse_core::Graph::const_variable_range HashGraph::getVariables() const noexcept
 {
-  std::function<const fuse_core::Variable&(const Variables::value_type& uuid_variable)> to_variable_ref =
+  std::function<const fuse_core::Variable&(const Variables::value_type& uuid_variable)> const to_variable_ref =
       [](const Variables::value_type& uuid_variable) -> const fuse_core::Variable& { return *uuid_variable.second; };
 
-  return fuse_core::Graph::const_variable_range(boost::make_transform_iterator(variables_.cbegin(), to_variable_ref),
-                                                boost::make_transform_iterator(variables_.cend(), to_variable_ref));
+  return { boost::make_transform_iterator(variables_.cbegin(), to_variable_ref),
+           boost::make_transform_iterator(variables_.cend(), to_variable_ref) };
 }
 
 void HashGraph::holdVariable(const fuse_core::UUID& variable_uuid, bool hold_constant)
@@ -416,7 +414,7 @@ ceres::Solver::Summary HashGraph::optimizeFor(const rclcpp::Duration& max_optimi
   auto created_problem = clock.now();
 
   // Modify the options to enforce the maximum time
-  rclcpp::Duration remaining = max_optimization_time - (created_problem - start);
+  rclcpp::Duration const remaining = max_optimization_time - (created_problem - start);
   auto time_constrained_options = options;
   time_constrained_options.max_solver_time_in_seconds = std::max(0.0, remaining.seconds());
 
@@ -491,7 +489,7 @@ void HashGraph::createProblem(ceres::Problem& problem) const
   std::vector<double*> parameter_blocks;
   for (auto const& uuid_constraint : constraints_)
   {
-    fuse_core::Constraint& constraint = *(uuid_constraint.second);
+    fuse_core::Constraint const& constraint = *(uuid_constraint.second);
     // We need the memory address of each variable value referenced by this constraint
     parameter_blocks.clear();
     parameter_blocks.reserve(constraint.variables().size());

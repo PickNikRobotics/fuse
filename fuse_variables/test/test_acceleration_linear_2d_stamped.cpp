@@ -48,7 +48,7 @@ using fuse_variables::AccelerationLinear2DStamped;
 
 TEST(AccelerationLinear2DStamped, Type)
 {
-  AccelerationLinear2DStamped variable(rclcpp::Time(12345678, 910111213));
+  AccelerationLinear2DStamped const variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::AccelerationLinear2DStamped", variable.type());
 }
 
@@ -56,20 +56,20 @@ TEST(AccelerationLinear2DStamped, UUID)
 {
   // Verify two accelerations at the same timestamp produce the same UUID
   {
-    AccelerationLinear2DStamped variable1(rclcpp::Time(12345678, 910111213));
-    AccelerationLinear2DStamped variable2(rclcpp::Time(12345678, 910111213));
+    AccelerationLinear2DStamped const variable1(rclcpp::Time(12345678, 910111213));
+    AccelerationLinear2DStamped const variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
 
-    AccelerationLinear2DStamped variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
-    AccelerationLinear2DStamped variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationLinear2DStamped const variable3(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
+    AccelerationLinear2DStamped const variable4(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("c3po"));
     EXPECT_EQ(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two accelerations at different timestamps produce different UUIDs
   {
-    AccelerationLinear2DStamped variable1(rclcpp::Time(12345678, 910111213));
-    AccelerationLinear2DStamped variable2(rclcpp::Time(12345678, 910111214));
-    AccelerationLinear2DStamped variable3(rclcpp::Time(12345679, 910111213));
+    AccelerationLinear2DStamped const variable1(rclcpp::Time(12345678, 910111213));
+    AccelerationLinear2DStamped const variable2(rclcpp::Time(12345678, 910111214));
+    AccelerationLinear2DStamped const variable3(rclcpp::Time(12345679, 910111213));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
     EXPECT_NE(variable1.uuid(), variable3.uuid());
     EXPECT_NE(variable2.uuid(), variable3.uuid());
@@ -77,15 +77,15 @@ TEST(AccelerationLinear2DStamped, UUID)
 
   // Verify two accelerations with different hardware IDs produce different UUIDs
   {
-    AccelerationLinear2DStamped variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
-    AccelerationLinear2DStamped variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
+    AccelerationLinear2DStamped const variable1(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("r2d2"));
+    AccelerationLinear2DStamped const variable2(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("bb8"));
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 }
 
 TEST(AccelerationLinear2DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base =
+  fuse_core::Variable::SharedPtr const base =
       AccelerationLinear2DStamped::make_shared(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<AccelerationLinear2DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
@@ -100,9 +100,7 @@ TEST(AccelerationLinear2DStamped, Stamped)
 
 struct CostFunctor
 {
-  CostFunctor()
-  {
-  }
+  CostFunctor() = default;
 
   template <typename T>
   bool operator()(const T* const x, T* residual) const
@@ -131,7 +129,7 @@ TEST(AccelerationLinear2DStamped, Optimization)
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 

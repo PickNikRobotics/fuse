@@ -47,7 +47,7 @@ public:
   TestVariable() : fuse_variables::FixedSizeVariable<2>(fuse_core::uuid::generate())
   {
   }
-  virtual ~TestVariable() = default;
+  ~TestVariable() override = default;
   TestVariable(TestVariable const&) = default;
   TestVariable(TestVariable&&) = default;
   TestVariable& operator=(TestVariable const&) = default;
@@ -78,7 +78,7 @@ private:
 TEST(FixedSizeVariable, Size)
 {
   // Verify the expected size is returned
-  TestVariable variable;
+  TestVariable const variable;
   EXPECT_EQ(2u, variable.size());        // base class interface
   EXPECT_EQ(2u, TestVariable::varSize);  // static member variable
 }

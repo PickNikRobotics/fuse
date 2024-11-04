@@ -155,11 +155,11 @@ void TimestampManager::query(Transaction& transaction, bool update_variables)
 
 TimestampManager::const_stamp_range TimestampManager::stamps() const
 {
-  std::function<const rclcpp::Time&(const MotionModelHistory::value_type&)> extract_stamp =
+  std::function<const rclcpp::Time&(const MotionModelHistory::value_type&)> const extract_stamp =
       [](const MotionModelHistory::value_type& element) -> const rclcpp::Time& { return element.first; };
 
-  return const_stamp_range(boost::make_transform_iterator(motion_model_history_.begin(), extract_stamp),
-                           boost::make_transform_iterator(motion_model_history_.end(), extract_stamp));
+  return { boost::make_transform_iterator(motion_model_history_.begin(), extract_stamp),
+           boost::make_transform_iterator(motion_model_history_.end(), extract_stamp) };
 }
 
 void TimestampManager::addSegment(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
@@ -203,8 +203,8 @@ void TimestampManager::removeSegment(MotionModelHistory::iterator& iter, Transac
 void TimestampManager::splitSegment(MotionModelHistory::iterator& iter, const rclcpp::Time& stamp,
                                     Transaction& transaction)
 {
-  rclcpp::Time removed_beginning_stamp = iter->second.beginning_stamp;
-  rclcpp::Time removed_ending_stamp = iter->second.ending_stamp;
+  rclcpp::Time const removed_beginning_stamp = iter->second.beginning_stamp;
+  rclcpp::Time const removed_ending_stamp = iter->second.ending_stamp;
   // We need to remove the existing constraint.
   removeSegment(iter, transaction);
   // And add a new constraint from the beginning of the removed constraint to the provided stamp
@@ -226,7 +226,7 @@ void TimestampManager::purgeHistory()
   // (a) are left with only one entry, OR
   // (b) the time delta between the beginning and end is within the buffer_length_ We compare with
   //     the ending timestamp of each segment to be conservative
-  rclcpp::Time ending_stamp = motion_model_history_.rbegin()->first;
+  rclcpp::Time const ending_stamp = motion_model_history_.rbegin()->first;
   while ((motion_model_history_.size() > 1) &&
          ((ending_stamp - motion_model_history_.begin()->second.ending_stamp) > buffer_length_))
   {

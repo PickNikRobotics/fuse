@@ -54,7 +54,7 @@ using fuse_variables::Orientation3DStamped;
 
 TEST(Orientation3DStamped, Type)
 {
-  Orientation3DStamped variable(rclcpp::Time(12345678, 910111213));
+  Orientation3DStamped const variable(rclcpp::Time(12345678, 910111213));
   EXPECT_EQ("fuse_variables::Orientation3DStamped", variable.type());
 }
 
@@ -62,8 +62,8 @@ TEST(Orientation3DStamped, UUID)
 {
   // Verify two orientations at the same timestamp produce the same UUID
   {
-    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213));
-    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111213));
+    Orientation3DStamped const variable1(rclcpp::Time(12345678, 910111213));
+    Orientation3DStamped const variable2(rclcpp::Time(12345678, 910111213));
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
@@ -72,40 +72,40 @@ TEST(Orientation3DStamped, UUID)
 
   // Verify two orientations at the same timestamp and same hardware ID produce the same UUID
   {
-    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped const variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped const variable2(rclcpp::Time(12345678, 910111213), uuid_1);
     EXPECT_EQ(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two orientations with the same timestamp but different hardware IDs generate different
   // UUIDs
   {
-    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111213), uuid_2);
+    Orientation3DStamped const variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped const variable2(rclcpp::Time(12345678, 910111213), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
   }
 
   // Verify two orientations with the same hardware ID and different timestamps produce different
   // UUIDs
   {
-    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_1);
+    Orientation3DStamped const variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped const variable2(rclcpp::Time(12345678, 910111214), uuid_1);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
 
-    Orientation3DStamped variable3(rclcpp::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable4(rclcpp::Time(12345679, 910111213), uuid_1);
+    Orientation3DStamped const variable3(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped const variable4(rclcpp::Time(12345679, 910111213), uuid_1);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 
   // Verify two orientations with different hardware IDs and different timestamps produce different
   // UUIDs
   {
-    Orientation3DStamped variable1(rclcpp::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable2(rclcpp::Time(12345678, 910111214), uuid_2);
+    Orientation3DStamped const variable1(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped const variable2(rclcpp::Time(12345678, 910111214), uuid_2);
     EXPECT_NE(variable1.uuid(), variable2.uuid());
 
-    Orientation3DStamped variable3(rclcpp::Time(12345678, 910111213), uuid_1);
-    Orientation3DStamped variable4(rclcpp::Time(12345679, 910111213), uuid_2);
+    Orientation3DStamped const variable3(rclcpp::Time(12345678, 910111213), uuid_1);
+    Orientation3DStamped const variable4(rclcpp::Time(12345679, 910111213), uuid_2);
     EXPECT_NE(variable3.uuid(), variable4.uuid());
   }
 }
@@ -150,12 +150,12 @@ using Orientation3DLocalParameterization =
 
 TEST(Orientation3DStamped, Plus)
 {
-  auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
+  auto* parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
 
   double x[4] = { 0.842614977, 0.2, 0.3, 0.4 };
   double delta[3] = { 0.15, -0.2, 0.433012702 };
   double result[4] = { 0.0, 0.0, 0.0, 0.0 };
-  bool success = parameterization->Plus(x, delta, result);
+  bool const success = parameterization->Plus(x, delta, result);
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.745561, result[0], 1.0e-5);
@@ -166,12 +166,12 @@ TEST(Orientation3DStamped, Plus)
 
 TEST(Orientation3DStamped, Minus)
 {
-  auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
+  auto* parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
 
   double x1[4] = { 0.842614977, 0.2, 0.3, 0.4 };
   double x2[4] = { 0.745561, 0.360184, 0.194124, 0.526043 };
   double result[3] = { 0.0, 0.0, 0.0 };
-  bool success = parameterization->Minus(x1, x2, result);
+  bool const success = parameterization->Minus(x1, x2, result);
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.15, result[0], 1.0e-5);
@@ -181,7 +181,7 @@ TEST(Orientation3DStamped, Minus)
 
 TEST(Orientation3DStamped, PlusJacobian)
 {
-  auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
+  auto* parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
@@ -190,14 +190,14 @@ TEST(Orientation3DStamped, PlusJacobian)
     {
       for (double qz = -0.5; qz < 0.5; qz += 0.1)
       {
-        double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
+        double const qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = { qw, qx, qy, qz };
         fuse_core::MatrixXd actual(4, 3);
         /* *INDENT-OFF* */
         actual << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
-        bool success = parameterization->ComputeJacobian(x, actual.data());
+        bool const success = parameterization->ComputeJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(4, 3);
         /* *INDENT-OFF* */
@@ -206,7 +206,7 @@ TEST(Orientation3DStamped, PlusJacobian)
         reference.ComputeJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
-        Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+        Eigen::IOFormat const clean(4, 0, ", ", "\n", "[", "]");
         EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n"
                                                        << expected.format(clean) << "\n"
                                                        << "Actual is:\n"
@@ -220,7 +220,7 @@ TEST(Orientation3DStamped, PlusJacobian)
 
 TEST(Orientation3DStamped, MinusJacobian)
 {
-  auto parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
+  auto* parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
@@ -229,14 +229,14 @@ TEST(Orientation3DStamped, MinusJacobian)
     {
       for (double qz = -0.5; qz < 0.5; qz += 0.1)
       {
-        double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
+        double const qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = { qw, qx, qy, qz };
         fuse_core::MatrixXd actual(3, 4);
         /* *INDENT-OFF* */
         actual << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
-        bool success = parameterization->ComputeMinusJacobian(x, actual.data());
+        bool const success = parameterization->ComputeMinusJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(3, 4);
         /* *INDENT-OFF* */
@@ -245,7 +245,7 @@ TEST(Orientation3DStamped, MinusJacobian)
         reference.ComputeMinusJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
-        Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+        Eigen::IOFormat const clean(4, 0, ", ", "\n", "[", "]");
         EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n"
                                                        << expected.format(clean) << "\n"
                                                        << "Actual is:\n"
@@ -259,7 +259,7 @@ TEST(Orientation3DStamped, MinusJacobian)
 
 TEST(Orientation3DStamped, Stamped)
 {
-  fuse_core::Variable::SharedPtr base =
+  fuse_core::Variable::SharedPtr const base =
       Orientation3DStamped::make_shared(rclcpp::Time(12345678, 910111213), fuse_core::uuid::generate("mo"));
   auto derived = std::dynamic_pointer_cast<Orientation3DStamped>(base);
   ASSERT_TRUE(static_cast<bool>(derived));
@@ -330,7 +330,7 @@ TEST(Orientation3DStamped, Optimization)
   problem.AddResidualBlock(cost_function, nullptr, parameter_blocks);
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 
@@ -434,12 +434,12 @@ using Orientation3DManifold = ceres::AutoDiffManifold<Orientation3DFunctor, 4, 3
 
 TEST(Orientation3DStamped, ManifoldPlus)
 {
-  auto manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
+  auto* manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
 
   double x[4] = { 0.842614977, 0.2, 0.3, 0.4 };
   double delta[3] = { 0.15, -0.2, 0.433012702 };
   double result[4] = { 0.0, 0.0, 0.0, 0.0 };
-  bool success = manifold->Plus(x, delta, result);
+  bool const success = manifold->Plus(x, delta, result);
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.745561, result[0], 1.0e-5);
@@ -450,7 +450,7 @@ TEST(Orientation3DStamped, ManifoldPlus)
 
 TEST(Orientation3DStamped, ManifoldPlusJacobian)
 {
-  auto manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
+  auto* manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation3DManifold();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
@@ -459,14 +459,14 @@ TEST(Orientation3DStamped, ManifoldPlusJacobian)
     {
       for (double qz = -0.5; qz < 0.5; qz += 0.1)
       {
-        double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
+        double const qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = { qw, qx, qy, qz };
         fuse_core::MatrixXd actual(4, 3);
         /* *INDENT-OFF* */
         actual << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
-        bool success = manifold->PlusJacobian(x, actual.data());
+        bool const success = manifold->PlusJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(4, 3);
         /* *INDENT-OFF* */
@@ -475,7 +475,7 @@ TEST(Orientation3DStamped, ManifoldPlusJacobian)
         reference.PlusJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
-        Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+        Eigen::IOFormat const clean(4, 0, ", ", "\n", "[", "]");
         EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n"
                                                        << expected.format(clean) << "\n"
                                                        << "Actual is:\n"
@@ -493,8 +493,8 @@ TEST(Orientation3DStamped, ManifoldMinus)
   double x2[4] = { 0.745561, 0.360184, 0.194124, 0.526043 };
   double result[3] = { 0.0, 0.0, 0.0 };
 
-  auto manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
-  bool success = manifold->Minus(x2, x1, result);
+  auto* manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
+  bool const success = manifold->Minus(x2, x1, result);
 
   EXPECT_TRUE(success);
   EXPECT_NEAR(0.15, result[0], 1.0e-5);
@@ -504,7 +504,7 @@ TEST(Orientation3DStamped, ManifoldMinus)
 
 TEST(Orientation3DStamped, ManifoldMinusJacobian)
 {
-  auto manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
+  auto* manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation3DManifold();
 
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
@@ -513,14 +513,14 @@ TEST(Orientation3DStamped, ManifoldMinusJacobian)
     {
       for (double qz = -0.5; qz < 0.5; qz += 0.1)
       {
-        double qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
+        double const qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = { qw, qx, qy, qz };
         fuse_core::MatrixXd actual(3, 4);
         /* *INDENT-OFF* */
         actual << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
         /* *INDENT-ON* */
-        bool success = manifold->MinusJacobian(x, actual.data());
+        bool const success = manifold->MinusJacobian(x, actual.data());
 
         fuse_core::MatrixXd expected(3, 4);
         /* *INDENT-OFF* */
@@ -529,7 +529,7 @@ TEST(Orientation3DStamped, ManifoldMinusJacobian)
         reference.MinusJacobian(x, expected.data());
 
         EXPECT_TRUE(success);
-        Eigen::IOFormat clean(4, 0, ", ", "\n", "[", "]");
+        Eigen::IOFormat const clean(4, 0, ", ", "\n", "[", "]");
         EXPECT_TRUE(expected.isApprox(actual, 1.0e-5)) << "Expected is:\n"
                                                        << expected.format(clean) << "\n"
                                                        << "Actual is:\n"
