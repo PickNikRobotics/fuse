@@ -91,6 +91,10 @@ public:
    * @brief Destructor
    */
   virtual ~Pose2D() = default;
+  Pose2D(Pose2D const&) = delete;
+  Pose2D(Pose2D&&) = delete;
+  Pose2D& operator=(Pose2D const&) = delete;
+  Pose2D& operator=(Pose2D&&) = delete;
 
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
@@ -134,7 +138,7 @@ protected:
    * @param[in] validate - Whether to validate the pose or not
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */
-  void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, const bool validate,
+  void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, bool validate,
                            fuse_core::Transaction& transaction);
 
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,

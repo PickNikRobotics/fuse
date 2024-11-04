@@ -46,10 +46,7 @@
 #include <fuse_variables/velocity_angular_3d_stamped.hpp>
 #include <fuse_variables/velocity_linear_3d_stamped.hpp>
 
-namespace fuse_models
-{
-
-namespace parameters
+namespace fuse_models::parameters
 {
 
 /**
@@ -129,9 +126,9 @@ public:
                                              //!< available
   rclcpp::Duration throttle_period{ 0, 0 };  //!< The throttle period duration in seconds
   bool throttle_use_wall_time{ false };      //!< Whether to throttle using ros::WallTime or not
-  std::string topic{};
-  std::string pose_target_frame{};
-  std::string twist_target_frame{};
+  std::string topic;
+  std::string pose_target_frame;
+  std::string twist_target_frame;
   std::vector<size_t> position_indices;
   std::vector<size_t> orientation_indices;
   std::vector<size_t> linear_velocity_indices;
@@ -141,8 +138,6 @@ public:
   fuse_core::Loss::SharedPtr angular_velocity_loss;
 };
 
-}  // namespace parameters
-
-}  // namespace fuse_models
+}  // namespace fuse_models::parameters
 
 #endif  // FUSE_MODELS__PARAMETERS__ODOMETRY_3D_PARAMS_HPP_
