@@ -56,15 +56,9 @@ namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces orientation (relative or absolute), angular velocity,
- *        and linear acceleration constraints from IMU sensor data published by another node
+ * @brief An adapter-type sensor that produces pose constraints from AprilTag detections
  *
- * This sensor subscribes to a MessageType topic and:
- * 1. Creates relative or absolute orientation and constraints. If the \p differential parameter
- *    is set to false (the default), the orientation measurement will be treated as an absolute
- *    constraint. If it is set to true, consecutive measurements will be used to generate relative
- *    orientation constraints.
- * 2. Creates 3D velocity variables and constraints.
+ * This sensor subscribes to a MessageType topic and creates orientation and pose variables and constraints.
  *
  * This sensor really just separates out the orientation, angular velocity, and linear acceleration
  * components of the message, and processes them just like the Pose3D, Twist3D, and Acceleration3D
@@ -76,23 +70,6 @@ namespace fuse_models
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
  *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
  *  - topic (string) The topic to which to subscribe for the pose messages
- *  - differential (bool, default: false) Whether we should fuse orientation measurements
- *                                        absolutely, or to create relative orientation constraints
- *                                        using consecutive measurements.
- *  - remove_gravitational_acceleration (bool, default: false) Whether we should remove acceleration
- *                                                             due to gravity from the acceleration
- *                                                             values produced by the IMU before
- *                                                             fusing
- *  - gravitational_acceleration (double, default: 9.80665) Acceleration due to gravity, in
- *                                                          meters/sec^2. This value is only used if
- *                                                          \p remove_gravitational_acceleration is
- *                                                          true
- *  - orientation_target_frame (string) Orientation data will be transformed into this frame before
- *                                      it is fused.
- *  - twist_target_frame (string) Twist/velocity data will be transformed into this frame before it
- *                                is fused.
- *  - acceleration_target_frame (string) Acceleration data will be transformed into this frame
- *                                       before it is fused.
  *
  * Subscribes:
  *  - \p topic (MessageType) IMU data at a given timestep
@@ -164,8 +141,6 @@ protected:
   rclcpp::Logger logger_;           //!< The sensor model's logger
 
   ParameterType params_;
-
-  tf2_msgs::msg::TFMessage previous_pose_;
 
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
