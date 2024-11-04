@@ -101,11 +101,10 @@ void AprilTagPose::onStart()
     rclcpp::SubscriptionOptions sub_options;
     sub_options.callback_group = cb_group_;
 
-    sub_ = rclcpp::create_subscription<MessageType>(
-        interfaces_, params_.topic, params_.queue_size,
-        std::bind(&AprilTagThrottledCallback::callback<const nav_msgs::msg::Odometry&>, &throttled_callback_,
-                  std::placeholders::_1),
-        sub_options);
+    sub_ = rclcpp::create_subscription<MessageType>(interfaces_, params_.topic, params_.queue_size,
+                                                    std::bind(&AprilTagThrottledCallback::callback<const MessageType&>,
+                                                              &throttled_callback_, std::placeholders::_1),
+                                                    sub_options);
   }
 }
 

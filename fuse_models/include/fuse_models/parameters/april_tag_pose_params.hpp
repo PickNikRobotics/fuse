@@ -86,7 +86,7 @@ public:
 
     pose_loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "pose_loss"));
     pose_covariance = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "pose_covariance"),
-                                          std::array<double, 6>{ 1, 1, 1, 1, 1, 1 });
+                                          std::vector<double>{ 1, 1, 1, 1, 1, 1 });
   }
 
   bool disable_checks{ false };
@@ -95,7 +95,7 @@ public:
   rclcpp::Duration tf_timeout{ 0, 0 };       //!< The maximum time to wait for a transform to become  available
   rclcpp::Duration throttle_period{ 0, 0 };  //!< The throttle period duration in seconds
   bool throttle_use_wall_time{ false };      //!< Whether to throttle using ros::WallTime or not
-  std::array<double, 6> pose_covariance;     //!< The diagonal elements of the tag pose covariance
+  std::vector<double> pose_covariance;       //!< The diagonal elements of the tag pose covariance
   int queue_size{ 10 };
   std::string topic;
   std::string pose_target_frame;
