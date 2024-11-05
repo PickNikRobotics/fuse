@@ -110,14 +110,17 @@ TEST(Orientation3DStamped, UUID)
   }
 }
 
+namespace
+{
 template <typename T>
-inline static void QuaternionInverse(const T in[4], T out[4])
+inline void QuaternionInverse(const T in[4], T out[4])
 {
   out[0] = in[0];
   out[1] = -in[1];
   out[2] = -in[2];
   out[3] = -in[3];
 }
+}  // namespace
 
 struct Orientation3DPlus
 {
@@ -184,12 +187,14 @@ TEST(Orientation3DStamped, PlusJacobian)
   auto* parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
+  // NOLINTBEGIN(clang-analyzer-security.FloatLoopCounter)
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
     for (double qy = -0.5; qy < 0.5; qy += 0.1)
     {
       for (double qz = -0.5; qz < 0.5; qz += 0.1)
       {
+        // NOLINTEND(clang-analyzer-security.FloatLoopCounter)
         double const qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = { qw, qx, qy, qz };
@@ -223,12 +228,14 @@ TEST(Orientation3DStamped, MinusJacobian)
   auto* parameterization = Orientation3DStamped(rclcpp::Time(0, 0)).localParameterization();
   auto reference = Orientation3DLocalParameterization();
 
+  // NOLINTBEGIN(clang-analyzer-security.FloatLoopCounter)
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
     for (double qy = -0.5; qy < 0.5; qy += 0.1)
     {
       for (double qz = -0.5; qz < 0.5; qz += 0.1)
       {
+        // NOLINTEND(clang-analyzer-security.FloatLoopCounter)
         double const qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = { qw, qx, qy, qz };
@@ -453,12 +460,14 @@ TEST(Orientation3DStamped, ManifoldPlusJacobian)
   auto* manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation3DManifold();
 
+  // NOLINTBEGIN(clang-analyzer-security.FloatLoopCounter)
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
     for (double qy = -0.5; qy < 0.5; qy += 0.1)
     {
       for (double qz = -0.5; qz < 0.5; qz += 0.1)
       {
+        // NOLINTEND(clang-analyzer-security.FloatLoopCounter)
         double const qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = { qw, qx, qy, qz };
@@ -507,12 +516,14 @@ TEST(Orientation3DStamped, ManifoldMinusJacobian)
   auto* manifold = Orientation3DStamped(rclcpp::Time(0, 0)).manifold();
   auto reference = Orientation3DManifold();
 
+  // NOLINTBEGIN(clang-analyzer-security.FloatLoopCounter)
   for (double qx = -0.5; qx < 0.5; qx += 0.1)
   {
     for (double qy = -0.5; qy < 0.5; qy += 0.1)
     {
       for (double qz = -0.5; qz < 0.5; qz += 0.1)
       {
+        // NOLINTEND(clang-analyzer-security.FloatLoopCounter)
         double const qw = std::sqrt(1.0 - qx * qx - qy * qy - qz * qz);
 
         double x[4] = { qw, qx, qy, qz };
