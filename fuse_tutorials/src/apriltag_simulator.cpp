@@ -47,17 +47,16 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#include "tf2_msgs/msg/tf_message.hpp"
 
 namespace
 {
-constexpr char baselinkFrame[] = "base_link";  //!< The base_link frame id used when
-                                               //!< publishing sensor data
-constexpr char mapFrame[] = "map";             //!< The map frame id used when publishing ground truth
-                                               //!< data
-constexpr double imuSigma = 0.1;               //!< Std dev of simulated Imu measurement noise
-constexpr char odomFrame[] = "odom";           //!< The odom frame id used when publishing wheel
-constexpr double odomPositionSigma = 0.5;      //!< Std dev of simulated odom position measurement noise
-constexpr double odomOrientationSigma = 0.1;   //!< Std dev of simulated odom orientation measurement noise
+constexpr char baselinkFrame[] = "base_link";     //!< The base_link frame id used when
+                                                  //!< publishing sensor data
+constexpr char mapFrame[] = "map";                //!< The map frame id used when publishing ground truth
+                                                  //!< data
+constexpr double aprilTagPositionSigma = 0.1;     //!< the april tag position std dev
+constexpr double aprilTagOrientationSigma = 0.5;  //!< the april tag orientation std dev
 }  // namespace
 
 /**
@@ -162,70 +161,14 @@ Robot simulateRobotMotion(Robot const& previous_state, rclcpp::Time const& now, 
   return next_state;
 }
 
-/**
- * @brief Create a simulated Imu measurement from the current state
- */
-sensor_msgs::msg::Imu simulateImu(Robot const& robot)
+tf2_msgs::msg::TFMessage simulateAprilTag(const Robot& /*robot*/)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
-  static std::normal_distribution<> noise{ 0.0, imuSigma };
+  static std::normal_distribution<> position_noise{ 0.0, aprilTagPositionSigma };
+  static std::normal_distribution<> orientation_noise{ 0.0, aprilTagOrientationSigma };
 
-  sensor_msgs::msg::Imu msg;
-  msg.header.stamp = robot.stamp;
-  msg.header.frame_id = baselinkFrame;
-
-  // measure accel
-  msg.linear_acceleration.x = robot.ax + noise(generator);
-  msg.linear_acceleration.y = robot.ay + noise(generator);
-  msg.linear_acceleration.z = robot.az + noise(generator);
-  msg.linear_acceleration_covariance[0] = imuSigma * imuSigma;
-  msg.linear_acceleration_covariance[4] = imuSigma * imuSigma;
-  msg.linear_acceleration_covariance[8] = imuSigma * imuSigma;
-
-  // Simulated IMU does not provide orientation (negative covariance indicates this)
-  msg.orientation_covariance[0] = -1;
-  msg.orientation_covariance[4] = -1;
-  msg.orientation_covariance[8] = -1;
-
-  msg.angular_velocity.x = robot.vroll + noise(generator);
-  msg.angular_velocity.y = robot.vpitch + noise(generator);
-  msg.angular_velocity.z = robot.vyaw + noise(generator);
-  msg.angular_velocity_covariance[0] = imuSigma * imuSigma;
-  msg.angular_velocity_covariance[4] = imuSigma * imuSigma;
-  msg.angular_velocity_covariance[8] = imuSigma * imuSigma;
-  return msg;
-}
-
-nav_msgs::msg::Odometry simulateOdometry(const Robot& robot)
-{
-  static std::random_device rd{};
-  static std::mt19937 generator{ rd() };
-  static std::normal_distribution<> position_noise{ 0.0, odomPositionSigma };
-
-  nav_msgs::msg::Odometry msg;
-  msg.header.stamp = robot.stamp;
-  msg.header.frame_id = odomFrame;
-  msg.child_frame_id = baselinkFrame;
-
-  // noisy position measurement
-  msg.pose.pose.position.x = robot.x + position_noise(generator);
-  msg.pose.pose.position.y = robot.y + position_noise(generator);
-  msg.pose.pose.position.z = robot.z + position_noise(generator);
-  msg.pose.covariance[0] = odomPositionSigma * odomPositionSigma;
-  msg.pose.covariance[7] = odomPositionSigma * odomPositionSigma;
-  msg.pose.covariance[14] = odomPositionSigma * odomPositionSigma;
-
-  // noisy orientation measurement
-  tf2::Quaternion q;
-  q.setEuler(robot.yaw, robot.pitch, robot.roll);
-  msg.pose.pose.orientation.w = q.w();
-  msg.pose.pose.orientation.x = q.x();
-  msg.pose.pose.orientation.y = q.y();
-  msg.pose.pose.orientation.z = q.z();
-  msg.pose.covariance[21] = odomOrientationSigma * odomOrientationSigma;
-  msg.pose.covariance[28] = odomOrientationSigma * odomOrientationSigma;
-  msg.pose.covariance[35] = odomOrientationSigma * odomOrientationSigma;
+  tf2_msgs::msg::TFMessage msg;
   return msg;
 }
 
@@ -286,8 +229,7 @@ int main(int argc, char** argv)
   auto node = rclcpp::Node::make_shared("three_dimensional_simulator");
 
   // create our sensor publishers
-  auto imu_publisher = node->create_publisher<sensor_msgs::msg::Imu>("imu", 1);
-  auto odom_publisher = node->create_publisher<nav_msgs::msg::Odometry>("odom", 1);
+  auto tf_publisher = node->create_publisher<tf2_msgs::msg::TFMessage>("tf", 1);
 
   // create the ground truth publisher
   auto ground_truth_publisher = node->create_publisher<nav_msgs::msg::Odometry>("ground_truth", 1);
@@ -355,8 +297,7 @@ int main(int argc, char** argv)
     ground_truth_publisher->publish(robotToOdometry(new_state));
 
     // Generate and publish simulated measurements from the new robot state
-    imu_publisher->publish(simulateImu(new_state));
-    odom_publisher->publish(simulateOdometry(new_state));
+    tf_publisher->publish(simulateAprilTag(new_state));
 
     // Wait for the next time step
     state = new_state;

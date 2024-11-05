@@ -79,6 +79,11 @@
     published by another node
     </description>
   </class>
+  <class type="fuse_models::AprilTagPose" base_class_type="fuse_core::SensorModel">
+    <description>
+      An adapter-type sensor that produces pose constraints from AprilTag detections published from another node
+    </description>
+  </class>
   <class type="fuse_models::Pose2D" base_class_type="fuse_core::SensorModel">
     <description>
     An adapter-type sensor that produces absolute or relative pose constraints from information published by
