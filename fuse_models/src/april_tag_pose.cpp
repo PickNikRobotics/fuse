@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <tf2_ros/buffer.h>
 #include <memory>
 
 #include <fuse_core/transaction.hpp>
@@ -124,6 +125,7 @@ void AprilTagPose::process(MessageType const& msg)
     // Create the pose from the transform
     auto pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
     pose->header = transform.header;
+    pose->header.frame_id = pose->header.frame_id;
     pose->pose.pose.orientation = transform.transform.rotation;
     pose->pose.pose.position.x = transform.transform.translation.x;
     pose->pose.pose.position.y = transform.transform.translation.y;
@@ -136,7 +138,7 @@ void AprilTagPose::process(MessageType const& msg)
     }
 
     const bool validate = !params_.disable_checks;
-    common::processAbsolutePose3DWithCovariance(name(), device_id_, *pose, params_.pose_loss, params_.pose_target_frame,
+    common::processAbsolutePose3DWithCovariance(name(), device_id_, *pose, params_.pose_loss, params_.target_frame,
                                                 params_.position_indices, params_.orientation_indices, *tf_buffer_,
                                                 validate, *transaction, params_.tf_timeout);
 

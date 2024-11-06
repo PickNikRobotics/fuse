@@ -81,8 +81,7 @@ public:
 
     fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
 
-    pose_target_frame =
-        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "pose_target_frame"), pose_target_frame);
+    target_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "target_frame"), target_frame);
 
     pose_loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "pose_loss"));
     pose_covariance = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "pose_covariance"),
@@ -98,7 +97,7 @@ public:
   std::vector<double> pose_covariance;       //!< The diagonal elements of the tag pose covariance
   int queue_size{ 10 };
   std::string topic;
-  std::string pose_target_frame;
+  std::string target_frame;
   std::vector<size_t> position_indices;
   std::vector<size_t> orientation_indices;
   fuse_core::Loss::SharedPtr pose_loss;

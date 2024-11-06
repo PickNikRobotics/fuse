@@ -315,9 +315,9 @@ int main(int argc, char** argv)
     auto const now = node->now();
 
     // compensate for the original time offset
-    double now_d = (now - firstTime).seconds();
+    double const now_d = (now - firstTime).seconds();
     // store how long it has been (resetting at `motion_duration` seconds)
-    double mod_time = std::fmod(now_d, motion_duration);
+    double const mod_time = std::fmod(now_d, motion_duration);
 
     // apply a harmonic force (oscillates `N_cycles` times per `motion_duration`)
     double const force_magnitude = 100 * std::cos(2 * M_PI * n_cycles * mod_time / motion_duration);

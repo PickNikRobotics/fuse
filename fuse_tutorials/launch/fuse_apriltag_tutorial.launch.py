@@ -46,7 +46,9 @@ def generate_launch_description():
                 executable="fixed_lag_smoother_node",
                 name="state_estimator",
                 parameters=[
-                    PathJoinSubstitution([pkg_dir, "config", "fuse_3d_tutorial.yaml"])
+                    PathJoinSubstitution(
+                        [pkg_dir, "config", "fuse_apriltag_tutorial.yaml"]
+                    )
                 ],
             ),
             # run visualization

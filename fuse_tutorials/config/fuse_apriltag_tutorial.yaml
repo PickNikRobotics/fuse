@@ -32,7 +32,7 @@ state_estimator:
 
     apriltag_sensor:
       topic: 'april_tf'
-      twist_target_frame: 'base_link'
+      target_frame: 'base_link'
       position_dimensions: ['x', 'y', 'z']
       orientation_dimensions: ['roll', 'pitch', 'yaw']
 
