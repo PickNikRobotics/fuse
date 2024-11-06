@@ -367,6 +367,7 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
       manifold->PlusJacobian(variable_values[index], j.data());
       jacobian *= j;
     }
+    delete manifold;
 #endif
   }
 
