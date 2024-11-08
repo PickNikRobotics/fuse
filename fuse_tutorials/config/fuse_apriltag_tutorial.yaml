@@ -2,9 +2,9 @@
 state_estimator:
   ros__parameters:
     # Fixed-lag smoother configuration
-    optimization_frequency: 20.0
+    optimization_frequency: 100.0
     transaction_timeout: 0.01
-    lag_duration: 0.5
+    lag_duration: 0.1
 
     # all our sensors will be using this motion model
     motion_models:
@@ -49,4 +49,4 @@ state_estimator:
       map_frame_id: 'map'
       world_frame_id: 'odom'
       publish_tf: true
-      publish_frequency: 10.0
+      publish_frequency: 100.0
