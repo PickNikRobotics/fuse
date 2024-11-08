@@ -4,7 +4,7 @@ state_estimator:
     # Fixed-lag smoother configuration
     optimization_frequency: 100.0
     transaction_timeout: 0.01
-    lag_duration: 0.1
+    lag_duration: 0.01
 
     # all our sensors will be using this motion model
     motion_models:
@@ -13,7 +13,8 @@ state_estimator:
 
     3d_motion_model:
       # x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, x_acc, y_acc, z_acc
-      process_noise_diagonal: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
+      # use high values for the acceleration process noise because we aren't measuring the applied forces
+      process_noise_diagonal: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 10., 10., 10.]
 
     sensor_models:
       initial_localization_sensor:
@@ -35,6 +36,8 @@ state_estimator:
       target_frame: 'base_link'
       position_dimensions: ['x', 'y', 'z']
       orientation_dimensions: ['roll', 'pitch', 'yaw']
+      # these are the true covariance values used by the simulator; what happens if we change these?
+      pose_covariance: [0.1, 0.1, 0.1, 0.25, 0.25, 0.25]
 
     # this publishes our estimated odometry
     publishers:
