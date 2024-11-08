@@ -48,7 +48,6 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <string>
-#include <thread>
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tf2_msgs/msg/tf_message.hpp"
 
@@ -380,13 +379,14 @@ int main(int argc, char** argv)
 
     // Generate and publish simulated measurements from the new robot state
     tf_publisher->publish(aprilTagPoses(new_state));
-    std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    april_tf_publisher->publish(simulateAprilTag(new_state));
 
     // Wait for the next time step
     state = new_state;
     rclcpp::spin_some(node);
     rate.sleep();
+
+    // publish simulated position after the static april tag poses since we need them to be in the tf buffer to run
+    april_tf_publisher->publish(simulateAprilTag(new_state));
   }
 
   rclcpp::shutdown();
