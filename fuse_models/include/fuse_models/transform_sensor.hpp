@@ -31,8 +31,8 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__IMU_3D_HPP_
-#define FUSE_MODELS__IMU_3D_HPP_
+#ifndef FUSE_MODELS__TRANSFORM_SENSOR_HPP_
+#define FUSE_MODELS__TRANSFORM_SENSOR_HPP_
 
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
@@ -40,7 +40,7 @@
 #include <memory>
 #include <string>
 
-#include <fuse_models/parameters/april_tag_pose_params.hpp>
+#include <fuse_models/parameters/transform_sensor_params.hpp>
 #include <fuse_core/throttled_callback.hpp>
 
 #include <fuse_core/async_sensor_model.hpp>
@@ -74,27 +74,27 @@ namespace fuse_models
  * Subscribes:
  *  - \p topic (MessageType) IMU data at a given timestep
  */
-class AprilTagPose : public fuse_core::AsyncSensorModel
+class TransformSensor : public fuse_core::AsyncSensorModel
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(AprilTagPose)
-  using ParameterType = parameters::AprilTagPoseParams;
+  FUSE_SMART_PTR_DEFINITIONS(TransformSensor)
+  using ParameterType = parameters::TransformSensorParams;
   using MessageType = tf2_msgs::msg::TFMessage;
 
   /**
    * @brief Default constructor
    */
-  AprilTagPose();
+  TransformSensor();
 
   /**
    * @brief Destructor
    */
-  virtual ~AprilTagPose() = default;
+  virtual ~TransformSensor() = default;
 
-  AprilTagPose(AprilTagPose const&) = delete;
-  AprilTagPose(AprilTagPose&&) = delete;
-  AprilTagPose& operator=(AprilTagPose const&) = delete;
-  AprilTagPose& operator=(AprilTagPose&&) = delete;
+  TransformSensor(TransformSensor const&) = delete;
+  TransformSensor(TransformSensor&&) = delete;
+  TransformSensor& operator=(TransformSensor const&) = delete;
+  TransformSensor& operator=(TransformSensor&&) = delete;
 
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
@@ -153,4 +153,4 @@ protected:
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__IMU_3D_HPP_
+#endif  // FUSE_MODELS__TRANSFORM_SENSOR_HPP_

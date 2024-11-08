@@ -26,8 +26,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
-            # tell tf2 that map is the same as odom
-            # without this, visualization won't work as we have no reference
+            # create a fixed transform between map and odom for visualization purposes
             Node(
                 package="tf2_ros",
                 executable="static_transform_publisher",

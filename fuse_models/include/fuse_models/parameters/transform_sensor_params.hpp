@@ -50,7 +50,7 @@ namespace fuse_models::parameters
 /**
  * @brief Defines the set of parameters required by the Odometry3D class
  */
-struct AprilTagPoseParams : public ParameterBase
+struct TransformSensorParams : public ParameterBase
 {
 public:
   /**

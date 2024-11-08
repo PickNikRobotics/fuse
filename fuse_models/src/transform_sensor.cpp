@@ -37,40 +37,41 @@
 #include <fuse_core/transaction.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_models/common/sensor_proc.hpp>
-#include <fuse_models/april_tag_pose.hpp>
+#include <fuse_models/transform_sensor.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <stdexcept>
 
 // Register this sensor model with ROS as a plugin.
-PLUGINLIB_EXPORT_CLASS(fuse_models::AprilTagPose, fuse_core::SensorModel)
+PLUGINLIB_EXPORT_CLASS(fuse_models::TransformSensor, fuse_core::SensorModel)
 
 namespace fuse_models
 {
 
-AprilTagPose::AprilTagPose()
+TransformSensor::TransformSensor()
   : fuse_core::AsyncSensorModel(1)
   , device_id_(fuse_core::uuid::NIL)
   , logger_(rclcpp::get_logger("uninitialized"))
-  , throttled_callback_(std::bind(&AprilTagPose::process, this, std::placeholders::_1))
+  , throttled_callback_(std::bind(&TransformSensor::process, this, std::placeholders::_1))
 {
 }
 
-void AprilTagPose::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                              const std::string& name, fuse_core::TransactionCallback transaction_callback)
+void TransformSensor::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                                 const std::string& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
 }
 
-void AprilTagPose::onInit()
+void TransformSensor::onInit()
 {
   logger_ = interfaces_.get_node_logging_interface()->get_logger();
   clock_ = interfaces_.get_node_clock_interface()->get_clock();
 
-  // Read settings from the parameter sever
+  // Read settings from the parameter server
   device_id_ = fuse_variables::loadDeviceId(interfaces_);
 
   params_.loadFromROS(interfaces_, name_);
@@ -84,8 +85,8 @@ void AprilTagPose::onInit()
 
   if (params_.position_indices.empty() && params_.orientation_indices.empty())
   {
-    RCLCPP_WARN_STREAM(logger_,
-                       "No dimensions were specified. Data from topic " << params_.topic << " will be ignored.");
+    throw std::runtime_error("No dimensions specified, so this sensor would not do anything (data from topic " +
+                             params_.topic + " would be ignored).");
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
@@ -95,26 +96,23 @@ void AprilTagPose::onInit()
                                                               interfaces_.get_node_topics_interface());
 }
 
-void AprilTagPose::onStart()
+void TransformSensor::onStart()
 {
-  if (!params_.position_indices.empty() || !params_.orientation_indices.empty())
-  {
-    rclcpp::SubscriptionOptions sub_options;
-    sub_options.callback_group = cb_group_;
+  rclcpp::SubscriptionOptions sub_options;
+  sub_options.callback_group = cb_group_;
 
-    sub_ = rclcpp::create_subscription<MessageType>(interfaces_, params_.topic, params_.queue_size,
-                                                    std::bind(&AprilTagThrottledCallback::callback<const MessageType&>,
-                                                              &throttled_callback_, std::placeholders::_1),
-                                                    sub_options);
-  }
+  sub_ = rclcpp::create_subscription<MessageType>(interfaces_, params_.topic, params_.queue_size,
+                                                  std::bind(&AprilTagThrottledCallback::callback<const MessageType&>,
+                                                            &throttled_callback_, std::placeholders::_1),
+                                                  sub_options);
 }
 
-void AprilTagPose::onStop()
+void TransformSensor::onStop()
 {
   sub_.reset();
 }
 
-void AprilTagPose::process(MessageType const& msg)
+void TransformSensor::process(MessageType const& msg)
 {
   for (auto const& transform : msg.transforms)
   {
