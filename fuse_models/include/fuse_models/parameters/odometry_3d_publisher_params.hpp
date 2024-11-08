@@ -36,10 +36,8 @@
 
 #include <ceres/covariance.h>
 
-#include <algorithm>
 #include <cassert>
 #include <string>
-#include <vector>
 
 #include <fuse_models/parameters/parameter_base.hpp>
 

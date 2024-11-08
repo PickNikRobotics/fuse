@@ -345,7 +345,7 @@ void Odometry3DPublisher::onStart()
   // TODO(CH3): Add this to a separate callback group for async behavior
   publish_timer_ =
       rclcpp::create_timer(interfaces_, clock_, std::chrono::duration<double>(1.0 / params_.publish_frequency),
-                           std::move(std::bind(&Odometry3DPublisher::publishTimerCallback, this)), cb_group_);
+                           std::bind(&Odometry3DPublisher::publishTimerCallback, this), cb_group_);
 
   delayed_throttle_filter_.reset();
 }
@@ -424,7 +424,7 @@ void Odometry3DPublisher::publishTimerCallback()
 {
   rclcpp::Time latest_stamp;
   rclcpp::Time latest_covariance_stamp;
-  bool latest_covariance_valid;
+  bool latest_covariance_valid = false;
   nav_msgs::msg::Odometry odom_output;
   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output;
   {
@@ -453,7 +453,9 @@ void Odometry3DPublisher::publishTimerCallback()
     rclcpp::Time timer_now = interfaces_.get_node_clock_interface()->get_clock()->now();
 
     // Convert pose in Eigen representation
-    fuse_core::Vector3d position, velocity_linear, velocity_angular;
+    fuse_core::Vector3d position;
+    fuse_core::Vector3d velocity_linear;
+    fuse_core::Vector3d velocity_angular;
     Eigen::Quaterniond orientation;
     position << pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z();
     orientation.x() = pose.getRotation().x();

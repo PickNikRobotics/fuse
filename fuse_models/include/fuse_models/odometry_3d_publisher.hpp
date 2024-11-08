@@ -118,6 +118,10 @@ public:
    * @brief Destructor
    */
   virtual ~Odometry3DPublisher() = default;
+  Odometry3DPublisher(Odometry3DPublisher const&) = delete;
+  Odometry3DPublisher(Odometry3DPublisher&&) = delete;
+  Odometry3DPublisher& operator=(Odometry3DPublisher const&) = delete;
+  Odometry3DPublisher& operator=(Odometry3DPublisher&&) = delete;
 
   /**
    * @brief Shadowing extension to the AsyncPublisher::initialize call
