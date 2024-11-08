@@ -188,9 +188,9 @@ tf2_msgs::msg::TFMessage aprilTagPoses(Robot const& robot)
     // calculate offset of each april tag
     // we start with offset 1, 1, 1 and switch the z, y, then x as if they were binary digits based off of the april tag
     // number see the launch file for a more readable offset for each april tag
-    bool const x_positive = ((i >> 3) & 1) == 0u;
-    bool const y_positive = ((i >> 2) & 1) == 0u;
-    bool const z_positive = ((i >> 1) & 1) == 0u;
+    bool const x_positive = ((i >> 2) & 1) == 0u;
+    bool const y_positive = ((i >> 1) & 1) == 0u;
+    bool const z_positive = ((i >> 0) & 1) == 0u;
 
     // robot position with offset and noise
     april_to_base.transform.translation.x = x_positive ? 1. : -1.;
@@ -231,9 +231,9 @@ tf2_msgs::msg::TFMessage simulateAprilTag(const Robot& robot)
     // calculate offset of each april tag
     // we start with offset 1, 1, 1 and switch the z, y, then x as if they were binary digits based off of the april tag
     // number see the launch file for a more readable offset for each april tag
-    bool const x_positive = ((i >> 3) & 1) == 0u;
-    bool const y_positive = ((i >> 2) & 1) == 0u;
-    bool const z_positive = ((i >> 1) & 1) == 0u;
+    bool const x_positive = ((i >> 2) & 1) == 0u;
+    bool const y_positive = ((i >> 1) & 1) == 0u;
+    bool const z_positive = ((i >> 0) & 1) == 0u;
 
     double const x_offset = x_positive ? 1. : -1.;
     double const y_offset = y_positive ? 1. : -1.;
