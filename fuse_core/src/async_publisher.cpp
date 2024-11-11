@@ -43,7 +43,7 @@ AsyncPublisher::AsyncPublisher(size_t thread_count) : name_("uninitialized"), ex
 
 AsyncPublisher::~AsyncPublisher()
 {
-  internal_stop();
+  internalStop();
 }
 
 void AsyncPublisher::initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
@@ -131,12 +131,12 @@ void AsyncPublisher::stop()
     // Can't run in executor's thread because the executor won't service more
     // callbacks after the context is shutdown.
     // Join executor's threads right away.
-    internal_stop();
+    internalStop();
     onStop();
   }
 }
 
-void AsyncPublisher::internal_stop()
+void AsyncPublisher::internalStop()
 {
   if (spinner_.joinable())
   {

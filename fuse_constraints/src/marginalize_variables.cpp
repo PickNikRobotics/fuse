@@ -35,9 +35,7 @@
 
 #include <algorithm>
 #include <iterator>
-#include <numeric>
 #include <string>
-#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
@@ -99,7 +97,7 @@ UuidOrdering computeEliminationOrder(const std::vector<fuse_core::UUID>& margina
       // New constraint and variable indices are automatically generated
       for (const auto& constraint : constraints)
       {
-        unsigned int constraint_index = constraint_order[constraint.uuid()];
+        unsigned int const constraint_index = constraint_order[constraint.uuid()];
         for (const auto& constraint_variable_uuid : constraint.variables())
         {
           variable_constraints.insert(constraint_index, variable_order[constraint_variable_uuid]);
@@ -110,19 +108,20 @@ UuidOrdering computeEliminationOrder(const std::vector<fuse_core::UUID>& margina
 
   // Construct the CCOLAMD input structures
   auto recommended_size =
-      ccolamd_recommended(variable_constraints.size(), constraint_order.size(), variable_order.size());
-  auto A = std::vector<int>(recommended_size);
+      ccolamd_recommended(static_cast<int>(variable_constraints.size()), static_cast<int>(constraint_order.size()),
+                          static_cast<int>(variable_order.size()));
+  auto a = std::vector<int>(recommended_size);
   auto p = std::vector<int>(variable_order.size() + 1);
 
   // Use the VariableConstraints table to construct the A and p structures
-  auto A_iter = A.begin();
+  auto a_iter = a.begin();
   auto p_iter = p.begin();
   *p_iter = 0;
   ++p_iter;
   for (unsigned int variable_index = 0u; variable_index < variable_order.size(); ++variable_index)
   {
-    A_iter = variable_constraints.getConstraints(variable_index, A_iter);
-    *p_iter = std::distance(A.begin(), A_iter);
+    a_iter = variable_constraints.getConstraints(variable_index, a_iter);
+    *p_iter = static_cast<int>(std::distance(a.begin(), a_iter));
     ++p_iter;
   }
 
@@ -141,9 +140,9 @@ UuidOrdering computeEliminationOrder(const std::vector<fuse_core::UUID>& margina
   int stats[CCOLAMD_STATS];
 
   // Finally call CCOLAMD
-  auto success = ccolamd(constraint_order.size(), variable_order.size(), recommended_size, A.data(), p.data(), knobs,
-                         stats, variable_groups.data());
-  if (!success)
+  auto success = ccolamd(static_cast<int>(constraint_order.size()), static_cast<int>(variable_order.size()),
+                         static_cast<int>(recommended_size), a.data(), p.data(), knobs, stats, variable_groups.data());
+  if (success == 0)
   {
     throw std::runtime_error("Failed to call CCOLAMD to generate the elimination order.");
   }
@@ -279,8 +278,8 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
   LinearTerm result;
 
   // Generate the cost function from the input constraint
-  auto cost_function = constraint.costFunction();
-  size_t row_count = cost_function->num_residuals();
+  auto* cost_function = constraint.costFunction();
+  size_t const row_count = cost_function->num_residuals();
 
   // Loop over the constraint's variables and do several things:
   // * Generate a vector of variable value pointers. This is needed for the Ceres API.
@@ -299,7 +298,7 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
     const auto& variable = graph.getVariable(variable_uuid);
     variable_values.push_back(variable.data());
     result.variables.push_back(elimination_order.at(variable_uuid));
-    result.A.push_back(fuse_core::MatrixXd(row_count, variable.size()));
+    result.A.emplace_back(row_count, variable.size());
     jacobians.push_back(result.A.back().data());
   }
   result.b = fuse_core::VectorXd(row_count);
@@ -308,9 +307,9 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
   bool success = cost_function->Evaluate(variable_values.data(), result.b.data(), jacobians.data());
   delete cost_function;
   success = success && result.b.array().isFinite().all();
-  for (const auto& A : result.A)
+  for (const auto& a : result.A)
   {
-    success = success && A.array().isFinite().all();
+    success = success && a.array().isFinite().all();
   }
   if (!success)
   {
@@ -352,46 +351,43 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
       delete local_parameterization;
     }
 #else
-    auto manifold = variable.manifold();
+    auto* manifold = variable.manifold();
     auto& jacobian = result.A[index];
     if (variable.holdConstant())
     {
-      if (manifold)
+      if (manifold != nullptr)
       {
         jacobian.resize(Eigen::NoChange, manifold->TangentSize());
       }
       jacobian.setZero();
     }
-    else if (manifold)
+    else if (manifold != nullptr)
     {
-      fuse_core::MatrixXd J(manifold->AmbientSize(), manifold->TangentSize());
-      manifold->PlusJacobian(variable_values[index], J.data());
-      jacobian *= J;
+      fuse_core::MatrixXd j(manifold->AmbientSize(), manifold->TangentSize());
+      manifold->PlusJacobian(variable_values[index], j.data());
+      jacobian *= j;
     }
-    if (manifold)
-    {
-      delete manifold;
-    }
+    delete manifold;
 #endif
   }
 
   // Correct A and b for the effects of the loss function
-  auto loss_function = constraint.lossFunction();
-  if (loss_function)
+  auto* loss_function = constraint.lossFunction();
+  if (loss_function != nullptr)
   {
-    double squared_norm = result.b.squaredNorm();
+    double const squared_norm = result.b.squaredNorm();
     double rho[3];
     loss_function->Evaluate(squared_norm, rho);
     if (fuse_core::Loss::Ownership == ceres::Ownership::TAKE_OWNERSHIP)
     {
       delete loss_function;
     }
-    double sqrt_rho1 = std::sqrt(rho[1]);
+    double const sqrt_rho1 = std::sqrt(rho[1]);
     double alpha = 0.0;
     if ((squared_norm > 0.0) && (rho[2] > 0.0))
     {
-      const double D = 1.0 + 2.0 * squared_norm * rho[2] / rho[1];
-      alpha = 1.0 - std::sqrt(D);
+      const double d = 1.0 + 2.0 * squared_norm * rho[2] / rho[1];
+      alpha = 1.0 - std::sqrt(d);
     }
 
     // Correct the Jacobians
@@ -467,35 +463,35 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   auto column_offsets = std::vector<unsigned int>();
   column_offsets.reserve(dense_to_index.size() + 1ul);
   column_offsets.push_back(0u);
-  for (size_t dense = 0; dense < dense_to_index.size(); ++dense)
+  for (unsigned int const dense : dense_to_index)
   {
-    column_offsets.push_back(column_offsets.back() + index_to_cols[dense_to_index[dense]]);
+    column_offsets.push_back(column_offsets.back() + index_to_cols[dense]);
   }
 
   // Construct the Ab matrix
-  fuse_core::MatrixXd Ab = fuse_core::MatrixXd::Zero(row_offsets.back(), column_offsets.back() + 1u);
+  fuse_core::MatrixXd ab = fuse_core::MatrixXd::Zero(row_offsets.back(), column_offsets.back() + 1u);
   for (size_t term_index = 0ul; term_index < linear_terms.size(); ++term_index)
   {
     const auto& linear_term = linear_terms[term_index];
     auto row_offset = row_offsets[term_index];
     for (size_t i = 0ul; i < linear_term.variables.size(); ++i)
     {
-      const auto& A = linear_term.A[i];
+      const auto& a = linear_term.A[i];
       auto dense = index_to_dense[linear_term.variables[i]];
       auto column_offset = column_offsets[dense];
-      for (int row = 0; row < A.rows(); ++row)
+      for (int row = 0; row < a.rows(); ++row)
       {
-        for (int col = 0; col < A.cols(); ++col)
+        for (int col = 0; col < a.cols(); ++col)
         {
-          Ab(row_offset + row, column_offset + col) = A(row, col);
+          ab(row_offset + row, column_offset + col) = a(row, col);
         }
       }
     }
     const auto& b = linear_term.b;
-    int column_offset = column_offsets.back();
+    int const column_offset = static_cast<int>(column_offsets.back());
     for (int row = 0; row < b.rows(); ++row)
     {
-      Ab(row_offset + row, column_offset) = b(row);
+      ab(row_offset + row, column_offset) = b(row);
     }
   }
 
@@ -508,13 +504,13 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
     using MatrixType = fuse_core::MatrixXd;
     using HCoeffsType = Eigen::internal::plain_diag_type<MatrixType>::type;
     using RowVectorType = Eigen::internal::plain_row_type<MatrixType>::type;
-    auto rows = Ab.rows();
-    auto cols = Ab.cols();
+    auto rows = ab.rows();
+    auto cols = ab.cols();
     auto size = std::min(rows, cols);
-    auto hCoeffs = HCoeffsType(size);
+    auto h_coeffs = HCoeffsType(size);
     auto temp = RowVectorType(cols);
-    Eigen::internal::householder_qr_inplace_blocked<MatrixType, HCoeffsType>::run(Ab, hCoeffs, 48, temp.data());
-    Ab.triangularView<Eigen::StrictlyLower>().setZero();  // Zero out the below-diagonal elements
+    Eigen::internal::householder_qr_inplace_blocked<MatrixType, HCoeffsType>::run(ab, h_coeffs, 48, temp.data());
+    ab.triangularView<Eigen::StrictlyLower>().setZero();  // Zero out the below-diagonal elements
   }
 
   // Extract the marginal term from R (now stored in Ab)
@@ -522,7 +518,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   // The remaining rows are the marginal on the remaining variables: P(y, z, ...)
   auto min_row = column_offsets[1];
   // However, depending on the input, not all rows may be usable.
-  auto max_row = std::min(Ab.rows(), Ab.cols() - 1);  // -1 for the included b vector
+  auto max_row = std::min(ab.rows(), ab.cols() - 1);  // -1 for the included b vector
   auto marginal_rows = max_row - min_row;
   auto marginal_term = LinearTerm();
   if (marginal_rows > 0)
@@ -535,22 +531,22 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
     {
       auto index = dense_to_index[dense];
       marginal_term.variables.push_back(index);
-      fuse_core::MatrixXd A = fuse_core::MatrixXd::Zero(marginal_rows, index_to_cols[index]);
+      fuse_core::MatrixXd a = fuse_core::MatrixXd::Zero(marginal_rows, index_to_cols[index]);
       auto column_offset = column_offsets[dense];
-      for (int row = 0; row < A.rows(); ++row)
+      for (int row = 0; row < a.rows(); ++row)
       {
-        for (int col = 0; col < A.cols(); ++col)
+        for (int col = 0; col < a.cols(); ++col)
         {
-          A(row, col) = Ab(min_row + row, column_offset + col);
+          a(row, col) = ab(min_row + row, column_offset + col);
         }
       }
-      marginal_term.A.push_back(std::move(A));
+      marginal_term.A.push_back(std::move(a));
     }
     marginal_term.b = fuse_core::VectorXd::Zero(marginal_rows);
     auto column_offset = column_offsets.back();
     for (int row = 0; row < marginal_term.b.rows(); ++row)
     {
-      marginal_term.b(row) = Ab(min_row + row, column_offset);
+      marginal_term.b(row) = ab(min_row + row, column_offset);
     }
   }
   return marginal_term;

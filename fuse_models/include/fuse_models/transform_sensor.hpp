@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2018, Locus Robotics
+ *  Copyright (c) 2024, PickNik Robotics
  *  All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -31,69 +31,69 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef FUSE_MODELS__POSE_2D_HPP_
-#define FUSE_MODELS__POSE_2D_HPP_
+#ifndef FUSE_MODELS__TRANSFORM_SENSOR_HPP_
+#define FUSE_MODELS__TRANSFORM_SENSOR_HPP_
+
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <memory>
 #include <string>
 
-#include <fuse_models/parameters/pose_2d_params.hpp>
+#include <fuse_models/parameters/transform_sensor_params.hpp>
+#include <fuse_core/throttled_callback.hpp>
 
 #include <fuse_core/async_sensor_model.hpp>
-#include <fuse_core/throttled_callback.hpp>
 #include <fuse_core/uuid.hpp>
 
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
+#include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <tf2_ros/buffer.hpp>
-#include <tf2_ros/transform_listener.hpp>
+#include <sensor_msgs/msg/imu.hpp>
+#include "tf2_msgs/msg/tf_message.hpp"
 
 namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces absolute or relative pose constraints from
- *        information published by another node.
+ * @brief An adapter-type sensor that produces pose constraints from published transforms
  *
- * This sensor subscribes to a geometry_msgs::msg::PoseWithCovarianceStamped topic and converts each
- * received message into an absolute or relative pose constraint. If the \p differential parameter
- * is set to false (the default), the measurement will be treated as an absolute constraint. If it
- * is set to true, consecutive measurements will be used to generate relative pose constraints.
+ * This sensor subscribes to a MessageType topic and creates orientation and pose variables and constraints.
+ * This sensor can be used for AprilTags or any pose for which the transform to the desired state estimation frame is
+ * known. For an example, try `ros2 launch fuse_tutorials fuse_apriltag_tutorial.launch.py` and see its relevant files.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
  *                                                                           publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
- *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - topic (string) The topic to which to subscribe for the pose messages (required if \p subscribe
- *                   is true)
- *  - differential (bool, default: false) Whether we should fuse measurements absolutely, or to
- *                                        create relative pose constraints using consecutive
- *                                        measurements.
+ *  - queue_size (int, default: 10) The subscriber queue size for the transform messages
+ *  - topic (string) The topic to which to subscribe for the transform messages
+ *  - target_frame (string) the state estimation frame to transform tfs to
  *
  * Subscribes:
- *  - \p topic (geometry_msgs::msg::PoseWithCovarianceStamped) Absolute pose information at a given
- *                                                             timestamp
+ *  - \p topic (MessageType) IMU data at a given timestep
  */
-class Pose2D : public fuse_core::AsyncSensorModel
+class TransformSensor : public fuse_core::AsyncSensorModel
 {
 public:
-  FUSE_SMART_PTR_DEFINITIONS(Pose2D)
-  using ParameterType = parameters::Pose2DParams;
+  FUSE_SMART_PTR_DEFINITIONS(TransformSensor)
+  using ParameterType = parameters::TransformSensorParams;
+  using MessageType = tf2_msgs::msg::TFMessage;
 
   /**
    * @brief Default constructor
    */
-  Pose2D();
+  TransformSensor();
 
   /**
    * @brief Destructor
    */
-  virtual ~Pose2D() = default;
-  Pose2D(Pose2D const&) = delete;
-  Pose2D(Pose2D&&) = delete;
-  Pose2D& operator=(Pose2D const&) = delete;
-  Pose2D& operator=(Pose2D&&) = delete;
+  virtual ~TransformSensor() = default;
+
+  TransformSensor(TransformSensor const&) = delete;
+  TransformSensor(TransformSensor&&) = delete;
+  TransformSensor& operator=(TransformSensor const&) = delete;
+  TransformSensor& operator=(TransformSensor&&) = delete;
 
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
@@ -102,10 +102,10 @@ public:
                   const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
-   * @brief Callback for pose messages
-   * @param[in] msg - The pose message to process
+   * @brief Callback for tf messages
+   * @param[in] msg - The IMU message to process
    */
-  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
+  void process(const MessageType& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device
@@ -130,16 +130,6 @@ protected:
    */
   void onStop() override;
 
-  /**
-   * @brief Process a pose message in differential mode
-   *
-   * @param[in] pose - The pose message to process in differential mode
-   * @param[in] validate - Whether to validate the pose or not
-   * @param[out] transaction - The generated variables and constraints are added to this transaction
-   */
-  void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, bool validate,
-                           fuse_core::Transaction& transaction);
-
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,
                                              fuse_core::node_interfaces::Logging,
                                              fuse_core::node_interfaces::Parameters, fuse_core::node_interfaces::Topics,
@@ -151,18 +141,15 @@ protected:
 
   ParameterType params_;
 
-  geometry_msgs::msg::PoseWithCovarianceStamped::UniquePtr previous_pose_msg_;
-
-  // NOTE(CH3): Unique ptr to defer till we have the node interfaces from initialize()
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr sub_;
+  rclcpp::Subscription<MessageType>::SharedPtr sub_;
 
-  using PoseThrottledCallback = fuse_core::ThrottledMessageCallback<geometry_msgs::msg::PoseWithCovarianceStamped>;
-  PoseThrottledCallback throttled_callback_;
+  using AprilTagThrottledCallback = fuse_core::ThrottledMessageCallback<MessageType>;
+  AprilTagThrottledCallback throttled_callback_;
 };
 
 }  // namespace fuse_models
 
-#endif  // FUSE_MODELS__POSE_2D_HPP_
+#endif  // FUSE_MODELS__TRANSFORM_SENSOR_HPP_

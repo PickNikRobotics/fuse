@@ -63,13 +63,13 @@ HashGraph::HashGraph(const HashGraph& other)
 {
   // Make a deep copy of the constraints
   std::transform(other.constraints_.begin(), other.constraints_.end(), std::inserter(constraints_, constraints_.end()),
-                 [](const Constraints::value_type& uuid__constraint) -> Constraints::value_type {
-                   return { uuid__constraint.first, uuid__constraint.second->clone() };
+                 [](const Constraints::value_type& uuid_constraint) -> Constraints::value_type {
+                   return { uuid_constraint.first, uuid_constraint.second->clone() };
                  });  // NOLINT(whitespace/braces)
   // Make a deep copy of the variables
   std::transform(other.variables_.begin(), other.variables_.end(), std::inserter(variables_, variables_.end()),
-                 [](const Variables::value_type& uuid__variable) -> Variables::value_type {
-                   return { uuid__variable.first, uuid__variable.second->clone() };
+                 [](const Variables::value_type& uuid_variable) -> Variables::value_type {
+                   return { uuid_variable.first, uuid_variable.second->clone() };
                  });  // NOLINT(whitespace/braces)
 }
 
@@ -165,14 +165,13 @@ const fuse_core::Constraint& HashGraph::getConstraint(const fuse_core::UUID& con
 
 fuse_core::Graph::const_constraint_range HashGraph::getConstraints() const noexcept
 {
-  std::function<const fuse_core::Constraint&(const Constraints::value_type& uuid__constraint)> to_constraint_ref =
-      [](const Constraints::value_type& uuid__constraint) -> const fuse_core::Constraint& {
-    return *uuid__constraint.second;
+  std::function<const fuse_core::Constraint&(const Constraints::value_type& uuid_constraint)> const to_constraint_ref =
+      [](const Constraints::value_type& uuid_constraint) -> const fuse_core::Constraint& {
+    return *uuid_constraint.second;
   };
 
-  return fuse_core::Graph::const_constraint_range(
-      boost::make_transform_iterator(constraints_.cbegin(), to_constraint_ref),
-      boost::make_transform_iterator(constraints_.cend(), to_constraint_ref));
+  return { boost::make_transform_iterator(constraints_.cbegin(), to_constraint_ref),
+           boost::make_transform_iterator(constraints_.cend(), to_constraint_ref) };
 }
 
 fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(const fuse_core::UUID& variable_uuid) const
@@ -180,29 +179,26 @@ fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(cons
   auto cross_reference_iter = constraints_by_variable_uuid_.find(variable_uuid);
   if (cross_reference_iter != constraints_by_variable_uuid_.end())
   {
-    std::function<const fuse_core::Constraint&(const fuse_core::UUID& constraint_uuid)> uuid_to_constraint_ref =
+    std::function<const fuse_core::Constraint&(const fuse_core::UUID& constraint_uuid)> const uuid_to_constraint_ref =
         [this](const fuse_core::UUID& constraint_uuid) -> const fuse_core::Constraint& {
       return this->getConstraint(constraint_uuid);
     };
 
     const auto& constraints = cross_reference_iter->second;
-    return fuse_core::Graph::const_constraint_range(
-        boost::make_transform_iterator(constraints.cbegin(), uuid_to_constraint_ref),
-        boost::make_transform_iterator(constraints.cend(), uuid_to_constraint_ref));
+    return { boost::make_transform_iterator(constraints.cbegin(), uuid_to_constraint_ref),
+             boost::make_transform_iterator(constraints.cend(), uuid_to_constraint_ref) };
   }
-  else if (variableExists(variable_uuid))
+  if (variableExists(variable_uuid))
   {
     // User requested a valid variable, but there are no attached constraints. Return an empty
     // range.
-    return fuse_core::Graph::const_constraint_range();
+    return {};
   }
-  else
-  {
-    // We only want to throw if the requested variable does not exist.
-    throw std::logic_error("Attempting to access constraints connected to variable (" +
-                           fuse_core::uuid::to_string(variable_uuid) +
-                           "), but that variable does not exist in this graph.");
-  }
+
+  // We only want to throw if the requested variable does not exist.
+  throw std::logic_error("Attempting to access constraints connected to variable (" +
+                         fuse_core::uuid::to_string(variable_uuid) +
+                         "), but that variable does not exist in this graph.");
 }
 
 bool HashGraph::variableExists(const fuse_core::UUID& variable_uuid) const noexcept
@@ -266,11 +262,11 @@ const fuse_core::Variable& HashGraph::getVariable(const fuse_core::UUID& variabl
 
 fuse_core::Graph::const_variable_range HashGraph::getVariables() const noexcept
 {
-  std::function<const fuse_core::Variable&(const Variables::value_type& uuid__variable)> to_variable_ref =
-      [](const Variables::value_type& uuid__variable) -> const fuse_core::Variable& { return *uuid__variable.second; };
+  std::function<const fuse_core::Variable&(const Variables::value_type& uuid_variable)> const to_variable_ref =
+      [](const Variables::value_type& uuid_variable) -> const fuse_core::Variable& { return *uuid_variable.second; };
 
-  return fuse_core::Graph::const_variable_range(boost::make_transform_iterator(variables_.cbegin(), to_variable_ref),
-                                                boost::make_transform_iterator(variables_.cend(), to_variable_ref));
+  return { boost::make_transform_iterator(variables_.cbegin(), to_variable_ref),
+           boost::make_transform_iterator(variables_.cend(), to_variable_ref) };
 }
 
 void HashGraph::holdVariable(const fuse_core::UUID& variable_uuid, bool hold_constant)
@@ -418,7 +414,7 @@ ceres::Solver::Summary HashGraph::optimizeFor(const rclcpp::Duration& max_optimi
   auto created_problem = clock.now();
 
   // Modify the options to enforce the maximum time
-  rclcpp::Duration remaining = max_optimization_time - (created_problem - start);
+  rclcpp::Duration const remaining = max_optimization_time - (created_problem - start);
   auto time_constrained_options = options;
   time_constrained_options.max_solver_time_in_seconds = std::max(0.0, remaining.seconds());
 
@@ -460,10 +456,10 @@ void HashGraph::print(std::ostream& stream) const
 void HashGraph::createProblem(ceres::Problem& problem) const
 {
   // Add all the variables to the problem
-  for (auto& uuid__variable : variables_)
+  for (auto const& uuid_variable : variables_)
   {
-    fuse_core::Variable& variable = *(uuid__variable.second);
-    problem.AddParameterBlock(variable.data(), variable.size(),
+    fuse_core::Variable& variable = *(uuid_variable.second);
+    problem.AddParameterBlock(variable.data(), static_cast<int>(variable.size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                               variable.localParameterization());
 #else
@@ -475,12 +471,12 @@ void HashGraph::createProblem(ceres::Problem& problem) const
       auto lower_bound = variable.lowerBound(index);
       if (lower_bound > std::numeric_limits<double>::lowest())
       {
-        problem.SetParameterLowerBound(variable.data(), index, lower_bound);
+        problem.SetParameterLowerBound(variable.data(), static_cast<int>(index), lower_bound);
       }
       auto upper_bound = variable.upperBound(index);
       if (upper_bound < std::numeric_limits<double>::max())
       {
-        problem.SetParameterUpperBound(variable.data(), index, upper_bound);
+        problem.SetParameterUpperBound(variable.data(), static_cast<int>(index), upper_bound);
       }
     }
     // Handle variables that are held constant
@@ -491,9 +487,9 @@ void HashGraph::createProblem(ceres::Problem& problem) const
   }
   // Add the constraints
   std::vector<double*> parameter_blocks;
-  for (auto& uuid__constraint : constraints_)
+  for (auto const& uuid_constraint : constraints_)
   {
-    fuse_core::Constraint& constraint = *(uuid__constraint.second);
+    fuse_core::Constraint const& constraint = *(uuid_constraint.second);
     // We need the memory address of each variable value referenced by this constraint
     parameter_blocks.clear();
     parameter_blocks.reserve(constraint.variables().size());

@@ -34,7 +34,6 @@
 #ifndef FUSE_CORE__ASYNC_SENSOR_MODEL_HPP_
 #define FUSE_CORE__ASYNC_SENSOR_MODEL_HPP_
 
-#include <functional>
 #include <memory>
 #include <string>
 
@@ -97,6 +96,10 @@ public:
    * @brief Destructor
    */
   virtual ~AsyncSensorModel();
+  AsyncSensorModel(AsyncSensorModel const&) = delete;
+  AsyncSensorModel(AsyncSensorModel&&) = delete;
+  AsyncSensorModel& operator=(AsyncSensorModel const&) = delete;
+  AsyncSensorModel& operator=(AsyncSensorModel&&) = delete;
 
   /**
    * @brief Function to be executed whenever the optimizer has completed a Graph update
@@ -236,6 +239,7 @@ protected:
    * @param[in] graph A read-only pointer to the graph object, allowing queries to be performed
    *                  whenever needed.
    */
+  // NOLINTNEXTLINE
   virtual void onGraphUpdate(Graph::ConstSharedPtr /*graph*/)
   {
   }
@@ -281,7 +285,7 @@ protected:
 
 private:
   //! Stop the internal executor thread (in order to use this class again it must be re-initialized)
-  void internal_stop();
+  void internalStop();
 };
 
 }  // namespace fuse_core

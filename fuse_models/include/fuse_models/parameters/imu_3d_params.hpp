@@ -134,10 +134,10 @@ public:
   rclcpp::Duration throttle_period{ 0, 0 };  //!< The throttle period duration in seconds
   bool throttle_use_wall_time{ false };      //!< Whether to throttle using ros::WallTime or not
   double gravitational_acceleration{ 9.80665 };
-  std::string acceleration_target_frame{};
-  std::string orientation_target_frame{};
-  std::string topic{};
-  std::string twist_target_frame{};
+  std::string acceleration_target_frame;
+  std::string orientation_target_frame;
+  std::string topic;
+  std::string twist_target_frame;
   std::vector<size_t> angular_velocity_indices;
   std::vector<size_t> linear_acceleration_indices;
   std::vector<size_t> orientation_indices;

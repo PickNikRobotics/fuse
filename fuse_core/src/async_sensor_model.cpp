@@ -51,7 +51,7 @@ AsyncSensorModel::AsyncSensorModel(size_t thread_count) : name_("uninitialized")
 
 AsyncSensorModel::~AsyncSensorModel()
 {
-  internal_stop();
+  internalStop();
 }
 
 void AsyncSensorModel::initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
@@ -144,12 +144,12 @@ void AsyncSensorModel::stop()
     // Can't run in executor's thread because the executor won't service more
     // callbacks after the context is shutdown.
     // Join executor's threads right away.
-    internal_stop();
+    internalStop();
     onStop();
   }
 }
 
-void AsyncSensorModel::internal_stop()
+void AsyncSensorModel::internalStop()
 {
   if (spinner_.joinable())
   {

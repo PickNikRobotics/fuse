@@ -112,6 +112,11 @@ public:
    */
   virtual ~Imu3D() = default;
 
+  Imu3D(Imu3D const&) = delete;
+  Imu3D(Imu3D&&) = delete;
+  Imu3D& operator=(Imu3D const&) = delete;
+  Imu3D& operator=(Imu3D&&) = delete;
+
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
@@ -157,7 +162,7 @@ protected:
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */
   void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
-                           const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
+                           const geometry_msgs::msg::TwistWithCovarianceStamped& twist, bool validate,
                            fuse_core::Transaction& transaction);
 
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,

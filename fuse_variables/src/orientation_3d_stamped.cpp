@@ -71,7 +71,7 @@ fuse_core::LocalParameterization* Orientation3DStamped::localParameterization() 
 }
 
 #if CERES_SUPPORTS_MANIFOLDS
-fuse_core::Manifold* Orientation3DStamped::manifold() const
+[[nodiscard]] fuse_core::Manifold* Orientation3DStamped::manifold() const
 {
   return new Orientation3DManifold();
 }

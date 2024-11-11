@@ -47,17 +47,21 @@
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <string>
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "tf2_msgs/msg/tf_message.hpp"
 
 namespace
 {
-constexpr char baselinkFrame[] = "base_link";  //!< The base_link frame id used when
-                                               //!< publishing sensor data
-constexpr char mapFrame[] = "map";             //!< The map frame id used when publishing ground truth
-                                               //!< data
-constexpr double imuSigma = 0.1;               //!< Std dev of simulated Imu measurement noise
-constexpr char odomFrame[] = "odom";           //!< The odom frame id used when publishing wheel
-constexpr double odomPositionSigma = 0.5;      //!< Std dev of simulated odom position measurement noise
-constexpr double odomOrientationSigma = 0.1;   //!< Std dev of simulated odom orientation measurement noise
+constexpr char baselinkFrame[] = "base_link";      //!< The base_link frame id used when
+                                                   //!< publishing sensor data
+constexpr char mapFrame[] = "map";                 //!< The map frame id used when publishing ground truth
+                                                   //!< data
+constexpr double aprilTagPositionSigma = 0.1;      //!< the april tag position std dev
+constexpr double aprilTagOrientationSigma = 0.25;  //!< the april tag orientation std dev
+constexpr size_t numAprilTags = 8;                 //!< the number of april tags
+constexpr double detectionProbability =
+    0.5;  //!< the probability that any given april tag is detectable on a given tick of the simulation
 }  // namespace
 
 /**
@@ -162,70 +166,89 @@ Robot simulateRobotMotion(Robot const& previous_state, rclcpp::Time const& now, 
   return next_state;
 }
 
-/**
- * @brief Create a simulated Imu measurement from the current state
- */
-sensor_msgs::msg::Imu simulateImu(Robot const& robot)
+tf2_msgs::msg::TFMessage aprilTagPoses(Robot const& robot)
 {
-  static std::random_device rd{};
-  static std::mt19937 generator{ rd() };
-  static std::normal_distribution<> noise{ 0.0, imuSigma };
+  tf2_msgs::msg::TFMessage msg;
 
-  sensor_msgs::msg::Imu msg;
-  msg.header.stamp = robot.stamp;
-  msg.header.frame_id = baselinkFrame;
+  // publish the april tag positions relative to the base
+  for (std::size_t i = 0; i < numAprilTags; ++i)
+  {
+    geometry_msgs::msg::TransformStamped april_to_base;
+    april_to_base.child_frame_id = "base_link";
 
-  // measure accel
-  msg.linear_acceleration.x = robot.ax + noise(generator);
-  msg.linear_acceleration.y = robot.ay + noise(generator);
-  msg.linear_acceleration.z = robot.az + noise(generator);
-  msg.linear_acceleration_covariance[0] = imuSigma * imuSigma;
-  msg.linear_acceleration_covariance[4] = imuSigma * imuSigma;
-  msg.linear_acceleration_covariance[8] = imuSigma * imuSigma;
+    // april tag names start at 1
+    april_to_base.header.frame_id = "april_" + std::to_string(i + 1);
+    april_to_base.header.stamp = robot.stamp;
 
-  // Simulated IMU does not provide orientation (negative covariance indicates this)
-  msg.orientation_covariance[0] = -1;
-  msg.orientation_covariance[4] = -1;
-  msg.orientation_covariance[8] = -1;
+    april_to_base.transform.rotation.w = 1;
+    april_to_base.transform.rotation.x = 0;
+    april_to_base.transform.rotation.y = 0;
+    april_to_base.transform.rotation.z = 0;
 
-  msg.angular_velocity.x = robot.vroll + noise(generator);
-  msg.angular_velocity.y = robot.vpitch + noise(generator);
-  msg.angular_velocity.z = robot.vyaw + noise(generator);
-  msg.angular_velocity_covariance[0] = imuSigma * imuSigma;
-  msg.angular_velocity_covariance[4] = imuSigma * imuSigma;
-  msg.angular_velocity_covariance[8] = imuSigma * imuSigma;
+    // calculate offset of each april tag
+    // we start with offset 1, 1, 1 and switch the z, y, then x as if they were binary digits based off of the april tag
+    // number see the launch file for a more readable offset for each april tag
+    bool const x_positive = ((i >> 2) & 1) == 0u;
+    bool const y_positive = ((i >> 1) & 1) == 0u;
+    bool const z_positive = ((i >> 0) & 1) == 0u;
+
+    // robot position with offset and noise
+    april_to_base.transform.translation.x = x_positive ? 1. : -1.;
+    april_to_base.transform.translation.y = y_positive ? 1. : -1.;
+    april_to_base.transform.translation.z = z_positive ? 1. : -1.;
+    msg.transforms.push_back(april_to_base);
+  }
   return msg;
 }
 
-nav_msgs::msg::Odometry simulateOdometry(const Robot& robot)
+tf2_msgs::msg::TFMessage simulateAprilTag(const Robot& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
-  static std::normal_distribution<> position_noise{ 0.0, odomPositionSigma };
+  static std::normal_distribution<> position_noise{ 0.0, aprilTagPositionSigma };
+  static std::normal_distribution<> orientation_noise{ 0.0, aprilTagOrientationSigma };
+  static std::bernoulli_distribution april_tag_detectable(detectionProbability);
 
-  nav_msgs::msg::Odometry msg;
-  msg.header.stamp = robot.stamp;
-  msg.header.frame_id = odomFrame;
-  msg.child_frame_id = baselinkFrame;
+  tf2_msgs::msg::TFMessage msg;
 
-  // noisy position measurement
-  msg.pose.pose.position.x = robot.x + position_noise(generator);
-  msg.pose.pose.position.y = robot.y + position_noise(generator);
-  msg.pose.pose.position.z = robot.z + position_noise(generator);
-  msg.pose.covariance[0] = odomPositionSigma * odomPositionSigma;
-  msg.pose.covariance[7] = odomPositionSigma * odomPositionSigma;
-  msg.pose.covariance[14] = odomPositionSigma * odomPositionSigma;
+  // publish the april tag positions
+  for (std::size_t i = 0; i < numAprilTags; ++i)
+  {
+    geometry_msgs::msg::TransformStamped april_to_world;
+    april_to_world.child_frame_id = "odom";
+    // april tag names start at 1
+    april_to_world.header.frame_id = "april_" + std::to_string(i + 1);
+    april_to_world.header.stamp = robot.stamp;
+    tf2::Quaternion q;
+    // robot orientation with noise
+    q.setRPY(robot.roll + orientation_noise(generator), robot.pitch + orientation_noise(generator),
+             robot.yaw + orientation_noise(generator));
+    april_to_world.transform.rotation.w = q.w();
+    april_to_world.transform.rotation.x = q.x();
+    april_to_world.transform.rotation.y = q.y();
+    april_to_world.transform.rotation.z = q.z();
 
-  // noisy orientation measurement
-  tf2::Quaternion q;
-  q.setEuler(robot.yaw, robot.pitch, robot.roll);
-  msg.pose.pose.orientation.w = q.w();
-  msg.pose.pose.orientation.x = q.x();
-  msg.pose.pose.orientation.y = q.y();
-  msg.pose.pose.orientation.z = q.z();
-  msg.pose.covariance[21] = odomOrientationSigma * odomOrientationSigma;
-  msg.pose.covariance[28] = odomOrientationSigma * odomOrientationSigma;
-  msg.pose.covariance[35] = odomOrientationSigma * odomOrientationSigma;
+    // calculate offset of each april tag
+    // we start with offset 1, 1, 1 and switch the z, y, then x as if they were binary digits based off of the april tag
+    // number see the launch file for a more readable offset for each april tag
+    bool const x_positive = ((i >> 2) & 1) == 0u;
+    bool const y_positive = ((i >> 1) & 1) == 0u;
+    bool const z_positive = ((i >> 0) & 1) == 0u;
+
+    double const x_offset = x_positive ? 1. : -1.;
+    double const y_offset = y_positive ? 1. : -1.;
+    double const z_offset = z_positive ? 1. : -1.;
+
+    // robot position with offset and noise
+    april_to_world.transform.translation.x = robot.x + x_offset + position_noise(generator);
+    april_to_world.transform.translation.y = robot.y + y_offset + position_noise(generator);
+    april_to_world.transform.translation.z = robot.z + z_offset + position_noise(generator);
+
+    if (april_tag_detectable(generator))
+    {
+      msg.transforms.push_back(april_to_world);
+    }
+  }
   return msg;
 }
 
@@ -286,8 +309,8 @@ int main(int argc, char** argv)
   auto node = rclcpp::Node::make_shared("three_dimensional_simulator");
 
   // create our sensor publishers
-  auto imu_publisher = node->create_publisher<sensor_msgs::msg::Imu>("imu", 1);
-  auto odom_publisher = node->create_publisher<nav_msgs::msg::Odometry>("odom", 1);
+  auto april_tf_publisher = node->create_publisher<tf2_msgs::msg::TFMessage>("april_tf", 1);
+  auto tf_publisher = node->create_publisher<tf2_msgs::msg::TFMessage>("tf", 1);
 
   // create the ground truth publisher
   auto ground_truth_publisher = node->create_publisher<nav_msgs::msg::Odometry>("ground_truth", 1);
@@ -299,7 +322,7 @@ int main(int argc, char** argv)
 
   // you can modify the rate at which this loop runs to see the different performance of the estimator and the effect of
   // integration inaccuracy on the ground truth
-  auto rate = rclcpp::Rate(100.0);
+  auto rate = rclcpp::Rate(1000.0);
 
   // normally we would have to initialize the state estimation, but we included an ignition 'sensor' in our config,
   // which takes care of that.
@@ -355,13 +378,15 @@ int main(int argc, char** argv)
     ground_truth_publisher->publish(robotToOdometry(new_state));
 
     // Generate and publish simulated measurements from the new robot state
-    imu_publisher->publish(simulateImu(new_state));
-    odom_publisher->publish(simulateOdometry(new_state));
+    tf_publisher->publish(aprilTagPoses(new_state));
 
     // Wait for the next time step
     state = new_state;
     rclcpp::spin_some(node);
     rate.sleep();
+
+    // publish simulated position after the static april tag poses since we need them to be in the tf buffer to run
+    april_tf_publisher->publish(simulateAprilTag(new_state));
   }
 
   rclcpp::shutdown();

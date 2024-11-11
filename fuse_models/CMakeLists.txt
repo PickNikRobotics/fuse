@@ -54,6 +54,7 @@ add_library(
   src/odometry_3d_publisher.cpp
   src/pose_2d.cpp
   src/transaction.cpp
+  src/transform_sensor.cpp
   src/twist_2d.cpp
   src/unicycle_2d.cpp
   src/unicycle_2d_ignition.cpp

@@ -31,6 +31,7 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <memory>
 #include <ostream>
 
 #include <boost/serialization/export.hpp>
@@ -68,7 +69,7 @@ fuse_core::LocalParameterization* Orientation2DStamped::localParameterization() 
 }
 
 #if CERES_SUPPORTS_MANIFOLDS
-fuse_core::Manifold* Orientation2DStamped::manifold() const
+[[nodiscard]] fuse_core::Manifold* Orientation2DStamped::manifold() const
 {
   return new Orientation2DManifold();
 }

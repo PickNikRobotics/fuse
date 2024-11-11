@@ -76,6 +76,10 @@ public:
    * @brief Destructor
    */
   virtual ~Stamped() = default;
+  Stamped(Stamped const&) = default;
+  Stamped(Stamped&&) = default;
+  Stamped& operator=(Stamped const&) = default;
+  Stamped& operator=(Stamped&&) = default;
 
   /**
    * @brief Read-only access to the associated timestamp.
@@ -94,7 +98,7 @@ public:
   }
 
 private:
-  fuse_core::UUID device_id_;                 //!< The UUID associated with this specific device or hardware
+  fuse_core::UUID device_id_{};               //!< The UUID associated with this specific device or hardware
   rclcpp::Time stamp_{ 0, 0, RCL_ROS_TIME };  //!< The timestamp associated with this variable
                                               //!< instance
 

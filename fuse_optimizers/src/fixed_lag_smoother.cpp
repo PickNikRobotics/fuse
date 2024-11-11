@@ -187,7 +187,7 @@ void FixedLagSmoother::optimizationLoop()
     }
     // Optimize
     {
-      std::lock_guard<std::mutex> lock(optimization_mutex_);
+      std::lock_guard<std::mutex> const lock(optimization_mutex_);
       // Apply motion models
       auto new_transaction = fuse_core::Transaction::make_shared();
       // DANGER: processQueue obtains a lock from the pending_transactions_mutex_
@@ -240,7 +240,7 @@ void FixedLagSmoother::optimizationLoop()
         RCLCPP_FATAL_STREAM(logger_, "Optimization failed after updating the graph with the transaction with timestamp "
                                          << new_transaction_stamp.nanoseconds()
                                          << ". Leaving optimization loop and requesting node shutdown...");
-        RCLCPP_INFO(logger_, summary_.FullReport().c_str());
+        RCLCPP_INFO(logger_, "%s", summary_.FullReport().c_str());
         rclcpp::shutdown();
         break;
       }
@@ -276,13 +276,13 @@ void FixedLagSmoother::optimizerTimerCallback()
   // will not be waiting on the condition variable signal, so nothing will happen.
   auto optimization_request = false;
   {
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
     optimization_request = !pending_transactions_.empty();
   }
   if (optimization_request)
   {
     {
-      std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+      std::lock_guard<std::mutex> const lock(optimization_requested_mutex_);
       optimization_request_ = true;
       optimization_deadline_ = clock_->now() + optimize_timer_->time_until_trigger();
     }
@@ -293,7 +293,7 @@ void FixedLagSmoother::optimizerTimerCallback()
 void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const rclcpp::Time& lag_expiration)
 {
   // We need to get the pending transactions from the queue
-  std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
+  std::lock_guard<std::mutex> const pending_transactions_lock(pending_transactions_mutex_);
 
   if (pending_transactions_.empty())
   {
@@ -436,14 +436,16 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
   }
 }
 
-bool FixedLagSmoother::resetServiceCallback(const std::shared_ptr<std_srvs::srv::Empty::Request>,
-                                            std::shared_ptr<std_srvs::srv::Empty::Response>)
+// NOLINTBEGIN(performance-unnecessary-value-param)
+bool FixedLagSmoother::resetServiceCallback(std::shared_ptr<std_srvs::srv::Empty::Request> const& /*unused*/,
+                                            std::shared_ptr<std_srvs::srv::Empty::Response> const& /*unused*/)
 {
+  // NOLINTEND(performance-unnecessary-value-param)
   // Tell all the plugins to stop
   stopPlugins();
   // Reset the optimizer state
   {
-    std::lock_guard<std::mutex> lock(optimization_requested_mutex_);
+    std::lock_guard<std::mutex> const lock(optimization_requested_mutex_);
     optimization_request_ = false;
   }
   started_ = false;
@@ -453,10 +455,10 @@ bool FixedLagSmoother::resetServiceCallback(const std::shared_ptr<std_srvs::srv:
   //         pending_transactions_mutex_ lock at the same time. We perform a parallel locking scheme
   //         here to prevent the possibility of deadlocks.
   {
-    std::lock_guard<std::mutex> lock(optimization_mutex_);
+    std::lock_guard<std::mutex> const lock(optimization_mutex_);
     // Clear all pending transactions
     {
-      std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+      std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
       pending_transactions_.clear();
     }
     // Clear the graph and marginal tracking states
@@ -486,65 +488,63 @@ void FixedLagSmoother::transactionCallback(const std::string& sensor_name, fuse_
                                      << ", difference: " << (start_time - max_time).nanoseconds() << "ns");
     return;
   }
+  // We need to add the new transaction to the pending_transactions_ queue
+  std::lock_guard<std::mutex> const pending_transactions_lock(pending_transactions_mutex_);
+
+  // Add the new transaction to the pending set
+  // The pending set is arranged "smallest stamp last" to making popping off the back more
+  // efficient
+  auto comparator = [](const rclcpp::Time& value, const TransactionQueueElement& element) {
+    return value >= element.stamp();
+  };
+  auto position =
+      std::upper_bound(pending_transactions_.begin(), pending_transactions_.end(), transaction->stamp(), comparator);
+  position = pending_transactions_.insert(position, { sensor_name, std::move(transaction) });  // NOLINT
+
+  // If we haven't "started" yet..
+  if (!started_)
   {
-    // We need to add the new transaction to the pending_transactions_ queue
-    std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
-
-    // Add the new transaction to the pending set
-    // The pending set is arranged "smallest stamp last" to making popping off the back more
-    // efficient
-    auto comparator = [](const rclcpp::Time& value, const TransactionQueueElement& element) {
-      return value >= element.stamp();
-    };
-    auto position =
-        std::upper_bound(pending_transactions_.begin(), pending_transactions_.end(), transaction->stamp(), comparator);
-    position = pending_transactions_.insert(position, { sensor_name, std::move(transaction) });  // NOLINT
-
-    // If we haven't "started" yet..
-    if (!started_)
+    // ...check if we should
+    if (sensor_models_.at(sensor_name).ignition)
     {
-      // ...check if we should
-      if (sensor_models_.at(sensor_name).ignition)
-      {
-        started_ = true;
-        ignited_ = true;
-        start_time = position->minStamp();
-        setStartTime(start_time);
+      started_ = true;
+      ignited_ = true;
+      start_time = position->minStamp();
+      setStartTime(start_time);
 
-        // And purge out old transactions
-        //  - Either before or exactly at the start time
-        //  - Or with a minimum time before the minimum time of this ignition sensor transaction
-        //
-        // TODO(efernandez) Do '&min_time = std::as_const(start_ime)' when C++17 is supported and we
-        //                  can use std::as_const:
-        //                  https://en.cppreference.com/w/cpp/utility/as_const
-        pending_transactions_.erase(
-            std::remove_if(pending_transactions_.begin(), pending_transactions_.end(),
-                           [&sensor_name, max_time,
-                            &min_time = start_time](const auto& transaction) {  // NOLINT(whitespace/braces)
-                             return transaction.sensor_name != sensor_name &&
-                                    (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
-                           }),  // NOLINT(whitespace/braces)
-            pending_transactions_.end());
+      // And purge out old transactions
+      //  - Either before or exactly at the start time
+      //  - Or with a minimum time before the minimum time of this ignition sensor transaction
+      //
+      // TODO(efernandez) Do '&min_time = std::as_const(start_ime)' when C++17 is supported and we
+      //                  can use std::as_const:
+      //                  https://en.cppreference.com/w/cpp/utility/as_const
+      pending_transactions_.erase(
+          std::remove_if(pending_transactions_.begin(), pending_transactions_.end(),
+                         [&sensor_name, max_time,
+                          &min_time = start_time](const auto& transaction) {  // NOLINT(whitespace/braces)
+                           return transaction.sensor_name != sensor_name &&
+                                  (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
+                         }),  // NOLINT(whitespace/braces)
+          pending_transactions_.end());
+    }
+    else
+    {
+      // And purge out old transactions to limit the pending size while waiting for an ignition
+      // sensor
+      auto purge_time = rclcpp::Time(0, 0, RCL_ROS_TIME);  // NOTE(CH3): Uninitialized
+      auto last_pending_time = pending_transactions_.front().stamp();
+
+      // rclcpp::Time doesn't allow negatives
+      if (rclcpp::Time(params_.transaction_timeout.nanoseconds(), last_pending_time.get_clock_type()) <
+          last_pending_time)
+      {
+        purge_time = last_pending_time - params_.transaction_timeout;
       }
-      else
+
+      while (!pending_transactions_.empty() && pending_transactions_.back().maxStamp() < purge_time)
       {
-        // And purge out old transactions to limit the pending size while waiting for an ignition
-        // sensor
-        auto purge_time = rclcpp::Time(0, 0, RCL_ROS_TIME);  // NOTE(CH3): Uninitialized
-        auto last_pending_time = pending_transactions_.front().stamp();
-
-        // rclcpp::Time doesn't allow negatives
-        if (rclcpp::Time(params_.transaction_timeout.nanoseconds(), last_pending_time.get_clock_type()) <
-            last_pending_time)
-        {
-          purge_time = last_pending_time - params_.transaction_timeout;
-        }
-
-        while (!pending_transactions_.empty() && pending_transactions_.back().maxStamp() < purge_time)
-        {
-          pending_transactions_.pop_back();
-        }
+        pending_transactions_.pop_back();
       }
     }
   }
@@ -602,7 +602,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
 
   status.add("Started", started);
   {
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
     status.add("Pending Transactions", pending_transactions_.size());
   }
 

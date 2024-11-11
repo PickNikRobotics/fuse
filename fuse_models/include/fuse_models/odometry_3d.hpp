@@ -102,6 +102,10 @@ public:
    * @brief Destructor
    */
   virtual ~Odometry3D() = default;
+  Odometry3D(Odometry3D const&) = delete;
+  Odometry3D(Odometry3D&&) = delete;
+  Odometry3D& operator=(Odometry3D const&) = delete;
+  Odometry3D& operator=(Odometry3D&&) = delete;
 
   /**
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
@@ -148,7 +152,7 @@ protected:
    * @param[out] transaction - The generated variables and constraints are added to this transaction
    */
   void processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
-                           const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
+                           const geometry_msgs::msg::TwistWithCovarianceStamped& twist, bool validate,
                            fuse_core::Transaction& transaction);
 
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,

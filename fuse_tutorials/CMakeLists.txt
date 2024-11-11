@@ -48,6 +48,9 @@ target_link_libraries(range_sensor_simulator ${PROJECT_NAME})
 add_executable(three_dimensional_simulator src/three_dimensional_simulator.cpp)
 target_link_libraries(three_dimensional_simulator ${PROJECT_NAME})
 
+add_executable(apriltag_simulator src/apriltag_simulator.cpp)
+target_link_libraries(apriltag_simulator ${PROJECT_NAME})
+
 # ##############################################################################
 # Install ##
 # ##############################################################################
@@ -63,6 +66,7 @@ install(DIRECTORY include/ DESTINATION include/${PROJECT_NAME})
 
 install(TARGETS range_sensor_simulator DESTINATION lib/${PROJECT_NAME})
 install(TARGETS three_dimensional_simulator DESTINATION lib/${PROJECT_NAME})
+install(TARGETS apriltag_simulator DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch config data DESTINATION share/${PROJECT_NAME})
 
