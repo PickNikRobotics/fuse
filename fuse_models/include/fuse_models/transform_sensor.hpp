@@ -56,13 +56,11 @@ namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces pose constraints from AprilTag detections
+ * @brief An adapter-type sensor that produces pose constraints from published transforms
  *
  * This sensor subscribes to a MessageType topic and creates orientation and pose variables and constraints.
- *
- * This sensor really just separates out the orientation, angular velocity, and linear acceleration
- * components of the message, and processes them just like the Pose3D, Twist3D, and Acceleration3D
- * classes.
+ * This sensor can be used for AprilTags or any pose for which the transform to the desired state estimation frame is
+ * known. For an example, try `ros2 launch fuse_tutorials fuse_apriltag_tutorial.launch.py` and see its relevant files.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
