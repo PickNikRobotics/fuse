@@ -66,8 +66,9 @@ namespace fuse_models
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
  *                                                                           publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
- *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - topic (string) The topic to which to subscribe for the pose messages
+ *  - queue_size (int, default: 10) The subscriber queue size for the transform messages
+ *  - topic (string) The topic to which to subscribe for the transform messages
+ *  - target_frame (string) the state estimation frame to transform tfs to
  *
  * Subscribes:
  *  - \p topic (MessageType) IMU data at a given timestep
@@ -101,7 +102,7 @@ public:
                   const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
-   * @brief Callback for pose messages
+   * @brief Callback for tf messages
    * @param[in] msg - The IMU message to process
    */
   void process(const MessageType& msg);
