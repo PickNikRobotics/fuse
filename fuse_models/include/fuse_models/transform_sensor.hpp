@@ -56,20 +56,19 @@ namespace fuse_models
 {
 
 /**
- * @brief An adapter-type sensor that produces pose constraints from AprilTag detections
+ * @brief An adapter-type sensor that produces pose constraints from published transforms
  *
  * This sensor subscribes to a MessageType topic and creates orientation and pose variables and constraints.
- *
- * This sensor really just separates out the orientation, angular velocity, and linear acceleration
- * components of the message, and processes them just like the Pose3D, Twist3D, and Acceleration3D
- * classes.
+ * This sensor can be used for AprilTags or any pose for which the transform to the desired state estimation frame is
+ * known. For an example, try `ros2 launch fuse_tutorials fuse_apriltag_tutorial.launch.py` and see its relevant files.
  *
  * Parameters:
  *  - device_id (uuid string, default: 00000000-0000-0000-0000-000000000000) The device/robot ID to
  *                                                                           publish
  *  - device_name (string) Used to generate the device/robot ID if the device_id is not provided
- *  - queue_size (int, default: 10) The subscriber queue size for the pose messages
- *  - topic (string) The topic to which to subscribe for the pose messages
+ *  - queue_size (int, default: 10) The subscriber queue size for the transform messages
+ *  - topic (string) The topic to which to subscribe for the transform messages
+ *  - target_frame (string) the state estimation frame to transform tfs to
  *
  * Subscribes:
  *  - \p topic (MessageType) IMU data at a given timestep
@@ -103,7 +102,7 @@ public:
                   const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
-   * @brief Callback for pose messages
+   * @brief Callback for tf messages
    * @param[in] msg - The IMU message to process
    */
   void process(const MessageType& msg);

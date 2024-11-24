@@ -515,12 +515,17 @@ void FixedLagSmoother::transactionCallback(const std::string& sensor_name, fuse_
       // And purge out old transactions
       //  - Either before or exactly at the start time
       //  - Or with a minimum time before the minimum time of this ignition sensor transaction
+      //
+      // TODO(efernandez) Do '&min_time = std::as_const(start_ime)' when C++17 is supported and we
+      //                  can use std::as_const:
+      //                  https://en.cppreference.com/w/cpp/utility/as_const
       pending_transactions_.erase(
           std::remove_if(pending_transactions_.begin(), pending_transactions_.end(),
-                         [&sensor_name, max_time, &min_time = std::as_const(start_time)](const auto& transaction) {
+                         [&sensor_name, max_time,
+                          &min_time = start_time](const auto& transaction) {  // NOLINT(whitespace/braces)
                            return transaction.sensor_name != sensor_name &&
                                   (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
-                         }),
+                         }),  // NOLINT(whitespace/braces)
           pending_transactions_.end());
     }
     else

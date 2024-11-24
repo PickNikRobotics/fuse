@@ -48,7 +48,7 @@ namespace fuse_models::parameters
 {
 
 /**
- * @brief Defines the set of parameters required by the Odometry3D class
+ * @brief Defines the set of parameters required by the TransformSensor class
  */
 struct TransformSensorParams : public ParameterBase
 {
