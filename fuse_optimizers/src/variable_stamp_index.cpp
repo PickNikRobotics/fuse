@@ -33,7 +33,6 @@
  */
 
 #include <algorithm>
-#include <stdexcept>
 #include <vector>
 
 #include <fuse_core/transaction.hpp>
@@ -54,10 +53,7 @@ rclcpp::Time VariableStampIndex::currentStamp() const
   {
     return iter->second;
   }
-  else
-  {
-    return rclcpp::Time(0, 0, RCL_ROS_TIME);
-  }
+  return { 0, 0, RCL_ROS_TIME };
 }
 
 void VariableStampIndex::addNewTransaction(const fuse_core::Transaction& transaction)
@@ -94,8 +90,8 @@ void VariableStampIndex::applyAddedVariables(const fuse_core::Transaction& trans
 {
   for (const auto& variable : transaction.addedVariables())
   {
-    auto stamped_variable = dynamic_cast<const fuse_variables::Stamped*>(&variable);
-    if (stamped_variable)
+    const auto* stamped_variable = dynamic_cast<const fuse_variables::Stamped*>(&variable);
+    if (stamped_variable != nullptr)
     {
       stamped_index_[variable.uuid()] = stamped_variable->stamp();
     }
@@ -107,7 +103,7 @@ void VariableStampIndex::applyRemovedConstraints(const fuse_core::Transaction& t
 {
   for (const auto& constraint_uuid : transaction.removedConstraints())
   {
-    for (auto& variable_uuid : constraints_[constraint_uuid])
+    for (const auto& variable_uuid : constraints_[constraint_uuid])
     {
       variables_[variable_uuid].erase(constraint_uuid);
     }
