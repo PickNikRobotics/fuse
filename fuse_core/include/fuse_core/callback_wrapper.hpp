@@ -100,6 +100,7 @@ class CallbackWrapperBase
 {
 public:
   virtual ~CallbackWrapperBase() = default;
+  CallbackWrapperBase() = default;
   CallbackWrapperBase(CallbackWrapperBase const&) = default;
   CallbackWrapperBase(CallbackWrapperBase&&) = default;
   CallbackWrapperBase& operator=(CallbackWrapperBase const&) = default;
@@ -114,12 +115,7 @@ template <typename T>
 class CallbackWrapper : public CallbackWrapperBase
 {
 public:
-  virtual ~CallbackWrapper() = default;
   using CallbackFunction = std::function<T(void)>;
-  CallbackWrapper(CallbackWrapper const&) = default;
-  CallbackWrapper(CallbackWrapper&&) = default;
-  CallbackWrapper& operator=(CallbackWrapper const&) = default;
-  CallbackWrapper& operator=(CallbackWrapper&&) = default;
 
   /**
    * @brief Constructor
