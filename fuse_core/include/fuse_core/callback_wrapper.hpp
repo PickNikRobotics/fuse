@@ -99,6 +99,12 @@ namespace fuse_core
 class CallbackWrapperBase
 {
 public:
+  virtual ~CallbackWrapperBase() = default;
+  CallbackWrapperBase() = default;
+  CallbackWrapperBase(CallbackWrapperBase const&) = default;
+  CallbackWrapperBase(CallbackWrapperBase&&) = default;
+  CallbackWrapperBase& operator=(CallbackWrapperBase const&) = default;
+  CallbackWrapperBase& operator=(CallbackWrapperBase&&) = default;
   /**
    * @brief Call this function. This is used by the callback queue.
    */
@@ -153,7 +159,7 @@ inline void CallbackWrapper<void>::call()
 class CallbackAdapter : public rclcpp::Waitable
 {
 public:
-  explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr);
+  explicit CallbackAdapter(std::shared_ptr<rclcpp::Context> const& context_ptr);
 
   /**
    * @brief tell the CallbackGroup how many guard conditions are ready in this waitable
@@ -182,6 +188,17 @@ public:
   void addCallback(std::shared_ptr<CallbackWrapperBase>&& callback);
 
   void removeAllCallbacks();
+
+  void set_on_ready_callback(std::function<void(size_t, int)> /*callback*/) override
+  {
+  }
+  void clear_on_ready_callback() override
+  {
+  }
+  std::shared_ptr<void> take_data_by_entity_id(size_t /*id*/) override
+  {
+    return nullptr;
+  }
 
 private:
   rcl_guard_condition_t gc_;  //!< guard condition to drive the waitable
