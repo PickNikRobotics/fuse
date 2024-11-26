@@ -40,7 +40,7 @@ namespace fuse_core
 CallbackAdapter::CallbackAdapter(std::shared_ptr<rclcpp::Context> const& context_ptr)
   : gc_(rcl_get_zero_initialized_guard_condition())
 {
-  rcl_guard_condition_options_t guard_condition_options = rcl_guard_condition_get_default_options();
+  rcl_guard_condition_options_t const guard_condition_options = rcl_guard_condition_get_default_options();
 
   // Guard condition is used by the wait set to handle execute-or-not logic
   if (RCL_RET_OK != rcl_guard_condition_init(&gc_, context_ptr->get_rcl_context().get(), guard_condition_options))
@@ -74,7 +74,7 @@ bool CallbackAdapter::is_ready(rcl_wait_set_t const& wait_set)
    */
 void CallbackAdapter::add_to_wait_set(rcl_wait_set_t& wait_set)
 {
-  if (RCL_RET_OK != rcl_wait_set_add_guard_condition(&wait_set, &gc_, NULL))
+  if (RCL_RET_OK != rcl_wait_set_add_guard_condition(&wait_set, &gc_, nullptr))
   {
     RCLCPP_WARN(rclcpp::get_logger("fuse"), "Could not add callback waitable to wait set.");
   }
@@ -89,7 +89,7 @@ std::shared_ptr<void> CallbackAdapter::take_data()
   std::shared_ptr<CallbackWrapperBase> cb_wrapper = nullptr;
   // fetch the callback ptr and release the lock without spending time in the callback
   {
-    std::lock_guard<std::mutex> lock(queue_mutex_);
+    std::lock_guard<std::mutex> const lock(queue_mutex_);
     if (!callback_queue_.empty())
     {
       cb_wrapper = callback_queue_.front();
@@ -122,7 +122,7 @@ void CallbackAdapter::execute(std::shared_ptr<void> const& data)
 
 void CallbackAdapter::addCallback(const std::shared_ptr<CallbackWrapperBase>& callback)
 {
-  std::lock_guard<std::mutex> lock(queue_mutex_);
+  std::lock_guard<std::mutex> const lock(queue_mutex_);
   callback_queue_.push_back(callback);
   if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_))
   {
@@ -134,7 +134,7 @@ void CallbackAdapter::addCallback(const std::shared_ptr<CallbackWrapperBase>& ca
 
 void CallbackAdapter::addCallback(std::shared_ptr<CallbackWrapperBase>&& callback)
 {
-  std::lock_guard<std::mutex> lock(queue_mutex_);
+  std::lock_guard<std::mutex> const lock(queue_mutex_);
   callback_queue_.push_back(std::move(callback));
   if (RCL_RET_OK != rcl_trigger_guard_condition(&gc_))
   {
@@ -146,7 +146,7 @@ void CallbackAdapter::addCallback(std::shared_ptr<CallbackWrapperBase>&& callbac
 
 void CallbackAdapter::removeAllCallbacks()
 {
-  std::lock_guard<std::mutex> lock(queue_mutex_);
+  std::lock_guard<std::mutex> const lock(queue_mutex_);
   callback_queue_.clear();
 }
 
