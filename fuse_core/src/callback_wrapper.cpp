@@ -37,12 +37,12 @@
 namespace fuse_core
 {
 
-CallbackAdapter::CallbackAdapter(std::shared_ptr<rclcpp::Context> context_ptr)
+CallbackAdapter::CallbackAdapter(std::shared_ptr<rclcpp::Context> const& context_ptr)
+  : gc_(rcl_get_zero_initialized_guard_condition())
 {
   rcl_guard_condition_options_t guard_condition_options = rcl_guard_condition_get_default_options();
 
   // Guard condition is used by the wait set to handle execute-or-not logic
-  gc_ = rcl_get_zero_initialized_guard_condition();
   if (RCL_RET_OK != rcl_guard_condition_init(&gc_, context_ptr->get_rcl_context().get(), guard_condition_options))
   {
     throw std::runtime_error("Could not init guard condition for callback waitable.");

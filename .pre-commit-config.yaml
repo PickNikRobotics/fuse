@@ -55,7 +55,7 @@ repos:
         files: \.(yml|yaml)$
 
   - repo: https://github.com/tcort/markdown-link-check
-    rev: v3.12.2
+    rev: v3.13.6
     hooks:
       - id: markdown-link-check
         args:
