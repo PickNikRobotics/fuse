@@ -124,7 +124,7 @@ void Odometry3DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr 
   if (0u == latest_stamp.nanoseconds())
   {
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::lock_guard<std::mutex> const lock(mutex_);
       latest_stamp_ = latest_stamp;
     }
 
@@ -146,7 +146,7 @@ void Odometry3DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr 
   if (!getState(*graph, latest_stamp, device_id_, position_uuid, orientation_uuid, velocity_linear_uuid,
                 velocity_angular_uuid, acceleration_linear_uuid, odom_output, acceleration_output))
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> const lock(mutex_);
     latest_stamp_ = latest_stamp;
     return;
   }
@@ -324,7 +324,7 @@ void Odometry3DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr 
   }
 
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> const lock(mutex_);
 
     latest_stamp_ = latest_stamp;
     latest_covariance_stamp_ = latest_covariance_stamp;
@@ -428,7 +428,7 @@ void Odometry3DPublisher::publishTimerCallback()
   nav_msgs::msg::Odometry odom_output;
   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output;
   {
-    std::lock_guard<std::mutex> lock(mutex_);
+    std::lock_guard<std::mutex> const lock(mutex_);
 
     latest_stamp = latest_stamp_;
     latest_covariance_stamp = latest_covariance_stamp_;
@@ -450,7 +450,7 @@ void Odometry3DPublisher::publishTimerCallback()
   // If requested, we need to project our state forward in time using the 3D kinematic model
   if (params_.predict_to_current_time)
   {
-    rclcpp::Time timer_now = interfaces_.get_node_clock_interface()->get_clock()->now();
+    rclcpp::Time const timer_now = interfaces_.get_node_clock_interface()->get_clock()->now();
 
     // Convert pose in Eigen representation
     fuse_core::Vector3d position;
