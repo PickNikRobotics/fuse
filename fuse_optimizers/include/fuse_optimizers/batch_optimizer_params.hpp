@@ -37,9 +37,7 @@
 
 #include <ceres/solver.h>
 
-#include <algorithm>
 #include <string>
-#include <vector>
 
 #include <fuse_core/ceres_options.hpp>
 #include <fuse_core/parameter.hpp>

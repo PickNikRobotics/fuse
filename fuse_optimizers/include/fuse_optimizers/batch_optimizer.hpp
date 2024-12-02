@@ -39,11 +39,9 @@
 #include <condition_variable>
 #include <map>
 #include <mutex>
-#include <set>
 #include <string>
 #include <thread>
 #include <utility>
-#include <vector>
 
 #include <fuse_core/graph.hpp>
 #include <fuse_core/fuse_macros.hpp>
@@ -111,13 +109,17 @@ public:
    * @param[in] interfaces          The node interfaces for the node driving the optimizer
    * @param[in] graph               The graph used with the optimizer
    */
-  BatchOptimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                 fuse_core::Graph::UniquePtr graph = nullptr);
+  explicit BatchOptimizer(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
+                          fuse_core::Graph::UniquePtr graph = nullptr);
 
   /**
    * @brief Destructor
    */
   virtual ~BatchOptimizer();
+  BatchOptimizer(BatchOptimizer const&) = delete;
+  BatchOptimizer(BatchOptimizer&&) = delete;
+  BatchOptimizer& operator=(BatchOptimizer const&) = delete;
+  BatchOptimizer& operator=(BatchOptimizer&&) = delete;
 
 protected:
   /**

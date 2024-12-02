@@ -32,7 +32,6 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <algorithm>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -108,11 +107,9 @@ void BatchOptimizer::applyMotionModelsToQueue()
         pending_transactions_.erase(pending_transactions_.begin());
         continue;
       }
-      else
-      {
-        // Stop processing future transactions. Try again next time.
-        break;
-      }
+
+      // Stop processing future transactions. Try again next time.
+      break;
     }
     // Merge the sensor+motion model transactions into a combined transaction that will be applied
     // directly to the graph
