@@ -78,7 +78,7 @@ BatchOptimizer::~BatchOptimizer()
 void BatchOptimizer::applyMotionModelsToQueue()
 {
   // We need get the pending transactions from the queue
-  std::lock_guard<std::mutex> pending_transactions_lock(pending_transactions_mutex_);
+  std::lock_guard<std::mutex> const pending_transactions_lock(pending_transactions_mutex_);
   rclcpp::Time current_time;
   // Use the most recent transaction time as the current time
   if (!pending_transactions_.empty())
@@ -114,7 +114,7 @@ void BatchOptimizer::applyMotionModelsToQueue()
     // Merge the sensor+motion model transactions into a combined transaction that will be applied
     // directly to the graph
     {
-      std::lock_guard<std::mutex> combined_transaction_lock(combined_transaction_mutex_);
+      std::lock_guard<std::mutex> const combined_transaction_lock(combined_transaction_mutex_);
       combined_transaction_->merge(*element.transaction, true);
     }
     // We are done with this transaction. Delete it from the queue.
@@ -144,7 +144,7 @@ void BatchOptimizer::optimizationLoop()
     // Copy the combined transaction so it can be shared with all the plugins
     fuse_core::Transaction::ConstSharedPtr const_transaction;
     {
-      std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
+      std::lock_guard<std::mutex> const lock(combined_transaction_mutex_);
       const_transaction = std::move(combined_transaction_);
       combined_transaction_ = fuse_core::Transaction::make_shared();
     }
@@ -153,7 +153,7 @@ void BatchOptimizer::optimizationLoop()
     // Optimize the entire graph
     graph_->optimize(params_.solver_options);
     // Make a copy of the graph to share
-    fuse_core::Graph::ConstSharedPtr const_graph = graph_->clone();
+    fuse_core::Graph::ConstSharedPtr const const_graph = graph_->clone();
     // Optimization is complete. Notify all the things about the graph changes.
     notify(const_transaction, const_graph);
     // Clear the request flag now that this optimization cycle is complete
@@ -172,7 +172,7 @@ void BatchOptimizer::optimizerTimerCallback()
   applyMotionModelsToQueue();
   // Check if there is any pending information to be applied to the graph.
   {
-    std::lock_guard<std::mutex> lock(combined_transaction_mutex_);
+    std::lock_guard<std::mutex> const lock(combined_transaction_mutex_);
     optimization_request_ = !combined_transaction_->empty();
   }
   // If there is some pending work, trigger the next optimization cycle.
@@ -191,11 +191,11 @@ void BatchOptimizer::transactionCallback(const std::string& sensor_name, fuse_co
   // Or we have "started" already, and the new transaction is after the starting time.
   auto transaction_clock_type = transaction->stamp().get_clock_type();
 
-  rclcpp::Time transaction_time = transaction->stamp();
+  rclcpp::Time const transaction_time = transaction->stamp();
   rclcpp::Time last_pending_time(0, 0, transaction_clock_type);  // NOTE(CH3): Uninitialized
   if (!started_ || transaction_time >= start_time_)
   {
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
     pending_transactions_.emplace(transaction_time, TransactionQueueElement(sensor_name, std::move(transaction)));
     last_pending_time = pending_transactions_.rbegin()->first;
   }
@@ -219,7 +219,7 @@ void BatchOptimizer::transactionCallback(const std::string& sensor_name, fuse_co
     {
       purge_time = last_pending_time - params_.transaction_timeout;
     }
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
     auto purge_iter = pending_transactions_.lower_bound(purge_time);
     pending_transactions_.erase(pending_transactions_.begin(), purge_iter);
   }
@@ -238,7 +238,7 @@ void BatchOptimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper&
 
   status.add("Started", started_);
   {
-    std::lock_guard<std::mutex> lock(pending_transactions_mutex_);
+    std::lock_guard<std::mutex> const lock(pending_transactions_mutex_);
     status.add("Pending Transactions", pending_transactions_.size());
   }
 }
