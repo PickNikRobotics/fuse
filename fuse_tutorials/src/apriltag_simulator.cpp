@@ -314,6 +314,7 @@ int main(int argc, char** argv)
 
   // create the ground truth publisher
   auto ground_truth_publisher = node->create_publisher<nav_msgs::msg::Odometry>("ground_truth", 1);
+  auto predict_time_publisher = node->create_publisher<builtin_interfaces::msg::Time>("predict_time", 1);
 
   // Initialize the robot state (state variables are zero-initialized)
   auto state = Robot();
@@ -336,6 +337,11 @@ int main(int argc, char** argv)
     // store the first time this runs (since it won't start running exactly at a multiple of `motion_duration`)
     static auto const firstTime = node->now();
     auto const now = node->now();
+    builtin_interfaces::msg::Time predict_time(now);
+
+    // predict into the future
+    predict_time.sec += 10;
+    predict_time_publisher->publish(predict_time);
 
     // compensate for the original time offset
     double const now_d = (now - firstTime).seconds();

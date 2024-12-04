@@ -38,6 +38,8 @@
 #include <chrono>
 #include <memory>
 #include <mutex>
+#include <rclcpp/create_subscription.hpp>
+#include <rclcpp/time.hpp>
 #include <string>
 #include <utility>
 #include <vector>
@@ -114,6 +116,16 @@ void Odometry3DPublisher::onInit()
       rclcpp::create_publisher<nav_msgs::msg::Odometry>(interfaces_, params_.topic, params_.queue_size, pub_options);
   acceleration_pub_ = rclcpp::create_publisher<geometry_msgs::msg::AccelWithCovarianceStamped>(
       interfaces_, params_.acceleration_topic, params_.queue_size, pub_options);
+
+  predict_timestamp_sub_ = rclcpp::create_subscription<builtin_interfaces::msg::Time>(
+      interfaces_, params_.predict_timestamp_topic, params_.queue_size,
+      std::bind(&Odometry3DPublisher::predictTimestampCallback, this, std::placeholders::_1));
+}
+
+void Odometry3DPublisher::predictTimestampCallback(builtin_interfaces::msg::Time const& time_msg)
+{
+  std::lock_guard<std::mutex> const lock(predict_timestamp_mutex_);
+  predict_timestamp_ = rclcpp::Time(time_msg);
 }
 
 void Odometry3DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction,
@@ -420,10 +432,143 @@ bool Odometry3DPublisher::getState(const fuse_core::Graph& graph, const rclcpp::
   return true;
 }
 
+void Odometry3DPublisher::predict(tf2::Transform& pose, nav_msgs::msg::Odometry& odom_output,
+                                  rclcpp::Time const& to_predict_to,
+                                  geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output,
+                                  bool latest_covariance_valid) const
+{
+  const double dt = to_predict_to.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
+  // Convert pose in Eigen representation
+  fuse_core::Vector3d position;
+  fuse_core::Vector3d velocity_linear;
+  fuse_core::Vector3d velocity_angular;
+  Eigen::Quaterniond orientation;
+  position << pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z();
+  orientation.x() = pose.getRotation().x();
+  orientation.y() = pose.getRotation().y();
+  orientation.z() = pose.getRotation().z();
+  orientation.w() = pose.getRotation().w();
+  velocity_linear << odom_output.twist.twist.linear.x, odom_output.twist.twist.linear.y,
+      odom_output.twist.twist.linear.z;
+  velocity_angular << odom_output.twist.twist.angular.x, odom_output.twist.twist.angular.y,
+      odom_output.twist.twist.angular.z;
+
+  fuse_core::Matrix15d jacobian;
+
+  fuse_core::Vector3d acceleration_linear;
+  if (params_.predict_with_acceleration)
+  {
+    acceleration_linear << acceleration_output.accel.accel.linear.x, acceleration_output.accel.accel.linear.y,
+        acceleration_output.accel.accel.linear.z;
+  }
+
+  ::fuse_models::predict(position, orientation, velocity_linear, velocity_angular, acceleration_linear, dt, position,
+                         orientation, velocity_linear, velocity_angular, acceleration_linear, jacobian);
+
+  // Convert back to tf2 representation
+  pose.setOrigin(tf2::Vector3(position.x(), position.y(), position.z()));
+  pose.setRotation(tf2::Quaternion(orientation.x(), orientation.y(), orientation.z(), orientation.w()));
+
+  odom_output.pose.pose.position.x = position.x();
+  odom_output.pose.pose.position.y = position.y();
+  odom_output.pose.pose.position.z = position.z();
+  odom_output.pose.pose.orientation.x = orientation.x();
+  odom_output.pose.pose.orientation.y = orientation.y();
+  odom_output.pose.pose.orientation.z = orientation.z();
+  odom_output.pose.pose.orientation.w = orientation.w();
+
+  odom_output.twist.twist.linear.x = velocity_linear.x();
+  odom_output.twist.twist.linear.y = velocity_linear.y();
+  odom_output.twist.twist.linear.z = velocity_linear.z();
+  odom_output.twist.twist.angular.x = velocity_angular.x();
+  odom_output.twist.twist.angular.y = velocity_angular.y();
+  odom_output.twist.twist.angular.z = velocity_angular.z();
+
+  if (params_.predict_with_acceleration)
+  {
+    acceleration_output.accel.accel.linear.x = acceleration_linear.x();
+    acceleration_output.accel.accel.linear.y = acceleration_linear.y();
+    acceleration_output.accel.accel.linear.z = acceleration_linear.z();
+  }
+
+  odom_output.header.stamp = to_predict_to;
+  acceleration_output.header.stamp = to_predict_to;
+
+  // Either the last covariance computation was skipped because there was no subscriber,
+  // or it failed
+  if (latest_covariance_valid)
+  {
+    fuse_core::Matrix15d covariance;
+    covariance.setZero();
+    Eigen::Map<fuse_core::Matrix6d> pose_covariance(odom_output.pose.covariance.data());
+    Eigen::Map<fuse_core::Matrix6d> twist_covariance(odom_output.twist.covariance.data());
+    Eigen::Map<fuse_core::Matrix3d> acceleration_covariance(acceleration_output.accel.covariance.data());
+
+    covariance.block<6, 6>(0, 0) = pose_covariance;
+    covariance.block<6, 6>(6, 6) = twist_covariance;
+    covariance.block<3, 3>(12, 12) = acceleration_covariance;
+
+    covariance = jacobian * covariance * jacobian.transpose();
+
+    auto process_noise_covariance = params_.process_noise_covariance;
+    if (params_.scale_process_noise)
+    {
+      common::scaleProcessNoiseCovariance(process_noise_covariance, velocity_linear, velocity_angular,
+                                          params_.velocity_linear_norm_min_, params_.velocity_angular_norm_min_);
+    }
+
+    covariance.noalias() += dt * process_noise_covariance;
+
+    pose_covariance = covariance.block<6, 6>(0, 0);
+    twist_covariance = covariance.block<6, 6>(6, 6);
+    acceleration_covariance = covariance.block<3, 3>(12, 12);
+  }
+}
+
+void Odometry3DPublisher::publishTF(nav_msgs::msg::Odometry const& odom_output, tf2::Transform& pose)
+{
+  auto frame_id = odom_output.header.frame_id;
+  auto child_frame_id = odom_output.child_frame_id;
+
+  if (params_.invert_tf)
+  {
+    pose = pose.inverse();
+    std::swap(frame_id, child_frame_id);
+  }
+
+  geometry_msgs::msg::TransformStamped trans;
+  trans.header.stamp = odom_output.header.stamp;
+  trans.header.frame_id = frame_id;
+  trans.child_frame_id = child_frame_id;
+  trans.transform = tf2::toMsg(pose);
+  if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id)
+  {
+    try
+    {
+      auto base_to_odom = tf_buffer_->lookupTransform(params_.base_link_frame_id, params_.odom_frame_id,
+                                                      trans.header.stamp, params_.tf_timeout);
+
+      geometry_msgs::msg::TransformStamped map_to_odom;
+      tf2::doTransform(base_to_odom, map_to_odom, trans);
+      map_to_odom.child_frame_id = params_.odom_frame_id;
+      trans = map_to_odom;
+    }
+    catch (const std::exception& e)
+    {
+      RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
+                                  "Could not lookup the " << params_.base_link_frame_id << "->" << params_.odom_frame_id
+                                                          << " transform. Error: " << e.what());
+
+      return;
+    }
+  }
+
+  tf_broadcaster_->sendTransform(trans);
+}
+
 void Odometry3DPublisher::publishTimerCallback()
 {
   rclcpp::Time latest_stamp;
-  rclcpp::Time latest_covariance_stamp;
   bool latest_covariance_valid = false;
   nav_msgs::msg::Odometry odom_output;
   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output;
@@ -431,11 +576,12 @@ void Odometry3DPublisher::publishTimerCallback()
     std::lock_guard<std::mutex> const lock(mutex_);
 
     latest_stamp = latest_stamp_;
-    latest_covariance_stamp = latest_covariance_stamp_;
     latest_covariance_valid = latest_covariance_valid_;
     odom_output = odom_output_;
     acceleration_output = acceleration_output_;
   }
+
+  nav_msgs::msg::Odometry odom_output_predict = odom_output;
 
   if (0u == latest_stamp.nanoseconds())
   {
@@ -447,98 +593,14 @@ void Odometry3DPublisher::publishTimerCallback()
   tf2::Transform pose;
   tf2::fromMsg(odom_output.pose.pose, pose);
 
+  tf2::Transform pose_predict;
+  tf2::fromMsg(odom_output_predict.pose.pose, pose);
+
   // If requested, we need to project our state forward in time using the 3D kinematic model
   if (params_.predict_to_current_time)
   {
     rclcpp::Time const timer_now = interfaces_.get_node_clock_interface()->get_clock()->now();
-
-    // Convert pose in Eigen representation
-    fuse_core::Vector3d position;
-    fuse_core::Vector3d velocity_linear;
-    fuse_core::Vector3d velocity_angular;
-    Eigen::Quaterniond orientation;
-    position << pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z();
-    orientation.x() = pose.getRotation().x();
-    orientation.y() = pose.getRotation().y();
-    orientation.z() = pose.getRotation().z();
-    orientation.w() = pose.getRotation().w();
-    velocity_linear << odom_output.twist.twist.linear.x, odom_output.twist.twist.linear.y,
-        odom_output.twist.twist.linear.z;
-    velocity_angular << odom_output.twist.twist.angular.x, odom_output.twist.twist.angular.y,
-        odom_output.twist.twist.angular.z;
-
-    const double dt = timer_now.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
-
-    fuse_core::Matrix15d jacobian;
-
-    fuse_core::Vector3d acceleration_linear;
-    if (params_.predict_with_acceleration)
-    {
-      acceleration_linear << acceleration_output.accel.accel.linear.x, acceleration_output.accel.accel.linear.y,
-          acceleration_output.accel.accel.linear.z;
-    }
-
-    predict(position, orientation, velocity_linear, velocity_angular, acceleration_linear, dt, position, orientation,
-            velocity_linear, velocity_angular, acceleration_linear, jacobian);
-
-    // Convert back to tf2 representation
-    pose.setOrigin(tf2::Vector3(position.x(), position.y(), position.z()));
-    pose.setRotation(tf2::Quaternion(orientation.x(), orientation.y(), orientation.z(), orientation.w()));
-
-    odom_output.pose.pose.position.x = position.x();
-    odom_output.pose.pose.position.y = position.y();
-    odom_output.pose.pose.position.z = position.z();
-    odom_output.pose.pose.orientation.x = orientation.x();
-    odom_output.pose.pose.orientation.y = orientation.y();
-    odom_output.pose.pose.orientation.z = orientation.z();
-    odom_output.pose.pose.orientation.w = orientation.w();
-
-    odom_output.twist.twist.linear.x = velocity_linear.x();
-    odom_output.twist.twist.linear.y = velocity_linear.y();
-    odom_output.twist.twist.linear.z = velocity_linear.z();
-    odom_output.twist.twist.angular.x = velocity_angular.x();
-    odom_output.twist.twist.angular.y = velocity_angular.y();
-    odom_output.twist.twist.angular.z = velocity_angular.z();
-
-    if (params_.predict_with_acceleration)
-    {
-      acceleration_output.accel.accel.linear.x = acceleration_linear.x();
-      acceleration_output.accel.accel.linear.y = acceleration_linear.y();
-      acceleration_output.accel.accel.linear.z = acceleration_linear.z();
-    }
-
-    odom_output.header.stamp = timer_now;
-    acceleration_output.header.stamp = timer_now;
-
-    // Either the last covariance computation was skipped because there was no subscriber,
-    // or it failed
-    if (latest_covariance_valid)
-    {
-      fuse_core::Matrix15d covariance;
-      covariance.setZero();
-      Eigen::Map<fuse_core::Matrix6d> pose_covariance(odom_output.pose.covariance.data());
-      Eigen::Map<fuse_core::Matrix6d> twist_covariance(odom_output.twist.covariance.data());
-      Eigen::Map<fuse_core::Matrix3d> acceleration_covariance(acceleration_output.accel.covariance.data());
-
-      covariance.block<6, 6>(0, 0) = pose_covariance;
-      covariance.block<6, 6>(6, 6) = twist_covariance;
-      covariance.block<3, 3>(12, 12) = acceleration_covariance;
-
-      covariance = jacobian * covariance * jacobian.transpose();
-
-      auto process_noise_covariance = params_.process_noise_covariance;
-      if (params_.scale_process_noise)
-      {
-        common::scaleProcessNoiseCovariance(process_noise_covariance, velocity_linear, velocity_angular,
-                                            params_.velocity_linear_norm_min_, params_.velocity_angular_norm_min_);
-      }
-
-      covariance.noalias() += dt * process_noise_covariance;
-
-      pose_covariance = covariance.block<6, 6>(0, 0);
-      twist_covariance = covariance.block<6, 6>(6, 6);
-      acceleration_covariance = covariance.block<3, 3>(12, 12);
-    }
+    predict(pose, odom_output, timer_now, acceleration_output, latest_covariance_valid);
   }
 
   odom_pub_->publish(odom_output);
@@ -546,44 +608,17 @@ void Odometry3DPublisher::publishTimerCallback()
 
   if (params_.publish_tf)
   {
-    auto frame_id = odom_output.header.frame_id;
-    auto child_frame_id = odom_output.child_frame_id;
-
-    if (params_.invert_tf)
+    if (params_.predict_to_future)
     {
-      pose = pose.inverse();
-      std::swap(frame_id, child_frame_id);
-    }
-
-    geometry_msgs::msg::TransformStamped trans;
-    trans.header.stamp = odom_output.header.stamp;
-    trans.header.frame_id = frame_id;
-    trans.child_frame_id = child_frame_id;
-    trans.transform = tf2::toMsg(pose);
-    if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id)
-    {
-      try
+      rclcpp::Time predict_time;
       {
-        auto base_to_odom = tf_buffer_->lookupTransform(params_.base_link_frame_id, params_.odom_frame_id,
-                                                        trans.header.stamp, params_.tf_timeout);
-
-        geometry_msgs::msg::TransformStamped map_to_odom;
-        tf2::doTransform(base_to_odom, map_to_odom, trans);
-        map_to_odom.child_frame_id = params_.odom_frame_id;
-        trans = map_to_odom;
+        std::lock_guard<std::mutex> const lock(predict_timestamp_mutex_);
+        predict_time = predict_timestamp_;
       }
-      catch (const std::exception& e)
-      {
-        RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
-                                    "Could not lookup the " << params_.base_link_frame_id << "->"
-                                                            << params_.odom_frame_id
-                                                            << " transform. Error: " << e.what());
-
-        return;
-      }
+      predict(pose_predict, odom_output_predict, predict_time, acceleration_output, latest_covariance_valid);
+      publishTF(odom_output_predict, pose_predict);
     }
-
-    tf_broadcaster_->sendTransform(trans);
+    publishTF(odom_output, pose);
   }
 }
 

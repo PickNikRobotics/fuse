@@ -130,6 +130,12 @@ public:
                   const std::string& name) override;
 
 protected:
+  // helper function
+  void predict(tf2::Transform& pose, nav_msgs::msg::Odometry& odom_output, rclcpp::Time const& to_predict_to,
+               geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output, bool latest_covariance_valid) const;
+  void publishTF(nav_msgs::msg::Odometry const& odom_output, tf2::Transform& pose);
+
+  void predictTimestampCallback(builtin_interfaces::msg::Time const& time_msg);
   /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or
    *        reading from the parameter server.
@@ -221,6 +227,9 @@ protected:
 
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<geometry_msgs::msg::AccelWithCovarianceStamped>::SharedPtr acceleration_pub_;
+  rclcpp::Subscription<builtin_interfaces::msg::Time>::SharedPtr predict_timestamp_sub_;
+  rclcpp::Time predict_timestamp_;
+  std::mutex predict_timestamp_mutex_;
 
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_ = nullptr;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;

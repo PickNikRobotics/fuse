@@ -53,3 +53,4 @@ state_estimator:
       world_frame_id: 'odom'
       publish_tf: true
       publish_frequency: 100.0
+      predict_to_future: true

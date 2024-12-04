@@ -75,6 +75,10 @@ public:
   {
     publish_tf = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_tf"), publish_tf);
     invert_tf = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "invert_tf"), invert_tf);
+    predict_to_future =
+        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "predict_to_future"), predict_to_future);
+    predict_timestamp_topic = fuse_core::getParam(
+        interfaces, fuse_core::joinParameterName(ns, "predict_timestamp_topic"), predict_timestamp_topic);
     predict_to_current_time = fuse_core::getParam(
         interfaces, fuse_core::joinParameterName(ns, "predict_to_current_time"), predict_to_current_time);
     predict_with_acceleration = fuse_core::getParam(
@@ -156,6 +160,8 @@ public:
   std::string base_link_output_frame_id{ base_link_frame_id };
   std::string world_frame_id{ odom_frame_id };
   std::string topic{ "odometry/filtered" };
+  bool predict_to_future{ false };
+  std::string predict_timestamp_topic{ "predict_time" };
   std::string acceleration_topic{ "acceleration/filtered" };
   ceres::Covariance::Options covariance_options;
 };
