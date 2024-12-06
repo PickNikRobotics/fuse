@@ -1,14 +1,16 @@
 # fuse
 
-**NOTE**: The `rolling` branch is a [work in progress](https://github.com/locusrobotics/fuse/issues/276) port of the fuse stack to ROS 2, it is **not** expected to work until said work is done!
+Welcome to PickNik Robotics's fork of fuse!
 
-The fuse stack provides a general architecture for performing sensor fusion live on a robot. Some possible applications
-include state estimation, localization, mapping, and calibration.
+## Getting Started
+
+Using the Dockerfile is the easiest way to get started. Once inside, simply `rosdep update` and `colcon build` and you're ready to get started! Try `ros2 launch fuse_tutorials fuse_3d_tutorial.launch.py` and look at its pertinent code for a crash course in fuse and its capabilities.
 
 ## Overview
 
-fuse is a ROS framework for performing sensor fusion using nonlinear least squares optimization techniques. In
-particular, fuse provides:
+The fuse stack provides a general architecture for performing sensor fusion live on a robot using nonlinear least squares optimization techniques.
+Some possible applications include state estimation, localization, mapping, and calibration.
+In particular, fuse provides:
 
 * a plugin-based system for modeling sensor measurements
 * a similar plugin-based system for motion models
