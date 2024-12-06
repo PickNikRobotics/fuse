@@ -62,6 +62,7 @@ constexpr double aprilTagOrientationSigma = 0.25;  //!< the april tag orientatio
 constexpr size_t numAprilTags = 8;                 //!< the number of april tags
 constexpr double detectionProbability =
     0.5;  //!< the probability that any given april tag is detectable on a given tick of the simulation
+constexpr double futurePredictionTimeSeconds = 0.1;
 }  // namespace
 
 /**
@@ -340,7 +341,7 @@ int main(int argc, char** argv)
     builtin_interfaces::msg::Time predict_time(now);
 
     // predict into the future
-    predict_time.sec += 10;
+    predict_time.nanosec += static_cast<int>(futurePredictionTimeSeconds * 1e9);
     predict_time_publisher->publish(predict_time);
 
     // compensate for the original time offset

@@ -14,7 +14,7 @@ state_estimator:
     3d_motion_model:
       # x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel, x_acc, y_acc, z_acc
       # use high values for the acceleration process noise because we aren't measuring the applied forces
-      process_noise_diagonal: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 10., 10., 10.]
+      process_noise_diagonal: [0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 0.000001, 10., 10., 10.]
 
     sensor_models:
       initial_localization_sensor:

@@ -162,6 +162,7 @@ public:
   std::string topic{ "odometry/filtered" };
   bool predict_to_future{ false };
   std::string predict_timestamp_topic{ "predict_time" };
+  std::string predict_topic{ "predicted_odometry/filtered" };
   std::string acceleration_topic{ "acceleration/filtered" };
   ceres::Covariance::Options covariance_options;
 };

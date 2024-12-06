@@ -226,6 +226,7 @@ protected:
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
 
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_predict_;
   rclcpp::Publisher<geometry_msgs::msg::AccelWithCovarianceStamped>::SharedPtr acceleration_pub_;
   rclcpp::Subscription<builtin_interfaces::msg::Time>::SharedPtr predict_timestamp_sub_;
   rclcpp::Time predict_timestamp_;

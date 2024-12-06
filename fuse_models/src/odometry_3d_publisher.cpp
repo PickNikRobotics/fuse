@@ -114,12 +114,19 @@ void Odometry3DPublisher::onInit()
 
   odom_pub_ =
       rclcpp::create_publisher<nav_msgs::msg::Odometry>(interfaces_, params_.topic, params_.queue_size, pub_options);
+
+  if (params_.predict_to_future)
+  {
+    odom_pub_predict_ = rclcpp::create_publisher<nav_msgs::msg::Odometry>(interfaces_, params_.predict_topic,
+                                                                          params_.queue_size, pub_options);
+
+    predict_timestamp_sub_ = rclcpp::create_subscription<builtin_interfaces::msg::Time>(
+        interfaces_, params_.predict_timestamp_topic, params_.queue_size,
+        std::bind(&Odometry3DPublisher::predictTimestampCallback, this, std::placeholders::_1));
+  }
+
   acceleration_pub_ = rclcpp::create_publisher<geometry_msgs::msg::AccelWithCovarianceStamped>(
       interfaces_, params_.acceleration_topic, params_.queue_size, pub_options);
-
-  predict_timestamp_sub_ = rclcpp::create_subscription<builtin_interfaces::msg::Time>(
-      interfaces_, params_.predict_timestamp_topic, params_.queue_size,
-      std::bind(&Odometry3DPublisher::predictTimestampCallback, this, std::placeholders::_1));
 }
 
 void Odometry3DPublisher::predictTimestampCallback(builtin_interfaces::msg::Time const& time_msg)
@@ -594,7 +601,7 @@ void Odometry3DPublisher::publishTimerCallback()
   tf2::fromMsg(odom_output.pose.pose, pose);
 
   tf2::Transform pose_predict;
-  tf2::fromMsg(odom_output_predict.pose.pose, pose);
+  tf2::fromMsg(odom_output_predict.pose.pose, pose_predict);
 
   // If requested, we need to project our state forward in time using the 3D kinematic model
   if (params_.predict_to_current_time)
@@ -605,19 +612,19 @@ void Odometry3DPublisher::publishTimerCallback()
 
   odom_pub_->publish(odom_output);
   acceleration_pub_->publish(acceleration_output);
+  if (params_.predict_to_future)
+  {
+    rclcpp::Time predict_time;
+    {
+      std::lock_guard<std::mutex> const lock(predict_timestamp_mutex_);
+      predict_time = predict_timestamp_;
+    }
+    predict(pose_predict, odom_output_predict, predict_time, acceleration_output, latest_covariance_valid);
+    odom_pub_predict_->publish(odom_output_predict);
+  }
 
   if (params_.publish_tf)
   {
-    if (params_.predict_to_future)
-    {
-      rclcpp::Time predict_time;
-      {
-        std::lock_guard<std::mutex> const lock(predict_timestamp_mutex_);
-        predict_time = predict_timestamp_;
-      }
-      predict(pose_predict, odom_output_predict, predict_time, acceleration_output, latest_covariance_valid);
-      publishTF(odom_output_predict, pose_predict);
-    }
     publishTF(odom_output, pose);
   }
 }
