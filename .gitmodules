@@ -1,0 +1,6 @@
+[submodule "dependencies/tf2_2d"]
+	path = dependencies/tf2_2d
+	url = https://github.com/locusrobotics/tf2_2d.git
+[submodule "dependencies/covariance_geometry_ros"]
+	path = dependencies/covariance_geometry_ros
+	url = https://github.com/giafranchini/covariance_geometry_ros.git
