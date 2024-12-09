@@ -117,7 +117,7 @@ public:
   /**
    * @brief Read-only access to this transaction's timestamp
    */
-  const rclcpp::Time& stamp() const
+  [[nodiscard]] const rclcpp::Time& stamp() const
   {
     return stamp_;
   }
@@ -135,7 +135,7 @@ public:
    *
    * @return An iterator range containing all involved timestamps, ordered oldest to newest
    */
-  const_stamp_range involvedStamps() const
+  [[nodiscard]] const_stamp_range involvedStamps() const
   {
     return involved_stamps_;
   }
@@ -146,7 +146,7 @@ public:
    *
    * @return The minimum (oldest) timestamp.
    */
-  const rclcpp::Time& minStamp() const;
+  [[nodiscard]] const rclcpp::Time& minStamp() const;
 
   /**
    * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp and all
@@ -154,21 +154,21 @@ public:
    *
    * @return The maximum (newest) timestamp.
    */
-  const rclcpp::Time& maxStamp() const;
+  [[nodiscard]] const rclcpp::Time& maxStamp() const;
 
   /**
    * @brief Read-only access to the added constraints
    *
    * @return  An iterator range containing all added constraints
    */
-  const_constraint_range addedConstraints() const;
+  [[nodiscard]] const_constraint_range addedConstraints() const;
 
   /**
    * @brief Read-only access to the removed constraints
    *
    * @return  An iterator range containing all removed constraint UUIDs
    */
-  const_uuid_range removedConstraints() const
+  [[nodiscard]] const_uuid_range removedConstraints() const
   {
     return removed_constraints_;
   }
@@ -178,14 +178,14 @@ public:
    *
    * @return  An iterator range containing all added variables
    */
-  const_variable_range addedVariables() const;
+  [[nodiscard]] const_variable_range addedVariables() const;
 
   /**
    * @brief Read-only access to the removed variables
    *
    * @return  An iterator range containing all removed variable UUIDs
    */
-  const_uuid_range removedVariables() const
+  [[nodiscard]] const_uuid_range removedVariables() const
   {
     return removed_variables_;
   }
@@ -196,7 +196,7 @@ public:
    *
    * @return  True if the transaction is empty, false otherwise
    */
-  bool empty() const;
+  [[nodiscard]] bool empty() const;
 
   /**
    * @brief Add a timestamp to the "involved stamps" collection
@@ -281,7 +281,7 @@ public:
    *
    * @return A unique pointer to a new instance of the most-derived Variable
    */
-  Transaction::UniquePtr clone() const;
+  [[nodiscard]] Transaction::UniquePtr clone() const;
 
   /**
    * @brief Serialize this Constraint into the provided binary archive

@@ -59,7 +59,7 @@ def generate_launch_description():
                     "-d",
                     [
                         PathJoinSubstitution(
-                            [pkg_dir, "config", "fuse_3d_tutorial.rviz"]
+                            [pkg_dir, "config", "fuse_apriltag_tutorial.rviz"]
                         )
                     ],
                 ],

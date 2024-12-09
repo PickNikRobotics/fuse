@@ -15,9 +15,8 @@
 # limitations under the License.
 
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess
 from launch.substitutions import PathJoinSubstitution
-from launch_ros.actions import Node, SetParameter
+from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 

@@ -36,10 +36,7 @@
 
 #include <ceres/cost_function.h>
 
-#include <algorithm>
 #include <cassert>
-#include <iterator>
-#include <ostream>
 #include <string>
 #include <vector>
 

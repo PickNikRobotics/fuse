@@ -58,10 +58,6 @@
 // Required by __MAKE_SHARED_ALIGNED_DEFINITION, that uses Eigen::aligned_allocator<T>().
 #include <Eigen/Core>
 
-#include <memory>
-#include <string>
-#include <utility>
-
 /**
  * Creates a custom new() implementation that ensures memory is allocated with proper byte
  * alignment. This should be added to the public section of classes or structs that contain

@@ -69,6 +69,10 @@ public:
    * @brief Destructor
    */
   virtual ~VariableStampIndex() = default;
+  VariableStampIndex(VariableStampIndex const&) = default;
+  VariableStampIndex(VariableStampIndex&&) = default;
+  VariableStampIndex& operator=(VariableStampIndex const&) = default;
+  VariableStampIndex& operator=(VariableStampIndex&&) = default;
 
   /**
    * @brief Return true if no variables exist in the index
