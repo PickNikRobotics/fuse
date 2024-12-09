@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          submodules: 'true'
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -90,7 +92,8 @@ jobs:
           files: |
             **.cpp
             **.hpp
-      - run: run-clang-tidy -j $(nproc --all) -p build/ -export-fixes clang-tidy-fixes.yaml -config-file src/fuse/.clang-tidy ${{ steps.changed-cpp-files.outputs.all_changed_files }}
+      - if: ${{ steps.changed-cpp-files.outputs.all_changed_files != '' }}
+        run: run-clang-tidy -j $(nproc --all) -p build/ -export-fixes clang-tidy-fixes.yaml -config-file src/fuse/.clang-tidy ${{ steps.changed-cpp-files.outputs.all_changed_files }}
         working-directory: /colcon_ws
       - uses: asarium/clang-tidy-action@v1.0
         with:

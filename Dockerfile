@@ -23,8 +23,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get upgrade -y && \
     . /opt/ros/rolling/setup.sh && \
-    vcs import src --input src/fuse/fuse.repos && \
-    rosdep install --from-paths src -y --ignore-src --skip-keys=mujoco && \
+    rosdep install --from-paths src -y --ignore-src && \
     colcon build --mixin compile-commands coverage-gcc coverage-pytest
 
 # Set up final environment and entrypoint.
