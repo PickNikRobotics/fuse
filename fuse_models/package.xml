@@ -16,7 +16,7 @@
   <depend>boost</depend>
   <depend>libceres-dev</depend>
   <depend>eigen</depend>
-  <depend>mujoco</depend>
+  <!-- <depend>mujoco</depend> -->
 
   <build_depend>covariance_geometry_ros</build_depend>
   <build_depend>fuse_constraints</build_depend>
