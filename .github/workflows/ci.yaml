@@ -74,7 +74,7 @@ jobs:
         working-directory: /colcon_ws
 
   clang_tidy:
-    if: github.ref != 'refs/heads/main'
+    if: github.ref != 'refs/heads/humble'
     needs:
       # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
       - build-ws
