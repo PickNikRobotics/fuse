@@ -8,7 +8,7 @@ on:
   # Run when a commit is pushed to main
   push:
     branches:
-      - main
+      - humble
 
 permissions:
   # Allow reading the source code
@@ -61,7 +61,7 @@ jobs:
     steps:
       - name: Unit test workspace
         run: |
-          . /opt/ros/rolling/setup.sh
+          . /opt/ros/humble/setup.sh
           . /colcon_ws/install/local_setup.sh
           colcon test --event-handlers console_direct+ --packages-select-regex fuse*
         working-directory: /colcon_ws

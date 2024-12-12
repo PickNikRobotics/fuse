@@ -102,10 +102,7 @@ void Odometry3DPublisher::onInit()
         // TODO(methylDragon): See above ^
     );
 
-    tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, interfaces_.get_node_base_interface(),
-                                                                interfaces_.get_node_logging_interface(),
-                                                                interfaces_.get_node_parameters_interface(),
-                                                                interfaces_.get_node_topics_interface());
+    tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, &interfaces_);
   }
 
   // Advertise the topics

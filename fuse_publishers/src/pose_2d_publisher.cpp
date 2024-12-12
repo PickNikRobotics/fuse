@@ -177,10 +177,7 @@ void Pose2DPublisher::onInit()
           // , interfaces_  // NOTE(methylDragon): This one is pending a change on tf2_ros/buffer.h
           //                   TODO(methylDragon): See above ^                            // NOLINT
       );
-      tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, interfaces_.get_node_base_interface(),
-                                                                  interfaces_.get_node_logging_interface(),
-                                                                  interfaces_.get_node_parameters_interface(),
-                                                                  interfaces_.get_node_topics_interface());
+      tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, &interfaces_);
     }
   }
 

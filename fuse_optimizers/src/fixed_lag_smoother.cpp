@@ -103,7 +103,7 @@ FixedLagSmoother::FixedLagSmoother(fuse_core::node_interfaces::NodeInterfaces<AL
       interfaces_.get_node_base_interface(), interfaces_.get_node_services_interface(),
       fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.reset_service),
       std::bind(&FixedLagSmoother::resetServiceCallback, this, std::placeholders::_1, std::placeholders::_2),
-      rclcpp::ServicesQoS(), interfaces_.get_node_base_interface()->get_default_callback_group());
+      rclcpp::ServicesQoS().get_rmw_qos_profile(), interfaces_.get_node_base_interface()->get_default_callback_group());
 }
 
 FixedLagSmoother::~FixedLagSmoother()

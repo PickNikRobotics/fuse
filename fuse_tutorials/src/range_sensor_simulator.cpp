@@ -124,8 +124,7 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
 /**
  * @brief Convert the set of beacons into a pointcloud for visualization purposes
  */
-sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(const std::vector<Beacon>& beacons,
-                                                             const rclcpp::Clock& clock)
+sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(const std::vector<Beacon>& beacons, rclcpp::Clock& clock)
 {
   auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
   msg->header.stamp = clock.now();
@@ -221,10 +220,10 @@ void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FU
   srv->pose.pose.covariance[28] = 1.0;
   srv->pose.pose.covariance[35] = 1.0;
 
-  auto client = rclcpp::create_client<fuse_msgs::srv::SetPose>(interfaces.get_node_base_interface(),
-                                                               interfaces.get_node_graph_interface(),
-                                                               interfaces.get_node_services_interface(),
-                                                               "/state_estimation/set_pose", rclcpp::ServicesQoS());
+  auto client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
+      interfaces.get_node_base_interface(), interfaces.get_node_graph_interface(),
+      interfaces.get_node_services_interface(), "/state_estimation/set_pose",
+      rclcpp::ServicesQoS().get_rmw_qos_profile(), interfaces.get_node_base_interface()->get_default_callback_group());
 
   while (!client->wait_for_service(std::chrono::seconds(30)) &&
          interfaces.get_node_base_interface()->get_context()->is_valid())

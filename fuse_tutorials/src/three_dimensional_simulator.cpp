@@ -253,7 +253,8 @@ void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FU
 
   auto const client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
       interfaces.get_node_base_interface(), interfaces.get_node_graph_interface(),
-      interfaces.get_node_services_interface(), "/state_estimation/set_pose_service", rclcpp::ServicesQoS());
+      interfaces.get_node_services_interface(), "/state_estimation/set_pose_service",
+      rclcpp::ServicesQoS().get_rmw_qos_profile(), interfaces.get_node_base_interface()->get_default_callback_group());
 
   while (!client->wait_for_service(std::chrono::seconds(30)) &&
          interfaces.get_node_base_interface()->get_context()->is_valid())

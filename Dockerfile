@@ -1,6 +1,6 @@
 # Docker setup that's used for CI.
 
-FROM osrf/ros:rolling-desktop-full
+FROM osrf/ros:humble-desktop-full
 
 # Install external packages.
 # hadolint ignore=DL3008
@@ -11,7 +11,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       clang-tidy \
       python3-vcstool \
       # use cyclonedds instead of fastdds
-      ros-rolling-rmw-cyclonedds-cpp
+      ros-humble-rmw-cyclonedds-cpp
 
 # Create the colcon ws. For now, copy the source files into the workspace
 # so that we don't have to deal with cloning this repo, which is private.
@@ -22,7 +22,7 @@ WORKDIR /colcon_ws
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get upgrade -y && \
-    . /opt/ros/rolling/setup.sh && \
+    . /opt/ros/humble/setup.sh && \
     rosdep install --from-paths src -y --ignore-src && \
     colcon build --mixin compile-commands coverage-gcc coverage-pytest
 

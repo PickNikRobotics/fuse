@@ -96,9 +96,11 @@ void Omnidirectional3DIgnition::onInit()
   // Connect to the reset service
   if (!params_.reset_service.empty())
   {
-    reset_client_ = rclcpp::create_client<std_srvs::srv::Empty>(
-        interfaces_.get_node_base_interface(), interfaces_.get_node_graph_interface(),
-        interfaces_.get_node_services_interface(), params_.reset_service, rclcpp::ServicesQoS(), cb_group_);
+    reset_client_ =
+        rclcpp::create_client<std_srvs::srv::Empty>(interfaces_.get_node_base_interface(),
+                                                    interfaces_.get_node_graph_interface(),
+                                                    interfaces_.get_node_services_interface(), params_.reset_service,
+                                                    rclcpp::ServicesQoS().get_rmw_qos_profile(), cb_group_);
   }
 
   // Advertise
@@ -113,13 +115,13 @@ void Omnidirectional3DIgnition::onInit()
       fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.set_pose_service),
       std::bind(&Omnidirectional3DIgnition::setPoseServiceCallback, this, std::placeholders::_1, std::placeholders::_2,
                 std::placeholders::_3),
-      rclcpp::ServicesQoS(), cb_group_);
+      rclcpp::ServicesQoS().get_rmw_qos_profile(), cb_group_);
   set_pose_deprecated_service_ = rclcpp::create_service<fuse_msgs::srv::SetPoseDeprecated>(
       interfaces_.get_node_base_interface(), interfaces_.get_node_services_interface(),
       fuse_core::joinTopicName(interfaces_.get_node_base_interface()->get_name(), params_.set_pose_deprecated_service),
       std::bind(&Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback, this, std::placeholders::_1,
                 std::placeholders::_2, std::placeholders::_3),
-      rclcpp::ServicesQoS(), cb_group_);
+      rclcpp::ServicesQoS().get_rmw_qos_profile(), cb_group_);
 }
 
 void Omnidirectional3DIgnition::start()

@@ -86,7 +86,7 @@
 
 #include <boost/range/join.hpp>
 
-static auto const sensorProcClock = rclcpp::Clock();
+static auto sensorProcClock = rclcpp::Clock();
 
 namespace tf2
 {
