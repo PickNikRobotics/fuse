@@ -493,7 +493,9 @@ inline void predict(const fuse_core::Vector3d& position1, const Eigen::Quaternio
           vel_linear2.y(), vel_linear2.z(), vel_angular2.x(), vel_angular2.y(), vel_angular2.z(), acc_linear2.x(),
           acc_linear2.y(), acc_linear2.z(), jacobians.data(), jacobian_quat2rpy);
 
-  jacobian << J[0], J[1], J[2], J[3], J[4];
+  // TODO(henrygerardmoore): figure out how to fix this
+  // see https://github.com/locusrobotics/fuse/pull/354#discussion_r1884288806
+  jacobian << J[0], J[1], J[2], J[3], J[4].block<15, 2>(0, 0);
 
   // Convert back to quaternion
   orientation2 = Eigen::AngleAxisd(rpy[2], Eigen::Vector3d::UnitZ()) *
