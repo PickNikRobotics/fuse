@@ -467,6 +467,8 @@ void Odometry3DPublisher::predict(tf2::Transform& pose, nav_msgs::msg::Odometry&
   {
     acceleration_linear << acceleration_output.accel.accel.linear.x, acceleration_output.accel.accel.linear.y,
         acceleration_output.accel.accel.linear.z;
+  } else {
+    acceleration_linear = fuse_core::Vector3d::Zero();
   }
 
   ::fuse_models::predict(position, orientation, velocity_linear, velocity_angular, acceleration_linear, dt, position,
