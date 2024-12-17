@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <tf2_ros/buffer.h>
+#include <tf2_ros/message_filter.h>
 #include <memory>
 
 #include <fuse_core/transaction.hpp>
@@ -85,8 +86,15 @@ void TransformSensor::onInit()
 
   if (params_.position_indices.empty() && params_.orientation_indices.empty())
   {
-    throw std::runtime_error("No dimensions specified, so this sensor would not do anything (data from topic " +
-                             params_.topic + " would be ignored).");
+    throw std::runtime_error("No dimensions specified, so this sensor would not do anything (tf data would be ignored).");
+  }
+
+  if (params_.transforms.empty()) {
+    throw std::runtime_error("No transforms specified, this sensor would not do anything (all tf data would be ignored).");
+  }
+
+  for (auto const& name : params_.transforms) {
+    transforms_of_interest_.insert(name);
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
@@ -98,7 +106,7 @@ void TransformSensor::onStart()
   rclcpp::SubscriptionOptions sub_options;
   sub_options.callback_group = cb_group_;
 
-  sub_ = rclcpp::create_subscription<MessageType>(interfaces_, params_.topic, params_.queue_size,
+  sub_ = rclcpp::create_subscription<MessageType>(interfaces_, "/tf", params_.queue_size,
                                                   std::bind(&AprilTagThrottledCallback::callback<const MessageType&>,
                                                             &throttled_callback_, std::placeholders::_1),
                                                   sub_options);
@@ -113,6 +121,11 @@ void TransformSensor::process(MessageType const& msg)
 {
   for (auto const& transform : msg.transforms)
   {
+    std::string const& tf_name = transform.header.frame_id;
+    if (transforms_of_interest_.find(tf_name) == transforms_of_interest_.end()) {
+      // we don't care about this transform, skip it
+      continue;
+    }
     // Create a transaction object
     auto transaction = fuse_core::Transaction::make_shared();
     transaction->stamp(transform.header.stamp);
