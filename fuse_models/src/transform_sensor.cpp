@@ -121,11 +121,13 @@ void TransformSensor::process(MessageType const& msg)
 {
   for (auto const& transform : msg.transforms)
   {
-    std::string const& tf_name = transform.header.frame_id;
+    std::string const& tf_name = transform.child_frame_id;
     if (transforms_of_interest_.find(tf_name) == transforms_of_interest_.end()) {
       // we don't care about this transform, skip it
+      RCLCPP_DEBUG(logger_, "Ignoring transform from %s to %s", transform.header.frame_id.c_str(), tf_name.c_str());
       continue;
     }
+    RCLCPP_DEBUG(logger_, "Got transform of interest from %s to %s", transform.header.frame_id.c_str(), tf_name.c_str());
     // Create a transaction object
     auto transaction = fuse_core::Transaction::make_shared();
     transaction->stamp(transform.header.stamp);
