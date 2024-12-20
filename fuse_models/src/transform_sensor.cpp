@@ -86,14 +86,18 @@ void TransformSensor::onInit()
 
   if (params_.position_indices.empty() && params_.orientation_indices.empty())
   {
-    throw std::runtime_error("No dimensions specified, so this sensor would not do anything (tf data would be ignored).");
+    throw std::runtime_error(
+        "No dimensions specified, so this sensor would not do anything (tf data would be ignored).");
   }
 
-  if (params_.transforms.empty()) {
-    throw std::runtime_error("No transforms specified, this sensor would not do anything (all tf data would be ignored).");
+  if (params_.transforms.empty())
+  {
+    throw std::runtime_error(
+        "No transforms specified, this sensor would not do anything (all tf data would be ignored).");
   }
 
-  for (auto const& name : params_.transforms) {
+  for (auto const& name : params_.transforms)
+  {
     transforms_of_interest_.insert(name);
   }
 
@@ -122,7 +126,8 @@ void TransformSensor::process(MessageType const& msg)
   for (auto const& transform : msg.transforms)
   {
     std::string const& tf_name = transform.child_frame_id;
-    if (transforms_of_interest_.find(tf_name) == transforms_of_interest_.end()) {
+    if (transforms_of_interest_.find(tf_name) == transforms_of_interest_.end())
+    {
       // we don't care about this transform, skip it
       RCLCPP_DEBUG(logger_, "Ignoring transform from %s to %s", transform.header.frame_id.c_str(), tf_name.c_str());
       continue;
