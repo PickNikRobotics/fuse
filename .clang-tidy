@@ -64,4 +64,3 @@ CheckOptions:
     value:           camelBack
   - key:             readability-identifier-naming.GlobalVariableCase
     value:           camelBack
-...

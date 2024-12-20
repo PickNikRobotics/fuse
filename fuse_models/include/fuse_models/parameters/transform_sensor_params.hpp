@@ -79,7 +79,7 @@ public:
     throttle_use_wall_time = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "throttle_use_wall_time"),
                                                  throttle_use_wall_time);
 
-    fuse_core::getParamRequired(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
+    transforms = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "transforms"), transforms);
 
     target_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "target_frame"), target_frame);
 
@@ -96,7 +96,7 @@ public:
   bool throttle_use_wall_time{ false };      //!< Whether to throttle using ros::WallTime or not
   std::vector<double> pose_covariance;       //!< The diagonal elements of the tag pose covariance
   int queue_size{ 10 };
-  std::string topic;
+  std::vector<std::string> transforms;
   std::string target_frame;
   std::vector<size_t> position_indices;
   std::vector<size_t> orientation_indices;
