@@ -55,11 +55,11 @@ constexpr char baselinkFrame[] = "base_link";      //!< The base_link frame id u
                                                    //!< publishing sensor data
 constexpr char mapFrame[] = "map";                 //!< The map frame id used when publishing ground truth
                                                    //!< data
-constexpr double aprilTagPositionSigma = 0.1;      //!< the april tag position std dev
-constexpr double aprilTagOrientationSigma = 0.25;  //!< the april tag orientation std dev
-constexpr size_t numAprilTags = 8;                 //!< the number of april tags
+constexpr double aprilTagPositionSigma = 0.0;      //!< the april tag position std dev
+constexpr double aprilTagOrientationSigma = 0.0;  //!< the april tag orientation std dev
+constexpr size_t numAprilTags = 1;                 //!< the number of april tags
 constexpr double detectionProbability =
-    0.5;  //!< the probability that any given april tag is detectable on a given tick of the simulation
+    1.0;  //!< the probability that any given april tag is detectable on a given tick of the simulation
 constexpr double futurePredictionTimeSeconds = 0.1;
 }  // namespace
 
@@ -260,8 +260,7 @@ int main(int argc, char** argv)
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("three_dimensional_simulator");
 
-  // create our sensor publishers
-  auto april_tf_publisher = node->create_publisher<tf2_msgs::msg::TFMessage>("april_tf", 1);
+  // create our sensor publisher
   auto tf_publisher = node->create_publisher<tf2_msgs::msg::TFMessage>("tf", 1);
 
   // create the ground truth publisher
@@ -344,7 +343,7 @@ int main(int argc, char** argv)
     rate.sleep();
 
     // publish simulated position after the static april tag poses since we need them to be in the tf buffer to run
-    april_tf_publisher->publish(simulateAprilTag(new_state));
+    tf_publisher->publish(simulateAprilTag(new_state));
   }
 
   rclcpp::shutdown();
