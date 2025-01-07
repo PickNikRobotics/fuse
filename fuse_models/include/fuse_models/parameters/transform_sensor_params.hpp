@@ -83,7 +83,8 @@ public:
 
     target_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "target_frame"), target_frame);
 
-    estimation_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "estimation_frame"), estimation_frame);
+    estimation_frame =
+        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "estimation_frame"), estimation_frame);
 
     pose_loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "pose_loss"));
     pose_covariance = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "pose_covariance"),

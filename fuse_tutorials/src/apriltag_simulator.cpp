@@ -51,13 +51,13 @@
 
 namespace
 {
-constexpr char baselinkFrame[] = "base_link";      //!< The base_link frame id used when
-                                                   //!< publishing sensor data
-constexpr char mapFrame[] = "map";                 //!< The map frame id used when publishing ground truth
-                                                   //!< data
-constexpr double aprilTagPositionSigma = 0.0;      //!< the april tag position std dev
+constexpr char baselinkFrame[] = "base_link";     //!< The base_link frame id used when
+                                                  //!< publishing sensor data
+constexpr char mapFrame[] = "map";                //!< The map frame id used when publishing ground truth
+                                                  //!< data
+constexpr double aprilTagPositionSigma = 0.0;     //!< the april tag position std dev
 constexpr double aprilTagOrientationSigma = 0.0;  //!< the april tag orientation std dev
-constexpr size_t numAprilTags = 1;                 //!< the number of april tags
+constexpr size_t numAprilTags = 1;                //!< the number of april tags
 constexpr double detectionProbability =
     1.0;  //!< the probability that any given april tag is detectable on a given tick of the simulation
 constexpr double futurePredictionTimeSeconds = 0.1;
