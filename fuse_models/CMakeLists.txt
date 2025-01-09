@@ -7,6 +7,27 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CXX_STANDARD_REQUIRED YES)
 endif()
 
+include(FetchContent)
+FetchContent_Declare(
+  mujoco
+  GIT_REPOSITORY https://github.com/google-deepmind/mujoco.git
+  GIT_TAG 3.1.6
+  CMAKE_ARGS
+  "-DMUJOCO_BUILD_TESTS=OFF -DMUJOCO_TEST_PYTHON_UTIL=OFF")
+set(MUJOCO_BUILD_EXAMPLES
+    OFF
+    CACHE BOOL "Build samples for MuJoCo")
+set(MUJOCO_BUILD_TESTS
+    OFF
+    CACHE BOOL "Build tests for MuJoCo")
+set(MUJOCO_BUILD_SIMULATE
+    OFF
+    CACHE BOOL "Build simulate library for MuJoCo")
+set(MUJOCO_TEST_PYTHON_UTIL
+    OFF
+    CACHE BOOL "Build and test utility libraries for Python bindings")
+FetchContent_MakeAvailable(mujoco)
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -31,7 +52,6 @@ find_package(tf2 REQUIRED)
 find_package(tf2_2d REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
-# find_package(mujoco REQUIRED)
 
 find_package(Ceres REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -47,7 +67,7 @@ add_library(
   src/graph_ignition.cpp
   src/imu_2d.cpp
   src/imu_3d.cpp
-  # src/mujoco_model.cpp
+  src/mujoco_model.cpp
   src/odometry_2d.cpp
   src/odometry_2d_publisher.cpp
   src/odometry_3d.cpp
@@ -77,7 +97,7 @@ target_link_libraries(
   fuse_publishers::fuse_publishers
   fuse_variables::fuse_variables
   ${geometry_msgs_TARGETS}
-  # mujoco::mujoco
+  mujoco::mujoco
   ${nav_msgs_TARGETS}
   pluginlib::pluginlib
   rclcpp_components::component
@@ -92,7 +112,6 @@ target_link_libraries(
 # ##############################################################################
 # Testing ##
 # ##############################################################################
-
 if(BUILD_TESTING)
   add_subdirectory(test)
   add_subdirectory(benchmark)
@@ -101,7 +120,6 @@ endif()
 # ##############################################################################
 # Install ##
 # ##############################################################################
-
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}-export
@@ -136,7 +154,6 @@ ament_export_dependencies(
   tf2_ros
   Ceres
   Eigen3
-  Boost)
-# mujoco)
-
+  Boost
+  mujoco)
 ament_package()

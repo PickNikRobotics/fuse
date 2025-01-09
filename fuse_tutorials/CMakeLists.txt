@@ -7,6 +7,27 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CXX_STANDARD_REQUIRED YES)
 endif()
 
+include(FetchContent)
+FetchContent_Declare(
+  mujoco
+  GIT_REPOSITORY https://github.com/google-deepmind/mujoco.git
+  GIT_TAG 3.1.6
+  CMAKE_ARGS
+  "-DMUJOCO_BUILD_TESTS=OFF -DMUJOCO_TEST_PYTHON_UTIL=OFF")
+set(MUJOCO_BUILD_EXAMPLES
+    OFF
+    CACHE BOOL "Build samples for MuJoCo")
+set(MUJOCO_BUILD_TESTS
+    OFF
+    CACHE BOOL "Build tests for MuJoCo")
+set(MUJOCO_BUILD_SIMULATE
+    OFF
+    CACHE BOOL "Build simulate library for MuJoCo")
+set(MUJOCO_TEST_PYTHON_UTIL
+    OFF
+    CACHE BOOL "Build and test utility libraries for Python bindings")
+FetchContent_MakeAvailable(mujoco)
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
