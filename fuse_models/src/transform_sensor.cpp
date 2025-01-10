@@ -196,10 +196,7 @@ void TransformSensor::process(MessageType const& msg)
       // use the inverted transform with the header frame id as the frame id of interest
       pose->header = transform.header;
       pose->header.frame_id = child_tf_name;
-      pose->pose.pose.orientation.w = tf_transform.getRotation().w();
-      pose->pose.pose.orientation.x = tf_transform.getRotation().x();
-      pose->pose.pose.orientation.y = tf_transform.getRotation().y();
-      pose->pose.pose.orientation.z = tf_transform.getRotation().z();
+      pose->pose.pose.orientation = tf2::toMsg(tf_transform.getRotation());
       pose->pose.pose.position.x = tf_transform.getOrigin().x();
       pose->pose.pose.position.y = tf_transform.getOrigin().y();
       pose->pose.pose.position.z = tf_transform.getOrigin().z();
