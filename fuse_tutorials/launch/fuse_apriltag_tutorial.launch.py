@@ -30,7 +30,7 @@ def generate_launch_description():
             Node(
                 package="tf2_ros",
                 executable="static_transform_publisher",
-                arguments=["0", "0", "0", "0", "0", "0", "map", "odom"],
+                arguments=["0", "0", "0", "0", "0", "0", "odom", "map"],
             ),
             # run our simulator
             Node(
@@ -49,6 +49,7 @@ def generate_launch_description():
                         [pkg_dir, "config", "fuse_apriltag_tutorial.yaml"]
                     )
                 ],
+                # prefix=['gdbserver localhost:3000'],
             ),
             # run visualization
             Node(

@@ -32,8 +32,9 @@ state_estimator:
       initial_sigma: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
     transform_sensor:
-      topic: 'april_tf'
+      transforms: ['april_1', 'april_2', 'april_3', 'april_4', 'april_5', 'april_6', 'april_7', 'april_8']
       target_frame: 'base_link'
+      estimation_frame: 'odom'
       position_dimensions: ['x', 'y', 'z']
       orientation_dimensions: ['roll', 'pitch', 'yaw']
       # these are the true covariance values used by the simulator; what happens if we change these?

@@ -32,11 +32,9 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <tf2/LinearMath/Quaternion.h>
-#include <chrono>
 #include <cmath>
 #include <fuse_core/eigen.hpp>
 #include <Eigen/Core>
-#include <memory>
 #include <random>
 
 #include <fuse_core/node_interfaces/node_interfaces.hpp>
@@ -48,8 +46,8 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <string>
-#include "geometry_msgs/msg/transform_stamped.hpp"
-#include "tf2_msgs/msg/tf_message.hpp"
+#include <geometry_msgs/msg/transform_stamped.hpp>
+#include <tf2_msgs/msg/tf_message.hpp>
 
 namespace
 {
@@ -90,7 +88,8 @@ struct Robot
   double ay = 0;
   double az = 0;
 };
-
+namespace
+{
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
@@ -253,56 +252,7 @@ tf2_msgs::msg::TFMessage simulateAprilTag(const Robot& robot)
   return msg;
 }
 
-void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                               const Robot& state, const rclcpp::Clock::SharedPtr& clock, const rclcpp::Logger& logger)
-{
-  // Send the initial localization signal to the state estimator
-  auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();
-  srv->pose.header.frame_id = mapFrame;
-  srv->pose.pose.pose.position.x = state.x;
-  srv->pose.pose.pose.position.y = state.y;
-  srv->pose.pose.pose.position.z = state.z;
-  tf2::Quaternion q;
-  q.setEuler(state.yaw, state.pitch, state.roll);
-  srv->pose.pose.pose.orientation.w = q.w();
-  srv->pose.pose.pose.orientation.x = q.x();
-  srv->pose.pose.pose.orientation.y = q.y();
-  srv->pose.pose.pose.orientation.z = q.z();
-  srv->pose.pose.covariance[0] = 1.0;
-  srv->pose.pose.covariance[7] = 1.0;
-  srv->pose.pose.covariance[14] = 1.0;
-  srv->pose.pose.covariance[21] = 1.0;
-  srv->pose.pose.covariance[28] = 1.0;
-  srv->pose.pose.covariance[35] = 1.0;
-
-  auto const client = rclcpp::create_client<fuse_msgs::srv::SetPose>(
-      interfaces.get_node_base_interface(), interfaces.get_node_graph_interface(),
-      interfaces.get_node_services_interface(), "/state_estimation/set_pose_service",
-      rclcpp::ServicesQoS().get_rmw_qos_profile(), interfaces.get_node_base_interface()->get_default_callback_group());
-
-  while (!client->wait_for_service(std::chrono::seconds(30)) &&
-         interfaces.get_node_base_interface()->get_context()->is_valid())
-  {
-    RCLCPP_WARN_STREAM(logger, "Waiting for '" << client->get_service_name() << "' service to become available.");
-  }
-
-  auto success = false;
-  while (!success)
-  {
-    clock->sleep_for(std::chrono::milliseconds(100));
-    srv->pose.header.stamp = clock->now();
-    auto result_future = client->async_send_request(srv);
-
-    if (rclcpp::spin_until_future_complete(interfaces.get_node_base_interface(), result_future,
-                                           std::chrono::seconds(1)) != rclcpp::FutureReturnCode::SUCCESS)
-    {
-      RCLCPP_ERROR(logger, "set pose service call failed");
-      client->remove_pending_request(result_future);
-      return;
-    }
-    success = result_future.get()->success;
-  }
-}
+}  // namespace
 
 int main(int argc, char** argv)
 {
@@ -310,8 +260,7 @@ int main(int argc, char** argv)
   rclcpp::init(argc, argv);
   auto node = rclcpp::Node::make_shared("three_dimensional_simulator");
 
-  // create our sensor publishers
-  auto april_tf_publisher = node->create_publisher<tf2_msgs::msg::TFMessage>("april_tf", 1);
+  // create our sensor publisher
   auto tf_publisher = node->create_publisher<tf2_msgs::msg::TFMessage>("tf", 1);
 
   // create the ground truth publisher
@@ -394,7 +343,7 @@ int main(int argc, char** argv)
     rate.sleep();
 
     // publish simulated position after the static april tag poses since we need them to be in the tf buffer to run
-    april_tf_publisher->publish(simulateAprilTag(new_state));
+    tf_publisher->publish(simulateAprilTag(new_state));
   }
 
   rclcpp::shutdown();
