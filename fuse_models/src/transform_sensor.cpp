@@ -177,8 +177,10 @@ void TransformSensor::process(MessageType const& msg)
     // we want a measurement from the april tag (transform of interest) to some reference frame
     // if we have the opposite, invert it and use that
     auto pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
+    std::string target_frame_name;
     if (parent_of_interest)
     {
+      target_frame_name = params_.target_frame + "_" + parent_tf_name;
       pose->header = transform.header;
       pose->header.frame_id = parent_tf_name;
       pose->pose.pose.orientation = transform.transform.rotation;
@@ -188,6 +190,7 @@ void TransformSensor::process(MessageType const& msg)
     }
     else
     {
+      target_frame_name = params_.target_frame + "_" + child_tf_name;
       // invert the transform
       tf2::Transform tf_transform;
       tf2::fromMsg(transform.transform, tf_transform);
@@ -209,7 +212,7 @@ void TransformSensor::process(MessageType const& msg)
     }
 
     const bool validate = !params_.disable_checks;
-    common::processAbsolutePose3DWithCovariance(name(), device_id_, *pose, params_.pose_loss, params_.target_frame,
+    common::processAbsolutePose3DWithCovariance(name(), device_id_, *pose, params_.pose_loss, target_frame_name,
                                                 params_.position_indices, params_.orientation_indices, *tf_buffer_,
                                                 validate, *transaction, params_.tf_timeout);
 
