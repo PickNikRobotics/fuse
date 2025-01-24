@@ -194,7 +194,8 @@ void TransformSensor::process(MessageType const& msg)
       // invert the transform
       tf2::Transform tf_transform;
       tf2::fromMsg(transform.transform, tf_transform);
-      tf_transform = tf_transform.inverse();
+      // TODO(henrygerardmoore): flip which one inverts
+      // tf_transform = tf_transform.inverse();
 
       // use the inverted transform with the header frame id as the frame id of interest
       pose->header = transform.header;
