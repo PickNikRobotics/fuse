@@ -211,6 +211,9 @@ void TransformSensor::process(MessageType const& msg)
       pose->pose.covariance[i * 7] = params_.pose_covariance[i];
     }
 
+    // 1 second in the past
+    pose->header.stamp.sec -= 1;
+
     const bool validate = !params_.disable_checks;
     common::processAbsolutePose3DWithCovariance(name(), device_id_, *pose, params_.pose_loss, target_frame_name,
                                                 params_.position_indices, params_.orientation_indices, *tf_buffer_,
