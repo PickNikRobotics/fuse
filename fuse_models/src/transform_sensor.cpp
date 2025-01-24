@@ -180,30 +180,27 @@ void TransformSensor::process(MessageType const& msg)
     std::string target_frame_name;
     if (parent_of_interest)
     {
+      tf2::Transform tf_transform;
+      tf2::fromMsg(transform.transform, tf_transform);
+      tf_transform = tf_transform.inverse();
+      // use the inverted transform with the header frame id as the frame id of interest
       target_frame_name = params_.target_frame + "_" + parent_tf_name;
       pose->header = transform.header;
       pose->header.frame_id = parent_tf_name;
-      pose->pose.pose.orientation = transform.transform.rotation;
-      pose->pose.pose.position.x = transform.transform.translation.x;
-      pose->pose.pose.position.y = transform.transform.translation.y;
-      pose->pose.pose.position.z = transform.transform.translation.z;
-    }
-    else
-    {
-      target_frame_name = params_.target_frame + "_" + child_tf_name;
-      // invert the transform
-      tf2::Transform tf_transform;
-      tf2::fromMsg(transform.transform, tf_transform);
-      // TODO(henrygerardmoore): flip which one inverts
-      // tf_transform = tf_transform.inverse();
-
-      // use the inverted transform with the header frame id as the frame id of interest
-      pose->header = transform.header;
-      pose->header.frame_id = child_tf_name;
       pose->pose.pose.orientation = tf2::toMsg(tf_transform.getRotation());
       pose->pose.pose.position.x = tf_transform.getOrigin().x();
       pose->pose.pose.position.y = tf_transform.getOrigin().y();
       pose->pose.pose.position.z = tf_transform.getOrigin().z();
+    }
+    else
+    {
+      target_frame_name = params_.target_frame + "_" + child_tf_name;
+      pose->header = transform.header;
+      pose->header.frame_id = child_tf_name;
+      pose->pose.pose.orientation = transform.transform.rotation;
+      pose->pose.pose.position.x = transform.transform.translation.x;
+      pose->pose.pose.position.y = transform.transform.translation.y;
+      pose->pose.pose.position.z = transform.transform.translation.z;
     }
 
     // TODO(henrygerardmoore): figure out better method to set the covariance
