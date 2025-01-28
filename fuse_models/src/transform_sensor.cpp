@@ -170,15 +170,19 @@ void TransformSensor::process(MessageType const& msg)
     {
       target_frame_name = params_.target_frame + "_" + child_tf_name;
       tf2::Transform april_to_target;
-      try{
-      tf2::fromMsg((*tf_buffer_)
-                       .lookupTransform(target_frame_name, child_tf_name,
-                                        rclcpp::Time(transform.header.stamp.sec - 1, transform.header.stamp.nanosec),
-                                        params_.tf_timeout)
-                       .transform,
-                   april_to_target);
-      } catch(...) {
-        // tf2 throws a bunch of different exceptions that don't inherit from one base, just skip (this will happen for at least 1 second on startup)
+      try
+      {
+        tf2::fromMsg((*tf_buffer_)
+                         .lookupTransform(target_frame_name, child_tf_name,
+                                          rclcpp::Time(transform.header.stamp.sec - 1, transform.header.stamp.nanosec),
+                                          params_.tf_timeout)
+                         .transform,
+                     april_to_target);
+      }
+      catch (...)
+      {
+        // tf2 throws a bunch of different exceptions that don't inherit from one base, just skip (this will happen for
+        // at least 1 second on startup)
         continue;
       }
       net_transform = net_transform * april_to_target.inverse();
