@@ -174,10 +174,11 @@ tf2_msgs::msg::TFMessage aprilTagPoses(Robot const& robot)
   for (std::size_t i = 0; i < numAprilTags; ++i)
   {
     geometry_msgs::msg::TransformStamped april_to_base;
-    april_to_base.child_frame_id = "base_link";
+    std::string name = "april_" + std::to_string(i + 1);
+    april_to_base.child_frame_id = "base_link_" + name;
 
     // april tag names start at 1
-    april_to_base.header.frame_id = "april_" + std::to_string(i + 1);
+    april_to_base.header.frame_id = name;
     april_to_base.header.stamp = robot.stamp;
 
     april_to_base.transform.rotation.w = 1;
@@ -215,9 +216,9 @@ tf2_msgs::msg::TFMessage simulateAprilTag(const Robot& robot)
   for (std::size_t i = 0; i < numAprilTags; ++i)
   {
     geometry_msgs::msg::TransformStamped april_to_world;
-    april_to_world.child_frame_id = "odom";
+    april_to_world.header.frame_id = "odom";
     // april tag names start at 1
-    april_to_world.header.frame_id = "april_" + std::to_string(i + 1);
+    april_to_world.child_frame_id = "april_" + std::to_string(i + 1);
     april_to_world.header.stamp = robot.stamp;
     tf2::Quaternion q;
     // robot orientation with noise
@@ -235,9 +236,9 @@ tf2_msgs::msg::TFMessage simulateAprilTag(const Robot& robot)
     bool const y_positive = ((i >> 1) & 1) == 0u;
     bool const z_positive = ((i >> 0) & 1) == 0u;
 
-    double const x_offset = x_positive ? 1. : -1.;
-    double const y_offset = y_positive ? 1. : -1.;
-    double const z_offset = z_positive ? 1. : -1.;
+    double const x_offset = x_positive ? -1. : 1.;
+    double const y_offset = y_positive ? -1. : 1.;
+    double const z_offset = z_positive ? -1. : 1.;
 
     // robot position with offset and noise
     april_to_world.transform.translation.x = robot.x + x_offset + position_noise(generator);
@@ -335,7 +336,10 @@ int main(int argc, char** argv)
     ground_truth_publisher->publish(robotToOdometry(new_state));
 
     // Generate and publish simulated measurements from the new robot state
-    tf_publisher->publish(aprilTagPoses(new_state));
+    if (now_d < 10.)
+    {
+      tf_publisher->publish(aprilTagPoses(new_state));
+    }
 
     // Wait for the next time step
     state = new_state;
