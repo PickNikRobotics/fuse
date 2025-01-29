@@ -2,6 +2,8 @@
 
 FROM osrf/ros:humble-desktop-full
 
+SHELL ["/bin/bash", "-c"]
+
 # Install external packages.
 # hadolint ignore=DL3008
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -24,7 +26,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && apt-get upgrade -y && \
     . /opt/ros/humble/setup.sh && \
     rosdep install --from-paths src -y --ignore-src && \
-    colcon build --mixin compile-commands coverage-gcc coverage-pytest
+    # tf2_2d testing build fails due to upstream tf2 changes, it seems
+    colcon build --mixin compile-commands coverage-gcc coverage-pytest build-testing-off --packages-select tf2_2d && \
+    source install/setup.bash && \
+    colcon build --mixin compile-commands coverage-gcc coverage-pytest --packages-ignore tf2_2d
 
 # Set up final environment and entrypoint.
 ENV RMW_IMPLEMENTATION rmw_cyclonedds_cpp

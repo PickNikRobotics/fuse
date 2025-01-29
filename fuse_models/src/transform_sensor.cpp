@@ -32,6 +32,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 #include <tf2/LinearMath/Transform.h>
+#include <tf2/exceptions.h>
 #include <tf2/impl/utils.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/message_filter.h>
@@ -47,6 +48,7 @@
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <stdexcept>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::TransformSensor, fuse_core::SensorModel)
@@ -133,13 +135,11 @@ void TransformSensor::process(MessageType const& msg)
   for (auto const& transform : msg.transforms)
   {
     std::string const& parent_tf_name = transform.header.frame_id;
-    bool const parent_of_interest = transforms_of_interest_.find(parent_tf_name) != transforms_of_interest_.end();
 
     std::string const& child_tf_name = transform.child_frame_id;
     bool const child_of_interest = transforms_of_interest_.find(child_tf_name) != transforms_of_interest_.end();
 
-    // we should skip if child_of_interest xnor parent_of_interest (we want one or the other)
-    if ((child_of_interest && parent_of_interest) || (!child_of_interest && !parent_of_interest))
+    if (!child_of_interest)
     {
       // we don't care about this transform, skip it
       RCLCPP_DEBUG(logger_, "Ignoring transform from %s to %s", transform.header.frame_id.c_str(),
@@ -157,59 +157,63 @@ void TransformSensor::process(MessageType const& msg)
         continue;
       }
     }
-    else
-    {
-      if (child_tf_name != params_.estimation_frame)
-      {
-        // we don't care about this transform , skip it
-        RCLCPP_DEBUG(logger_, "Ignoring transform from %s to %s", transform.header.frame_id.c_str(),
-                     child_tf_name.c_str());
-        continue;
-      }
-    }
     RCLCPP_DEBUG(logger_, "Got transform of interest from %s to %s", transform.header.frame_id.c_str(),
                  child_tf_name.c_str());
     // Create a transaction object
     auto transaction = fuse_core::Transaction::make_shared();
     transaction->stamp(transform.header.stamp);
 
-    // Create the pose from the transform
-    // we want a measurement from the april tag (transform of interest) to some reference frame
-    // if we have the opposite, invert it and use that
-    auto pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();
-    if (parent_of_interest)
+    tf2::Transform net_transform;
+    tf2::fromMsg(transform.transform, net_transform);
+    std::string target_frame_name;
+    if (!params_.target_frame.empty())
     {
-      pose->header = transform.header;
-      pose->header.frame_id = parent_tf_name;
-      pose->pose.pose.orientation = transform.transform.rotation;
-      pose->pose.pose.position.x = transform.transform.translation.x;
-      pose->pose.pose.position.y = transform.transform.translation.y;
-      pose->pose.pose.position.z = transform.transform.translation.z;
+      target_frame_name = params_.target_frame + "_" + child_tf_name;
+      tf2::Transform april_to_target;
+      try
+      {
+        tf2::fromMsg((*tf_buffer_)
+                         .lookupTransform(target_frame_name, child_tf_name,
+                                          rclcpp::Time(transform.header.stamp.sec - 1, transform.header.stamp.nanosec),
+                                          params_.tf_timeout)
+                         .transform,
+                     april_to_target);
+      }
+      catch (...)
+      {
+        // tf2 throws a bunch of different exceptions that don't inherit from one base, just skip (this will happen for
+        // at least 1 second on startup)
+        continue;
+      }
+      net_transform = net_transform * april_to_target.inverse();
     }
     else
     {
-      // invert the transform
-      tf2::Transform tf_transform;
-      tf2::fromMsg(transform.transform, tf_transform);
-      tf_transform = tf_transform.inverse();
-
-      // use the inverted transform with the header frame id as the frame id of interest
-      pose->header = transform.header;
-      pose->header.frame_id = child_tf_name;
-      pose->pose.pose.orientation = tf2::toMsg(tf_transform.getRotation());
-      pose->pose.pose.position.x = tf_transform.getOrigin().x();
-      pose->pose.pose.position.y = tf_transform.getOrigin().y();
-      pose->pose.pose.position.z = tf_transform.getOrigin().z();
+      target_frame_name = "";
     }
+
+    // Create the pose from the transform
+    // we want a measurement from the april tag (transform of interest) to some reference frame
+    // if we have the opposite, invert it and use that
+    geometry_msgs::msg::PoseWithCovarianceStamped pose;
+    pose.header = transform.header;
+    pose.header.frame_id = parent_tf_name;
+    pose.pose.pose.orientation.w = net_transform.getRotation().w();
+    pose.pose.pose.orientation.x = net_transform.getRotation().x();
+    pose.pose.pose.orientation.y = net_transform.getRotation().y();
+    pose.pose.pose.orientation.z = net_transform.getRotation().z();
+    pose.pose.pose.position.x = net_transform.getOrigin().x();
+    pose.pose.pose.position.y = net_transform.getOrigin().y();
+    pose.pose.pose.position.z = net_transform.getOrigin().z();
 
     // TODO(henrygerardmoore): figure out better method to set the covariance
     for (std::size_t i = 0; i < params_.pose_covariance.size(); ++i)
     {
-      pose->pose.covariance[i * 7] = params_.pose_covariance[i];
+      pose.pose.covariance[i * 7] = params_.pose_covariance[i];
     }
 
     const bool validate = !params_.disable_checks;
-    common::processAbsolutePose3DWithCovariance(name(), device_id_, *pose, params_.pose_loss, params_.target_frame,
+    common::processAbsolutePose3DWithCovariance(name(), device_id_, pose, params_.pose_loss, "",
                                                 params_.position_indices, params_.orientation_indices, *tf_buffer_,
                                                 validate, *transaction, params_.tf_timeout);
 
