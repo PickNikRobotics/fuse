@@ -27,9 +27,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     . /opt/ros/humble/setup.sh && \
     rosdep install --from-paths src -y --ignore-src && \
     # tf2_2d testing build fails due to upstream tf2 changes, it seems
-    colcon build --mixin compile-commands coverage-gcc coverage-pytest build-testing-off --packages-select tf2_2d && \
-    source install/setup.bash && \
-    colcon build --mixin compile-commands coverage-gcc coverage-pytest --packages-ignore tf2_2d
+    colcon build --mixin compile-commands coverage-gcc coverage-pytest
 
 # Set up final environment and entrypoint.
 ENV RMW_IMPLEMENTATION rmw_cyclonedds_cpp
