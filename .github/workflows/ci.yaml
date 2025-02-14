@@ -93,7 +93,8 @@ jobs:
             **.cpp
             **.hpp
       - if: ${{ steps.changed-cpp-files.outputs.all_changed_files != '' }}
-        run: run-clang-tidy -j $(nproc --all) -p build/ -export-fixes clang-tidy-fixes.yaml -config "$(cat src/fuse/.clang-tidy)" ${{ steps.changed-cpp-files.outputs.all_changed_files }}
+        # https://stackoverflow.com/questions/48404289/using-clang-tidy-to-check-c17-code
+        run: run-clang-tidy -j $(nproc --all) -p build/ -export-fixes clang-tidy-fixes.yaml -config "$(cat src/fuse/.clang-tidy)" -extra-arg=-std=c++17 ${{ steps.changed-cpp-files.outputs.all_changed_files }}
         working-directory: /colcon_ws
       - uses: asarium/clang-tidy-action@v1.0
         with:

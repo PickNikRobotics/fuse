@@ -268,8 +268,8 @@ void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceSta
     // It needs to be free to handle the response to this service call.
     // Have a callback do the rest of the work when a response comes.
     auto result_future = reset_client_->async_send_request(
-        srv, [this, post_process, pose](rclcpp::Client<std_srvs::srv::Empty>::SharedFuture result) {
-          (void)result;
+        // NOLINTNEXTLINE(performance-unnecessary-value-param)
+        srv, [this, post_process, pose](rclcpp::Client<std_srvs::srv::Empty>::SharedFuture /*result*/) {
           // Now that the pose has been validated and the optimizer has been reset, actually send the
           // initial state constraints to the optimizer
           sendPrior(pose);
