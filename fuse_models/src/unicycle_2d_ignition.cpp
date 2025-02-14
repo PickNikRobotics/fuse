@@ -161,9 +161,9 @@ void Unicycle2DIgnition::subscriberCallback(const geometry_msgs::msg::PoseWithCo
   }
 }
 
-bool Unicycle2DIgnition::setPoseServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
-                                                std::shared_ptr<rmw_request_id_t> request_id,
-                                                const fuse_msgs::srv::SetPose::Request::SharedPtr req)
+bool Unicycle2DIgnition::setPoseServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr const& service,
+                                                std::shared_ptr<rmw_request_id_t> const& request_id,
+                                                fuse_msgs::srv::SetPose::Request::SharedPtr const& req)
 {
   try
   {
@@ -185,8 +185,9 @@ bool Unicycle2DIgnition::setPoseServiceCallback(rclcpp::Service<fuse_msgs::srv::
 }
 
 bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
-    rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service, std::shared_ptr<rmw_request_id_t> request_id,
-    const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req)
+    rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr const& service,
+    std::shared_ptr<rmw_request_id_t> const& request_id,
+    fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr const& req)
 {
   try
   {
@@ -205,7 +206,7 @@ bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
 }
 
 void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
-                                 std::function<void()> post_process)
+                                 std::function<void()> const& post_process)
 {
   // Verify we are in the correct state to process set pose requests
   if (!started_)
@@ -219,10 +220,10 @@ void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceSta
                                 std::to_string(pose.pose.pose.position.x) + ", " +
                                 std::to_string(pose.pose.pose.position.y) + ").");
   }
-  auto orientation_norm = std::sqrt(pose.pose.pose.orientation.x * pose.pose.pose.orientation.x +
-                                    pose.pose.pose.orientation.y * pose.pose.pose.orientation.y +
-                                    pose.pose.pose.orientation.z * pose.pose.pose.orientation.z +
-                                    pose.pose.pose.orientation.w * pose.pose.pose.orientation.w);
+  auto orientation_norm = std::sqrt((pose.pose.pose.orientation.x * pose.pose.pose.orientation.x) +
+                                    (pose.pose.pose.orientation.y * pose.pose.pose.orientation.y) +
+                                    (pose.pose.pose.orientation.z * pose.pose.pose.orientation.z) +
+                                    (pose.pose.pose.orientation.w * pose.pose.pose.orientation.w));
   if (std::abs(orientation_norm - 1.0) > 1.0e-3)
   {
     throw std::invalid_argument(
