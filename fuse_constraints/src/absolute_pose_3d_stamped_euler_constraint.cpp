@@ -45,9 +45,9 @@ namespace fuse_constraints
 {
 
 AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
-    const std::string& source, const fuse_variables::Position3DStamped& position,
-    const fuse_variables::Orientation3DStamped& orientation, const fuse_core::Vector6d& mean,
-    const fuse_core::Matrix6d& covariance)
+    std::string const& source, fuse_variables::Position3DStamped const& position,
+    fuse_variables::Orientation3DStamped const& orientation, fuse_core::Vector6d const& mean,
+    fuse_core::Matrix6d const& covariance)
   : fuse_core::Constraint(source, { position.uuid(), orientation.uuid() })
   ,  // NOLINT
   mean_(mean)
@@ -56,9 +56,9 @@ AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
 }
 
 AbsolutePose3DStampedEulerConstraint::AbsolutePose3DStampedEulerConstraint(
-    const std::string& source, const fuse_variables::Position3DStamped& position,
-    const fuse_variables::Orientation3DStamped& orientation, const fuse_core::Vector6d& partial_mean,
-    const fuse_core::MatrixXd& partial_covariance, const std::vector<size_t>& variable_indices)
+    std::string const& source, fuse_variables::Position3DStamped const& position,
+    fuse_variables::Orientation3DStamped const& orientation, fuse_core::Vector6d const& partial_mean,
+    fuse_core::MatrixXd const& partial_covariance, std::vector<size_t> const& variable_indices)
   : fuse_core::Constraint(source, { position.uuid(), orientation.uuid() })
   ,  // NOLINT
   mean_(partial_mean)

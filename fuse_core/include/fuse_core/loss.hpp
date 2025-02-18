@@ -199,7 +199,7 @@ public:
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& name) = 0;
+      std::string const& name) = 0;
 
   /**
    * @brief Returns a unique name for this loss function type.
@@ -301,7 +301,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& /* archive */, const unsigned int /* version */)
+  void serialize(Archive& /* archive */, unsigned int const /* version */)
   {
   }
 };
@@ -309,7 +309,7 @@ private:
 /**
  * Stream operator implementation used for all derived Loss classes.
  */
-std::ostream& operator<<(std::ostream& stream, const Loss& loss);
+std::ostream& operator<<(std::ostream& stream, Loss const& loss);
 
 }  // namespace fuse_core
 

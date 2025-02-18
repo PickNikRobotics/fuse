@@ -44,11 +44,11 @@
 namespace fuse_constraints
 {
 
-AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(const std::string& source,
-                                                                 const fuse_variables::Position3DStamped& position,
-                                                                 const fuse_variables::Orientation3DStamped& orientation,
-                                                                 const fuse_core::Vector7d& mean,
-                                                                 const fuse_core::Matrix6d& covariance)
+AbsolutePose3DStampedConstraint::AbsolutePose3DStampedConstraint(std::string const& source,
+                                                                 fuse_variables::Position3DStamped const& position,
+                                                                 fuse_variables::Orientation3DStamped const& orientation,
+                                                                 fuse_core::Vector7d const& mean,
+                                                                 fuse_core::Matrix6d const& covariance)
   : fuse_core::Constraint(source, { position.uuid(), orientation.uuid() })
   ,  // NOLINT
   mean_(mean)

@@ -52,7 +52,7 @@ public:
    *
    * @param[in] frequency The publishing frequency in Hz
    */
-  explicit PointPublisher(const double frequency) : Node("point_publisher_node"), frequency_(frequency)
+  explicit PointPublisher(double const frequency) : Node("point_publisher_node"), frequency_(frequency)
   {
     publisher_ = this->create_publisher<geometry_msgs::msg::Point>("point", 1);
   }
@@ -115,14 +115,14 @@ public:
    *
    * @param[in] throttle_period The throttle period duration in seconds
    */
-  explicit PointSensorModel(const rclcpp::Duration& throttle_period)
+  explicit PointSensorModel(rclcpp::Duration const& throttle_period)
     : Node("point_sensor_model_node")
     , throttled_callback_(std::bind(&PointSensorModel::keepCallback, this, std::placeholders::_1),
                           std::bind(&PointSensorModel::dropCallback, this, std::placeholders::_1), throttle_period)
   {
     subscription_ = this->create_subscription<geometry_msgs::msg::Point>(
         "point", 10,
-        std::bind(&PointThrottledCallback::callback<const geometry_msgs::msg::Point&>, &throttled_callback_,
+        std::bind(&PointThrottledCallback::callback<geometry_msgs::msg::Point const&>, &throttled_callback_,
                   std::placeholders::_1));
   }
 
@@ -173,7 +173,7 @@ private:
    *
    * @param[in] msg A geometry_msgs::msg::Point message
    */
-  void keepCallback(const geometry_msgs::msg::Point& msg)
+  void keepCallback(geometry_msgs::msg::Point const& msg)
   {
     ++kept_messages_;
     last_kept_message_ = std::make_shared<geometry_msgs::msg::Point>(msg);
@@ -185,7 +185,7 @@ private:
    * @param[in] msg A geometry_msgs::msg::Point message (not used)
    */
   // NOTE(CH3): The msg arg here is necessary to allow binding the throttled callback
-  void dropCallback(const geometry_msgs::msg::Point& /*msg*/)
+  void dropCallback(geometry_msgs::msg::Point const& /*msg*/)
   {
     ++dropped_messages_;
   }
@@ -239,7 +239,7 @@ TEST_F(TestThrottledCallback, NoDroppedMessagesIfThrottlePeriodIsZero)
 
   // Publish some messages:
   const size_t num_messages = 10;
-  const double frequency = 10.0;
+  double const frequency = 10.0;
 
   auto publisher = std::make_shared<PointPublisher>(frequency);
   executor_->add_node(publisher);
@@ -263,17 +263,17 @@ TEST_F(TestThrottledCallback, DropMessagesIfThrottlePeriodIsGreaterThanPublishPe
 
   // Publish some messages at half the throttled period:
   const size_t num_messages = 10;
-  const double period_factor = 0.25;
-  const double period = period_factor * throttled_period.seconds();
-  const double frequency = 1.0 / period;
+  double const period_factor = 0.25;
+  double const period = period_factor * throttled_period.seconds();
+  double const frequency = 1.0 / period;
 
   auto publisher = std::make_shared<PointPublisher>(frequency);
   executor_->add_node(publisher);
   publisher->publish(num_messages);
 
   // Check the number of kept and dropped callbacks:
-  const auto expected_kept_messages = period_factor * num_messages;
-  const auto expected_dropped_messages = num_messages - expected_kept_messages;
+  auto const expected_kept_messages = period_factor * num_messages;
+  auto const expected_dropped_messages = num_messages - expected_kept_messages;
 
   EXPECT_NEAR(expected_kept_messages, sensor_model->getKeptMessages(), 1.0);
   EXPECT_NEAR(expected_dropped_messages, sensor_model->getDroppedMessages(), 1.0);
@@ -293,8 +293,8 @@ TEST_F(TestThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLar
 
   // Publish some messages:
   const size_t num_messages = 10;
-  const double period = 0.1 * num_messages / throttled_period.seconds();
-  const double frequency = 1.0 / period;
+  double const period = 0.1 * num_messages / throttled_period.seconds();
+  double const frequency = 1.0 / period;
 
   auto publisher = std::make_shared<PointPublisher>(frequency);
   publisher->publish(num_messages);
@@ -305,7 +305,7 @@ TEST_F(TestThrottledCallback, AlwaysKeepFirstMessageEvenIfThrottlePeriodIsTooLar
   EXPECT_EQ(num_messages - 1u, sensor_model->getDroppedMessages());
 
   // Check the message kept was the first message:
-  const auto last_kept_message = sensor_model->getLastKeptMessage();
+  auto const last_kept_message = sensor_model->getLastKeptMessage();
   ASSERT_NE(nullptr, last_kept_message);
   EXPECT_EQ(0.0, last_kept_message->x);
 }

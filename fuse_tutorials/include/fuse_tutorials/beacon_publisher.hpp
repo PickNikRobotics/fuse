@@ -131,7 +131,7 @@ public:
    * base AsyncPublisher class.
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name) override;
+                  std::string const& name) override;
 
   /**
    * @brief Perform any required initialization for the publisher

@@ -66,7 +66,7 @@ public:
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& ns)
+      std::string const& ns)
   {
     publish_on_startup =
         fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_on_startup"), publish_on_startup);
@@ -88,7 +88,7 @@ public:
                                     "is actually length " +
                                     std::to_string(sigma_vector.size()));
       }
-      auto is_sigma_valid = [](const double sigma) { return std::isfinite(sigma) && (sigma > 0); };
+      auto is_sigma_valid = [](double const sigma) { return std::isfinite(sigma) && (sigma > 0); };
       if (!std::all_of(sigma_vector.begin(), sigma_vector.end(), is_sigma_valid))
       {
         throw std::invalid_argument("The supplied initial_sigma parameter must contain valid floating point values. "
@@ -106,7 +106,7 @@ public:
         throw std::invalid_argument("The supplied initial_state parameter must be length 8, but is actually length " +
                                     std::to_string(state_vector.size()));
       }
-      auto is_state_valid = [](const double state) { return std::isfinite(state); };
+      auto is_state_valid = [](double const state) { return std::isfinite(state); };
       if (!std::all_of(state_vector.begin(), state_vector.end(), is_state_valid))
       {
         throw std::invalid_argument("The supplied initial_state parameter must contain valid floating point values. "

@@ -44,10 +44,10 @@ namespace fuse_constraints
 {
 
 RelativePose3DStampedConstraint::RelativePose3DStampedConstraint(
-    const std::string& source, const fuse_variables::Position3DStamped& position1,
-    const fuse_variables::Orientation3DStamped& orientation1, const fuse_variables::Position3DStamped& position2,
-    const fuse_variables::Orientation3DStamped& orientation2, const fuse_core::Vector7d& delta,
-    const fuse_core::Matrix6d& covariance)
+    std::string const& source, fuse_variables::Position3DStamped const& position1,
+    fuse_variables::Orientation3DStamped const& orientation1, fuse_variables::Position3DStamped const& position2,
+    fuse_variables::Orientation3DStamped const& orientation2, fuse_core::Vector7d const& delta,
+    fuse_core::Matrix6d const& covariance)
   : fuse_core::Constraint(source, { position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid() })
   ,  // NOLINT
   delta_(delta)

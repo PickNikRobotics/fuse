@@ -118,14 +118,14 @@ void SerializedGraphDisplay::onDisable()
   root_node_->setVisible(false);
 }
 
-void SerializedGraphDisplay::load(const rviz_common::Config& config)
+void SerializedGraphDisplay::load(rviz_common::Config const& config)
 {
   MFDClass::load(config);
 
   // Cache constraint config for each source in order to apply it when the
   // RelativePose2DStampedConstraintProperty is created the first time a constraint of each source
   // is present in the graph:
-  const auto constraints_config = config.mapGetChild("Constraints");
+  auto const constraints_config = config.mapGetChild("Constraints");
 
   for (rviz_common::Config::MapIterator iter = constraints_config.mapIterator(); iter.isValid(); iter.advance())
   {
@@ -140,7 +140,7 @@ void SerializedGraphDisplay::updateShowVariables()
 
 void SerializedGraphDisplay::updateShowConstraints()
 {
-  const auto visible = show_constraints_property_->getBool();
+  auto const visible = show_constraints_property_->getBool();
 
   for (auto& entry : constraint_source_properties_)
   {
@@ -188,39 +188,39 @@ void SerializedGraphDisplay::processMessage(fuse_msgs::msg::SerializedGraph::Con
     entry.second = false;
   }
 
-  const auto graph = graph_deserializer_.deserialize(msg);
+  auto const graph = graph_deserializer_.deserialize(msg);
 
-  for (const auto& variable : graph->getVariables())
+  for (auto const& variable : graph->getVariables())
   {
-    const auto orientation = dynamic_cast<const fuse_variables::Orientation2DStamped*>(&variable);
+    auto const orientation = dynamic_cast<fuse_variables::Orientation2DStamped const*>(&variable);
     if (!orientation)
     {
       continue;
     }
 
-    const auto position_uuid = fuse_variables::Position2DStamped(orientation->stamp(), orientation->deviceId()).uuid();
+    auto const position_uuid = fuse_variables::Position2DStamped(orientation->stamp(), orientation->deviceId()).uuid();
     if (!graph->variableExists(position_uuid))
     {
       continue;
     }
 
-    const auto position = dynamic_cast<const fuse_variables::Position2DStamped*>(&graph->getVariable(position_uuid));
+    auto const position = dynamic_cast<fuse_variables::Position2DStamped const*>(&graph->getVariable(position_uuid));
 
     variable_property_->createAndInsertOrUpdateVisual(scene_manager_, root_node_, *position, *orientation);
 
     variables_changed_map_[position_uuid] = true;
   }
 
-  for (const auto& constraint : graph->getConstraints())
+  for (auto const& constraint : graph->getConstraints())
   {
-    const auto relative_pose = dynamic_cast<const fuse_constraints::RelativePose2DStampedConstraint*>(&constraint);
+    auto const relative_pose = dynamic_cast<fuse_constraints::RelativePose2DStampedConstraint const*>(&constraint);
     if (!relative_pose)
     {
       continue;
     }
 
-    const auto constraint_uuid = constraint.uuid();
-    const auto& constraint_source = constraint.source();
+    auto const constraint_uuid = constraint.uuid();
+    auto const& constraint_source = constraint.source();
 
     if (source_color_map_.find(constraint_source) == source_color_map_.end())
     {
@@ -229,23 +229,23 @@ void SerializedGraphDisplay::processMessage(fuse_msgs::msg::SerializedGraph::Con
       // the spectrum. This is achieved by traversing a virtual complete binary tree in breadth-
       // first order. Each node represents a sampling position in the hue interval (0, 1) based on
       // the current level and the number of nodes in that level (m)
-      const auto n = source_color_map_.size() + 1;
+      auto const n = source_color_map_.size() + 1;
       const size_t level = std::floor(std::log2(n));
-      const auto m = n + 1 - std::pow(2, level);
-      const auto hue = (2 * (m - 1) + 1) / std::pow(2, level + 1);
+      auto const m = n + 1 - std::pow(2, level);
+      auto const hue = (2 * (m - 1) + 1) / std::pow(2, level + 1);
 
       auto& source_color = source_color_map_[constraint_source];
       source_color.setHSB(hue, 1.0, 1.0);
 
       // Insert constraint sorted alphabetically:
-      const auto description = constraint_source + ' ' + constraint.type() + " constraint.";
+      auto const description = constraint_source + ' ' + constraint.type() + " constraint.";
 
-      const auto constraint_source_property =
+      auto const constraint_source_property =
           new RelativePose2DStampedConstraintProperty(QString::fromStdString(constraint_source), true,
                                                       QString::fromStdString(description), nullptr, SLOT(queueRender()),
                                                       this);
 
-      const auto result = constraint_source_properties_.insert(
+      auto const result = constraint_source_properties_.insert(
           { constraint_source, constraint_source_property });  // NOLINT(whitespace/braces)
 
       if (!result.second)
@@ -281,7 +281,7 @@ void SerializedGraphDisplay::processMessage(fuse_msgs::msg::SerializedGraph::Con
     constraints_changed_map_[constraint_uuid] = true;
   }
 
-  for (const auto& entry : variables_changed_map_)
+  for (auto const& entry : variables_changed_map_)
   {
     if (!entry.second)
     {
@@ -301,7 +301,7 @@ void SerializedGraphDisplay::processMessage(fuse_msgs::msg::SerializedGraph::Con
     }
   }
 
-  for (const auto& entry : constraints_changed_map_)
+  for (auto const& entry : constraints_changed_map_)
   {
     if (!entry.second)
     {

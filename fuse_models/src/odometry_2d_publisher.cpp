@@ -70,7 +70,7 @@ Odometry2DPublisher::Odometry2DPublisher()
 }
 
 void Odometry2DPublisher::initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, const std::string& name)
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, std::string const& name)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncPublisher::initialize(interfaces, name);
@@ -113,7 +113,7 @@ void Odometry2DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr 
                                          fuse_core::Graph::ConstSharedPtr graph)
 {
   // Find the most recent common timestamp
-  const auto latest_stamp = synchronizer_.findLatestCommonStamp(*transaction, *graph);
+  auto const latest_stamp = synchronizer_.findLatestCommonStamp(*transaction, *graph);
   if (0u == latest_stamp.nanoseconds())
   {
     {
@@ -203,7 +203,7 @@ void Odometry2DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr 
 
         latest_covariance_valid = true;
       }
-      catch (const std::exception& e)
+      catch (std::exception const& e)
       {
         RCLCPP_WARN_STREAM(logger_, "An error occurred computing the covariance information for "
                                         << latest_stamp.nanoseconds() << ". The covariance will be set to zero.\n"
@@ -260,8 +260,8 @@ void Odometry2DPublisher::onStop()
   publish_timer_->cancel();
 }
 
-bool Odometry2DPublisher::getState(const fuse_core::Graph& graph, const rclcpp::Time& stamp,
-                                   const fuse_core::UUID& device_id, fuse_core::UUID& position_uuid,
+bool Odometry2DPublisher::getState(fuse_core::Graph const& graph, rclcpp::Time const& stamp,
+                                   fuse_core::UUID const& device_id, fuse_core::UUID& position_uuid,
                                    fuse_core::UUID& orientation_uuid, fuse_core::UUID& velocity_linear_uuid,
                                    fuse_core::UUID& velocity_angular_uuid, fuse_core::UUID& acceleration_linear_uuid,
                                    nav_msgs::msg::Odometry& odometry,
@@ -270,23 +270,23 @@ bool Odometry2DPublisher::getState(const fuse_core::Graph& graph, const rclcpp::
   try
   {
     position_uuid = fuse_variables::Position2DStamped(stamp, device_id).uuid();
-    auto position_variable = dynamic_cast<const fuse_variables::Position2DStamped&>(graph.getVariable(position_uuid));
+    auto position_variable = dynamic_cast<fuse_variables::Position2DStamped const&>(graph.getVariable(position_uuid));
 
     orientation_uuid = fuse_variables::Orientation2DStamped(stamp, device_id).uuid();
     auto orientation_variable =
-        dynamic_cast<const fuse_variables::Orientation2DStamped&>(graph.getVariable(orientation_uuid));
+        dynamic_cast<fuse_variables::Orientation2DStamped const&>(graph.getVariable(orientation_uuid));
 
     velocity_linear_uuid = fuse_variables::VelocityLinear2DStamped(stamp, device_id).uuid();
     auto velocity_linear_variable =
-        dynamic_cast<const fuse_variables::VelocityLinear2DStamped&>(graph.getVariable(velocity_linear_uuid));
+        dynamic_cast<fuse_variables::VelocityLinear2DStamped const&>(graph.getVariable(velocity_linear_uuid));
 
     velocity_angular_uuid = fuse_variables::VelocityAngular2DStamped(stamp, device_id).uuid();
     auto velocity_angular_variable =
-        dynamic_cast<const fuse_variables::VelocityAngular2DStamped&>(graph.getVariable(velocity_angular_uuid));
+        dynamic_cast<fuse_variables::VelocityAngular2DStamped const&>(graph.getVariable(velocity_angular_uuid));
 
     acceleration_linear_uuid = fuse_variables::AccelerationLinear2DStamped(stamp, device_id).uuid();
     auto acceleration_linear_variable =
-        dynamic_cast<const fuse_variables::AccelerationLinear2DStamped&>(graph.getVariable(acceleration_linear_uuid));
+        dynamic_cast<fuse_variables::AccelerationLinear2DStamped const&>(graph.getVariable(acceleration_linear_uuid));
 
     odometry.pose.pose.position.x = position_variable.x();
     odometry.pose.pose.position.y = position_variable.y();
@@ -306,7 +306,7 @@ bool Odometry2DPublisher::getState(const fuse_core::Graph& graph, const rclcpp::
     acceleration.accel.accel.angular.y = 0.0;
     acceleration.accel.accel.angular.z = 0.0;
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                 "Failed to find a state at time " << stamp.nanoseconds() << ". Error: " << e.what());
@@ -356,7 +356,7 @@ void Odometry2DPublisher::publishTimerCallback()
     tf2_2d::Vector2 velocity_linear;
     tf2::fromMsg(odom_output.twist.twist.linear, velocity_linear);
 
-    const double dt = timer_now.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
+    double const dt = timer_now.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
 
     fuse_core::Matrix8d jacobian;
 
@@ -499,7 +499,7 @@ void Odometry2DPublisher::publishTimerCallback()
         map_to_odom.child_frame_id = params_.odom_frame_id;
         trans = map_to_odom;
       }
-      catch (const std::exception& e)
+      catch (std::exception const& e)
       {
         RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
                                     "Could not lookup the " << params_.base_link_frame_id << "->"

@@ -58,7 +58,7 @@ TEST(ComposedLoss, Constructor)
     ASSERT_NO_THROW(composed_loss_function.reset(composed_loss.lossFunction()));
     ASSERT_NE(nullptr, composed_loss_function);
 
-    const double s = 1.5;
+    double const s = 1.5;
     double rho[3] = { 0.0 };
     composed_loss_function->Evaluate(s, rho);
 
@@ -81,10 +81,10 @@ TEST(ComposedLoss, Constructor)
     ASSERT_NO_THROW(composed_loss_function.reset(composed_loss.lossFunction()));
     ASSERT_NE(nullptr, composed_loss_function);
 
-    const auto f_loss_function = std::unique_ptr<ceres::LossFunction>(f_loss->lossFunction());
+    auto const f_loss_function = std::unique_ptr<ceres::LossFunction>(f_loss->lossFunction());
     ASSERT_NE(nullptr, f_loss_function);
 
-    const double s = 1.5;
+    double const s = 1.5;
     double rho[3] = { 0.0 };
     composed_loss_function->Evaluate(s, rho);
 
@@ -116,10 +116,10 @@ TEST(ComposedLoss, Constructor)
     ASSERT_NO_THROW(composed_loss_function.reset(composed_loss.lossFunction()));
     ASSERT_NE(nullptr, composed_loss_function);
 
-    const auto g_loss_function = std::unique_ptr<ceres::LossFunction>(g_loss->lossFunction());
+    auto const g_loss_function = std::unique_ptr<ceres::LossFunction>(g_loss->lossFunction());
     ASSERT_NE(nullptr, g_loss_function);
 
-    const double s = 1.5;
+    double const s = 1.5;
     double rho[3] = { 0.0 };
     composed_loss_function->Evaluate(s, rho);
 
@@ -153,13 +153,13 @@ TEST(ComposedLoss, Constructor)
     ASSERT_NO_THROW(composed_loss_function.reset(composed_loss.lossFunction()));
     ASSERT_NE(nullptr, composed_loss_function);
 
-    const auto f_loss_function = std::unique_ptr<ceres::LossFunction>(f_loss->lossFunction());
+    auto const f_loss_function = std::unique_ptr<ceres::LossFunction>(f_loss->lossFunction());
     ASSERT_NE(nullptr, f_loss_function);
 
-    const auto g_loss_function = std::unique_ptr<ceres::LossFunction>(g_loss->lossFunction());
+    auto const g_loss_function = std::unique_ptr<ceres::LossFunction>(g_loss->lossFunction());
     ASSERT_NE(nullptr, g_loss_function);
 
-    const double s = 1.5;
+    double const s = 1.5;
     double rho[3] = { 0.0 };
     composed_loss_function->Evaluate(s, rho);
 
@@ -185,7 +185,7 @@ TEST(ComposedLoss, Constructor)
 
 struct CostFunctor
 {
-  explicit CostFunctor(const double data) : data(data)
+  explicit CostFunctor(double const data) : data(data)
   {
   }
 
@@ -205,19 +205,19 @@ TEST(ComposedLoss, Optimization)
   double x{ 5.0 };
 
   // Create a simple inlier constraint
-  const double inlier{ 1.0 };
+  double const inlier{ 1.0 };
 
   // Create a simple outlier constraint
-  const double outlier{ 10.0 };
+  double const outlier{ 10.0 };
   ceres::CostFunction* cost_function_outlier =
       new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(outlier));
 
   // Create an 'f' loss
-  const double a{ 0.05 };
+  double const a{ 0.05 };
   std::shared_ptr<fuse_loss::HuberLoss> f_loss{ new fuse_loss::HuberLoss(a) };
 
   // Create an 'g' loss
-  const double scaled_a{ 0.5 };
+  double const scaled_a{ 0.5 };
   std::shared_ptr<fuse_loss::ScaledLoss> g_loss{ new fuse_loss::ScaledLoss(scaled_a) };
 
   // Create a composed loss, which illustrates the case of scaling the residuals by a factor with a
@@ -273,12 +273,12 @@ TEST(ComposedLoss, Optimization)
 TEST(ComposedLoss, Serialization)
 {
   // Construct an 'f' loss
-  const double f_loss_a{ 0.3 };
+  double const f_loss_a{ 0.3 };
   std::shared_ptr<fuse_loss::HuberLoss> f_loss{ new fuse_loss::HuberLoss(f_loss_a) };
 
   // Construct a 'g' loss
-  const double g_loss_a{ 0.3 };
-  const double g_loss_b{ 0.6 };
+  double const g_loss_a{ 0.3 };
+  double const g_loss_b{ 0.6 };
   std::shared_ptr<fuse_loss::TolerantLoss> g_loss{ new fuse_loss::TolerantLoss(g_loss_a, g_loss_b) };
 
   // Construct a composed loss
@@ -299,15 +299,15 @@ TEST(ComposedLoss, Serialization)
   }
 
   // Compare
-  const auto expected_loss_function = std::unique_ptr<ceres::LossFunction>(actual.lossFunction());
-  const auto actual_loss_function = std::unique_ptr<ceres::LossFunction>(actual.lossFunction());
+  auto const expected_loss_function = std::unique_ptr<ceres::LossFunction>(actual.lossFunction());
+  auto const actual_loss_function = std::unique_ptr<ceres::LossFunction>(actual.lossFunction());
 
   ASSERT_NE(nullptr, actual_loss_function);
   EXPECT_NE(nullptr, actual.fLoss());
   EXPECT_NE(nullptr, actual.gLoss());
 
   // Test inlier (s <= g_loss_a*g_loss_a)
-  const double s = 0.95 * g_loss_a * g_loss_a;
+  double const s = 0.95 * g_loss_a * g_loss_a;
   double expected_rho[3] = { 0.0 };
   expected_loss_function->Evaluate(s, expected_rho);
 
@@ -320,7 +320,7 @@ TEST(ComposedLoss, Serialization)
   }
 
   // Test outlier (s > g_loss_b)
-  const double s_outlier = 1.05 * g_loss_a * g_loss_a;
+  double const s_outlier = 1.05 * g_loss_a * g_loss_a;
 
   expected_loss_function->Evaluate(s_outlier, expected_rho);
   actual_loss_function->Evaluate(s_outlier, actual_rho);

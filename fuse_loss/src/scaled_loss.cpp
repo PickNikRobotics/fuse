@@ -43,7 +43,7 @@
 namespace fuse_loss
 {
 
-ScaledLoss::ScaledLoss(const double a, const std::shared_ptr<fuse_core::Loss>& loss) : a_(a), loss_(loss)
+ScaledLoss::ScaledLoss(double const a, std::shared_ptr<fuse_core::Loss> const& loss) : a_(a), loss_(loss)
 {
 }
 
@@ -51,7 +51,7 @@ void ScaledLoss::initialize(
     fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                fuse_core::node_interfaces::Parameters>
         interfaces,
-    const std::string& name)
+    std::string const& name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
   loss_ = fuse_core::loadLossConfig(interfaces, name + ".loss");

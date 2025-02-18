@@ -147,12 +147,12 @@ public:
    * @throws runtime_error if already initialized
    */
   void initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name) override;
+                  std::string const& name) override;
 
   /**
    * @brief Get the unique name of this motion model
    */
-  const std::string& name() const override
+  std::string const& name() const override
   {
     return name_;
   }

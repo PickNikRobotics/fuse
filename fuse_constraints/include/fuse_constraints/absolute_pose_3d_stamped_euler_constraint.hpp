@@ -90,9 +90,9 @@ public:
    *                            (6x1 vector: x, y, z, roll, pitch, yaw)
    * @param[in] covariance      The measurement/prior covariance (6x6 matrix: x, y, z, roll, pitch, yaw)
    */
-  AbsolutePose3DStampedEulerConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
-                                       const fuse_variables::Orientation3DStamped& orientation,
-                                       const fuse_core::Vector6d& mean, const fuse_core::Matrix6d& covariance);
+  AbsolutePose3DStampedEulerConstraint(std::string const& source, fuse_variables::Position3DStamped const& position,
+                                       fuse_variables::Orientation3DStamped const& orientation,
+                                       fuse_core::Vector6d const& mean, fuse_core::Matrix6d const& covariance);
 
   /**
    * @brief Create a constraint using a partial measurement/prior of the 3D pose
@@ -105,11 +105,11 @@ public:
    * @param[in] partial_covariance  The measurement/prior covariance (6x6 matrix: x, y, z, roll, pitch, yaw)
    * @param[in] variable_indices    The indices of the measured variables
    */
-  AbsolutePose3DStampedEulerConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
-                                       const fuse_variables::Orientation3DStamped& orientation,
-                                       const fuse_core::Vector6d& partial_mean,
-                                       const fuse_core::MatrixXd& partial_covariance,
-                                       const std::vector<size_t>& variable_indices);
+  AbsolutePose3DStampedEulerConstraint(std::string const& source, fuse_variables::Position3DStamped const& position,
+                                       fuse_variables::Orientation3DStamped const& orientation,
+                                       fuse_core::Vector6d const& partial_mean,
+                                       fuse_core::MatrixXd const& partial_covariance,
+                                       std::vector<size_t> const& variable_indices);
 
   /**
    * @brief Destructor
@@ -121,7 +121,7 @@ public:
    *
    * Order is (x, y, z, roll, pitch, yaw)
    */
-  const fuse_core::Vector6d& mean() const
+  fuse_core::Vector6d const& mean() const
   {
     return mean_;
   }
@@ -131,7 +131,7 @@ public:
    *
    * Order is (x, y, z, roll, pitch, yaw)
    */
-  const fuse_core::MatrixXd& sqrtInformation() const
+  fuse_core::MatrixXd const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -178,7 +178,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& mean_;

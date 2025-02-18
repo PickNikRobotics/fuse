@@ -72,11 +72,11 @@ void transactionCallback(fuse_core::Transaction::SharedPtr transaction)
  * @brief Helper function for fetching the desired constraint from a transaction
  */
 template <typename Derived>
-const Derived* getConstraint(const fuse_core::Transaction& transaction)
+Derived const* getConstraint(fuse_core::Transaction const& transaction)
 {
-  for (const auto& constraint : transaction.addedConstraints())
+  for (auto const& constraint : transaction.addedConstraints())
   {
-    auto derived = dynamic_cast<const Derived*>(&constraint);
+    auto derived = dynamic_cast<Derived const*>(&constraint);
     if (derived)
     {
       return derived;

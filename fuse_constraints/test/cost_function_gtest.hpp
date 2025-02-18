@@ -53,14 +53,14 @@
  * @param[in] cost_function The expected cost function
  * @param[in] actual_cost_function The actual cost function
  */
-static void ExpectCostFunctionsAreEqual(const ceres::CostFunction& cost_function,
-                                        const ceres::CostFunction& actual_cost_function)
+static void ExpectCostFunctionsAreEqual(ceres::CostFunction const& cost_function,
+                                        ceres::CostFunction const& actual_cost_function)
 {
   constexpr double tol = 1e-12;
   EXPECT_EQ(cost_function.num_residuals(), actual_cost_function.num_residuals());
   const size_t num_residuals = cost_function.num_residuals();
-  const std::vector<int32_t>& parameter_block_sizes = cost_function.parameter_block_sizes();
-  const std::vector<int32_t>& actual_parameter_block_sizes = actual_cost_function.parameter_block_sizes();
+  std::vector<int32_t> const& parameter_block_sizes = cost_function.parameter_block_sizes();
+  std::vector<int32_t> const& actual_parameter_block_sizes = actual_cost_function.parameter_block_sizes();
   EXPECT_EQ(parameter_block_sizes.size(), actual_parameter_block_sizes.size());
 
   size_t num_parameters = 0;

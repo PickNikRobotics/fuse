@@ -61,12 +61,12 @@ public:
   static const fuse_models::Unicycle2DStateCostFunction cost_function;
 
   // Parameters
-  static const double* parameters[];
+  static double const* parameters[];
 
   // Residuals
   fuse_core::Vector8d residuals;
 
-  static const std::vector<int32_t>& block_sizes;
+  static std::vector<int32_t> const& block_sizes;
   static const size_t num_parameter_blocks;
 
   static const size_t num_residuals;
@@ -76,45 +76,45 @@ public:
 
 private:
   // Cost function process noise and covariance
-  static const double process_noise_diagonal[];
+  static double const process_noise_diagonal[];
 
   static const fuse_core::Matrix8d covariance;
 
   // Parameter blocks
-  static const double position1[];
-  static const double yaw1[];
-  static const double vel_linear1[];
-  static const double vel_yaw1[];
-  static const double acc_linear1[];
+  static double const position1[];
+  static double const yaw1[];
+  static double const vel_linear1[];
+  static double const vel_yaw1[];
+  static double const acc_linear1[];
 
-  static const double position2[];
-  static const double yaw2[];
-  static const double vel_linear2[];
-  static const double vel_yaw2[];
-  static const double acc_linear2[];
+  static double const position2[];
+  static double const yaw2[];
+  static double const vel_linear2[];
+  static double const vel_yaw2[];
+  static double const acc_linear2[];
 
   // Jacobian matrices
   std::vector<fuse_core::MatrixXd> J;
 };
 
 // Cost function process noise and covariance
-const double Unicycle2DStateCostFunction::process_noise_diagonal[] = { 1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9 };
+double const Unicycle2DStateCostFunction::process_noise_diagonal[] = { 1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9 };
 
 const fuse_core::Matrix8d Unicycle2DStateCostFunction::covariance =
     fuse_core::Vector8d(process_noise_diagonal).asDiagonal();
 
 // Parameter blocks
-const double Unicycle2DStateCostFunction::position1[] = { 0.0, 0.0 };
-const double Unicycle2DStateCostFunction::yaw1[] = { 0.0 };
-const double Unicycle2DStateCostFunction::vel_linear1[] = { 1.0, 0.0 };
-const double Unicycle2DStateCostFunction::vel_yaw1[] = { 1.570796327 };
-const double Unicycle2DStateCostFunction::acc_linear1[] = { 1.0, 0.0 };
+double const Unicycle2DStateCostFunction::position1[] = { 0.0, 0.0 };
+double const Unicycle2DStateCostFunction::yaw1[] = { 0.0 };
+double const Unicycle2DStateCostFunction::vel_linear1[] = { 1.0, 0.0 };
+double const Unicycle2DStateCostFunction::vel_yaw1[] = { 1.570796327 };
+double const Unicycle2DStateCostFunction::acc_linear1[] = { 1.0, 0.0 };
 
-const double Unicycle2DStateCostFunction::position2[] = { 0.105, 0.0 };
-const double Unicycle2DStateCostFunction::yaw2[] = { 0.1570796327 };
-const double Unicycle2DStateCostFunction::vel_linear2[] = { 1.1, 0.0 };
-const double Unicycle2DStateCostFunction::vel_yaw2[] = { 1.570796327 };
-const double Unicycle2DStateCostFunction::acc_linear2[] = { 1.0, 0.0 };
+double const Unicycle2DStateCostFunction::position2[] = { 0.105, 0.0 };
+double const Unicycle2DStateCostFunction::yaw2[] = { 0.1570796327 };
+double const Unicycle2DStateCostFunction::vel_linear2[] = { 1.1, 0.0 };
+double const Unicycle2DStateCostFunction::vel_yaw2[] = { 1.570796327 };
+double const Unicycle2DStateCostFunction::acc_linear2[] = { 1.0, 0.0 };
 
 // Analytic cost function
 const fuse_core::Matrix8d Unicycle2DStateCostFunction::sqrt_information(covariance.inverse().llt().matrixU());
@@ -122,11 +122,11 @@ const fuse_core::Matrix8d Unicycle2DStateCostFunction::sqrt_information(covarian
 const fuse_models::Unicycle2DStateCostFunction Unicycle2DStateCostFunction::cost_function{ dt, sqrt_information };
 
 // Parameters
-const double* Unicycle2DStateCostFunction::parameters[] = {  // NOLINT(whitespace/braces)
+double const* Unicycle2DStateCostFunction::parameters[] = {  // NOLINT(whitespace/braces)
   position1, yaw1, vel_linear1, vel_yaw1, acc_linear1, position2, yaw2, vel_linear2, vel_yaw2, acc_linear2
 };
 
-const std::vector<int32_t>& Unicycle2DStateCostFunction::block_sizes = cost_function.parameter_block_sizes();
+std::vector<int32_t> const& Unicycle2DStateCostFunction::block_sizes = cost_function.parameter_block_sizes();
 const size_t Unicycle2DStateCostFunction::num_parameter_blocks = block_sizes.size();
 
 const size_t Unicycle2DStateCostFunction::num_residuals = cost_function.num_residuals();

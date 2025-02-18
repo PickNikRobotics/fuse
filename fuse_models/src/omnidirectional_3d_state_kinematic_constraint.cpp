@@ -49,15 +49,15 @@ namespace fuse_models
 {
 
 Omnidirectional3DStateKinematicConstraint::Omnidirectional3DStateKinematicConstraint(
-    const std::string& source, const fuse_variables::Position3DStamped& position1,
-    const fuse_variables::Orientation3DStamped& orientation1,
-    const fuse_variables::VelocityLinear3DStamped& velocity_linear1,
-    const fuse_variables::VelocityAngular3DStamped& velocity_angular1,
-    const fuse_variables::AccelerationLinear3DStamped& acceleration_linear1,
-    const fuse_variables::Position3DStamped& position2, const fuse_variables::Orientation3DStamped& orientation2,
-    const fuse_variables::VelocityLinear3DStamped& velocity_linear2,
-    const fuse_variables::VelocityAngular3DStamped& velocity_angular2,
-    const fuse_variables::AccelerationLinear3DStamped& acceleration_linear2, const fuse_core::Matrix15d& covariance)
+    std::string const& source, fuse_variables::Position3DStamped const& position1,
+    fuse_variables::Orientation3DStamped const& orientation1,
+    fuse_variables::VelocityLinear3DStamped const& velocity_linear1,
+    fuse_variables::VelocityAngular3DStamped const& velocity_angular1,
+    fuse_variables::AccelerationLinear3DStamped const& acceleration_linear1,
+    fuse_variables::Position3DStamped const& position2, fuse_variables::Orientation3DStamped const& orientation2,
+    fuse_variables::VelocityLinear3DStamped const& velocity_linear2,
+    fuse_variables::VelocityAngular3DStamped const& velocity_angular2,
+    fuse_variables::AccelerationLinear3DStamped const& acceleration_linear2, fuse_core::Matrix15d const& covariance)
   : fuse_core::Constraint(source,
                           { position1.uuid(), orientation1.uuid(), velocity_linear1.uuid(), velocity_angular1.uuid(),
                             acceleration_linear1.uuid(), position2.uuid(), orientation2.uuid(), velocity_linear2.uuid(),

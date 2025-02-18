@@ -83,7 +83,7 @@ public:
   void initialize(
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters> /*interfaces*/,
-      const std::string& /*name*/) override
+      std::string const& /*name*/) override
   {
   }
 
@@ -119,7 +119,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Loss>(*this);
   }

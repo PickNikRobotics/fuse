@@ -55,7 +55,7 @@ public:
 
   ExampleVariableStamped() = default;
 
-  explicit ExampleVariableStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
+  explicit ExampleVariableStamped(rclcpp::Time const& stamp, fuse_core::UUID const& device_id = fuse_core::uuid::NIL)
     : fuse_core::Variable(fuse_core::uuid::generate(detail::type(), stamp, device_id))
     , Stamped(stamp, device_id)
     , data_(0.0)
@@ -67,7 +67,7 @@ public:
     return 1;
   }
 
-  const double* data() const override
+  double const* data() const override
   {
     return &data_;
   }
@@ -100,7 +100,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Variable>(*this);
     archive& boost::serialization::base_object<fuse_variables::Stamped>(*this);

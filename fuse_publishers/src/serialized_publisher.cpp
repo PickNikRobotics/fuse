@@ -58,7 +58,7 @@ SerializedPublisher::SerializedPublisher()
 }
 
 void SerializedPublisher::initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, const std::string& name)
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, std::string const& name)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncPublisher::initialize(interfaces, name);
@@ -105,7 +105,7 @@ void SerializedPublisher::onInit()
 void SerializedPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr transaction,
                                          fuse_core::Graph::ConstSharedPtr graph)
 {
-  const auto& stamp = transaction->stamp();
+  auto const& stamp = transaction->stamp();
   if (graph_publisher_->get_subscription_count() > 0)
   {
     graph_publisher_throttled_callback_(graph, stamp);
@@ -121,7 +121,7 @@ void SerializedPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr 
   }
 }
 
-void SerializedPublisher::graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, const rclcpp::Time& stamp) const
+void SerializedPublisher::graphPublisherCallback(fuse_core::Graph::ConstSharedPtr graph, rclcpp::Time const& stamp) const
 {
   fuse_msgs::msg::SerializedGraph msg;
   msg.header.stamp = stamp;

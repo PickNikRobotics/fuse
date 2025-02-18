@@ -93,18 +93,18 @@ public:
    *                                  roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *                                  x_acc, y_acc, z_acc)
    */
-  Omnidirectional3DStateKinematicConstraint(const std::string& source,
-                                            const fuse_variables::Position3DStamped& position1,
-                                            const fuse_variables::Orientation3DStamped& orientation1,
-                                            const fuse_variables::VelocityLinear3DStamped& velocity_linear1,
-                                            const fuse_variables::VelocityAngular3DStamped& velocity_angular1,
-                                            const fuse_variables::AccelerationLinear3DStamped& acceleration_linear1,
-                                            const fuse_variables::Position3DStamped& position2,
-                                            const fuse_variables::Orientation3DStamped& orientation2,
-                                            const fuse_variables::VelocityLinear3DStamped& velocity_linear2,
-                                            const fuse_variables::VelocityAngular3DStamped& velocity_angular2,
-                                            const fuse_variables::AccelerationLinear3DStamped& acceleration_linear2,
-                                            const fuse_core::Matrix15d& covariance);
+  Omnidirectional3DStateKinematicConstraint(std::string const& source,
+                                            fuse_variables::Position3DStamped const& position1,
+                                            fuse_variables::Orientation3DStamped const& orientation1,
+                                            fuse_variables::VelocityLinear3DStamped const& velocity_linear1,
+                                            fuse_variables::VelocityAngular3DStamped const& velocity_angular1,
+                                            fuse_variables::AccelerationLinear3DStamped const& acceleration_linear1,
+                                            fuse_variables::Position3DStamped const& position2,
+                                            fuse_variables::Orientation3DStamped const& orientation2,
+                                            fuse_variables::VelocityLinear3DStamped const& velocity_linear2,
+                                            fuse_variables::VelocityAngular3DStamped const& velocity_angular2,
+                                            fuse_variables::AccelerationLinear3DStamped const& acceleration_linear2,
+                                            fuse_core::Matrix15d const& covariance);
 
   /**
    * @brief Destructor
@@ -126,7 +126,7 @@ public:
    * Order is (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *           x_acc, y_acc, z_acc)
    */
-  const fuse_core::Matrix15d& sqrtInformation() const
+  fuse_core::Matrix15d const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -177,7 +177,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& dt_;

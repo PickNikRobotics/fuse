@@ -82,7 +82,7 @@ TEST(LegacyVariable, Serialization)
 #if CERES_SUPPORTS_MANIFOLDS
 struct QuaternionCostFunction
 {
-  explicit QuaternionCostFunction(const double* observation)
+  explicit QuaternionCostFunction(double const* observation)
   {
     observation_[0] = observation[0];
     observation_[1] = observation[1];

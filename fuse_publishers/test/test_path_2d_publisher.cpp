@@ -169,13 +169,13 @@ public:
     rclcpp::shutdown();
   }
 
-  void pathCallback(const nav_msgs::msg::Path& msg)
+  void pathCallback(nav_msgs::msg::Path const& msg)
   {
     path_msg_ = msg;
     received_path_msg_ = true;
   }
 
-  void poseArrayCallback(const geometry_msgs::msg::PoseArray& msg)
+  void poseArrayCallback(geometry_msgs::msg::PoseArray const& msg)
   {
     pose_array_msg_ = msg;
     received_pose_array_msg_ = true;

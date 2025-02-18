@@ -103,12 +103,12 @@ public:
   /**
    * @brief Return true if the index exists in the ordering
    */
-  bool exists(const unsigned int index) const;
+  bool exists(unsigned int const index) const;
 
   /**
    * @brief Return true if the UUID exists in the ordering
    */
-  bool exists(const fuse_core::UUID& uuid) const;
+  bool exists(fuse_core::UUID const& uuid) const;
 
   /**
    * @brief Add a new UUID to the back of the ordering
@@ -118,35 +118,35 @@ public:
    * @param[in] uuid The UUID to insert
    * @return True if the UUID was inserted, false if the UUID already existed
    */
-  bool push_back(const fuse_core::UUID& uuid);
+  bool push_back(fuse_core::UUID const& uuid);
 
   /**
    * @brief Access the UUID stored at the provided index
    *
    * Accessing an index that does not exist results in undefined behavior
    */
-  const fuse_core::UUID& operator[](const unsigned int index) const;
+  fuse_core::UUID const& operator[](unsigned int const index) const;
 
   /**
    * @brief Access the index associated with the provided UUID
    *
    * Accessing a UUID that does not exist results in the provided UUID being added to the ordering
    */
-  unsigned int operator[](const fuse_core::UUID& uuid);
+  unsigned int operator[](fuse_core::UUID const& uuid);
 
   /**
    * @brief Access the UUID stored at the provided index
    *
    * If the requested index does not exist, an out_of_range exception will be thrown.
    */
-  const fuse_core::UUID& at(const unsigned int index) const;
+  fuse_core::UUID const& at(unsigned int const index) const;
 
   /**
    * @brief Access the index associated with the provided UUID
    *
    * If the requested UUID does not exist, an out_of_range exception will be thrown.
    */
-  unsigned int at(const fuse_core::UUID& uuid) const;
+  unsigned int at(fuse_core::UUID const& uuid) const;
 
 private:
   using UuidOrderMapping =

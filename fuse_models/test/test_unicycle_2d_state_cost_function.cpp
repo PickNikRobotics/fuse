@@ -47,36 +47,36 @@
 TEST(CostFunction, evaluateCostFunction)
 {
   // Create cost function
-  const double process_noise_diagonal[] = { 1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9 };
+  double const process_noise_diagonal[] = { 1e-3, 1e-3, 1e-2, 1e-6, 1e-6, 1e-4, 1e-9, 1e-9 };
   const fuse_core::Matrix8d covariance = fuse_core::Vector8d(process_noise_diagonal).asDiagonal();
 
-  const double dt{ 0.1 };
+  double const dt{ 0.1 };
   const fuse_core::Matrix8d sqrt_information{ covariance.inverse().llt().matrixU() };
 
   const fuse_models::Unicycle2DStateCostFunction cost_function{ dt, sqrt_information };
 
   // Evaluate cost function
-  const double position1[] = { 0.0, 0.0 };
-  const double yaw1[] = { 0.0 };
-  const double vel_linear1[] = { 1.0, 0.0 };
-  const double vel_yaw1[] = { 1.570796327 };
-  const double acc_linear1[] = { 1.0, 0.0 };
+  double const position1[] = { 0.0, 0.0 };
+  double const yaw1[] = { 0.0 };
+  double const vel_linear1[] = { 1.0, 0.0 };
+  double const vel_yaw1[] = { 1.570796327 };
+  double const acc_linear1[] = { 1.0, 0.0 };
 
-  const double position2[] = { 0.105, 0.0 };
-  const double yaw2[] = { 0.1570796327 };
-  const double vel_linear2[] = { 1.1, 0.0 };
-  const double vel_yaw2[] = { 1.570796327 };
-  const double acc_linear2[] = { 1.0, 0.0 };
+  double const position2[] = { 0.105, 0.0 };
+  double const yaw2[] = { 0.1570796327 };
+  double const vel_linear2[] = { 1.1, 0.0 };
+  double const vel_yaw2[] = { 1.570796327 };
+  double const acc_linear2[] = { 1.0, 0.0 };
 
-  const double* parameters[] = { position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
+  double const* parameters[] = { position1, yaw1, vel_linear1, vel_yaw1, acc_linear1,
                                  position2, yaw2, vel_linear2, vel_yaw2, acc_linear2 };
 
   fuse_core::Vector8d residuals;
 
-  const auto& block_sizes = cost_function.parameter_block_sizes();
-  const auto num_parameter_blocks = block_sizes.size();
+  auto const& block_sizes = cost_function.parameter_block_sizes();
+  auto const num_parameter_blocks = block_sizes.size();
 
-  const auto num_residuals = cost_function.num_residuals();
+  auto const num_residuals = cost_function.num_residuals();
 
   std::vector<fuse_core::MatrixXd> J(num_parameter_blocks);
   std::vector<double*> jacobians(num_parameter_blocks);

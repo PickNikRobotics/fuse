@@ -88,8 +88,8 @@ public:
    * @param[in] device_id An optional device id, for use when variables originate from multiple
    *                      robots or devices
    */
-  explicit AccelerationLinear3DStamped(const rclcpp::Time& stamp,
-                                       const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit AccelerationLinear3DStamped(rclcpp::Time const& stamp,
+                                       fuse_core::UUID const& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the X-axis linear acceleration.
@@ -102,7 +102,7 @@ public:
   /**
    * @brief Read-only access to the X-axis linear acceleration.
    */
-  const double& x() const
+  double const& x() const
   {
     return data_[X];
   }
@@ -118,7 +118,7 @@ public:
   /**
    * @brief Read-only access to the Y-axis linear acceleration.
    */
-  const double& y() const
+  double const& y() const
   {
     return data_[Y];
   }
@@ -134,7 +134,7 @@ public:
   /**
    * @brief Read-only access to the Z-axis linear acceleration.
    */
-  const double& z() const
+  double const& z() const
   {
     return data_[Z];
   }
@@ -170,7 +170,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& boost::serialization::base_object<Stamped>(*this);

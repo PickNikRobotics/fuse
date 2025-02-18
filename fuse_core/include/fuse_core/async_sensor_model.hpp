@@ -130,7 +130,7 @@ public:
    * @param[in] transaction_callback The function to call every time a transaction is published
    * @throws runtime_error if already initialized
    */
-  void initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, const std::string& name,
+  void initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, std::string const& name,
                   TransactionCallback transaction_callback) override;
 
   /**
@@ -153,7 +153,7 @@ public:
   /**
    * @brief Get the unique name of this sensor
    */
-  const std::string& name() const override
+  std::string const& name() const override
   {
     return name_;
   }

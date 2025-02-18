@@ -57,8 +57,8 @@
 
 namespace fuse_constraints
 {
-UuidOrdering computeEliminationOrder(const std::vector<fuse_core::UUID>& marginalized_variables,
-                                     const fuse_core::Graph& graph)
+UuidOrdering computeEliminationOrder(std::vector<fuse_core::UUID> const& marginalized_variables,
+                                     fuse_core::Graph const& graph)
 {
   // COLAMD wants a somewhat weird structure
   // Variables are numbered sequentially in some arbitrary order. We call this the "variable index"
@@ -80,10 +80,10 @@ UuidOrdering computeEliminationOrder(const std::vector<fuse_core::UUID>& margina
   auto variable_order = UuidOrdering();
   auto constraint_order = UuidOrdering();
   auto variable_constraints = VariableConstraints();
-  for (const auto& variable_uuid : marginalized_variables)
+  for (auto const& variable_uuid : marginalized_variables)
   {
     // Get all connected constraints to this variable
-    const auto constraints = graph.getConnectedConstraints(variable_uuid);
+    auto const constraints = graph.getConnectedConstraints(variable_uuid);
 
     // If the variable is orphan (it has no constraints), add it to the VariableConstraints object
     // without constraints New variable index is automatically generated
@@ -95,10 +95,10 @@ UuidOrdering computeEliminationOrder(const std::vector<fuse_core::UUID>& margina
     {
       // Add each constraint to the VariableConstraints object
       // New constraint and variable indices are automatically generated
-      for (const auto& constraint : constraints)
+      for (auto const& constraint : constraints)
       {
         unsigned int const constraint_index = constraint_order[constraint.uuid()];
-        for (const auto& constraint_variable_uuid : constraint.variables())
+        for (auto const& constraint_variable_uuid : constraint.variables())
         {
           variable_constraints.insert(constraint_index, variable_order[constraint_variable_uuid]);
         }
@@ -128,7 +128,7 @@ UuidOrdering computeEliminationOrder(const std::vector<fuse_core::UUID>& margina
   // Define the variable groups used by CCOLAMD. All of the marginalized variables should be group0,
   // all the rest should be group1.
   std::vector<int> variable_groups(variable_order.size(), 1);  // Default all variables to group1
-  for (const auto& variable_uuid : marginalized_variables)
+  for (auto const& variable_uuid : marginalized_variables)
   {
     // Reassign the marginalized variables to group0
     variable_groups[variable_order.at(variable_uuid)] = 0;
@@ -159,18 +159,18 @@ UuidOrdering computeEliminationOrder(const std::vector<fuse_core::UUID>& margina
   return elimination_order;
 }
 
-fuse_core::Transaction marginalizeVariables(const std::string& source,
-                                            const std::vector<fuse_core::UUID>& marginalized_variables,
-                                            const fuse_core::Graph& graph)
+fuse_core::Transaction marginalizeVariables(std::string const& source,
+                                            std::vector<fuse_core::UUID> const& marginalized_variables,
+                                            fuse_core::Graph const& graph)
 {
   return marginalizeVariables(source, marginalized_variables, graph,
                               computeEliminationOrder(marginalized_variables, graph));
 }
 
-fuse_core::Transaction marginalizeVariables(const std::string& source,
-                                            const std::vector<fuse_core::UUID>& marginalized_variables,
-                                            const fuse_core::Graph& graph,
-                                            const fuse_constraints::UuidOrdering& elimination_order)
+fuse_core::Transaction marginalizeVariables(std::string const& source,
+                                            std::vector<fuse_core::UUID> const& marginalized_variables,
+                                            fuse_core::Graph const& graph,
+                                            fuse_constraints::UuidOrdering const& elimination_order)
 {
   // TODO(swilliams) The method used to marginalize variables assumes that all variables are fully
   //                 constrained. However, with the introduction of "variables held constant", it is
@@ -180,7 +180,7 @@ fuse_core::Transaction marginalizeVariables(const std::string& source,
   //                 but that will require a major refactor.
 
   assert(std::all_of(marginalized_variables.begin(), marginalized_variables.end(),
-                     [&elimination_order, &marginalized_variables](const fuse_core::UUID& variable_uuid) {
+                     [&elimination_order, &marginalized_variables](fuse_core::UUID const& variable_uuid) {
                        return elimination_order.exists(variable_uuid) &&
                               elimination_order.at(variable_uuid) < marginalized_variables.size();
                      }));  // NOLINT
@@ -188,7 +188,7 @@ fuse_core::Transaction marginalizeVariables(const std::string& source,
   fuse_core::Transaction transaction;
 
   // Mark all of the marginalized variables for removal
-  for (const auto& variable_uuid : marginalized_variables)
+  for (auto const& variable_uuid : marginalized_variables)
   {
     transaction.removeVariable(variable_uuid);
   }
@@ -201,14 +201,14 @@ fuse_core::Transaction marginalizeVariables(const std::string& source,
   std::vector<std::vector<detail::LinearTerm>> linear_terms(variable_order.size());
   for (size_t i = 0ul; i < marginalized_variables.size(); ++i)
   {
-    const auto constraints = graph.getConnectedConstraints(variable_order[i]);
-    for (const auto& constraint : constraints)
+    auto const constraints = graph.getConnectedConstraints(variable_order[i]);
+    for (auto const& constraint : constraints)
     {
       if (used_constraints.find(constraint.uuid()) == used_constraints.end())
       {
         used_constraints.insert(constraint.uuid());
         // Ensure all connected variables are added to the ordering
-        for (const auto& variable_uuid : constraint.variables())
+        for (auto const& variable_uuid : constraint.variables())
         {
           variable_order.push_back(variable_uuid);
         }
@@ -241,7 +241,7 @@ fuse_core::Transaction marginalizeVariables(const std::string& source,
   // Convert all remaining linear marginals into marginal constraints
   for (size_t i = marginalized_variables.size(); i < linear_terms.size(); ++i)
   {
-    for (const auto& linear_term : linear_terms[i])
+    for (auto const& linear_term : linear_terms[i])
     {
       auto marginal_constraint = detail::createMarginalConstraint(source, linear_term, graph, variable_order);
       transaction.addConstraint(std::move(marginal_constraint));
@@ -272,8 +272,8 @@ namespace detail
  *  - https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/residual_block.cc
  *  - https://github.com/ceres-solver/ceres-solver/blob/master/internal/ceres/corrector.cc
  */
-LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::Graph& graph,
-                     const UuidOrdering& elimination_order)
+LinearTerm linearize(fuse_core::Constraint const& constraint, fuse_core::Graph const& graph,
+                     UuidOrdering const& elimination_order)
 {
   LinearTerm result;
 
@@ -285,17 +285,17 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
   // * Generate a vector of variable value pointers. This is needed for the Ceres API.
   // * Allocate a matrix for each jacobian block. We will have Ceres populate the matrix.
   // * Generate a vector of jacobian pointers. This is needed for the Ceres API.
-  const auto& variable_uuids = constraint.variables();
+  auto const& variable_uuids = constraint.variables();
   const size_t variable_count = variable_uuids.size();
-  std::vector<const double*> variable_values;
+  std::vector<double const*> variable_values;
   variable_values.reserve(variable_count);
   std::vector<double*> jacobians;
   jacobians.reserve(variable_count);
   result.variables.reserve(variable_count);
   result.A.reserve(variable_count);
-  for (const auto& variable_uuid : variable_uuids)
+  for (auto const& variable_uuid : variable_uuids)
   {
-    const auto& variable = graph.getVariable(variable_uuid);
+    auto const& variable = graph.getVariable(variable_uuid);
     variable_values.push_back(variable.data());
     result.variables.push_back(elimination_order.at(variable_uuid));
     result.A.emplace_back(row_count, variable.size());
@@ -307,7 +307,7 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
   bool success = cost_function->Evaluate(variable_values.data(), result.b.data(), jacobians.data());
   delete cost_function;
   success = success && result.b.array().isFinite().all();
-  for (const auto& a : result.A)
+  for (auto const& a : result.A)
   {
     success = success && a.array().isFinite().all();
   }
@@ -327,8 +327,8 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
   // zero.
   for (size_t index = 0ul; index < variable_count; ++index)
   {
-    const auto& variable_uuid = variable_uuids[index];
-    const auto& variable = graph.getVariable(variable_uuid);
+    auto const& variable_uuid = variable_uuids[index];
+    auto const& variable = graph.getVariable(variable_uuid);
 #if !CERES_SUPPORTS_MANIFOLDS
     auto local_parameterization = variable.localParameterization();
     auto& jacobian = result.A[index];
@@ -386,7 +386,7 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
     double alpha = 0.0;
     if ((squared_norm > 0.0) && (rho[2] > 0.0))
     {
-      const double d = 1.0 + 2.0 * squared_norm * rho[2] / rho[1];
+      double const d = 1.0 + 2.0 * squared_norm * rho[2] / rho[1];
       alpha = 1.0 - std::sqrt(d);
     }
 
@@ -412,7 +412,7 @@ LinearTerm linearize(const fuse_core::Constraint& constraint, const fuse_core::G
   return result;
 }
 
-LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
+LinearTerm marginalizeNext(std::vector<LinearTerm> const& linear_terms)
 {
   if (linear_terms.empty())
   {
@@ -426,7 +426,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   // because the number of variables is assumed to be small. You need 1000s of variables before the
   // std::set outperforms the std::vector.
   auto dense_to_index = std::vector<unsigned int>();
-  for (const auto& linear_term : linear_terms)
+  for (auto const& linear_term : linear_terms)
   {
     std::copy(linear_term.variables.begin(), linear_term.variables.end(), std::back_inserter(dense_to_index));
   }
@@ -444,14 +444,14 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   auto row_offsets = std::vector<unsigned int>();
   row_offsets.reserve(linear_terms.size() + 1ul);
   row_offsets.push_back(0u);
-  for (const auto& linear_term : linear_terms)
+  for (auto const& linear_term : linear_terms)
   {
     row_offsets.push_back(row_offsets.back() + linear_term.b.rows());
   }
 
   // Compute the column offsets
   auto index_to_cols = std::vector<unsigned int>(dense_to_index.back() + 1u, 0u);
-  for (const auto& linear_term : linear_terms)
+  for (auto const& linear_term : linear_terms)
   {
     for (size_t i = 0ul; i < linear_term.variables.size(); ++i)
     {
@@ -472,11 +472,11 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   fuse_core::MatrixXd ab = fuse_core::MatrixXd::Zero(row_offsets.back(), column_offsets.back() + 1u);
   for (size_t term_index = 0ul; term_index < linear_terms.size(); ++term_index)
   {
-    const auto& linear_term = linear_terms[term_index];
+    auto const& linear_term = linear_terms[term_index];
     auto row_offset = row_offsets[term_index];
     for (size_t i = 0ul; i < linear_term.variables.size(); ++i)
     {
-      const auto& a = linear_term.A[i];
+      auto const& a = linear_term.A[i];
       auto dense = index_to_dense[linear_term.variables[i]];
       auto column_offset = column_offsets[dense];
       for (int row = 0; row < a.rows(); ++row)
@@ -487,7 +487,7 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
         }
       }
     }
-    const auto& b = linear_term.b;
+    auto const& b = linear_term.b;
     int const column_offset = static_cast<int>(column_offsets.back());
     for (int row = 0; row < b.rows(); ++row)
     {
@@ -552,11 +552,11 @@ LinearTerm marginalizeNext(const std::vector<LinearTerm>& linear_terms)
   return marginal_term;
 }
 
-MarginalConstraint::SharedPtr createMarginalConstraint(const std::string& source, const LinearTerm& linear_term,
-                                                       const fuse_core::Graph& graph,
-                                                       const UuidOrdering& elimination_order)
+MarginalConstraint::SharedPtr createMarginalConstraint(std::string const& source, LinearTerm const& linear_term,
+                                                       fuse_core::Graph const& graph,
+                                                       UuidOrdering const& elimination_order)
 {
-  auto index_to_variable = [&graph, &elimination_order](const unsigned int index) -> const fuse_core::Variable& {
+  auto index_to_variable = [&graph, &elimination_order](unsigned int const index) -> fuse_core::Variable const& {
     return graph.getVariable(elimination_order.at(index));
   };
 

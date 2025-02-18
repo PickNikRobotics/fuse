@@ -51,9 +51,9 @@ namespace fuse_tutorials
 // variable order defined in the RangeCostFunctor must match the variable order provided to the base
 // class Constraint constructor. In this case, robot position, then the beacon position
 // fuse_core::Constraint(source, { robot_position.uuid(), beacon_position.uuid() })
-RangeConstraint::RangeConstraint(const std::string& source, const fuse_variables::Position2DStamped& robot_position,
-                                 const fuse_variables::Point2DLandmark& beacon_position, const double z,
-                                 const double sigma)
+RangeConstraint::RangeConstraint(std::string const& source, fuse_variables::Position2DStamped const& robot_position,
+                                 fuse_variables::Point2DLandmark const& beacon_position, double const z,
+                                 double const sigma)
   : fuse_core::Constraint(source, { robot_position.uuid(), beacon_position.uuid() })
   ,  // NOLINT
   sigma_(sigma)

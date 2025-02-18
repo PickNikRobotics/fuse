@@ -62,7 +62,7 @@ struct ParameterBase
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& ns) = 0;
+      std::string const& ns) = 0;
 };
 
 /**
@@ -77,7 +77,7 @@ struct ParameterBase
 template <typename T>
 inline std::vector<size_t>
 loadSensorConfig(fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Parameters> interfaces,
-                 const std::string& name)
+                 std::string const& name)
 {
   std::vector<std::string> dimensions;
   dimensions = fuse_core::getParam(interfaces, name, dimensions);

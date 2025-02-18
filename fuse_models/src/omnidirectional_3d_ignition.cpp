@@ -76,7 +76,7 @@ Omnidirectional3DIgnition::Omnidirectional3DIgnition()
 }
 
 void Omnidirectional3DIgnition::initialize(
-    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, const std::string& name,
+    fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces, std::string const& name,
     fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
@@ -158,13 +158,13 @@ void Omnidirectional3DIgnition::stop()
   started_ = false;
 }
 
-void Omnidirectional3DIgnition::subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
+void Omnidirectional3DIgnition::subscriberCallback(geometry_msgs::msg::PoseWithCovarianceStamped const& msg)
 {
   try
   {
     process(msg);
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring message.");
   }
@@ -182,7 +182,7 @@ bool Omnidirectional3DIgnition::setPoseServiceCallback(rclcpp::Service<fuse_msgs
       service->send_response(*request_id, response);
     });
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     fuse_msgs::srv::SetPose::Response response;
     response.success = false;
@@ -204,7 +204,7 @@ bool Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback(
       service->send_response(*request_id, response);
     });
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     fuse_msgs::srv::SetPoseDeprecated::Response response;
     RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring request.");
@@ -213,7 +213,7 @@ bool Omnidirectional3DIgnition::setPoseDeprecatedServiceCallback(
   return true;
 }
 
-void Omnidirectional3DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+void Omnidirectional3DIgnition::process(geometry_msgs::msg::PoseWithCovarianceStamped const& pose,
                                         std::function<void()> post_process)
 {
   // Verify we are in the correct state to process set pose requests
@@ -316,9 +316,9 @@ void Omnidirectional3DIgnition::process(const geometry_msgs::msg::PoseWithCovari
   }
 }
 
-void Omnidirectional3DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose)
+void Omnidirectional3DIgnition::sendPrior(geometry_msgs::msg::PoseWithCovarianceStamped const& pose)
 {
-  const auto& stamp = pose.header.stamp;
+  auto const& stamp = pose.header.stamp;
 
   // Create variables for the full state.
   // The initial values of the pose are extracted from the provided PoseWithCovarianceStamped

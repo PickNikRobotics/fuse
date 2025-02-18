@@ -40,7 +40,7 @@
 namespace fuse_constraints
 {
 
-NormalPriorOrientation3D::NormalPriorOrientation3D(const fuse_core::Matrix3d& A, const fuse_core::Vector4d& b)
+NormalPriorOrientation3D::NormalPriorOrientation3D(fuse_core::Matrix3d const& A, fuse_core::Vector4d const& b)
   : A_(A), b_(b)
 {
 }

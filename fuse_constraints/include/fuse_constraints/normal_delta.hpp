@@ -72,7 +72,7 @@ public:
    *              these are the same type of variable. At a minimum, they must have the same
    *              dimensions and the per-element subtraction operator must be valid.
    */
-  NormalDelta(const fuse_core::MatrixXd& A, const fuse_core::VectorXd& b);
+  NormalDelta(fuse_core::MatrixXd const& A, fuse_core::VectorXd const& b);
 
   /**
    * @brief Destructor

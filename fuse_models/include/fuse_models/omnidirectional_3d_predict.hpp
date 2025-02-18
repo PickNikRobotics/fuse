@@ -169,11 +169,11 @@ inline void predict(const T position1_x, const T position1_y, const T position1_
  * @param[out] acc_linear2_z - Second Z acceleration
  * @param[out] jacobians - Jacobians wrt the state
  */
-inline void predict(const double position1_x, const double position1_y, const double position1_z,
-                    const double orientation1_r, const double orientation1_p, const double orientation1_y,
-                    const double vel_linear1_x, const double vel_linear1_y, const double vel_linear1_z,
-                    const double vel_angular1_r, const double vel_angular1_p, const double vel_angular1_y,
-                    const double acc_linear1_x, const double acc_linear1_y, const double acc_linear1_z, const double dt,
+inline void predict(double const position1_x, double const position1_y, double const position1_z,
+                    double const orientation1_r, double const orientation1_p, double const orientation1_y,
+                    double const vel_linear1_x, double const vel_linear1_y, double const vel_linear1_z,
+                    double const vel_angular1_r, double const vel_angular1_p, double const vel_angular1_y,
+                    double const acc_linear1_x, double const acc_linear1_y, double const acc_linear1_z, double const dt,
                     double& position2_x, double& position2_y, double& position2_z, double& orientation2_r,
                     double& orientation2_p, double& orientation2_y, double& vel_linear2_x, double& vel_linear2_y,
                     double& vel_linear2_z, double& vel_angular2_r, double& vel_angular2_p, double& vel_angular2_y,
@@ -181,14 +181,14 @@ inline void predict(const double position1_x, const double position1_y, const do
                     double* jacobian_quat2rpy)
 {
   // 3D material point projection model which matches the one used by r_l.
-  const double sr = ceres::sin(orientation1_r);
-  const double cr = ceres::cos(orientation1_r);
-  const double sp = ceres::sin(orientation1_p);
-  const double cp = ceres::cos(orientation1_p);
-  const double sy = ceres::sin(orientation1_y);
-  const double cy = ceres::cos(orientation1_y);
-  const double cpi = 1.0 / cp;
-  const double dt2 = 0.5 * dt * dt;
+  double const sr = ceres::sin(orientation1_r);
+  double const cr = ceres::cos(orientation1_r);
+  double const sp = ceres::sin(orientation1_p);
+  double const cp = ceres::cos(orientation1_p);
+  double const sy = ceres::sin(orientation1_y);
+  double const cy = ceres::cos(orientation1_y);
+  double const cpi = 1.0 / cp;
+  double const dt2 = 0.5 * dt * dt;
 
   // Project the state
   position2_x = position1_x +
@@ -420,9 +420,9 @@ inline void predict(const T* const position1, const T* const orientation1, const
  * @param[out] vel_angular2 - Second angular velocity
  * @param[out] acc_linear2  - Second linear acceleration
  */
-inline void predict(const fuse_core::Vector3d& position1, const Eigen::Quaterniond& orientation1,
-                    const fuse_core::Vector3d& vel_linear1, const fuse_core::Vector3d& vel_angular1,
-                    const fuse_core::Vector3d& acc_linear1, const double dt, fuse_core::Vector3d& position2,
+inline void predict(fuse_core::Vector3d const& position1, Eigen::Quaterniond const& orientation1,
+                    fuse_core::Vector3d const& vel_linear1, fuse_core::Vector3d const& vel_angular1,
+                    fuse_core::Vector3d const& acc_linear1, double const dt, fuse_core::Vector3d& position2,
                     Eigen::Quaterniond& orientation2, fuse_core::Vector3d& vel_linear2,
                     fuse_core::Vector3d& vel_angular2, fuse_core::Vector3d& acc_linear2)
 {
@@ -457,9 +457,9 @@ inline void predict(const fuse_core::Vector3d& position1, const Eigen::Quaternio
  * @param[out] acc_linear2  - Second linear acceleration
  * @param[out] jacobian - Jacobian wrt the state
  */
-inline void predict(const fuse_core::Vector3d& position1, const Eigen::Quaterniond& orientation1,
-                    const fuse_core::Vector3d& vel_linear1, const fuse_core::Vector3d& vel_angular1,
-                    const fuse_core::Vector3d& acc_linear1, const double dt, fuse_core::Vector3d& position2,
+inline void predict(fuse_core::Vector3d const& position1, Eigen::Quaterniond const& orientation1,
+                    fuse_core::Vector3d const& vel_linear1, fuse_core::Vector3d const& vel_angular1,
+                    fuse_core::Vector3d const& acc_linear1, double const dt, fuse_core::Vector3d& position2,
                     Eigen::Quaterniond& orientation2, fuse_core::Vector3d& vel_linear2,
                     fuse_core::Vector3d& vel_angular2, fuse_core::Vector3d& acc_linear2, fuse_core::Matrix15d& jacobian)
 {

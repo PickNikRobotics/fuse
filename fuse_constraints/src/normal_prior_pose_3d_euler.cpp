@@ -42,7 +42,7 @@
 namespace fuse_constraints
 {
 
-NormalPriorPose3DEuler::NormalPriorPose3DEuler(const fuse_core::MatrixXd& A, const fuse_core::Vector6d& b)
+NormalPriorPose3DEuler::NormalPriorPose3DEuler(fuse_core::MatrixXd const& A, fuse_core::Vector6d const& b)
   : A_(A), b_(b)
 {
   CHECK_GT(A_.rows(), 0);

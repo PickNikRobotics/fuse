@@ -66,7 +66,7 @@ public:
    * @param[in] a TolerantLoss parameter 'a'. See Ceres documentation for more details
    * @param[in] b TolerantLoss parameter 'b'. See Ceres documentation for more details
    */
-  explicit TolerantLoss(const double a = 1.0, const double b = 0.1);
+  explicit TolerantLoss(double const a = 1.0, double const b = 0.1);
 
   /**
    * @brief Destructor
@@ -87,7 +87,7 @@ public:
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& name) override;
+      std::string const& name) override;
 
   /**
    * @brief Print a human-readable description of the loss function to the provided stream.
@@ -134,7 +134,7 @@ public:
    *
    * @param[in] a Parameter 'a'.
    */
-  void a(const double a)
+  void a(double const a)
   {
     a_ = a;
   }
@@ -144,7 +144,7 @@ public:
    *
    * @param[in] b Parameter 'b'.
    */
-  void b(const double b)
+  void b(double const b)
   {
     b_ = b;
   }
@@ -164,7 +164,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Loss>(*this);
     archive& a_;

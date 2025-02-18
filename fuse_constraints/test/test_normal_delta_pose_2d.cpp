@@ -76,7 +76,7 @@ TEST_F(NormalDeltaPose2DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualFor
   const fuse_constraints::NormalDeltaPose2D cost_function{ full_sqrt_information, full_delta };
 
   // Create automatic differentiation cost function
-  const auto num_residuals = full_sqrt_information.rows();
+  auto const num_residuals = full_sqrt_information.rows();
 
   AutoDiffNormalDeltaPose2D autodiff_cost_function(
       new fuse_constraints::NormalDeltaPose2DCostFunctor(full_sqrt_information, full_delta), num_residuals);
@@ -91,7 +91,7 @@ TEST_F(NormalDeltaPose2DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualFor
   // rows
   using IndicesPair = std::array<int, 2>;
   std::array<IndicesPair, 3> indices_pairs = { IndicesPair{ 0, 1 }, IndicesPair{ 0, 2 }, IndicesPair{ 1, 2 } };
-  for (const auto& indices_pair : indices_pairs)
+  for (auto const& indices_pair : indices_pairs)
   {
     // It is a shame we need Eigen 3.4+ in order to use the slicing and indexing API documented in:
     //
@@ -110,7 +110,7 @@ TEST_F(NormalDeltaPose2DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualFor
     const fuse_constraints::NormalDeltaPose2D cost_function{ partial_sqrt_information, full_delta };
 
     // Create automatic differentiation cost function
-    const auto num_residuals = partial_sqrt_information.rows();
+    auto const num_residuals = partial_sqrt_information.rows();
 
     AutoDiffNormalDeltaPose2D autodiff_cost_function(
         new fuse_constraints::NormalDeltaPose2DCostFunctor(partial_sqrt_information, full_delta), num_residuals);
@@ -131,7 +131,7 @@ TEST_F(NormalDeltaPose2DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqualFor
     const fuse_constraints::NormalDeltaPose2D cost_function{ partial_sqrt_information, full_delta };
 
     // Create automatic differentiation cost function
-    const auto num_residuals = partial_sqrt_information.rows();
+    auto const num_residuals = partial_sqrt_information.rows();
 
     AutoDiffNormalDeltaPose2D autodiff_cost_function(
         new fuse_constraints::NormalDeltaPose2DCostFunctor(partial_sqrt_information, full_delta), num_residuals);

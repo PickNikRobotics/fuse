@@ -57,12 +57,12 @@ public:
   static const fuse_core::Matrix3d sqrt_information;
 
   // Parameters
-  static const double* parameters[];
+  static double const* parameters[];
 
   // Residuals
   fuse_core::Vector3d residuals;
 
-  static const std::vector<int32_t>& block_sizes;
+  static std::vector<int32_t> const& block_sizes;
   static const size_t num_parameter_blocks;
 
   static const size_t num_residuals;
@@ -72,36 +72,36 @@ public:
 
 private:
   // Cost function covariance
-  static const double covariance_diagonal[];
+  static double const covariance_diagonal[];
 
   static const fuse_core::Matrix3d covariance;
 
   // Parameter blocks
-  static const double position[];
-  static const double orientation[];
+  static double const position[];
+  static double const orientation[];
 
   // Jacobian matrices
   std::vector<fuse_core::MatrixXd> J;
 };
 
 // Cost function covariance
-const double NormalPriorPose2DBenchmarkFixture::covariance_diagonal[] = { 2e-3, 1e-3, 1e-2 };
+double const NormalPriorPose2DBenchmarkFixture::covariance_diagonal[] = { 2e-3, 1e-3, 1e-2 };
 
 const fuse_core::Matrix3d NormalPriorPose2DBenchmarkFixture::covariance =
     fuse_core::Vector3d(covariance_diagonal).asDiagonal();
 
 // Parameter blocks
-const double NormalPriorPose2DBenchmarkFixture::position[] = { 0.0, 0.0 };
-const double NormalPriorPose2DBenchmarkFixture::orientation[] = { 0.0 };
+double const NormalPriorPose2DBenchmarkFixture::position[] = { 0.0, 0.0 };
+double const NormalPriorPose2DBenchmarkFixture::orientation[] = { 0.0 };
 
 // Mean and sqrt information matrix
 const fuse_core::Vector3d NormalPriorPose2DBenchmarkFixture::mean{ 1.0, 2.0, 3.0 };
 const fuse_core::Matrix3d NormalPriorPose2DBenchmarkFixture::sqrt_information(covariance.inverse().llt().matrixU());
 
 // Parameters
-const double* NormalPriorPose2DBenchmarkFixture::parameters[] = { position, orientation };
+double const* NormalPriorPose2DBenchmarkFixture::parameters[] = { position, orientation };
 
-const std::vector<int32_t>& NormalPriorPose2DBenchmarkFixture::block_sizes = { 2, 1 };
+std::vector<int32_t> const& NormalPriorPose2DBenchmarkFixture::block_sizes = { 2, 1 };
 const size_t NormalPriorPose2DBenchmarkFixture::num_parameter_blocks = block_sizes.size();
 
 const size_t NormalPriorPose2DBenchmarkFixture::num_residuals = 3;
@@ -122,7 +122,7 @@ BENCHMARK_REGISTER_F(NormalPriorPose2DBenchmarkFixture, AnalyticNormalPriorPose2
 BENCHMARK_DEFINE_F(NormalPriorPose2DBenchmarkFixture, AutoDiffNormalPriorPose2D)(benchmark::State& state)
 {
   // Create cost function using automatic differentiation on the cost functor
-  const auto partial_sqrt_information = sqrt_information.topRows(state.range(0));
+  auto const partial_sqrt_information = sqrt_information.topRows(state.range(0));
   const ceres::AutoDiffCostFunction<fuse_constraints::NormalPriorPose2DCostFunctor, ceres::DYNAMIC, 2, 1>
       cost_function_autodiff(new fuse_constraints::NormalPriorPose2DCostFunctor(partial_sqrt_information, mean),
                              partial_sqrt_information.rows());

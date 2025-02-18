@@ -244,7 +244,7 @@ TEST(RelativeConstraint, Optimization)
     EXPECT_NEAR(1.1, x2->x(), 1.0e-5);
     EXPECT_NEAR(2.2, x2->y(), 1.0e-5);
     // Compute the covariance
-    std::vector<std::pair<const double*, const double*>> covariance_blocks;
+    std::vector<std::pair<double const*, double const*>> covariance_blocks;
     covariance_blocks.emplace_back(x1->data(), x1->data());
     covariance_blocks.emplace_back(x2->data(), x2->data());
     ceres::Covariance::Options cov_options;
@@ -341,7 +341,7 @@ TEST(RelativeConstraint, Optimization)
     EXPECT_NEAR(2.2, x2->y(), 1.0e-5);
     EXPECT_NEAR(3.15, x2->z(), 1.0e-5);
     // Compute the marginal covariances
-    std::vector<std::pair<const double*, const double*>> covariance_blocks;
+    std::vector<std::pair<double const*, double const*>> covariance_blocks;
     covariance_blocks.emplace_back(x1->data(), x1->data());
     covariance_blocks.emplace_back(x2->data(), x2->data());
     ceres::Covariance::Options cov_options;
@@ -418,7 +418,7 @@ TEST(RelativeConstraint, RelativeOrientation2DOptimization)
   EXPECT_NEAR(1.0, x1->yaw(), 1.0e-5);
   EXPECT_NEAR(1.1, x2->yaw(), 1.0e-5);
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*>> covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> covariance_blocks;
   covariance_blocks.emplace_back(x1->data(), x1->data());
   covariance_blocks.emplace_back(x2->data(), x2->data());
   ceres::Covariance::Options cov_options;

@@ -84,7 +84,7 @@ public:
    *              order (x, y, yaw)
    * @param[in] b The exposed pose difference in order (x, y, yaw)
    */
-  NormalDeltaPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b);
+  NormalDeltaPose2DCostFunctor(fuse_core::MatrixXd const& A, fuse_core::Vector3d const& b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
@@ -99,7 +99,7 @@ private:
   fuse_core::Vector3d b_;  //!< The measured difference between variable x0 and variable x1
 };
 
-NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b)
+NormalDeltaPose2DCostFunctor::NormalDeltaPose2DCostFunctor(fuse_core::MatrixXd const& A, fuse_core::Vector3d const& b)
   : A_(A), b_(b)
 {
 }

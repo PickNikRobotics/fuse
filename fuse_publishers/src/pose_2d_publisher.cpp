@@ -62,23 +62,23 @@ PLUGINLIB_EXPORT_CLASS(fuse_publishers::Pose2DPublisher, fuse_core::Publisher);
 namespace
 {
 
-bool findPose(rclcpp::Logger logger, rclcpp::Clock clock, const fuse_core::Graph& graph, const rclcpp::Time& stamp,
-              const fuse_core::UUID& device_id, fuse_core::UUID& orientation_uuid, fuse_core::UUID& position_uuid,
+bool findPose(rclcpp::Logger logger, rclcpp::Clock clock, fuse_core::Graph const& graph, rclcpp::Time const& stamp,
+              fuse_core::UUID const& device_id, fuse_core::UUID& orientation_uuid, fuse_core::UUID& position_uuid,
               geometry_msgs::msg::Pose& pose)
 {
   try
   {
     orientation_uuid = fuse_variables::Orientation2DStamped(stamp, device_id).uuid();
     auto orientation_variable =
-        dynamic_cast<const fuse_variables::Orientation2DStamped&>(graph.getVariable(orientation_uuid));
+        dynamic_cast<fuse_variables::Orientation2DStamped const&>(graph.getVariable(orientation_uuid));
     position_uuid = fuse_variables::Position2DStamped(stamp, device_id).uuid();
-    auto position_variable = dynamic_cast<const fuse_variables::Position2DStamped&>(graph.getVariable(position_uuid));
+    auto position_variable = dynamic_cast<fuse_variables::Position2DStamped const&>(graph.getVariable(position_uuid));
     pose.position.x = position_variable.x();
     pose.position.y = position_variable.y();
     pose.position.z = 0.0;
     pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), orientation_variable.yaw()));
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     RCLCPP_WARN_STREAM_THROTTLE(logger, clock, 10.0 * 1000,
                                 "Failed to find a pose at time " << stamp.nanoseconds() << ". Error" << e.what());
@@ -109,7 +109,7 @@ Pose2DPublisher::Pose2DPublisher()
 }
 
 void Pose2DPublisher::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                 const std::string& name)
+                                 std::string const& name)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncPublisher::initialize(interfaces, name);
@@ -276,7 +276,7 @@ void Pose2DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr tran
                                                    // reason
         tf_transform_ = map_to_odom;
       }
-      catch (const std::exception& e)
+      catch (std::exception const& e)
       {
         RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 2.0 * 1000,
                                     "Could not lookup the transform " << base_frame_ << "->" << odom_frame_

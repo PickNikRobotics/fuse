@@ -68,15 +68,15 @@ public:
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCameraFixed(const uint64_t& camera_id);
+  explicit PinholeCameraFixed(uint64_t const& camera_id);
 
   /**
    * @brief Construct a pinhole camera variable given a camera id and intrinsic parameters
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCameraFixed(const uint64_t& camera_id, const double& fx, const double& fy, const double& cx,
-                              const double& cy);
+  explicit PinholeCameraFixed(uint64_t const& camera_id, double const& fx, double const& fy, double const& cx,
+                              double const& cy);
   /**
    * @brief Specifies if the value of the variable should not be changed during optimization
    */
@@ -111,7 +111,7 @@ private:
    * Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<PinholeCamera>(*this);
   }

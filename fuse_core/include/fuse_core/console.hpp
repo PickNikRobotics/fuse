@@ -62,7 +62,7 @@ public:
    *
    * @param[in] The throttle period in seconds
    */
-  explicit DelayedThrottleFilter(const double period) : period_(std::chrono::duration<double, std::ratio<1>>(period))
+  explicit DelayedThrottleFilter(double const period) : period_(std::chrono::duration<double, std::ratio<1>>(period))
   {
     reset();
   }
@@ -81,7 +81,7 @@ public:
    */
   bool isEnabled()
   {
-    const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
+    auto const now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
 
     if (last_hit_.time_since_epoch().count() < 0.0)
     {

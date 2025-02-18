@@ -63,7 +63,7 @@ public:
 class ExampleFunctor
 {
 public:
-  explicit ExampleFunctor(const std::vector<double>& b) : b_(b)
+  explicit ExampleFunctor(std::vector<double> const& b) : b_(b)
   {
   }
 
@@ -92,7 +92,7 @@ public:
   ExampleConstraint() = default;
 
   template <typename VariableUuidIterator>
-  explicit ExampleConstraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last)
+  explicit ExampleConstraint(std::string const& source, VariableUuidIterator first, VariableUuidIterator last)
     : fuse_core::Constraint(source, first, last), data(std::distance(first, last), 0.0)
   {
   }
@@ -128,7 +128,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& data;
@@ -157,7 +157,7 @@ TestableHashGraph makeTestableHashGraph(const size_t num_constraints, const size
                     []() { return ExampleVariable::make_shared(); });  // NOLINT
 
     // Add variables to the graph
-    for (const auto& variable : variables)
+    for (auto const& variable : variables)
     {
       graph.addVariable(variable);
     }
@@ -166,7 +166,7 @@ TestableHashGraph makeTestableHashGraph(const size_t num_constraints, const size
     std::vector<fuse_core::UUID> variable_uuids;
     variable_uuids.reserve(variables.size());
     std::transform(variables.begin(), variables.end(), std::back_inserter(variable_uuids),
-                   [](const auto& variable) { return variable->uuid(); });  // NOLINT
+                   [](auto const& variable) { return variable->uuid(); });  // NOLINT
 
     graph.addConstraint(ExampleConstraint::make_shared("test", variable_uuids.begin(), variable_uuids.end()));
   }
@@ -176,7 +176,7 @@ TestableHashGraph makeTestableHashGraph(const size_t num_constraints, const size
 
 static void BM_createProblem(benchmark::State& state)
 {
-  const auto graph = makeTestableHashGraph(state.range(0), state.range(1));
+  auto const graph = makeTestableHashGraph(state.range(0), state.range(1));
 
   ceres::Problem problem;
 

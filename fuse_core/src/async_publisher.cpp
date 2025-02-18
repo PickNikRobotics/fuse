@@ -47,7 +47,7 @@ AsyncPublisher::~AsyncPublisher()
 }
 
 void AsyncPublisher::initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                const std::string& name)
+                                std::string const& name)
 {
   if (initialized_)
   {

@@ -159,7 +159,7 @@ Eigen::Matrix<T, 2, 2, Eigen::RowMajor> rotationMatrix2D(const T angle)
  * @param[in] rpy Pointer to the roll, pitch, yaw array (3x1)
  * @param[in] jacobian Pointer to the jacobian matrix (3x4, optional)
  */
-static inline void quaternion2rpy(const double* q, double* rpy, double* jacobian = nullptr)
+static inline void quaternion2rpy(double const* q, double* rpy, double* jacobian = nullptr)
 {
   rpy[0] = fuse_core::getRoll(q[0], q[1], q[2], q[3]);
   rpy[1] = fuse_core::getPitch(q[0], q[1], q[2], q[3]);
@@ -168,12 +168,12 @@ static inline void quaternion2rpy(const double* q, double* rpy, double* jacobian
   if (jacobian != nullptr)
   {
     Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> jacobian_map(jacobian);
-    const double qw = q[0];
-    const double qx = q[1];
-    const double qy = q[2];
-    const double qz = q[3];
-    const double discr = qw * qy - qx * qz;
-    const double gl_limit = 0.5 - 2.0 * std::numeric_limits<double>::epsilon();
+    double const qw = q[0];
+    double const qx = q[1];
+    double const qy = q[2];
+    double const qz = q[3];
+    double const discr = qw * qy - qx * qz;
+    double const gl_limit = 0.5 - 2.0 * std::numeric_limits<double>::epsilon();
 
     if (discr > gl_limit)
     {
@@ -245,7 +245,7 @@ static inline void quaternion2rpy(const double* q, double* rpy, double* jacobian
  * @param[in] zw Pointer to the output quaternion array (4x1) that will be populated with the result of z * w
  * @param[in] jacobian Pointer to the jacobian of zw with respect to w (4x4, optional)
  */
-static inline void quaternionProduct(const double* z, const double* w, double* zw, double* jacobian = nullptr)
+static inline void quaternionProduct(double const* z, double const* w, double* zw, double* jacobian = nullptr)
 {
   ceres::QuaternionProduct(z, w, zw);
   if (jacobian != nullptr)
@@ -263,29 +263,29 @@ static inline void quaternionProduct(const double* z, const double* w, double* z
  * @param[in] angle_axis Pointer to the angle_axis array (3x1)
  * @param[in] jacobian Pointer to the jacobian matrix (3x4, optional)
  */
-static inline void quaternionToAngleAxis(const double* q, double* angle_axis, double* jacobian = nullptr)
+static inline void quaternionToAngleAxis(double const* q, double* angle_axis, double* jacobian = nullptr)
 {
   ceres::QuaternionToAngleAxis(q, angle_axis);
   if (jacobian != nullptr)
   {
     Eigen::Map<Eigen::Matrix<double, 3, 4, Eigen::RowMajor>> jacobian_map(jacobian);
-    const double& q0 = q[0];
-    const double& q1 = q[1];
-    const double& q2 = q[2];
-    const double& q3 = q[3];
-    const double q_sum2 = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3;
-    const double sin_theta2 = q1 * q1 + q2 * q2 + q3 * q3;
-    const double sin_theta = std::hypot(q1, q2, q3);
-    const double cos_theta = q0;
+    double const& q0 = q[0];
+    double const& q1 = q[1];
+    double const& q2 = q[2];
+    double const& q3 = q[3];
+    double const q_sum2 = q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3;
+    double const sin_theta2 = q1 * q1 + q2 * q2 + q3 * q3;
+    double const sin_theta = std::hypot(q1, q2, q3);
+    double const cos_theta = q0;
 
-    const double cond = std::pow(sin_theta2, 1.5);
+    double const cond = std::pow(sin_theta2, 1.5);
     if (std::fpclassify(cond) != FP_ZERO)
     {
-      const double two_theta =
+      double const two_theta =
           2.0 * (cos_theta < 0.0 ? std::atan2(-sin_theta, -cos_theta) : std::atan2(sin_theta, cos_theta));
       // const double a = two_theta / sin_theta;
-      const double b = sin_theta2 * q_sum2;
-      const double c = two_theta / cond;
+      double const b = sin_theta2 * q_sum2;
+      double const c = two_theta / cond;
       jacobian_map(0, 0) = -2.0 * q1 / q_sum2;
       jacobian_map(0, 1) = two_theta / sin_theta + (2.0 * q0 * q1 * q1) / b - (q1 * q1 * c);
       jacobian_map(0, 2) = (2.0 * q0 * q1 * q2) / b - (q1 * q2 * c);

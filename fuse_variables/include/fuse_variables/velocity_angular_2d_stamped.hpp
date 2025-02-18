@@ -86,7 +86,7 @@ public:
    * @param[in] device_id An optional device id, for use when variables originate from multiple
    *                      robots or devices
    */
-  explicit VelocityAngular2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit VelocityAngular2DStamped(rclcpp::Time const& stamp, fuse_core::UUID const& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the angular velocity.
@@ -99,7 +99,7 @@ public:
   /**
    * @brief Read-only access to the angular velocity.
    */
-  const double& yaw() const
+  double const& yaw() const
   {
     return data_[YAW];
   }
@@ -135,7 +135,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& boost::serialization::base_object<Stamped>(*this);

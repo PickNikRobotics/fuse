@@ -117,7 +117,7 @@ void Optimizer::loadMotionModels()
       fuse_core::list_parameter_override_prefixes(interfaces_, "motion_models.");
 
   // declare config parameters for each model
-  for (const auto& param_name : motion_model_names)
+  for (auto const& param_name : motion_model_names)
   {
     ModelConfig& config = motion_model_config.emplace_back();
     config.name = param_name.substr(param_name.rfind('.') + 1);
@@ -150,7 +150,7 @@ void Optimizer::loadMotionModels()
 
   // now load the models defined above
 
-  for (const ModelConfig& config : motion_model_config)
+  for (ModelConfig const& config : motion_model_config)
   {
     // Create a motion_model object using pluginlib. This will throw if the plugin name is not
     // found.
@@ -185,7 +185,7 @@ void Optimizer::loadSensorModels()
       fuse_core::list_parameter_override_prefixes(interfaces_, "sensor_models.");
 
   // declare config parameters for each model
-  for (const auto& param_name : sensor_model_names)
+  for (auto const& param_name : sensor_model_names)
   {
     ModelConfig& config = sensor_model_config.emplace_back();
     config.name = param_name.substr(param_name.rfind('.') + 1);
@@ -258,7 +258,7 @@ void Optimizer::loadSensorModels()
   }
 
   // now load the models defined above
-  for (const ModelConfig& config : sensor_model_config)
+  for (ModelConfig const& config : sensor_model_config)
   {
     // Create a sensor object using pluginlib. This will throw if the plugin name is not found.
     auto sensor_model = sensor_model_loader_.createUniqueInstance(config.type);
@@ -272,7 +272,7 @@ void Optimizer::loadSensorModels()
     // Parse out the list of associated motion models, if any
     associated_motion_models_[config.name] = config.associated_motion_models;
 
-    for (const auto& motion_model_name : config.associated_motion_models)
+    for (auto const& motion_model_name : config.associated_motion_models)
     {
       if (motion_models_.find(motion_model_name) == motion_models_.end())
       {
@@ -303,7 +303,7 @@ void Optimizer::loadPublishers()
       fuse_core::list_parameter_override_prefixes(interfaces_, "publishers.");
 
   // declare config parameters for each model
-  for (const auto& param_name : publisher_names)
+  for (auto const& param_name : publisher_names)
   {
     PublisherConfig& config = publisher_config.emplace_back();
     config.name = param_name.substr(param_name.rfind('.') + 1);
@@ -337,7 +337,7 @@ void Optimizer::loadPublishers()
 
   // now load the models defined above
 
-  for (const PublisherConfig& config : publisher_config)
+  for (PublisherConfig const& config : publisher_config)
   {
     // Create a publisher object using pluginlib. This will throw if the plugin name is not found.
     auto publisher = publisher_loader_.createUniqueInstance(config.type);
@@ -350,7 +350,7 @@ void Optimizer::loadPublishers()
   diagnostic_updater_.force_update();
 }
 
-bool Optimizer::applyMotionModels(const std::string& sensor_name, fuse_core::Transaction& transaction) const
+bool Optimizer::applyMotionModels(std::string const& sensor_name, fuse_core::Transaction& transaction) const
 {
   // Check for trivial cases where we don't have to do anything
   auto iter = associated_motion_models_.find(sensor_name);
@@ -359,15 +359,15 @@ bool Optimizer::applyMotionModels(const std::string& sensor_name, fuse_core::Tra
     return true;
   }
   // Generate constraints for each configured motion model
-  const auto& motion_model_names = iter->second;
+  auto const& motion_model_names = iter->second;
   bool success = true;
-  for (const auto& motion_model_name : motion_model_names)
+  for (auto const& motion_model_name : motion_model_names)
   {
     try
     {
       success &= motion_models_.at(motion_model_name)->apply(transaction);
     }
-    catch (const std::exception& e)
+    catch (std::exception const& e)
     {
       RCLCPP_ERROR_STREAM(logger_, "Error generating constraints for sensor '" << sensor_name << "' from motion model '"
                                                                                << motion_model_name
@@ -381,39 +381,39 @@ bool Optimizer::applyMotionModels(const std::string& sensor_name, fuse_core::Tra
 void Optimizer::notify(fuse_core::Transaction::ConstSharedPtr const& transaction,
                        fuse_core::Graph::ConstSharedPtr const& graph)
 {
-  for (const auto& name_sensor_model : sensor_models_)
+  for (auto const& name_sensor_model : sensor_models_)
   {
     try
     {
       name_sensor_model.second.model->graphCallback(graph);
     }
-    catch (const std::exception& e)
+    catch (std::exception const& e)
     {
       RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on sensor '" << name_sensor_model.first
                                                                                 << "'. Error: " << e.what());
       continue;
     }
   }
-  for (const auto& name_motion_model : motion_models_)
+  for (auto const& name_motion_model : motion_models_)
   {
     try
     {
       name_motion_model.second->graphCallback(graph);
     }
-    catch (const std::exception& e)
+    catch (std::exception const& e)
     {
       RCLCPP_ERROR_STREAM(logger_, "Failed calling graphCallback() on motion model '" << name_motion_model.first
                                                                                       << ". Error: " << e.what());
       continue;
     }
   }
-  for (const auto& name_publisher : publishers_)
+  for (auto const& name_publisher : publishers_)
   {
     try
     {
       name_publisher.second->notify(transaction, graph);
     }
-    catch (const std::exception& e)
+    catch (std::exception const& e)
     {
       RCLCPP_ERROR_STREAM(logger_,
                           "Failed calling notify() on publisher '" << name_publisher.first << ". Error: " << e.what());
@@ -422,7 +422,7 @@ void Optimizer::notify(fuse_core::Transaction::ConstSharedPtr const& transaction
   }
 }
 
-void Optimizer::injectCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction)
+void Optimizer::injectCallback(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction)
 {
   // We are going to insert a call to the derived class's transactionCallback() method into the
   // global callback queue. This returns execution to the sensor's thread quickly by moving the
@@ -440,15 +440,15 @@ void Optimizer::clearCallbacks()
 
 void Optimizer::startPlugins()
 {
-  for (const auto& name_plugin : motion_models_)
+  for (auto const& name_plugin : motion_models_)
   {
     name_plugin.second->start();
   }
-  for (const auto& name_plugin : sensor_models_)
+  for (auto const& name_plugin : sensor_models_)
   {
     name_plugin.second.model->start();
   }
-  for (const auto& name_plugin : publishers_)
+  for (auto const& name_plugin : publishers_)
   {
     name_plugin.second->start();
   }
@@ -458,15 +458,15 @@ void Optimizer::startPlugins()
 
 void Optimizer::stopPlugins()
 {
-  for (const auto& name_plugin : publishers_)
+  for (auto const& name_plugin : publishers_)
   {
     name_plugin.second->stop();
   }
-  for (const auto& name_plugin : sensor_models_)
+  for (auto const& name_plugin : sensor_models_)
   {
     name_plugin.second.model->stop();
   }
-  for (const auto& name_plugin : motion_models_)
+  for (auto const& name_plugin : motion_models_)
   {
     name_plugin.second->stop();
   }
@@ -486,7 +486,7 @@ void Optimizer::setDiagnostics(diagnostic_updater::DiagnosticStatusWrapper& stat
 
   status.summary(diagnostic_msgs::msg::DiagnosticStatus::OK, "Optimizer exists");
 
-  auto print_key = [](const std::string& result, const auto& entry) { return result + entry.first + ' '; };
+  auto print_key = [](std::string const& result, auto const& entry) { return result + entry.first + ' '; };
 
   status.add("Sensor Models", std::accumulate(sensor_models_.begin(), sensor_models_.end(), std::string(), print_key));
   status.add("Motion Models", std::accumulate(motion_models_.begin(), motion_models_.end(), std::string(), print_key));

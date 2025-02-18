@@ -89,7 +89,7 @@ public:
    *                          timestamps that are older than the buffer length, an exception will be
    *                          thrown.
    */
-  explicit MessageBuffer(const rclcpp::Duration& buffer_length = rclcpp::Duration::max());
+  explicit MessageBuffer(rclcpp::Duration const& buffer_length = rclcpp::Duration::max());
 
   /**
    * @brief Destructor
@@ -99,7 +99,7 @@ public:
   /**
    * @brief Read-only access to the buffer length
    */
-  const rclcpp::Duration& bufferLength() const
+  rclcpp::Duration const& bufferLength() const
   {
     return buffer_length_;
   }
@@ -107,7 +107,7 @@ public:
   /**
    * @brief Write access to the buffer length
    */
-  void bufferLength(const rclcpp::Duration& buffer_length)
+  void bufferLength(rclcpp::Duration const& buffer_length)
   {
     buffer_length_ = buffer_length;
   }
@@ -121,7 +121,7 @@ public:
    * @param[in] stamp The stamp to assign to the message
    * @param[in] msg   A message
    */
-  void insert(const rclcpp::Time& stamp, const Message& msg);
+  void insert(rclcpp::Time const& stamp, Message const& msg);
 
   /**
    * @brief Query the buffer for the set of messages between two timestamps
@@ -141,7 +141,7 @@ public:
    * @return                    An iterator range containing all of the messages between the
    *                            specified stamps.
    */
-  message_range query(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp, bool extended_range = true);
+  message_range query(rclcpp::Time const& beginning_stamp, rclcpp::Time const& ending_stamp, bool extended_range = true);
 
   /**
    * @brief Read-only access to the current set of timestamps
@@ -161,7 +161,7 @@ protected:
    * @brief Helper function used with boost::transform_iterators to convert the internal Buffer
    *        value type into a const rclcpp::Time& iterator compatible with stamp_range
    */
-  static const rclcpp::Time& extractStamp(const typename Buffer::value_type& element)
+  static rclcpp::Time const& extractStamp(const typename Buffer::value_type& element)
   {
     return element.first;
   }

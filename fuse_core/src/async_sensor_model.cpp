@@ -55,7 +55,7 @@ AsyncSensorModel::~AsyncSensorModel()
 }
 
 void AsyncSensorModel::initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                  const std::string& name, TransactionCallback transaction_callback)
+                                  std::string const& name, TransactionCallback transaction_callback)
 {
   if (initialized_)
   {

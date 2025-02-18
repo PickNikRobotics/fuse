@@ -49,9 +49,9 @@ TEST(Optimizer, Constructor)
   ExampleOptimizer optimizer(*node);
 
   // Check the motion and sensor models, and publishers were loaded:
-  const auto& motion_models = optimizer.getMotionModels();
-  const auto& sensor_models = optimizer.getSensorModels();
-  const auto& publishers = optimizer.getPublishers();
+  auto const& motion_models = optimizer.getMotionModels();
+  auto const& sensor_models = optimizer.getSensorModels();
+  auto const& publishers = optimizer.getPublishers();
 
   EXPECT_FALSE(motion_models.empty());
   EXPECT_FALSE(sensor_models.empty());
@@ -72,9 +72,9 @@ TEST(Optimizer, Constructor)
 
   // Compute the symmetric difference between the expected and actual motion and sensor models, and
   // publishers:
-  const auto difference_motion_models = set_symmetric_difference(expected_motion_models, motion_models);
-  const auto difference_sensor_models = set_symmetric_difference(expected_sensor_models, sensor_models);
-  const auto difference_publishers = set_symmetric_difference(expected_publishers, publishers);
+  auto const difference_motion_models = set_symmetric_difference(expected_motion_models, motion_models);
+  auto const difference_sensor_models = set_symmetric_difference(expected_sensor_models, sensor_models);
+  auto const difference_publishers = set_symmetric_difference(expected_publishers, publishers);
 
   // Check the symmetric difference is empty, i.e. the actual motion and sensor models, and
   // publishers are the same as the expected ones:

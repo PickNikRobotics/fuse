@@ -73,16 +73,16 @@ public:
   using Visual = Pose2DStampedVisual;
   using VisualPtr = std::shared_ptr<Visual>;
 
-  Pose2DStampedProperty(const QString& name = "Pose2DStamped", bool default_value = true,
-                        const QString& description = QString(), Property* parent = NULL,
-                        const char* changed_slot = NULL, QObject* receiver = NULL);
+  Pose2DStampedProperty(QString const& name = "Pose2DStamped", bool default_value = true,
+                        QString const& description = QString(), Property* parent = NULL,
+                        char const* changed_slot = NULL, QObject* receiver = NULL);
 
   ~Pose2DStampedProperty() override = default;
 
   VisualPtr createAndInsertOrUpdateVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                                          const fuse_variables::Position2DStamped& position,
-                                          const fuse_variables::Orientation2DStamped& orientation);
-  void eraseVisual(const fuse_core::UUID& uuid);
+                                          fuse_variables::Position2DStamped const& position,
+                                          fuse_variables::Orientation2DStamped const& orientation);
+  void eraseVisual(fuse_core::UUID const& uuid);
   void clearVisual();
 
 public Q_SLOTS:
@@ -96,12 +96,12 @@ private Q_SLOTS:
   void updateTextScale();
 
 private:
-  void updateAxesAlpha(const VisualPtr& constraint);
-  void updateScale(const VisualPtr& constraint);
-  void updateShowText(const VisualPtr& constraint);
-  void updateSphereColorAlpha(const VisualPtr& constraint);
-  void updateTextScale(const VisualPtr& constraint);
-  void updateVisibility(const VisualPtr& constraint);
+  void updateAxesAlpha(VisualPtr const& constraint);
+  void updateScale(VisualPtr const& constraint);
+  void updateShowText(VisualPtr const& constraint);
+  void updateSphereColorAlpha(VisualPtr const& constraint);
+  void updateTextScale(VisualPtr const& constraint);
+  void updateVisibility(VisualPtr const& constraint);
 
   std::unordered_map<fuse_core::UUID, VisualPtr, fuse_core::uuid::hash> variables_;
 

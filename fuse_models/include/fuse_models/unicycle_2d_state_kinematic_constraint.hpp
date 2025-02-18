@@ -92,17 +92,17 @@ public:
    * @param[in] covariance - The covariance matrix used to weight the constraint. Order is (x, y,
    *                         yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
-  Unicycle2DStateKinematicConstraint(const std::string& source, const fuse_variables::Position2DStamped& position1,
-                                     const fuse_variables::Orientation2DStamped& yaw1,
-                                     const fuse_variables::VelocityLinear2DStamped& linear_velocity1,
-                                     const fuse_variables::VelocityAngular2DStamped& yaw_velocity1,
-                                     const fuse_variables::AccelerationLinear2DStamped& linear_acceleration1,
-                                     const fuse_variables::Position2DStamped& position2,
-                                     const fuse_variables::Orientation2DStamped& yaw2,
-                                     const fuse_variables::VelocityLinear2DStamped& linear_velocity2,
-                                     const fuse_variables::VelocityAngular2DStamped& yaw_velocity2,
-                                     const fuse_variables::AccelerationLinear2DStamped& linear_acceleration2,
-                                     const fuse_core::Matrix8d& covariance);
+  Unicycle2DStateKinematicConstraint(std::string const& source, fuse_variables::Position2DStamped const& position1,
+                                     fuse_variables::Orientation2DStamped const& yaw1,
+                                     fuse_variables::VelocityLinear2DStamped const& linear_velocity1,
+                                     fuse_variables::VelocityAngular2DStamped const& yaw_velocity1,
+                                     fuse_variables::AccelerationLinear2DStamped const& linear_acceleration1,
+                                     fuse_variables::Position2DStamped const& position2,
+                                     fuse_variables::Orientation2DStamped const& yaw2,
+                                     fuse_variables::VelocityLinear2DStamped const& linear_velocity2,
+                                     fuse_variables::VelocityAngular2DStamped const& yaw_velocity2,
+                                     fuse_variables::AccelerationLinear2DStamped const& linear_acceleration2,
+                                     fuse_core::Matrix8d const& covariance);
 
   /**
    * @brief Destructor
@@ -124,7 +124,7 @@ public:
    *
    * Order is (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
-  const fuse_core::Matrix8d& sqrtInformation() const
+  fuse_core::Matrix8d const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -174,7 +174,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& dt_;

@@ -202,7 +202,7 @@ tf2_msgs::msg::TFMessage aprilTagPoses(Robot const& robot)
   return msg;
 }
 
-tf2_msgs::msg::TFMessage simulateAprilTag(const Robot& robot)
+tf2_msgs::msg::TFMessage simulateAprilTag(Robot const& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };

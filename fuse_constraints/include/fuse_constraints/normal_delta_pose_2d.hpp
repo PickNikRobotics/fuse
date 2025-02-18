@@ -82,7 +82,7 @@ public:
    *              order (x, y, yaw)
    * @param[in] b The exposed pose difference in order (x, y, yaw)
    */
-  NormalDeltaPose2D(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b);
+  NormalDeltaPose2D(fuse_core::MatrixXd const& A, fuse_core::Vector3d const& b);
 
   /**
    * @brief Compute the cost values/residuals, and optionally the Jacobians, using the provided

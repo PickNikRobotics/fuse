@@ -65,7 +65,7 @@ private:
   rclcpp::Subscription<fuse_msgs::msg::SerializedGraph>::SharedPtr graph_sub_;
   rclcpp::Subscription<fuse_msgs::msg::SerializedTransaction>::SharedPtr transaction_sub_;
 
-  void graphCallback(const fuse_msgs::msg::SerializedGraph& msg)
+  void graphCallback(fuse_msgs::msg::SerializedGraph const& msg)
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "GRAPH:" << std::endl;
@@ -74,7 +74,7 @@ private:
     graph->print();
   }
 
-  void transactionCallback(const fuse_msgs::msg::SerializedTransaction& msg)
+  void transactionCallback(fuse_msgs::msg::SerializedTransaction const& msg)
   {
     std::cout << "-------------------------" << std::endl;
     std::cout << "TRANSACTION:" << std::endl;

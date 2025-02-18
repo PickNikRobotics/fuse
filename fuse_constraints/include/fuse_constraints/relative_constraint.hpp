@@ -92,8 +92,8 @@ public:
    * @param[in] delta      The measured change between variable1 and variable2
    * @param[in] covariance The measurement uncertainty
    */
-  RelativeConstraint(const std::string& source, const Variable& variable1, const Variable& variable2,
-                     const fuse_core::VectorXd& delta, const fuse_core::MatrixXd& covariance);
+  RelativeConstraint(std::string const& source, Variable const& variable1, Variable const& variable2,
+                     fuse_core::VectorXd const& delta, fuse_core::MatrixXd const& covariance);
 
   /**
    * @brief Constructor
@@ -111,9 +111,9 @@ public:
    *                               order defined by \p indices.
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
-  RelativeConstraint(const std::string& source, const Variable& variable1, const Variable& variable2,
-                     const fuse_core::VectorXd& delta, const fuse_core::MatrixXd& covariance,
-                     const std::vector<size_t>& indices);
+  RelativeConstraint(std::string const& source, Variable const& variable1, Variable const& variable2,
+                     fuse_core::VectorXd const& delta, fuse_core::MatrixXd const& covariance,
+                     std::vector<size_t> const& indices);
 
   /**
    * @brief Destructor
@@ -127,7 +127,7 @@ public:
    * are in the order defined by the variable, not the order defined by the \p indices parameter.
    * All unmeasured variable dimensions are set to zero.
    */
-  const fuse_core::VectorXd& delta() const
+  fuse_core::VectorXd const& delta() const
   {
     return delta_;
   }
@@ -140,7 +140,7 @@ public:
    * variable_dimensions. If only a partial set of dimensions are measured, then this matrix will
    * not be square.
    */
-  const fuse_core::MatrixXd& sqrtInformation() const
+  fuse_core::MatrixXd const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -190,7 +190,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& delta_;

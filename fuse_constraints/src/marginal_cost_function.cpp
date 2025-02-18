@@ -46,25 +46,25 @@ namespace fuse_constraints
 {
 #if !CERES_SUPPORTS_MANIFOLDS
 MarginalCostFunction::MarginalCostFunction(
-    const std::vector<fuse_core::MatrixXd>& A, const fuse_core::VectorXd& b,
-    const std::vector<fuse_core::VectorXd>& x_bar,
-    const std::vector<fuse_core::LocalParameterization::SharedPtr>& local_parameterizations)
+    std::vector<fuse_core::MatrixXd> const& A, fuse_core::VectorXd const& b,
+    std::vector<fuse_core::VectorXd> const& x_bar,
+    std::vector<fuse_core::LocalParameterization::SharedPtr> const& local_parameterizations)
   : A_(A), b_(b), local_parameterizations_(local_parameterizations), x_bar_(x_bar)
 {
   set_num_residuals(b_.rows());
-  for (const auto& x_bar : x_bar_)
+  for (auto const& x_bar : x_bar_)
   {
     mutable_parameter_block_sizes()->push_back(x_bar.size());
   }
 }
 #else
-MarginalCostFunction::MarginalCostFunction(const std::vector<fuse_core::MatrixXd>& A, const fuse_core::VectorXd& b,
-                                           const std::vector<fuse_core::VectorXd>& x_bar,
-                                           const std::vector<fuse_core::Manifold::SharedPtr>& manifolds)
+MarginalCostFunction::MarginalCostFunction(std::vector<fuse_core::MatrixXd> const& A, fuse_core::VectorXd const& b,
+                                           std::vector<fuse_core::VectorXd> const& x_bar,
+                                           std::vector<fuse_core::Manifold::SharedPtr> const& manifolds)
   : A_(A), b_(b), manifolds_(manifolds), x_bar_(x_bar)
 {
   set_num_residuals(b_.rows());
-  for (const auto& x_bar : x_bar_)
+  for (auto const& x_bar : x_bar_)
   {
     mutable_parameter_block_sizes()->push_back(x_bar.size());
   }
@@ -109,13 +109,13 @@ bool MarginalCostFunction::Evaluate(double const* const* parameters, double* res
 #if !CERES_SUPPORTS_MANIFOLDS
         if (local_parameterizations_[i])
         {
-          const auto& local_parameterization = local_parameterizations_[i];
+          auto const& local_parameterization = local_parameterizations_[i];
           fuse_core::MatrixXd J_local(local_parameterization->LocalSize(), local_parameterization->GlobalSize());
           local_parameterization->ComputeMinusJacobian(parameters[i], J_local.data());
 #else
         if (manifolds_[i])
         {
-          const auto& manifold = manifolds_[i];
+          auto const& manifold = manifolds_[i];
           fuse_core::MatrixXd J_local(manifold->TangentSize(), manifold->AmbientSize());
           manifold->MinusJacobian(parameters[i], J_local.data());
 #endif

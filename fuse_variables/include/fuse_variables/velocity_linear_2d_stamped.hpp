@@ -88,7 +88,7 @@ public:
    *                      robots or devices
    *
    */
-  explicit VelocityLinear2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit VelocityLinear2DStamped(rclcpp::Time const& stamp, fuse_core::UUID const& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the X-axis linear velocity.
@@ -101,7 +101,7 @@ public:
   /**
    * @brief Read-only access to the X-axis linear velocity.
    */
-  const double& x() const
+  double const& x() const
   {
     return data_[X];
   }
@@ -117,7 +117,7 @@ public:
   /**
    * @brief Read-only access to the Y-axis linear velocity.
    */
-  const double& y() const
+  double const& y() const
   {
     return data_[Y];
   }
@@ -153,7 +153,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& boost::serialization::base_object<Stamped>(*this);

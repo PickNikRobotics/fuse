@@ -40,7 +40,7 @@
 namespace fuse_constraints
 {
 
-NormalPriorPose3D::NormalPriorPose3D(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b) : A_(A), b_(b)
+NormalPriorPose3D::NormalPriorPose3D(fuse_core::Matrix6d const& A, fuse_core::Vector7d const& b) : A_(A), b_(b)
 {
 }
 

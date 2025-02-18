@@ -60,7 +60,7 @@ Imu2D::Imu2D()
 }
 
 void Imu2D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                       const std::string& name, fuse_core::TransactionCallback transaction_callback)
+                       std::string const& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -106,7 +106,7 @@ void Imu2D::onStart()
 
     sub_ = rclcpp::create_subscription<sensor_msgs::msg::Imu>(
         interfaces_, params_.topic, params_.queue_size,
-        std::bind(&ImuThrottledCallback::callback<const sensor_msgs::msg::Imu&>, &throttled_callback_,
+        std::bind(&ImuThrottledCallback::callback<sensor_msgs::msg::Imu const&>, &throttled_callback_,
                   std::placeholders::_1),
         sub_options);
   }
@@ -117,7 +117,7 @@ void Imu2D::onStop()
   sub_.reset();
 }
 
-void Imu2D::process(const sensor_msgs::msg::Imu& msg)
+void Imu2D::process(sensor_msgs::msg::Imu const& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
@@ -150,7 +150,7 @@ void Imu2D::process(const sensor_msgs::msg::Imu& msg)
   twist.twist.covariance[34] = msg.angular_velocity_covariance[7];
   twist.twist.covariance[35] = msg.angular_velocity_covariance[8];
 
-  const bool validate = !params_.disable_checks;
+  bool const validate = !params_.disable_checks;
 
   if (params_.differential)
   {
@@ -205,8 +205,8 @@ void Imu2D::process(const sensor_msgs::msg::Imu& msg)
   sendTransaction(transaction);
 }
 
-void Imu2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
-                                const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
+void Imu2D::processDifferential(geometry_msgs::msg::PoseWithCovarianceStamped const& pose,
+                                geometry_msgs::msg::TwistWithCovarianceStamped const& twist, bool const validate,
                                 fuse_core::Transaction& transaction)
 {
   auto transformed_pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();

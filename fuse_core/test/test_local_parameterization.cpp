@@ -147,8 +147,8 @@ TEST(LocalParameterization, PlusMinus)
 {
   TestLocalParameterization parameterization;
 
-  const double x1[3] = { 1.0, 2.0, 3.0 };
-  const double delta[2] = { 0.5, 1.0 };
+  double const x1[3] = { 1.0, 2.0, 3.0 };
+  double const delta[2] = { 0.5, 1.0 };
   double x2[3] = { 0.0, 0.0, 0.0 };
   bool success = parameterization.Plus(x1, delta, x2);
 

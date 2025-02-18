@@ -44,10 +44,10 @@ namespace fuse_constraints
 {
 
 RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
-    const std::string& source, const fuse_variables::Position3DStamped& position1,
-    const fuse_variables::Orientation3DStamped& orientation1, const fuse_variables::Position3DStamped& position2,
-    const fuse_variables::Orientation3DStamped& orientation2, const fuse_core::Vector6d& delta,
-    const fuse_core::Matrix6d& covariance)
+    std::string const& source, fuse_variables::Position3DStamped const& position1,
+    fuse_variables::Orientation3DStamped const& orientation1, fuse_variables::Position3DStamped const& position2,
+    fuse_variables::Orientation3DStamped const& orientation2, fuse_core::Vector6d const& delta,
+    fuse_core::Matrix6d const& covariance)
   : fuse_core::Constraint(source, { position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid() })
   ,  // NOLINT
   delta_(delta)
@@ -56,10 +56,10 @@ RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
 }
 
 RelativePose3DStampedEulerConstraint::RelativePose3DStampedEulerConstraint(
-    const std::string& source, const fuse_variables::Position3DStamped& position1,
-    const fuse_variables::Orientation3DStamped& orientation1, const fuse_variables::Position3DStamped& position2,
-    const fuse_variables::Orientation3DStamped& orientation2, const fuse_core::Vector6d& partial_delta,
-    const fuse_core::MatrixXd& partial_covariance, const std::vector<size_t>& variable_indices)
+    std::string const& source, fuse_variables::Position3DStamped const& position1,
+    fuse_variables::Orientation3DStamped const& orientation1, fuse_variables::Position3DStamped const& position2,
+    fuse_variables::Orientation3DStamped const& orientation2, fuse_core::Vector6d const& partial_delta,
+    fuse_core::MatrixXd const& partial_covariance, std::vector<size_t> const& variable_indices)
   : fuse_core::Constraint(source, { position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid() })
   ,  // NOLINT
   delta_(partial_delta)
