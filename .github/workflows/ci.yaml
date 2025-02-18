@@ -19,7 +19,7 @@ permissions:
 jobs:
   build-ws:
     name: Build colcon workspace
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -54,7 +54,7 @@ jobs:
     needs:
       # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
       - build-ws
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     container:
       # Run on the Docker image we tagged and pushed to a private repo in the job above
       image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
@@ -79,7 +79,7 @@ jobs:
       # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
       - build-ws
     name: clang-tidy
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     container:
       # Run on the Docker image we tagged and pushed to a private repo in the job above
       image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
