@@ -75,7 +75,7 @@ Unicycle2DIgnition::Unicycle2DIgnition()
 }
 
 void Unicycle2DIgnition::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                    const std::string& name, fuse_core::TransactionCallback transaction_callback)
+                                    std::string const& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -149,13 +149,13 @@ void Unicycle2DIgnition::stop()
   started_ = false;
 }
 
-void Unicycle2DIgnition::subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
+void Unicycle2DIgnition::subscriberCallback(geometry_msgs::msg::PoseWithCovarianceStamped const& msg)
 {
   try
   {
     process(msg);
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring message.");
   }
@@ -173,7 +173,7 @@ bool Unicycle2DIgnition::setPoseServiceCallback(rclcpp::Service<fuse_msgs::srv::
       service->send_response(*request_id, response);
     });
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     fuse_msgs::srv::SetPose::Response response;
     response.success = false;
@@ -196,7 +196,7 @@ bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
       service->send_response(*request_id, response);
     });
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     fuse_msgs::srv::SetPoseDeprecated::Response response;
     RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring request.");
@@ -205,7 +205,7 @@ bool Unicycle2DIgnition::setPoseDeprecatedServiceCallback(
   return true;
 }
 
-void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
+void Unicycle2DIgnition::process(geometry_msgs::msg::PoseWithCovarianceStamped const& pose,
                                  std::function<void()> const& post_process)
 {
   // Verify we are in the correct state to process set pose requests
@@ -289,9 +289,9 @@ void Unicycle2DIgnition::process(const geometry_msgs::msg::PoseWithCovarianceSta
   }
 }
 
-void Unicycle2DIgnition::sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose)
+void Unicycle2DIgnition::sendPrior(geometry_msgs::msg::PoseWithCovarianceStamped const& pose)
 {
-  const auto& stamp = pose.header.stamp;
+  auto const& stamp = pose.header.stamp;
 
   // Create variables for the full state.
   // The initial values of the pose are extracted from the provided PoseWithCovarianceStamped
