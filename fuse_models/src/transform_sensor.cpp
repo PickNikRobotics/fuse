@@ -65,7 +65,7 @@ TransformSensor::TransformSensor()
 }
 
 void TransformSensor::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                 const std::string& name, fuse_core::TransactionCallback transaction_callback)
+                                 std::string const& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -120,7 +120,7 @@ void TransformSensor::onStart()
   sub_options.callback_group = cb_group_;
 
   sub_ = rclcpp::create_subscription<MessageType>(interfaces_, "/tf", params_.queue_size,
-                                                  std::bind(&AprilTagThrottledCallback::callback<const MessageType&>,
+                                                  std::bind(&AprilTagThrottledCallback::callback<MessageType const&>,
                                                             &throttled_callback_, std::placeholders::_1),
                                                   sub_options);
 }
@@ -212,7 +212,7 @@ void TransformSensor::process(MessageType const& msg)
       pose.pose.covariance[i * 7] = params_.pose_covariance[i];
     }
 
-    const bool validate = !params_.disable_checks;
+    bool const validate = !params_.disable_checks;
     common::processAbsolutePose3DWithCovariance(name(), device_id_, pose, params_.pose_loss, "",
                                                 params_.position_indices, params_.orientation_indices, *tf_buffer_,
                                                 validate, *transaction, params_.tf_timeout);

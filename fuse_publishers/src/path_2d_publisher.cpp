@@ -63,7 +63,7 @@ Path2DPublisher::Path2DPublisher() : fuse_core::AsyncPublisher(1), device_id_(fu
 }
 
 void Path2DPublisher::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                 const std::string& name)
+                                 std::string const& name)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncPublisher::initialize(interfaces, name);
@@ -108,18 +108,18 @@ void Path2DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr /*tr
   }
   // Extract all of the 2D pose variables to the path
   std::vector<geometry_msgs::msg::PoseStamped> poses;
-  for (const auto& variable : graph->getVariables())
+  for (auto const& variable : graph->getVariables())
   {
-    auto orientation = dynamic_cast<const fuse_variables::Orientation2DStamped*>(&variable);
+    auto orientation = dynamic_cast<fuse_variables::Orientation2DStamped const*>(&variable);
     if (orientation && (orientation->deviceId() == device_id_))
     {
-      const auto& stamp = orientation->stamp();
+      auto const& stamp = orientation->stamp();
       auto position_uuid = fuse_variables::Position2DStamped(stamp, device_id_).uuid();
       if (!graph->variableExists(position_uuid))
       {
         continue;
       }
-      auto position = dynamic_cast<const fuse_variables::Position2DStamped*>(&graph->getVariable(position_uuid));
+      auto position = dynamic_cast<fuse_variables::Position2DStamped const*>(&graph->getVariable(position_uuid));
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = stamp;
       pose.header.frame_id = frame_id_;
@@ -136,7 +136,7 @@ void Path2DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr /*tr
     return;
   }
   // Sort the poses by timestamp
-  auto compare_stamps = [](const geometry_msgs::msg::PoseStamped& pose1, const geometry_msgs::msg::PoseStamped& pose2) {
+  auto compare_stamps = [](geometry_msgs::msg::PoseStamped const& pose1, geometry_msgs::msg::PoseStamped const& pose2) {
     if (pose1.header.stamp.sec == pose2.header.stamp.sec)
     {
       return pose1.header.stamp.nanosec < pose2.header.stamp.nanosec;
@@ -165,7 +165,7 @@ void Path2DPublisher::notifyCallback(fuse_core::Transaction::ConstSharedPtr /*tr
     geometry_msgs::msg::PoseArray pose_array_msg;
     pose_array_msg.header = header;
     std::transform(poses.begin(), poses.end(), std::back_inserter(pose_array_msg.poses),
-                   [](const geometry_msgs::msg::PoseStamped& pose) { return pose.pose; });  // NOLINT(whitespace/braces)
+                   [](geometry_msgs::msg::PoseStamped const& pose) { return pose.pose; });  // NOLINT(whitespace/braces)
     pose_array_publisher_->publish(pose_array_msg);
   }
 }

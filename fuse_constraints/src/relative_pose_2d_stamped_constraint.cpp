@@ -45,11 +45,11 @@ namespace fuse_constraints
 {
 
 RelativePose2DStampedConstraint::RelativePose2DStampedConstraint(
-    const std::string& source, const fuse_variables::Position2DStamped& position1,
-    const fuse_variables::Orientation2DStamped& orientation1, const fuse_variables::Position2DStamped& position2,
-    const fuse_variables::Orientation2DStamped& orientation2, const fuse_core::VectorXd& partial_delta,
-    const fuse_core::MatrixXd& partial_covariance, const std::vector<size_t>& linear_indices,
-    const std::vector<size_t>& angular_indices)
+    std::string const& source, fuse_variables::Position2DStamped const& position1,
+    fuse_variables::Orientation2DStamped const& orientation1, fuse_variables::Position2DStamped const& position2,
+    fuse_variables::Orientation2DStamped const& orientation2, fuse_core::VectorXd const& partial_delta,
+    fuse_core::MatrixXd const& partial_covariance, std::vector<size_t> const& linear_indices,
+    std::vector<size_t> const& angular_indices)
   : fuse_core::Constraint(source,
                           { position1.uuid(), orientation1.uuid(), position2.uuid(), orientation2.uuid() })  // NOLINT
 {

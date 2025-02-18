@@ -43,7 +43,7 @@
 namespace fuse_core
 {
 
-TimestampManager::TimestampManager(MotionModelFunction generator, const rclcpp::Duration& buffer_length)
+TimestampManager::TimestampManager(MotionModelFunction generator, rclcpp::Duration const& buffer_length)
   : generator_(std::move(generator)), buffer_length_(buffer_length)
 {
 }
@@ -51,7 +51,7 @@ TimestampManager::TimestampManager(MotionModelFunction generator, const rclcpp::
 void TimestampManager::query(Transaction& transaction, bool update_variables)
 {
   // Handle the trivial cases first
-  const auto& stamps = transaction.involvedStamps();
+  auto const& stamps = transaction.involvedStamps();
   if (stamps.empty())
   {
     return;
@@ -91,8 +91,8 @@ void TimestampManager::query(Transaction& transaction, bool update_variables)
     for (auto previous_iter = augmented_stamps.begin(), current_iter = std::next(augmented_stamps.begin());
          current_iter != augmented_stamps.end(); ++previous_iter, ++current_iter)
     {
-      const rclcpp::Time& previous_stamp = *previous_iter;
-      const rclcpp::Time& current_stamp = *current_iter;
+      rclcpp::Time const& previous_stamp = *previous_iter;
+      rclcpp::Time const& current_stamp = *current_iter;
       // Check if the timestamp pair is exactly an existing pair. If so, don't add it.
       auto history_iter = motion_model_history_.lower_bound(previous_stamp);
       if ((history_iter != motion_model_history_.end()) && (history_iter->second.beginning_stamp == previous_stamp) &&
@@ -104,10 +104,10 @@ void TimestampManager::query(Transaction& transaction, bool update_variables)
           // This ensures that the variables in the final transaction will be overwritten with the
           // motion model version
           auto transaction_variables = transaction.addedVariables();
-          for (const auto& variable : history_iter->second.variables)
+          for (auto const& variable : history_iter->second.variables)
           {
             if (std::any_of(transaction_variables.begin(), transaction_variables.end(),
-                            [variable_uuid = variable->uuid()](const auto& input_variable) {
+                            [variable_uuid = variable->uuid()](auto const& input_variable) {
                               return input_variable.uuid() == variable_uuid;
                             }))  // NOLINT
             {
@@ -128,7 +128,7 @@ void TimestampManager::query(Transaction& transaction, bool update_variables)
     }
   }
   // Create the required segments
-  for (const auto& stamp_pair : stamp_pairs)
+  for (auto const& stamp_pair : stamp_pairs)
   {
     addSegment(stamp_pair.first, stamp_pair.second, motion_model_transaction);
   }
@@ -155,14 +155,14 @@ void TimestampManager::query(Transaction& transaction, bool update_variables)
 
 TimestampManager::const_stamp_range TimestampManager::stamps() const
 {
-  std::function<const rclcpp::Time&(const MotionModelHistory::value_type&)> const extract_stamp =
-      [](const MotionModelHistory::value_type& element) -> const rclcpp::Time& { return element.first; };
+  std::function<rclcpp::Time const&(MotionModelHistory::value_type const&)> const extract_stamp =
+      [](MotionModelHistory::value_type const& element) -> rclcpp::Time const& { return element.first; };
 
   return { boost::make_transform_iterator(motion_model_history_.begin(), extract_stamp),
            boost::make_transform_iterator(motion_model_history_.end(), extract_stamp) };
 }
 
-void TimestampManager::addSegment(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
+void TimestampManager::addSegment(rclcpp::Time const& beginning_stamp, rclcpp::Time const& ending_stamp,
                                   Transaction& transaction)
 {
   // Generate the set of constraints and variables to add
@@ -172,11 +172,11 @@ void TimestampManager::addSegment(const rclcpp::Time& beginning_stamp, const rcl
   // Update the transaction with the generated constraints/variables
   transaction.addInvolvedStamp(beginning_stamp);
   transaction.addInvolvedStamp(ending_stamp);
-  for (const auto& constraint : constraints)
+  for (auto const& constraint : constraints)
   {
     transaction.addConstraint(constraint);
   }
-  for (const auto& variable : variables)
+  for (auto const& variable : variables)
   {
     transaction.addVariable(variable);
   }
@@ -189,7 +189,7 @@ void TimestampManager::removeSegment(MotionModelHistory::iterator& iter, Transac
   // Mark the previously generated constraints for removal
   transaction.addInvolvedStamp(iter->second.beginning_stamp);
   transaction.addInvolvedStamp(iter->second.ending_stamp);
-  for (const auto& constraint : iter->second.constraints)
+  for (auto const& constraint : iter->second.constraints)
   {
     transaction.removeConstraint(constraint->uuid());
   }
@@ -200,7 +200,7 @@ void TimestampManager::removeSegment(MotionModelHistory::iterator& iter, Transac
   motion_model_history_.erase(iter);
 }
 
-void TimestampManager::splitSegment(MotionModelHistory::iterator& iter, const rclcpp::Time& stamp,
+void TimestampManager::splitSegment(MotionModelHistory::iterator& iter, rclcpp::Time const& stamp,
                                     Transaction& transaction)
 {
   rclcpp::Time const removed_beginning_stamp = iter->second.beginning_stamp;

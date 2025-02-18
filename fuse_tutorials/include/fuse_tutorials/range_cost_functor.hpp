@@ -89,7 +89,7 @@ public:
    * @param[in] z The measured range to the beacon
    * @param[in] sigma The standard deviation of the range measurement
    */
-  RangeCostFunctor(const double z, const double sigma) : sigma_(sigma), z_(z)
+  RangeCostFunctor(double const z, double const sigma) : sigma_(sigma), z_(z)
   {
   }
 

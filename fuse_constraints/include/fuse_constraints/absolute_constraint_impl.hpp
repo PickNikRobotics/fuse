@@ -46,8 +46,8 @@ namespace fuse_constraints
 {
 
 template <class Variable>
-AbsoluteConstraint<Variable>::AbsoluteConstraint(const std::string& source, const Variable& variable,
-                                                 const fuse_core::VectorXd& mean, const fuse_core::MatrixXd& covariance)
+AbsoluteConstraint<Variable>::AbsoluteConstraint(std::string const& source, Variable const& variable,
+                                                 fuse_core::VectorXd const& mean, fuse_core::MatrixXd const& covariance)
   : fuse_core::Constraint(source, { variable.uuid() })
   ,  // NOLINT(whitespace/braces)
   mean_(mean)
@@ -59,10 +59,10 @@ AbsoluteConstraint<Variable>::AbsoluteConstraint(const std::string& source, cons
 }
 
 template <class Variable>
-AbsoluteConstraint<Variable>::AbsoluteConstraint(const std::string& source, const Variable& variable,
-                                                 const fuse_core::VectorXd& partial_mean,
-                                                 const fuse_core::MatrixXd& partial_covariance,
-                                                 const std::vector<size_t>& indices)
+AbsoluteConstraint<Variable>::AbsoluteConstraint(std::string const& source, Variable const& variable,
+                                                 fuse_core::VectorXd const& partial_mean,
+                                                 fuse_core::MatrixXd const& partial_covariance,
+                                                 std::vector<size_t> const& indices)
   : fuse_core::Constraint(source, { variable.uuid() })  // NOLINT(whitespace/braces)
 {
   assert(partial_mean.rows() == static_cast<int>(indices.size()));

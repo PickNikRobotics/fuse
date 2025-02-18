@@ -44,8 +44,8 @@
 namespace fuse_loss
 {
 
-ComposedLoss::ComposedLoss(const std::shared_ptr<fuse_core::Loss>& f_loss,
-                           const std::shared_ptr<fuse_core::Loss>& g_loss)
+ComposedLoss::ComposedLoss(std::shared_ptr<fuse_core::Loss> const& f_loss,
+                           std::shared_ptr<fuse_core::Loss> const& g_loss)
   : f_loss_(f_loss), g_loss_(g_loss)
 {
 }
@@ -54,7 +54,7 @@ void ComposedLoss::initialize(
     fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                fuse_core::node_interfaces::Parameters>
         interfaces,
-    const std::string& name)
+    std::string const& name)
 {
   f_loss_ = fuse_core::loadLossConfig(interfaces, name + ".f_loss");
   g_loss_ = fuse_core::loadLossConfig(interfaces, name + ".g_loss");

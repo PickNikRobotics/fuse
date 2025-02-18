@@ -83,7 +83,7 @@ using Matrix = Eigen::Matrix<Scalar, RowsAtCompileTime, ColsAtCompileTime, Eigen
  * @return An std::string with the matrix serialized into it.
  */
 template <typename Derived>
-std::string to_string(const Eigen::DenseBase<Derived>& m, const int precision = 4)
+std::string to_string(Eigen::DenseBase<Derived> const& m, int const precision = 4)
 {
   static const Eigen::IOFormat pretty(precision, 0, ", ", "\n", "[", "]");
 
@@ -101,7 +101,7 @@ std::string to_string(const Eigen::DenseBase<Derived>& m, const int precision = 
  * @return True if the matrix m is symmetric; False, otherwise.
  */
 template <typename Derived>
-bool isSymmetric(const Eigen::DenseBase<Derived>& m,
+bool isSymmetric(Eigen::DenseBase<Derived> const& m,
                  const typename Eigen::DenseBase<Derived>::RealScalar precision =
                      Eigen::NumTraits<typename Eigen::DenseBase<Derived>::Scalar>::dummy_precision())
 {
@@ -113,7 +113,7 @@ bool isSymmetric(const Eigen::DenseBase<Derived>& m,
   //
   // See:
   // https://eigen.tuxfamily.org/dox/classEigen_1_1DenseBase.html#ae8443357b808cd393be1b51974213f9c
-  const auto& derived = m.derived();
+  auto const& derived = m.derived();
   return (derived - derived.transpose()).cwiseAbs().maxCoeff() < precision;
 }
 
@@ -124,7 +124,7 @@ bool isSymmetric(const Eigen::DenseBase<Derived>& m,
  * @return True if the matrix m is PD; False, otherwise.
  */
 template <typename Derived>
-bool isPositiveDefinite(const Eigen::DenseBase<Derived>& m)
+bool isPositiveDefinite(Eigen::DenseBase<Derived> const& m)
 {
   Eigen::SelfAdjointEigenSolver<Derived> solver(m);
   return solver.eigenvalues().minCoeff() > 0.0;

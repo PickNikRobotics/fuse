@@ -350,7 +350,7 @@ TEST(Orientation3DStamped, Optimization)
 
 TEST(Orientation3DStamped, Euler)
 {
-  const double rad_to_deg = 180.0 / M_PI;
+  double const rad_to_deg = 180.0 / M_PI;
 
   // Create an Orientation3DStamped with R, P, Y values of 10, -20, 30 degrees
   Orientation3DStamped orientation_r(rclcpp::Time(12345678, 910111213));

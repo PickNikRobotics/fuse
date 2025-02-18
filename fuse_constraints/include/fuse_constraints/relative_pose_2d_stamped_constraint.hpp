@@ -105,13 +105,13 @@ public:
    *                               dimensions e.g., "{fuse_variables::Orientation2DStamped::Yaw}"
    */
   RelativePose2DStampedConstraint(
-      const std::string& source, const fuse_variables::Position2DStamped& position1,
-      const fuse_variables::Orientation2DStamped& orientation1, const fuse_variables::Position2DStamped& position2,
-      const fuse_variables::Orientation2DStamped& orientation2, const fuse_core::VectorXd& partial_delta,
-      const fuse_core::MatrixXd& partial_covariance,
-      const std::vector<size_t>& linear_indices = { fuse_variables::Position2DStamped::X,
+      std::string const& source, fuse_variables::Position2DStamped const& position1,
+      fuse_variables::Orientation2DStamped const& orientation1, fuse_variables::Position2DStamped const& position2,
+      fuse_variables::Orientation2DStamped const& orientation2, fuse_core::VectorXd const& partial_delta,
+      fuse_core::MatrixXd const& partial_covariance,
+      std::vector<size_t> const& linear_indices = { fuse_variables::Position2DStamped::X,
                                                     fuse_variables::Position2DStamped::Y },         // NOLINT
-      const std::vector<size_t>& angular_indices = { fuse_variables::Orientation2DStamped::YAW });  // NOLINT
+      std::vector<size_t> const& angular_indices = { fuse_variables::Orientation2DStamped::YAW });  // NOLINT
 
   /**
    * @brief Destructor
@@ -124,7 +124,7 @@ public:
    * Order is (dx, dy, dyaw). Note that the returned vector will be full sized (3x1) and in the
    * stated order.
    */
-  const fuse_core::Vector3d& delta() const
+  fuse_core::Vector3d const& delta() const
   {
     return delta_;
   }
@@ -135,7 +135,7 @@ public:
    * If only a partial covariance matrix was provided in the constructor, this covariance matrix
    * will not be square.
    */
-  const fuse_core::MatrixXd& sqrtInformation() const
+  fuse_core::MatrixXd const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -185,7 +185,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& delta_;

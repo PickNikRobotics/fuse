@@ -42,7 +42,7 @@ Variable::Variable(const UUID& uuid) : uuid_(uuid)
 {
 }
 
-std::ostream& operator<<(std::ostream& stream, const Variable& variable)
+std::ostream& operator<<(std::ostream& stream, Variable const& variable)
 {
   variable.print(stream);
   return stream;

@@ -63,7 +63,7 @@ constexpr UUID NIL = { { 0 } };
  * - "0123456789abcdef0123456789abcdef"
  * - "{01234567-89ab-cdef-0123-456789abcdef}"
  */
-inline UUID from_string(const std::string& uuid_string)
+inline UUID from_string(std::string const& uuid_string)
 {
   return boost::uuids::string_generator()(uuid_string);
 }
@@ -80,7 +80,7 @@ UUID generate();
  * @param[in] byte_count The number of bytes in the data buffer
  * @return               A repeatable UUID specific to the provided data
  */
-inline UUID generate(const void* data, size_t byte_count)
+inline UUID generate(void const* data, size_t byte_count)
 {
   return boost::uuids::name_generator(NIL)(data, byte_count);
 }
@@ -91,7 +91,7 @@ inline UUID generate(const void* data, size_t byte_count)
  * @param[in] data A data buffer held in a C-style string
  * @return         A repeatable UUID specific to the provided data
  */
-inline UUID generate(const char* data)
+inline UUID generate(char const* data)
 {
   return generate(data, std::strlen(data));
 }
@@ -102,7 +102,7 @@ inline UUID generate(const char* data)
  * @param[in] data A data buffer held in a C++-style string
  * @return         A repeatable UUID specific to the provided namespace and data
  */
-inline UUID generate(const std::string& data)
+inline UUID generate(std::string const& data)
 {
   return generate(data.c_str(), data.length());
 }
@@ -115,7 +115,7 @@ inline UUID generate(const std::string& data)
  * @param[in] byte_count       The number of bytes in the data buffer
  * @return                     A repeatable UUID specific to the provided namespace and data
  */
-inline UUID generate(const std::string& namespace_string, const void* data, size_t byte_count)
+inline UUID generate(std::string const& namespace_string, void const* data, size_t byte_count)
 {
   return boost::uuids::name_generator(generate(namespace_string))(data, byte_count);
 }
@@ -127,7 +127,7 @@ inline UUID generate(const std::string& namespace_string, const void* data, size
  * @param[in] data             A data buffer held in a C-style string
  * @return                     A repeatable UUID specific to the provided namespace and data
  */
-inline UUID generate(const std::string& namespace_string, const char* data)
+inline UUID generate(std::string const& namespace_string, char const* data)
 {
   return generate(namespace_string, data, std::strlen(data));
 }
@@ -139,7 +139,7 @@ inline UUID generate(const std::string& namespace_string, const char* data)
  * @param[in] data             A data buffer held in a C++-style string
  * @return                     A repeatable UUID specific to the provided namespace and data
  */
-inline UUID generate(const std::string& namespace_string, const std::string& data)
+inline UUID generate(std::string const& namespace_string, std::string const& data)
 {
   return generate(namespace_string, data.c_str(), data.length());
 }
@@ -153,7 +153,7 @@ inline UUID generate(const std::string& namespace_string, const std::string& dat
  * @param[in] stamp            An rclcpp::Time timestamp
  * @return                     A repeatable UUID specific to the provided namespace and timestamp
  */
-UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp);
+UUID generate(std::string const& namespace_string, rclcpp::Time const& stamp);
 
 /**
  * @brief Generate a UUID from a namespace string, a ros timestamp, and an additional id
@@ -165,7 +165,7 @@ UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp);
  * @param[in] id               A UUID
  * @return                     A repeatable UUID specific to the provided namespace and timestamp
  */
-UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, const UUID& id);
+UUID generate(std::string const& namespace_string, rclcpp::Time const& stamp, const UUID& id);
 
 /**
  * @brief Generate a UUID from a namespace string and a user provided id
@@ -176,7 +176,7 @@ UUID generate(const std::string& namespace_string, const rclcpp::Time& stamp, co
  * @param[in] user_id          A uint64_t user generated id
  * @return                     A repeatable UUID specific to the provided namespace and user id
  */
-UUID generate(const std::string& namespace_string, const uint64_t& user_id);
+UUID generate(std::string const& namespace_string, uint64_t const& user_id);
 }  // namespace uuid
 
 }  // namespace fuse_core
@@ -191,7 +191,7 @@ namespace std
 template <>
 struct hash<fuse_core::UUID>
 {
-  size_t operator()(const fuse_core::UUID& id) const
+  size_t operator()(fuse_core::UUID const& id) const
   {
     return boost::uuids::hash_value(id);
   }

@@ -96,7 +96,7 @@ public:
    *              order (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *              x_acc, y_acc, z_acc)
    */
-  Omnidirectional3DStateCostFunction(const double dt, const fuse_core::Matrix15d& A);
+  Omnidirectional3DStateCostFunction(double const dt, fuse_core::Matrix15d const& A);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -271,7 +271,7 @@ private:
                             //!< information matrix
 };
 
-Omnidirectional3DStateCostFunction::Omnidirectional3DStateCostFunction(const double dt, const fuse_core::Matrix15d& A)
+Omnidirectional3DStateCostFunction::Omnidirectional3DStateCostFunction(double const dt, fuse_core::Matrix15d const& A)
   : dt_(dt), A_(A)
 {
 }

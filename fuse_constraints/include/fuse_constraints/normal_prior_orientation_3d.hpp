@@ -72,7 +72,7 @@ public:
    *              order (qx, qy, qz)
    * @param[in] b The orientation measurement or prior in order (qw, qx, qy, qz)
    */
-  NormalPriorOrientation3D(const fuse_core::Matrix3d& A, const fuse_core::Vector4d& b);
+  NormalPriorOrientation3D(fuse_core::Matrix3d const& A, fuse_core::Vector4d const& b);
 
   /**
    * @brief Destructor

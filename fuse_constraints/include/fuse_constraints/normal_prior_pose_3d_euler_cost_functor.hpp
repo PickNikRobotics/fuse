@@ -75,7 +75,7 @@ public:
    *              order (x, y, z, roll, pitch, yaw)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, roll, pitch, yaw)
    */
-  NormalPriorPose3DEulerCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector6d& b);
+  NormalPriorPose3DEulerCostFunctor(fuse_core::MatrixXd const& A, fuse_core::Vector6d const& b);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -88,8 +88,8 @@ private:
   fuse_core::Vector6d b_;
 };
 
-NormalPriorPose3DEulerCostFunctor::NormalPriorPose3DEulerCostFunctor(const fuse_core::MatrixXd& A,
-                                                                     const fuse_core::Vector6d& b)
+NormalPriorPose3DEulerCostFunctor::NormalPriorPose3DEulerCostFunctor(fuse_core::MatrixXd const& A,
+                                                                     fuse_core::Vector6d const& b)
   : A_(A), b_(b)
 {
   CHECK_GT(A_.rows(), 0);

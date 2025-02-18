@@ -47,40 +47,40 @@
 TEST(CostFunction, evaluateCostFunction)
 {
   // Create cost function
-  const double process_noise_diagonal[] = { 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3,
+  double const process_noise_diagonal[] = { 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3,
                                             1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3 };
   const fuse_core::Matrix15d covariance = fuse_core::Vector15d(process_noise_diagonal).asDiagonal();
 
-  const double dt{ 0.1 };
+  double const dt{ 0.1 };
   const fuse_core::Matrix15d sqrt_information{ covariance.inverse().llt().matrixU() };
 
   const fuse_models::Omnidirectional3DStateCostFunction cost_function{ dt, sqrt_information };
 
   // Evaluate cost function
-  const double position1[3] = { 0.0, 0.0, 0.0 };
-  const double orientation1[4] = { 1.0, 0.0, 0.0, 0.0 };
-  const double vel_linear1[3] = { 1.0, 1.0, 1.0 };
-  const double vel_angular1[3] = { 1.570796327, 1.570796327, 1.570796327 };
-  const double acc_linear1[3] = { 1.0, 1.0, 1.0 };
+  double const position1[3] = { 0.0, 0.0, 0.0 };
+  double const orientation1[4] = { 1.0, 0.0, 0.0, 0.0 };
+  double const vel_linear1[3] = { 1.0, 1.0, 1.0 };
+  double const vel_angular1[3] = { 1.570796327, 1.570796327, 1.570796327 };
+  double const acc_linear1[3] = { 1.0, 1.0, 1.0 };
 
-  const double position2[3] = { 0.105, 0.105, 0.105 };
+  double const position2[3] = { 0.105, 0.105, 0.105 };
   Eigen::Quaterniond q2 = Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitZ()) *
                           Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitY()) *
                           Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitX());
-  const double orientation2[4] = { q2.w(), q2.x(), q2.y(), q2.z() };
-  const double vel_linear2[3] = { 1.1, 1.1, 1.1 };
-  const double vel_angular2[3] = { 1.570796327, 1.570796327, 1.570796327 };
-  const double acc_linear2[3] = { 1.0, 1.0, 1.0 };
+  double const orientation2[4] = { q2.w(), q2.x(), q2.y(), q2.z() };
+  double const vel_linear2[3] = { 1.1, 1.1, 1.1 };
+  double const vel_angular2[3] = { 1.570796327, 1.570796327, 1.570796327 };
+  double const acc_linear2[3] = { 1.0, 1.0, 1.0 };
 
-  const double* parameters[10] = { position1, orientation1, vel_linear1, vel_angular1, acc_linear1,
+  double const* parameters[10] = { position1, orientation1, vel_linear1, vel_angular1, acc_linear1,
                                    position2, orientation2, vel_linear2, vel_angular2, acc_linear2 };
 
   fuse_core::Vector15d residuals;
 
-  const auto& block_sizes = cost_function.parameter_block_sizes();
-  const auto num_parameter_blocks = block_sizes.size();
+  auto const& block_sizes = cost_function.parameter_block_sizes();
+  auto const num_parameter_blocks = block_sizes.size();
 
-  const auto num_residuals = cost_function.num_residuals();
+  auto const num_residuals = cost_function.num_residuals();
 
   std::vector<fuse_core::MatrixXd> J(num_parameter_blocks);
   std::vector<double*> jacobians(num_parameter_blocks);
@@ -101,7 +101,7 @@ TEST(CostFunction, evaluateCostFunction)
   ceres::NumericDiffOptions numeric_diff_options;
 
 #if CERES_VERSION_AT_LEAST(2, 1, 0)
-  std::vector<const ceres::Manifold*> parameterizations;
+  std::vector<ceres::Manifold const*> parameterizations;
   ceres::GradientChecker gradient_checker(&cost_function, &parameterizations, numeric_diff_options);
 #else
   ceres::GradientChecker gradient_checker(&cost_function, nullptr, numeric_diff_options);

@@ -56,7 +56,7 @@ namespace fuse_core
 void loadCovarianceOptionsFromROS(
     node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
         interfaces,
-    ceres::Covariance::Options& covariance_options, const std::string& ns)
+    ceres::Covariance::Options& covariance_options, std::string const& ns)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
@@ -98,7 +98,7 @@ void loadCovarianceOptionsFromROS(
 }
 
 void loadProblemOptionsFromROS(node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-                               ceres::Problem::Options& problem_options, const std::string& ns)
+                               ceres::Problem::Options& problem_options, std::string const& ns)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 
@@ -124,7 +124,7 @@ void loadProblemOptionsFromROS(node_interfaces::NodeInterfaces<node_interfaces::
 void loadSolverOptionsFromROS(
     node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
         interfaces,
-    ceres::Solver::Options& solver_options, const std::string& ns)
+    ceres::Solver::Options& solver_options, std::string const& ns)
 {
   rcl_interfaces::msg::ParameterDescriptor tmp_descr;
 

@@ -39,7 +39,7 @@
 namespace fuse_core
 {
 
-MessageBufferStreamSource::MessageBufferStreamSource(const std::vector<unsigned char>& data) : data_(data), index_(0)
+MessageBufferStreamSource::MessageBufferStreamSource(std::vector<unsigned char> const& data) : data_(data), index_(0)
 {
 }
 
@@ -62,7 +62,7 @@ MessageBufferStreamSink::MessageBufferStreamSink(std::vector<unsigned char>& dat
 {
 }
 
-std::streamsize MessageBufferStreamSink::write(const char_type* s, std::streamsize n)
+std::streamsize MessageBufferStreamSink::write(char_type const* s, std::streamsize n)
 {
   data_.insert(data_.end(), s, s + n);
   return n;

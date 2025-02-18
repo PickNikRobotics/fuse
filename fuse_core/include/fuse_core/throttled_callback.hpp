@@ -69,7 +69,7 @@ public:
    */
   ThrottledCallback(Callback&& keep_callback = nullptr,  // NOLINT(whitespace/operators)
                     Callback&& drop_callback = nullptr,  // NOLINT(whitespace/operators)
-                    const rclcpp::Duration& throttle_period = rclcpp::Duration(0, 0),
+                    rclcpp::Duration const& throttle_period = rclcpp::Duration(0, 0),
                     rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>())
     : keep_callback_(keep_callback), drop_callback_(drop_callback), throttle_period_(throttle_period), clock_(clock)
   {
@@ -80,7 +80,7 @@ public:
    *
    * @return The current throttle period duration in seconds being used
    */
-  const rclcpp::Duration& getThrottlePeriod() const
+  rclcpp::Duration const& getThrottlePeriod() const
   {
     return throttle_period_;
   }
@@ -103,7 +103,7 @@ public:
    *
    * @param[in] throttle_period The new throttle period duration in seconds to use
    */
-  void setThrottlePeriod(const rclcpp::Duration& throttle_period)
+  void setThrottlePeriod(rclcpp::Duration const& throttle_period)
   {
     throttle_period_ = throttle_period;
   }
@@ -113,7 +113,7 @@ public:
    *
    * @param[in] keep_callback The new keep callback to use
    */
-  void setKeepCallback(const Callback& keep_callback)
+  void setKeepCallback(Callback const& keep_callback)
   {
     keep_callback_ = keep_callback;
   }
@@ -123,7 +123,7 @@ public:
    *
    * @param[in] drop_callback The new drop callback to use
    */
-  void setDropCallback(const Callback& drop_callback)
+  void setDropCallback(Callback const& drop_callback)
   {
     drop_callback_ = drop_callback;
   }
@@ -133,7 +133,7 @@ public:
    *
    * @return The last time the keep callback was called
    */
-  const rclcpp::Time& getLastCalledTime() const
+  rclcpp::Time const& getLastCalledTime() const
   {
     return last_called_time_;
   }

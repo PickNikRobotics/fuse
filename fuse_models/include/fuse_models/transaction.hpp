@@ -83,7 +83,7 @@ public:
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
+                  std::string const& name, fuse_core::TransactionCallback transaction_callback) override;
 
 protected:
   /**
@@ -105,7 +105,7 @@ protected:
    * @brief Callback for transaction messages
    * @param[in] msg - The transaction message to process
    */
-  void process(const fuse_msgs::msg::SerializedTransaction& msg);
+  void process(fuse_msgs::msg::SerializedTransaction const& msg);
 
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                              fuse_core::node_interfaces::Parameters, fuse_core::node_interfaces::Topics,

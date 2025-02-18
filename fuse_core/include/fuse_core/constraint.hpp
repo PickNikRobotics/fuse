@@ -212,7 +212,7 @@ public:
    *
    * @param[in] variable_uuid_list The list of involved variable UUIDs
    */
-  Constraint(const std::string& source, std::initializer_list<UUID> variable_uuid_list);
+  Constraint(std::string const& source, std::initializer_list<UUID> variable_uuid_list);
 
   /**
    * @brief Constructor
@@ -220,7 +220,7 @@ public:
    * Accepts an arbitrary number of variable UUIDs stored in a container using iterators.
    */
   template <typename VariableUuidIterator>
-  Constraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last);
+  Constraint(std::string const& source, VariableUuidIterator first, VariableUuidIterator last);
 
   /**
    * @brief Destructor
@@ -248,7 +248,7 @@ public:
   /**
    * @brief Returns the name of the sensor or motion model that generated this constraint
    */
-  const std::string& source() const
+  std::string const& source() const
   {
     return source_;
   }
@@ -321,7 +321,7 @@ public:
   /**
    * @brief Read-only access to the ordered list of variable UUIDs involved in this constraint
    */
-  const std::vector<UUID>& variables() const
+  std::vector<UUID> const& variables() const
   {
     return variables_;
   }
@@ -396,7 +396,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& source_;
     archive& uuid_;
@@ -408,10 +408,10 @@ private:
 /**
  * Stream operator implementation used for all derived Constraint classes.
  */
-std::ostream& operator<<(std::ostream& stream, const Constraint& constraint);
+std::ostream& operator<<(std::ostream& stream, Constraint const& constraint);
 
 template <typename VariableUuidIterator>
-Constraint::Constraint(const std::string& source, VariableUuidIterator first, VariableUuidIterator last)
+Constraint::Constraint(std::string const& source, VariableUuidIterator first, VariableUuidIterator last)
   : source_(source), uuid_(uuid::generate()), variables_(first, last)
 {
 }

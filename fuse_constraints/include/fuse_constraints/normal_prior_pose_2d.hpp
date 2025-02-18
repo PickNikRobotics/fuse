@@ -77,7 +77,7 @@ public:
    *              order (x, y, yaw)
    * @param[in] b The pose measurement or prior in order (x, y, yaw)
    */
-  NormalPriorPose2D(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b);
+  NormalPriorPose2D(fuse_core::MatrixXd const& A, fuse_core::Vector3d const& b);
 
   /**
    * @brief Destructor

@@ -130,7 +130,7 @@ protected:
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
 
-    TransactionQueueElement(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction)
+    TransactionQueueElement(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction)
       : sensor_name(sensor_name), transaction(std::move(transaction))
     {
     }
@@ -213,7 +213,7 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel
    *                        plugin
    */
-  void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) override;
+  void transactionCallback(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction) override;
 
   /**
    * @brief Update and publish diagnostics

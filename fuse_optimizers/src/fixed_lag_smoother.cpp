@@ -121,7 +121,7 @@ FixedLagSmoother::~FixedLagSmoother()
 void FixedLagSmoother::autostart()
 {
   if (std::none_of(sensor_models_.begin(), sensor_models_.end(),
-                   [](const auto& element) { return element.second.ignition; }))  // NOLINT(whitespace/braces)
+                   [](auto const& element) { return element.second.ignition; }))  // NOLINT(whitespace/braces)
   {
     // No ignition sensors were provided. Auto-start.
     started_ = true;
@@ -130,7 +130,7 @@ void FixedLagSmoother::autostart()
   }
 }
 
-void FixedLagSmoother::preprocessMarginalization(const fuse_core::Transaction& new_transaction)
+void FixedLagSmoother::preprocessMarginalization(fuse_core::Transaction const& new_transaction)
 {
   timestamp_tracking_.addNewTransaction(new_transaction);
 }
@@ -150,14 +150,14 @@ rclcpp::Time FixedLagSmoother::computeLagExpirationTime() const
   return (start_time + params_.lag_duration < now) ? now - params_.lag_duration : start_time;
 }
 
-std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(const rclcpp::Time& lag_expiration)
+std::vector<fuse_core::UUID> FixedLagSmoother::computeVariablesToMarginalize(rclcpp::Time const& lag_expiration)
 {
   auto marginalize_variable_uuids = std::vector<fuse_core::UUID>();
   timestamp_tracking_.query(lag_expiration, std::back_inserter(marginalize_variable_uuids));
   return marginalize_variable_uuids;
 }
 
-void FixedLagSmoother::postprocessMarginalization(const fuse_core::Transaction& marginal_transaction)
+void FixedLagSmoother::postprocessMarginalization(fuse_core::Transaction const& marginal_transaction)
 {
   timestamp_tracking_.addMarginalTransaction(marginal_transaction);
 }
@@ -212,7 +212,7 @@ void FixedLagSmoother::optimizationLoop()
       {
         graph_->update(*new_transaction);
       }
-      catch (const std::exception& ex)
+      catch (std::exception const& ex)
       {
         std::ostringstream oss;
         oss << "Graph:\n";
@@ -230,7 +230,7 @@ void FixedLagSmoother::optimizationLoop()
       summary_ = graph_->optimize(params_.solver_options);
 
       // Optimization is complete. Notify all the things about the graph changes.
-      const auto new_transaction_stamp = new_transaction->stamp();
+      auto const new_transaction_stamp = new_transaction->stamp();
       notify(std::move(new_transaction), graph_->clone());
 
       // Abort if optimization failed. Not converging is not a failure because the solution found is
@@ -290,7 +290,7 @@ void FixedLagSmoother::optimizerTimerCallback()
   }
 }
 
-void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const rclcpp::Time& lag_expiration)
+void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, rclcpp::Time const& lag_expiration)
 {
   // We need to get the pending transactions from the queue
   std::lock_guard<std::mutex> const pending_transactions_lock(pending_transactions_mutex_);
@@ -317,7 +317,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     // always the oldest one that started things up.
     ignited_ = false;
 
-    const auto transaction_rbegin = pending_transactions_.rbegin();
+    auto const transaction_rbegin = pending_transactions_.rbegin();
     auto& element = *transaction_rbegin;
     if (!sensor_models_.at(element.sensor_name).ignition)
     {
@@ -350,9 +350,9 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
         // optimization cycle.
         erase(pending_transactions_, transaction_rbegin);
 
-        const auto pending_ignition_transaction_iter =
+        auto const pending_ignition_transaction_iter =
             std::find_if(pending_transactions_.rbegin(), pending_transactions_.rend(),
-                         [this](const auto& element) {  // NOLINT(whitespace/braces)
+                         [this](auto const& element) {  // NOLINT(whitespace/braces)
                            return sensor_models_.at(element.sensor_name).ignition;
                          });  // NOLINT(whitespace/braces)
         if (pending_ignition_transaction_iter == pending_transactions_.rend())
@@ -377,7 +377,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     }
   }
   // Use the most recent transaction time as the current time
-  const auto current_time = pending_transactions_.front().stamp();
+  auto const current_time = pending_transactions_.front().stamp();
 
   // Attempt to process each pending transaction
   auto sensor_blacklist = std::vector<std::string>();
@@ -385,7 +385,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
   while (transaction_riter != pending_transactions_.rend())
   {
     auto& element = *transaction_riter;
-    const auto& min_stamp = element.minStamp();
+    auto const& min_stamp = element.minStamp();
     if (min_stamp < lag_expiration)
     {
       RCLCPP_DEBUG_STREAM(logger_, "The current lag expiration time is "
@@ -413,7 +413,7 @@ void FixedLagSmoother::processQueue(fuse_core::Transaction& transaction, const r
     {
       // The motion model processing failed.
       // Check the transaction timeout to determine if it should be removed or skipped.
-      const auto& max_stamp = element.maxStamp();
+      auto const& max_stamp = element.maxStamp();
       if (max_stamp + params_.transaction_timeout < current_time)
       {
         // Warn that this transaction has expired, then skip it.
@@ -475,11 +475,11 @@ bool FixedLagSmoother::resetServiceCallback(std::shared_ptr<std_srvs::srv::Empty
   return true;
 }
 
-void FixedLagSmoother::transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction)
+void FixedLagSmoother::transactionCallback(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction)
 {
   // If this transaction occurs before the start time, just ignore it
   auto start_time = getStartTime();
-  const auto max_time = transaction->maxStamp();
+  auto const max_time = transaction->maxStamp();
   if (started_ && max_time < start_time)
   {
     RCLCPP_DEBUG_STREAM(logger_, "Received a transaction before the start time from sensor '"
@@ -494,7 +494,7 @@ void FixedLagSmoother::transactionCallback(const std::string& sensor_name, fuse_
   // Add the new transaction to the pending set
   // The pending set is arranged "smallest stamp last" to making popping off the back more
   // efficient
-  auto comparator = [](const rclcpp::Time& value, const TransactionQueueElement& element) {
+  auto comparator = [](rclcpp::Time const& value, TransactionQueueElement const& element) {
     return value >= element.stamp();
   };
   auto position =
@@ -522,7 +522,7 @@ void FixedLagSmoother::transactionCallback(const std::string& sensor_name, fuse_
       pending_transactions_.erase(
           std::remove_if(pending_transactions_.begin(), pending_transactions_.end(),
                          [&sensor_name, max_time,
-                          &min_time = start_time](const auto& transaction) {  // NOLINT(whitespace/braces)
+                          &min_time = start_time](auto const& transaction) {  // NOLINT(whitespace/braces)
                            return transaction.sensor_name != sensor_name &&
                                   (transaction.minStamp() < min_time || transaction.maxStamp() <= max_time);
                          }),  // NOLINT(whitespace/braces)
@@ -556,7 +556,7 @@ void FixedLagSmoother::transactionCallback(const std::string& sensor_name, fuse_
  * @param[in] level   The diagnostic status level
  * @param[in] message The diagnostic status message
  */
-diagnostic_msgs::msg::DiagnosticStatus makeDiagnosticStatus(const int8_t level, const std::string& message)
+diagnostic_msgs::msg::DiagnosticStatus makeDiagnosticStatus(const int8_t level, std::string const& message)
 {
   diagnostic_msgs::msg::DiagnosticStatus status;
 
@@ -598,7 +598,7 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
   Optimizer::setDiagnostics(status);
 
   // Load std::atomic<bool> flag that indicates whether the optimizer has started or not
-  const bool started = started_;
+  bool const started = started_;
 
   status.add("Started", started);
   {
@@ -648,8 +648,8 @@ void FixedLagSmoother::setDiagnostics(diagnostic_updater::DiagnosticStatusWrappe
 
     if (0u != optimization_deadline.nanoseconds())
     {
-      const auto optimization_request_time = optimization_deadline - params_.optimization_period;
-      const auto time_since_last_optimization_request = clock_->now() - optimization_request_time;
+      auto const optimization_request_time = optimization_deadline - params_.optimization_period;
+      auto const time_since_last_optimization_request = clock_->now() - optimization_request_time;
       status.add("Time Since Last Optimization Request [s]", time_since_last_optimization_request.seconds());
     }
   }

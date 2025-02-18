@@ -132,7 +132,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationFull)
   EXPECT_NEAR(2.0, position_variable->y(), 1.0e-5);
   EXPECT_NEAR(3.0, orientation_variable->yaw(), 1.0e-5);
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*>> covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> covariance_blocks;
   covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
   covariance_blocks.emplace_back(position_variable->data(), orientation_variable->data());
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
@@ -223,7 +223,7 @@ TEST(AbsolutePose2DStampedConstraint, OptimizationPartial)
   EXPECT_NEAR(3.0, orientation_variable->yaw(), 1.0e-5);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*>> covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> covariance_blocks;
   covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
   covariance_blocks.emplace_back(position_variable->data(), orientation_variable->data());
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());

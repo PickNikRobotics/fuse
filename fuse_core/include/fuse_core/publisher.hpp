@@ -85,12 +85,12 @@ public:
    * @param[in] name A unique name to give this plugin instance
    */
   virtual void initialize(node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                          const std::string& name) = 0;
+                          std::string const& name) = 0;
 
   /**
    * @brief Get the unique name of this publisher
    */
-  virtual const std::string& name() const = 0;
+  virtual std::string const& name() const = 0;
 
   /**
    * @brief Notify the publisher that an optimization cycle is complete, and about changes to the

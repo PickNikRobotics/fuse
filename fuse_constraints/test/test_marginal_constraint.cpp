@@ -74,7 +74,7 @@ TEST(MarginalConstraint, OneVariable)
   x1.y() = 6.0;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = { x1.data() };
+  std::vector<double const*> variable_values = { x1.data() };
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 2);
   std::vector<double*> actual_jacobians = { actual_jacobian1.data() };
@@ -131,7 +131,7 @@ TEST(MarginalConstraint, TwoVariables)
   x2.y() = 18.0;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = { x1.data(), x2.data() };
+  std::vector<double const*> variable_values = { x1.data(), x2.data() };
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 2);
   fuse_core::MatrixXd actual_jacobian2(1, 2);
@@ -186,7 +186,7 @@ TEST(MarginalConstraint, LocalParameterization)
   x1.z() = 0.526043;
 
   // Compute the actual residuals and jacobians
-  std::vector<const double*> variable_values = { x1.data() };
+  std::vector<double const*> variable_values = { x1.data() };
   fuse_core::Vector1d actual_residuals;
   fuse_core::MatrixXd actual_jacobian1(1, 4);
   std::vector<double*> actual_jacobians = { actual_jacobian1.data() };

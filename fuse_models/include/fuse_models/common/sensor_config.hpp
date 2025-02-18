@@ -65,7 +65,7 @@ namespace common
  * @param[in] dimension - The erroneous dimension name
  * @throws runtime_error
  */
-inline void throwDimensionError(const std::string& dimension)
+inline void throwDimensionError(std::string const& dimension)
 {
   std::string error = "Dimension " + dimension + " is not valid for this type.";
   RCLCPP_ERROR_STREAM(rclcpp::get_logger("fuse"), error);
@@ -82,7 +82,7 @@ inline void throwDimensionError(const std::string& dimension)
  * @throws runtime_error if the dimension name is invalid
  */
 template <typename T>
-std::enable_if_t<is_linear_2d<T>::value, size_t> toIndex(const std::string& dimension)
+std::enable_if_t<is_linear_2d<T>::value, size_t> toIndex(std::string const& dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "x")
@@ -109,7 +109,7 @@ std::enable_if_t<is_linear_2d<T>::value, size_t> toIndex(const std::string& dime
  * @throws runtime_error if the dimension name is invalid
  */
 template <typename T>
-std::enable_if_t<is_linear_3d<T>::value, size_t> toIndex(const std::string& dimension)
+std::enable_if_t<is_linear_3d<T>::value, size_t> toIndex(std::string const& dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "x")
@@ -140,7 +140,7 @@ std::enable_if_t<is_linear_3d<T>::value, size_t> toIndex(const std::string& dime
  * @throws runtime_error if the dimension name is invalid
  */
 template <typename T>
-std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string& dimension)
+std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(std::string const& dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "yaw" || lower_dim == "z")
@@ -163,7 +163,7 @@ std::enable_if_t<is_angular_2d<T>::value, size_t> toIndex(const std::string& dim
  * @throws runtime_error if the dimension name is invalid
  */
 template <typename T>
-std::enable_if_t<is_angular_3d<T>::value && !is_orientation<T>::value, size_t> toIndex(const std::string& dimension)
+std::enable_if_t<is_angular_3d<T>::value && !is_orientation<T>::value, size_t> toIndex(std::string const& dimension)
 {
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
   if (lower_dim == "roll" || lower_dim == "x")
@@ -185,7 +185,7 @@ std::enable_if_t<is_angular_3d<T>::value && !is_orientation<T>::value, size_t> t
 }
 
 template <typename T>
-std::enable_if_t<is_angular_3d<T>::value && is_orientation<T>::value, size_t> toIndex(const std::string& dimension)
+std::enable_if_t<is_angular_3d<T>::value && is_orientation<T>::value, size_t> toIndex(std::string const& dimension)
 {
   // Trick to get roll, pitch, yaw indexes as 0, 1, 2
   auto lower_dim = boost::algorithm::to_lower_copy(dimension);
@@ -218,7 +218,7 @@ std::enable_if_t<is_angular_3d<T>::value && is_orientation<T>::value, size_t> to
  * @throws runtime_error if any dimension name is invalid
  */
 template <typename T>
-std::vector<size_t> getDimensionIndices(const std::vector<std::string>& dimension_names)
+std::vector<size_t> getDimensionIndices(std::vector<std::string> const& dimension_names)
 {
   std::vector<size_t> indices;
   indices.reserve(dimension_names.size());

@@ -77,7 +77,7 @@ static std::string failure_description;  // NOLINT(runtime/string)
  * @brief Compare all the properties of two Variable objects
  * @return True if all the properties match, false otherwise
  */
-bool compareVariables(const fuse_core::Variable& expected, const fuse_core::Variable& actual)
+bool compareVariables(fuse_core::Variable const& expected, fuse_core::Variable const& actual)
 {
   failure_description = "";
   bool variables_equal = true;
@@ -118,7 +118,7 @@ bool compareVariables(const fuse_core::Variable& expected, const fuse_core::Vari
  * @brief Compare all the properties of two Constraint objects
  * @return True if all the properties match, false otherwise
  */
-bool compareConstraints(const fuse_core::Constraint& expected, const fuse_core::Constraint& actual)
+bool compareConstraints(fuse_core::Constraint const& expected, fuse_core::Constraint const& actual)
 {
   failure_description = "";
   bool constraints_equal = true;
@@ -160,22 +160,22 @@ bool compareConstraints(const fuse_core::Constraint& expected, const fuse_core::
 namespace fuse_core
 {
 
-bool operator==(const fuse_core::Variable& rhs, const fuse_core::Variable& lhs)
+bool operator==(fuse_core::Variable const& rhs, fuse_core::Variable const& lhs)
 {
   return compareVariables(rhs, lhs);
 }
 
-bool operator!=(const fuse_core::Variable& rhs, const fuse_core::Variable& lhs)
+bool operator!=(fuse_core::Variable const& rhs, fuse_core::Variable const& lhs)
 {
   return !(rhs == lhs);
 }
 
-bool operator==(const fuse_core::Constraint& rhs, const fuse_core::Constraint& lhs)
+bool operator==(fuse_core::Constraint const& rhs, fuse_core::Constraint const& lhs)
 {
   return compareConstraints(rhs, lhs);
 }
 
-bool operator!=(const fuse_core::Constraint& rhs, const fuse_core::Constraint& lhs)
+bool operator!=(fuse_core::Constraint const& rhs, fuse_core::Constraint const& lhs)
 {
   return !(rhs == lhs);
 }
@@ -270,7 +270,7 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
 
   // Check the transaction is equivalent to the graph, i.e. it has the same constraints and
   // transactions
-  const auto transaction = callback_future.get();
+  auto const transaction = callback_future.get();
 
   ASSERT_EQ(boost::size(graph.getConstraints()), boost::size(transaction->addedConstraints()));
   ASSERT_EQ(boost::size(graph.getVariables()), boost::size(transaction->addedVariables()));
@@ -291,29 +291,29 @@ TEST_F(GraphIgnitionTestFixture, SetGraphService)
   // transaction, we cannot compare them with the straightforward approach mentioned above. Instead,
   // we need to check that all added constraints and variables are in the graph, and check they are
   // the same.
-  for (const auto& added_constraint : transaction->addedConstraints())
+  for (auto const& added_constraint : transaction->addedConstraints())
   {
     try
     {
-      const auto& constraint = graph.getConstraint(added_constraint.uuid());
+      auto const& constraint = graph.getConstraint(added_constraint.uuid());
 
       EXPECT_EQ(constraint, added_constraint) << failure_description;
     }
-    catch (const std::out_of_range& ex)
+    catch (std::out_of_range const& ex)
     {
       ADD_FAILURE() << ex.what();
     }
   }
 
-  for (const auto& added_variable : transaction->addedVariables())
+  for (auto const& added_variable : transaction->addedVariables())
   {
     try
     {
-      const auto& variable = graph.getVariable(added_variable.uuid());
+      auto const& variable = graph.getVariable(added_variable.uuid());
 
       EXPECT_EQ(variable, added_variable) << failure_description;
     }
-    catch (const std::out_of_range& ex)
+    catch (std::out_of_range const& ex)
     {
       ADD_FAILURE() << ex.what();
     }
@@ -386,7 +386,7 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
 
   // Check the transaction is equivalent to the graph, i.e. it has the same constraints and
   // transactions
-  const auto transaction = callback_future.get();
+  auto const transaction = callback_future.get();
 
   ASSERT_EQ(boost::size(graph.getConstraints()), boost::size(transaction->addedConstraints()));
   ASSERT_EQ(boost::size(graph.getVariables()), boost::size(transaction->addedVariables()));
@@ -407,29 +407,29 @@ TEST_F(GraphIgnitionTestFixture, SetGraphServiceWithStampedVariables)
   // transaction, we cannot compare them with the straightforward approach mentioned above. Instead,
   // we need to check that all added constraints and variables are in the graph, and check they are
   // the same.
-  for (const auto& added_constraint : transaction->addedConstraints())
+  for (auto const& added_constraint : transaction->addedConstraints())
   {
     try
     {
-      const auto& constraint = graph.getConstraint(added_constraint.uuid());
+      auto const& constraint = graph.getConstraint(added_constraint.uuid());
 
       EXPECT_EQ(constraint, added_constraint) << failure_description;
     }
-    catch (const std::out_of_range& ex)
+    catch (std::out_of_range const& ex)
     {
       ADD_FAILURE() << ex.what();
     }
   }
 
-  for (const auto& added_variable : transaction->addedVariables())
+  for (auto const& added_variable : transaction->addedVariables())
   {
     try
     {
-      const auto& variable = graph.getVariable(added_variable.uuid());
+      auto const& variable = graph.getVariable(added_variable.uuid());
 
       EXPECT_EQ(variable, added_variable) << failure_description;
     }
-    catch (const std::out_of_range& ex)
+    catch (std::out_of_range const& ex)
     {
       ADD_FAILURE() << ex.what();
     }

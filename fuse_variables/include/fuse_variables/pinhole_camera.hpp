@@ -85,15 +85,15 @@ public:
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCamera(const uint64_t& camera_id);
+  explicit PinholeCamera(uint64_t const& camera_id);
 
   /**
    * @brief Construct a pinhole camera variable given a camera id and intrinsic parameters
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  explicit PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id, const double& fx, const double& fy,
-                         const double& cx, const double& cy);
+  explicit PinholeCamera(fuse_core::UUID const& uuid, uint64_t const& camera_id, double const& fx, double const& fy,
+                         double const& cx, double const& cy);
 
   /**
    * @brief Read-write access to the cx parameter.
@@ -106,7 +106,7 @@ public:
   /**
    * @brief Read-only access to the cx parameter.
    */
-  const double& cx() const
+  double const& cx() const
   {
     return data_[CX];
   }
@@ -122,7 +122,7 @@ public:
   /**
    * @brief Read-only access to the cy parameter.
    */
-  const double& cy() const
+  double const& cy() const
   {
     return data_[CY];
   }
@@ -138,7 +138,7 @@ public:
   /**
    * @brief Read-only access to the fx parameter.
    */
-  const double& fx() const
+  double const& fx() const
   {
     return data_[FX];
   }
@@ -154,7 +154,7 @@ public:
   /**
    * @brief Read-only access to the fy parameter.
    */
-  const double& fy() const
+  double const& fy() const
   {
     return data_[FY];
   }
@@ -162,7 +162,7 @@ public:
   /**
    * @brief Read-only access to the id
    */
-  const uint64_t& id() const
+  uint64_t const& id() const
   {
     return id_;
   }
@@ -193,7 +193,7 @@ protected:
    *
    * @param[in] camera_id  The id associated to a camera
    */
-  PinholeCamera(const fuse_core::UUID& uuid, const uint64_t& camera_id);
+  PinholeCamera(fuse_core::UUID const& uuid, uint64_t const& camera_id);
 
 private:
   // Allow Boost Serialization access to private methods
@@ -210,7 +210,7 @@ private:
    * Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& id_;

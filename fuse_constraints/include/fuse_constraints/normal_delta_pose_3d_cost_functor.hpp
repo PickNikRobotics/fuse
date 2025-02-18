@@ -77,7 +77,7 @@ public:
    *              order (dx, dy, dz, dqx, dqy, dqz)
    * @param[in] b The exposed pose difference in order (dx, dy, dz, dqw, dqx, dqy, dqz)
    */
-  NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b);
+  NormalDeltaPose3DCostFunctor(fuse_core::Matrix6d const& A, fuse_core::Vector7d const& b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
@@ -94,7 +94,7 @@ private:
   NormalDeltaOrientation3DCostFunctor orientation_functor_;
 };
 
-NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b)
+NormalDeltaPose3DCostFunctor::NormalDeltaPose3DCostFunctor(fuse_core::Matrix6d const& A, fuse_core::Vector7d const& b)
   : A_(A), b_(b), orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Orientation residuals will
                                                                                        // not be scaled
 {

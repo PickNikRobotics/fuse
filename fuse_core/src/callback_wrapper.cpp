@@ -120,7 +120,7 @@ void CallbackAdapter::execute(std::shared_ptr<void>& data)
   std::static_pointer_cast<CallbackWrapperBase>(data)->call();
 }
 
-void CallbackAdapter::addCallback(const std::shared_ptr<CallbackWrapperBase>& callback)
+void CallbackAdapter::addCallback(std::shared_ptr<CallbackWrapperBase> const& callback)
 {
   std::lock_guard<std::mutex> const lock(queue_mutex_);
   callback_queue_.push_back(callback);

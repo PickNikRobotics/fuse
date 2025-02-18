@@ -197,7 +197,7 @@ sensor_msgs::msg::Imu simulateImu(Robot const& robot)
   return msg;
 }
 
-nav_msgs::msg::Odometry simulateOdometry(const Robot& robot)
+nav_msgs::msg::Odometry simulateOdometry(Robot const& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
@@ -230,7 +230,7 @@ nav_msgs::msg::Odometry simulateOdometry(const Robot& robot)
 }
 
 void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                               const Robot& state, const rclcpp::Clock::SharedPtr& clock, const rclcpp::Logger& logger)
+                               Robot const& state, rclcpp::Clock::SharedPtr const& clock, rclcpp::Logger const& logger)
 {
   // Send the initial localization signal to the state estimator
   auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();

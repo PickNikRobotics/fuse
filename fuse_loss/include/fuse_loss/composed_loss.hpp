@@ -71,8 +71,8 @@ public:
    *                   'f(g(s))'. If it is nullptr the fuse_loss::TrivialLoss is used. Defaults to
    *                   nullptr.
    */
-  explicit ComposedLoss(const std::shared_ptr<fuse_core::Loss>& f_loss = nullptr,
-                        const std::shared_ptr<fuse_core::Loss>& g_loss = nullptr);
+  explicit ComposedLoss(std::shared_ptr<fuse_core::Loss> const& f_loss = nullptr,
+                        std::shared_ptr<fuse_core::Loss> const& g_loss = nullptr);
 
   /**
    * @brief Destructor
@@ -93,7 +93,7 @@ public:
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& name) override;
+      std::string const& name) override;
 
   /**
    * @brief Print a human-readable description of the loss function to the provided stream.
@@ -140,7 +140,7 @@ public:
    *
    * @param[in] loss Parameter 'f_loss'.
    */
-  void fLoss(const std::shared_ptr<fuse_core::Loss>& f_loss)
+  void fLoss(std::shared_ptr<fuse_core::Loss> const& f_loss)
   {
     f_loss_ = f_loss;
   }
@@ -150,7 +150,7 @@ public:
    *
    * @param[in] loss Parameter 'g_loss'.
    */
-  void gLoss(const std::shared_ptr<fuse_core::Loss>& g_loss)
+  void gLoss(std::shared_ptr<fuse_core::Loss> const& g_loss)
   {
     g_loss_ = g_loss;
   }
@@ -174,7 +174,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Loss>(*this);
     archive& f_loss_;

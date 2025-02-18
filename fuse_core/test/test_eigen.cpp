@@ -37,16 +37,16 @@
 
 TEST(Eigen, isSymmetric)
 {
-  const auto random_matrix = fuse_core::Matrix3d::Random().eval();
+  auto const random_matrix = fuse_core::Matrix3d::Random().eval();
 
   // A symmetric matrix:
-  const auto symmetric_matrix = (0.5 * (random_matrix + random_matrix.transpose())).eval();
+  auto const symmetric_matrix = (0.5 * (random_matrix + random_matrix.transpose())).eval();
 
   EXPECT_TRUE(fuse_core::isSymmetric(symmetric_matrix)) << "Matrix\n"
                                                         << symmetric_matrix << "\n expected to be symmetric.";
 
   // A non-symmetric matrix:
-  const double asymmetry_error = 1.0e-6;
+  double const asymmetry_error = 1.0e-6;
 
   auto non_symmetric_matrix = symmetric_matrix;
   non_symmetric_matrix(0, 1) += asymmetry_error;
@@ -56,7 +56,7 @@ TEST(Eigen, isSymmetric)
       << non_symmetric_matrix << "\n expected to not be symmetric.";
 
   // Checking symmetry with precision larger than asymmetry error in non-symmetric matrix:
-  const double precision = 1.0e2 * asymmetry_error;
+  double const precision = 1.0e2 * asymmetry_error;
 
   EXPECT_TRUE(fuse_core::isSymmetric(non_symmetric_matrix, precision))
       << "Matrix\n"
@@ -72,11 +72,11 @@ TEST(Eigen, isSymmetric)
 
 TEST(Eigen, isPositiveDefinite)
 {
-  const auto random_matrix = fuse_core::Matrix3d::Random().eval();
+  auto const random_matrix = fuse_core::Matrix3d::Random().eval();
 
   // A Positive Definite matrix:
-  const auto symmetric_matrix = (0.5 * (random_matrix + random_matrix.transpose())).eval();
-  const auto psd_matrix = (symmetric_matrix + 3 * fuse_core::Matrix3d::Identity()).eval();
+  auto const symmetric_matrix = (0.5 * (random_matrix + random_matrix.transpose())).eval();
+  auto const psd_matrix = (symmetric_matrix + 3 * fuse_core::Matrix3d::Identity()).eval();
 
   EXPECT_TRUE(fuse_core::isPositiveDefinite(psd_matrix)) << "Matrix\n"
                                                          << psd_matrix << "\n expected to be Positive Definite.";

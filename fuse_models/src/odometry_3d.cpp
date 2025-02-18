@@ -59,7 +59,7 @@ Odometry3D::Odometry3D()
 }
 
 void Odometry3D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                            const std::string& name, fuse_core::TransactionCallback transaction_callback)
+                            std::string const& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -105,7 +105,7 @@ void Odometry3D::onStart()
 
     sub_ = rclcpp::create_subscription<nav_msgs::msg::Odometry>(
         interfaces_, params_.topic, params_.queue_size,
-        std::bind(&OdometryThrottledCallback::callback<const nav_msgs::msg::Odometry&>, &throttled_callback_,
+        std::bind(&OdometryThrottledCallback::callback<nav_msgs::msg::Odometry const&>, &throttled_callback_,
                   std::placeholders::_1),
         sub_options);
   }
@@ -116,7 +116,7 @@ void Odometry3D::onStop()
   sub_.reset();
 }
 
-void Odometry3D::process(const nav_msgs::msg::Odometry& msg)
+void Odometry3D::process(nav_msgs::msg::Odometry const& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
@@ -132,7 +132,7 @@ void Odometry3D::process(const nav_msgs::msg::Odometry& msg)
   twist.header.frame_id = msg.child_frame_id;
   twist.twist = msg.twist;
 
-  const bool validate = !params_.disable_checks;
+  bool const validate = !params_.disable_checks;
 
   if (params_.differential)
   {
@@ -155,8 +155,8 @@ void Odometry3D::process(const nav_msgs::msg::Odometry& msg)
   sendTransaction(transaction);
 }
 
-void Odometry3D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose,
-                                     const geometry_msgs::msg::TwistWithCovarianceStamped& twist, const bool validate,
+void Odometry3D::processDifferential(geometry_msgs::msg::PoseWithCovarianceStamped const& pose,
+                                     geometry_msgs::msg::TwistWithCovarianceStamped const& twist, bool const validate,
                                      fuse_core::Transaction& transaction)
 {
   auto transformed_pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();

@@ -44,17 +44,17 @@ std::unordered_set<std::string>
 list_parameter_override_prefixes(node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
                                  std::string prefix)
 {
-  const std::map<std::string, rclcpp::ParameterValue>& overrides =
+  std::map<std::string, rclcpp::ParameterValue> const& overrides =
       interfaces.get_node_parameters_interface()->get_parameter_overrides();
   return detail::list_parameter_override_prefixes(overrides, prefix);
 }
 
 std::unordered_set<std::string>
-detail::list_parameter_override_prefixes(const std::map<std::string, rclcpp::ParameterValue>& overrides,
+detail::list_parameter_override_prefixes(std::map<std::string, rclcpp::ParameterValue> const& overrides,
                                          std::string prefix)
 {
   // TODO(sloretz) ROS 2 must have this in a header somewhere, right?
-  const char kParamSeparator = '.';
+  char const kParamSeparator = '.';
 
   // Find all overrides starting with "prefix.", unless the prefix is empty.
   // If the prefix is empty then look at all parameter overrides.
@@ -64,9 +64,9 @@ detail::list_parameter_override_prefixes(const std::map<std::string, rclcpp::Par
   }
 
   std::unordered_set<std::string> output_names;
-  for (const auto& kv : overrides)
+  for (auto const& kv : overrides)
   {
-    const std::string& name = kv.first;
+    std::string const& name = kv.first;
     if (name.size() <= prefix.size())
     {
       // Too short, no point in checking
@@ -85,7 +85,7 @@ detail::list_parameter_override_prefixes(const std::map<std::string, rclcpp::Par
   return output_names;
 }
 
-std::string joinParameterName(const std::string& left, const std::string& right)
+std::string joinParameterName(std::string const& left, std::string const& right)
 {
   if (left.empty())
   {

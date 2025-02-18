@@ -103,8 +103,8 @@ public:
    * @param[in] b              The b vector of the marginal cost (of the form A*(x - x_bar) + b)
    */
   template <typename VariableIterator, typename MatrixIterator>
-  MarginalConstraint(const std::string& source, VariableIterator first_variable, VariableIterator last_variable,
-                     MatrixIterator first_A, MatrixIterator last_A, const fuse_core::VectorXd& b);
+  MarginalConstraint(std::string const& source, VariableIterator first_variable, VariableIterator last_variable,
+                     MatrixIterator first_A, MatrixIterator last_A, fuse_core::VectorXd const& b);
 
   /**
    * @brief Destructor
@@ -114,7 +114,7 @@ public:
   /**
    * @brief Read-only access to the A matrices of the marginal constraint
    */
-  const std::vector<fuse_core::MatrixXd>& A() const
+  std::vector<fuse_core::MatrixXd> const& A() const
   {
     return A_;
   }
@@ -122,7 +122,7 @@ public:
   /**
    * @brief Read-only access to the b vector of the marginal constraint
    */
-  const fuse_core::VectorXd& b() const
+  fuse_core::VectorXd const& b() const
   {
     return b_;
   }
@@ -130,7 +130,7 @@ public:
   /**
    * @brief Read-only access to the variable linearization points, x_bar
    */
-  const std::vector<fuse_core::VectorXd>& x_bar() const
+  std::vector<fuse_core::VectorXd> const& x_bar() const
   {
     return x_bar_;
   }
@@ -139,7 +139,7 @@ public:
   /**
    * @brief Read-only access to the variable local parameterizations
    */
-  const std::vector<fuse_core::LocalParameterization::SharedPtr>& localParameterizations() const
+  std::vector<fuse_core::LocalParameterization::SharedPtr> const& localParameterizations() const
   {
     return local_parameterizations_;
   }
@@ -147,7 +147,7 @@ public:
   /**
    * @brief Read-only access to the variable manifolds
    */
-  const std::vector<fuse_core::Manifold::SharedPtr>& manifolds() const
+  std::vector<fuse_core::Manifold::SharedPtr> const& manifolds() const
   {
     return manifolds_;
   }
@@ -194,7 +194,7 @@ private:
    * @param[in] version - The version of the archive being written.
    */
   template <class Archive>
-  void save(Archive& archive, const unsigned int /* version */) const
+  void save(Archive& archive, unsigned int const /* version */) const
   {
     archive << boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive << A_;
@@ -214,7 +214,7 @@ private:
    * @param[in] version - The version of the archive being read.
    */
   template <class Archive>
-  void load(Archive& archive, const unsigned int version)
+  void load(Archive& archive, unsigned int const version)
   {
     archive >> boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive >> A_;
@@ -265,7 +265,7 @@ namespace detail
 /**
  * @brief Return the UUID of the provided variable
  */
-inline const fuse_core::UUID getUuid(const fuse_core::Variable& variable)
+inline const fuse_core::UUID getUuid(fuse_core::Variable const& variable)
 {
   return variable.uuid();
 }
@@ -273,7 +273,7 @@ inline const fuse_core::UUID getUuid(const fuse_core::Variable& variable)
 /**
  * @brief Return the current value of the provided variable
  */
-inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& variable)
+inline const fuse_core::VectorXd getCurrentValue(fuse_core::Variable const& variable)
 {
   return Eigen::Map<const fuse_core::VectorXd>(variable.data(), variable.size());
 }
@@ -282,7 +282,7 @@ inline const fuse_core::VectorXd getCurrentValue(const fuse_core::Variable& vari
 /**
  * @brief Return the local parameterization of the provided variable
  */
-inline fuse_core::LocalParameterization::SharedPtr getLocalParameterization(const fuse_core::Variable& variable)
+inline fuse_core::LocalParameterization::SharedPtr getLocalParameterization(fuse_core::Variable const& variable)
 {
   return fuse_core::LocalParameterization::SharedPtr(variable.localParameterization());
 }
@@ -290,7 +290,7 @@ inline fuse_core::LocalParameterization::SharedPtr getLocalParameterization(cons
 /**
  * @brief Return the manifold of the provided variable
  */
-inline fuse_core::Manifold::SharedPtr getManifold(const fuse_core::Variable& variable)
+inline fuse_core::Manifold::SharedPtr getManifold(fuse_core::Variable const& variable)
 {
   return fuse_core::Manifold::SharedPtr(variable.manifold());
 }
@@ -299,9 +299,9 @@ inline fuse_core::Manifold::SharedPtr getManifold(const fuse_core::Variable& var
 }  // namespace detail
 
 template <typename VariableIterator, typename MatrixIterator>
-MarginalConstraint::MarginalConstraint(const std::string& source, VariableIterator first_variable,
+MarginalConstraint::MarginalConstraint(std::string const& source, VariableIterator first_variable,
                                        VariableIterator last_variable, MatrixIterator first_A, MatrixIterator last_A,
-                                       const fuse_core::VectorXd& b)
+                                       fuse_core::VectorXd const& b)
   : Constraint(source, boost::make_transform_iterator(first_variable, &fuse_constraints::detail::getUuid),
                boost::make_transform_iterator(last_variable, &fuse_constraints::detail::getUuid))
   , A_(first_A, last_A)
@@ -328,10 +328,10 @@ MarginalConstraint::MarginalConstraint(const std::string& source, VariableIterat
   assert(A_.size() == manifolds_.size());
 #endif
   assert(b_.rows() > 0);
-  assert(std::all_of(A_.begin(), A_.end(), [this](const auto& A) { return A.rows() == this->b_.rows(); }));  // NOLINT
+  assert(std::all_of(A_.begin(), A_.end(), [this](auto const& A) { return A.rows() == this->b_.rows(); }));  // NOLINT
   assert(std::all_of(boost::make_zip_iterator(boost::make_tuple(A_.begin(), first_variable)),
                      boost::make_zip_iterator(boost::make_tuple(A_.end(), last_variable)),
-                     [](const boost::tuple<const fuse_core::MatrixXd&, const fuse_core::Variable&>& tuple)    // NOLINT
+                     [](boost::tuple<fuse_core::MatrixXd const&, fuse_core::Variable const&> const& tuple)    // NOLINT
                      { return static_cast<size_t>(tuple.get<0>().cols()) == tuple.get<1>().localSize(); }));  // NOLINT
 }
 

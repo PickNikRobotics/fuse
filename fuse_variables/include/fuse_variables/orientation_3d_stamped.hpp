@@ -96,7 +96,7 @@ public:
     return 3;
   }
 
-  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
+  bool Plus(double const* x, double const* delta, double* x_plus_delta) const override
   {
     double q_delta[4];
     ceres::AngleAxisToQuaternion(delta, static_cast<double*>(q_delta));
@@ -104,7 +104,7 @@ public:
     return true;
   }
 
-  bool ComputeJacobian(const double* x, double* jacobian) const override
+  bool ComputeJacobian(double const* x, double* jacobian) const override
   {
     double x0 = x[0] / 2;
     double x1 = x[1] / 2;
@@ -127,7 +127,7 @@ public:
     return true;
   }
 
-  bool Minus(const double* x, const double* y, double* y_minus_x) const override
+  bool Minus(double const* x, double const* y, double* y_minus_x) const override
   {
     double x_inverse[4];
     QuaternionInverse(x, static_cast<double*>(x_inverse));
@@ -137,7 +137,7 @@ public:
     return true;
   }
 
-  bool ComputeMinusJacobian(const double* x, double* jacobian) const override
+  bool ComputeMinusJacobian(double const* x, double* jacobian) const override
   {
     double x0 = x[0] * 2;
     double x1 = x[1] * 2;
@@ -172,7 +172,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
   }
@@ -201,7 +201,7 @@ public:
     return 3;
   }
 
-  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
+  bool Plus(double const* x, double const* delta, double* x_plus_delta) const override
   {
     double q_delta[4];
     ceres::AngleAxisToQuaternion(delta, static_cast<double*>(q_delta));
@@ -209,7 +209,7 @@ public:
     return true;
   }
 
-  bool PlusJacobian(const double* x, double* jacobian) const override
+  bool PlusJacobian(double const* x, double* jacobian) const override
   {
     double x0 = x[0] / 2;
     double x1 = x[1] / 2;
@@ -232,7 +232,7 @@ public:
     return true;
   }
 
-  bool Minus(const double* y, const double* x, double* y_minus_x) const override
+  bool Minus(double const* y, double const* x, double* y_minus_x) const override
   {
     double x_inverse[4];
     QuaternionInverse(x, static_cast<double*>(x_inverse));
@@ -242,7 +242,7 @@ public:
     return true;
   }
 
-  bool MinusJacobian(const double* x, double* jacobian) const override
+  bool MinusJacobian(double const* x, double* jacobian) const override
   {
     double x0 = x[0] * 2;
     double x1 = x[1] * 2;
@@ -276,7 +276,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Manifold>(*this);
   }
@@ -332,7 +332,7 @@ public:
    * @param[in] device_id An optional device id, for use when variables originate from multiple
    *                      robots or devices
    */
-  explicit Orientation3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit Orientation3DStamped(rclcpp::Time const& stamp, fuse_core::UUID const& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the quaternion w component
@@ -345,7 +345,7 @@ public:
   /**
    * @brief Read-only access to the quaternion w component
    */
-  const double& w() const
+  double const& w() const
   {
     return data_[W];
   }
@@ -361,7 +361,7 @@ public:
   /**
    * @brief Read-only access to the quaternion x component
    */
-  const double& x() const
+  double const& x() const
   {
     return data_[X];
   }
@@ -377,7 +377,7 @@ public:
   /**
    * @brief Read-only access to the quaternion y component
    */
-  const double& y() const
+  double const& y() const
   {
     return data_[Y];
   }
@@ -393,7 +393,7 @@ public:
   /**
    * @brief Read-only access to the quaternion z component
    */
-  const double& z() const
+  double const& z() const
   {
     return data_[Z];
   }
@@ -469,7 +469,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& boost::serialization::base_object<Stamped>(*this);

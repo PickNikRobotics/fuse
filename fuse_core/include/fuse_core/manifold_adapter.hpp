@@ -118,7 +118,7 @@ public:
    * @param[out] x_plus_delta  is a \p AmbientSize() vector.
    * @return Return value indicates if the operation was successful or not.
    */
-  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
+  bool Plus(double const* x, double const* delta, double* x_plus_delta) const override
   {
     return local_parameterization_->Plus(x, delta, x_plus_delta);
   }
@@ -134,7 +134,7 @@ public:
    * matrix.
    * @return
    */
-  bool PlusJacobian(const double* x, double* jacobian) const override
+  bool PlusJacobian(double const* x, double* jacobian) const override
   {
     return local_parameterization_->ComputeJacobian(x, jacobian);
   }
@@ -153,7 +153,7 @@ public:
    * @param[out] y_minus_x is a \p TangentSize() vector.
    * @return Return value indicates if the operation was successful or not.
    */
-  bool Minus(const double* y, const double* x, double* y_minus_x) const override
+  bool Minus(double const* y, double const* x, double* y_minus_x) const override
   {
     return local_parameterization_->Minus(x, y, y_minus_x);
   }
@@ -167,7 +167,7 @@ public:
    * @param[out] jacobian is a row-major \p TangentSize() x \p AmbientSize() matrix.
    * @return Return value indicates whether the operation was successful or not.
    */
-  bool MinusJacobian(const double* x, double* jacobian) const override
+  bool MinusJacobian(double const* x, double* jacobian) const override
   {
     return local_parameterization_->ComputeMinusJacobian(x, jacobian);
   }
@@ -185,7 +185,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<Manifold>(*this);
     archive& local_parameterization_;

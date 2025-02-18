@@ -93,8 +93,8 @@ public:
    * @param[in] mean       The measured/prior value of all variable dimensions
    * @param[in] covariance The measurement/prior uncertainty of all variable dimensions
    */
-  AbsoluteConstraint(const std::string& source, const Variable& variable, const fuse_core::VectorXd& mean,
-                     const fuse_core::MatrixXd& covariance);
+  AbsoluteConstraint(std::string const& source, Variable const& variable, fuse_core::VectorXd const& mean,
+                     fuse_core::MatrixXd const& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of only a partial set of dimensions of the
@@ -109,8 +109,8 @@ public:
    *                               by \p indices.
    * @param[in] indices            The set of indices corresponding to the measured dimensions
    */
-  AbsoluteConstraint(const std::string& source, const Variable& variable, const fuse_core::VectorXd& partial_mean,
-                     const fuse_core::MatrixXd& partial_covariance, const std::vector<size_t>& indices);
+  AbsoluteConstraint(std::string const& source, Variable const& variable, fuse_core::VectorXd const& partial_mean,
+                     fuse_core::MatrixXd const& partial_covariance, std::vector<size_t> const& indices);
 
   /**
    * @brief Destructor
@@ -124,7 +124,7 @@ public:
    * are in the order defined by the variable, not the order defined by the \p indices parameter.
    * All unmeasured variable dimensions are set to zero.
    */
-  const fuse_core::VectorXd& mean() const
+  fuse_core::VectorXd const& mean() const
   {
     return mean_;
   }
@@ -137,7 +137,7 @@ public:
    * variable_dimensions. If only a partial set of dimensions are measured, then this matrix will
    * not be square.
    */
-  const fuse_core::MatrixXd& sqrtInformation() const
+  fuse_core::MatrixXd const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -187,7 +187,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& mean_;

@@ -316,7 +316,7 @@ TEST(RelativePose3DStampedEulerConstraint, Optimization)
 
   // Compute the marginal covariance for pose1
   {
-    std::vector<std::pair<const double*, const double*>> covariance_blocks;
+    std::vector<std::pair<double const*, double const*>> covariance_blocks;
     covariance_blocks.emplace_back(position1->data(), position1->data());
     covariance_blocks.emplace_back(orientation1->data(), orientation1->data());
     covariance_blocks.emplace_back(position1->data(), orientation1->data());
@@ -350,7 +350,7 @@ TEST(RelativePose3DStampedEulerConstraint, Optimization)
 
   // Compute the marginal covariance for pose2
   {
-    std::vector<std::pair<const double*, const double*>> covariance_blocks;
+    std::vector<std::pair<double const*, double const*>> covariance_blocks;
     covariance_blocks.emplace_back(position2->data(), position2->data());
     covariance_blocks.emplace_back(position2->data(), orientation2->data());
     covariance_blocks.emplace_back(orientation2->data(), orientation2->data());
@@ -502,7 +502,7 @@ TEST(RelativePose3DStampedEulerConstraint, OptimizationPartial)
 
   // Compute the marginal covariance for pose1
   {
-    std::vector<std::pair<const double*, const double*>> covariance_blocks;
+    std::vector<std::pair<double const*, double const*>> covariance_blocks;
     covariance_blocks.emplace_back(position1->data(), position1->data());
     covariance_blocks.emplace_back(orientation1->data(), orientation1->data());
     covariance_blocks.emplace_back(position1->data(), orientation1->data());
@@ -537,7 +537,7 @@ TEST(RelativePose3DStampedEulerConstraint, OptimizationPartial)
 
   // Compute the marginal covariance for pose2
   {
-    std::vector<std::pair<const double*, const double*>> covariance_blocks;
+    std::vector<std::pair<double const*, double const*>> covariance_blocks;
     covariance_blocks.emplace_back(position2->data(), position2->data());
     covariance_blocks.emplace_back(position2->data(), orientation2->data());
     covariance_blocks.emplace_back(orientation2->data(), orientation2->data());

@@ -45,7 +45,7 @@ namespace fuse_optimizers
 {
 rclcpp::Time VariableStampIndex::currentStamp() const
 {
-  auto compare_stamps = [](const StampedMap::value_type& lhs, const StampedMap::value_type& rhs) {
+  auto compare_stamps = [](StampedMap::value_type const& lhs, StampedMap::value_type const& rhs) {
     return lhs.second < rhs.second;
   };
   auto iter = std::max_element(stamped_index_.begin(), stamped_index_.end(), compare_stamps);
@@ -56,7 +56,7 @@ rclcpp::Time VariableStampIndex::currentStamp() const
   return { 0, 0, RCL_ROS_TIME };
 }
 
-void VariableStampIndex::addNewTransaction(const fuse_core::Transaction& transaction)
+void VariableStampIndex::addNewTransaction(fuse_core::Transaction const& transaction)
 {
   applyAddedVariables(transaction);
   applyAddedConstraints(transaction);
@@ -64,7 +64,7 @@ void VariableStampIndex::addNewTransaction(const fuse_core::Transaction& transac
   applyRemovedVariables(transaction);
 }
 
-void VariableStampIndex::addMarginalTransaction(const fuse_core::Transaction& transaction)
+void VariableStampIndex::addMarginalTransaction(fuse_core::Transaction const& transaction)
 {
   // Only the removed variables and removed constraints should be applied to the VariableStampIndex
   // No variables will be added by a marginal transaction, and the added constraints add variable
@@ -74,23 +74,23 @@ void VariableStampIndex::addMarginalTransaction(const fuse_core::Transaction& tr
   applyRemovedVariables(transaction);
 }
 
-void VariableStampIndex::applyAddedConstraints(const fuse_core::Transaction& transaction)
+void VariableStampIndex::applyAddedConstraints(fuse_core::Transaction const& transaction)
 {
-  for (const auto& constraint : transaction.addedConstraints())
+  for (auto const& constraint : transaction.addedConstraints())
   {
     constraints_[constraint.uuid()].insert(constraint.variables().begin(), constraint.variables().end());
-    for (const auto& variable_uuid : constraint.variables())
+    for (auto const& variable_uuid : constraint.variables())
     {
       variables_[variable_uuid].insert(constraint.uuid());
     }
   }
 }
 
-void VariableStampIndex::applyAddedVariables(const fuse_core::Transaction& transaction)
+void VariableStampIndex::applyAddedVariables(fuse_core::Transaction const& transaction)
 {
-  for (const auto& variable : transaction.addedVariables())
+  for (auto const& variable : transaction.addedVariables())
   {
-    const auto* stamped_variable = dynamic_cast<const fuse_variables::Stamped*>(&variable);
+    auto const* stamped_variable = dynamic_cast<fuse_variables::Stamped const*>(&variable);
     if (stamped_variable != nullptr)
     {
       stamped_index_[variable.uuid()] = stamped_variable->stamp();
@@ -99,11 +99,11 @@ void VariableStampIndex::applyAddedVariables(const fuse_core::Transaction& trans
   }
 }
 
-void VariableStampIndex::applyRemovedConstraints(const fuse_core::Transaction& transaction)
+void VariableStampIndex::applyRemovedConstraints(fuse_core::Transaction const& transaction)
 {
-  for (const auto& constraint_uuid : transaction.removedConstraints())
+  for (auto const& constraint_uuid : transaction.removedConstraints())
   {
-    for (const auto& variable_uuid : constraints_[constraint_uuid])
+    for (auto const& variable_uuid : constraints_[constraint_uuid])
     {
       variables_[variable_uuid].erase(constraint_uuid);
     }
@@ -111,9 +111,9 @@ void VariableStampIndex::applyRemovedConstraints(const fuse_core::Transaction& t
   }
 }
 
-void VariableStampIndex::applyRemovedVariables(const fuse_core::Transaction& transaction)
+void VariableStampIndex::applyRemovedVariables(fuse_core::Transaction const& transaction)
 {
-  for (const auto& variable_uuid : transaction.removedVariables())
+  for (auto const& variable_uuid : transaction.removedVariables())
   {
     stamped_index_.erase(variable_uuid);
     variables_.erase(variable_uuid);

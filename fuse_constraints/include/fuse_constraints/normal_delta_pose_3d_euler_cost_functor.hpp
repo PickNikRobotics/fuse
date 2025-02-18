@@ -75,7 +75,7 @@ public:
    *              order (dx, dy, dz, droll, dpitch, dyaw)
    * @param[in] b The exposed pose difference in order (dx, dy, dz, droll, dpitch, dyaw)
    */
-  NormalDeltaPose3DEulerCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::Vector6d& b);
+  NormalDeltaPose3DEulerCostFunctor(fuse_core::MatrixXd const& A, fuse_core::Vector6d const& b);
 
   /**
    * @brief Compute the cost values/residuals using the provided variable/parameter values
@@ -89,8 +89,8 @@ private:
   fuse_core::Vector6d b_;
 };
 
-NormalDeltaPose3DEulerCostFunctor::NormalDeltaPose3DEulerCostFunctor(const fuse_core::MatrixXd& A,
-                                                                     const fuse_core::Vector6d& b)
+NormalDeltaPose3DEulerCostFunctor::NormalDeltaPose3DEulerCostFunctor(fuse_core::MatrixXd const& A,
+                                                                     fuse_core::Vector6d const& b)
   : A_(A), b_(b)
 {
   CHECK_GT(A_.rows(), 0);

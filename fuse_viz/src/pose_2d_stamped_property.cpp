@@ -51,8 +51,8 @@ using rviz_common::properties::ColorProperty;
 using rviz_common::properties::FloatProperty;
 using rviz_common::properties::Property;
 
-Pose2DStampedProperty::Pose2DStampedProperty(const QString& name, bool default_value, const QString& description,
-                                             Property* parent, const char* changed_slot, QObject* receiver)
+Pose2DStampedProperty::Pose2DStampedProperty(QString const& name, bool default_value, QString const& description,
+                                             Property* parent, char const* changed_slot, QObject* receiver)
   // NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of
   // this constructor
   : BoolProperty(name, default_value, description, parent)
@@ -99,8 +99,8 @@ Pose2DStampedProperty::Pose2DStampedProperty(const QString& name, bool default_v
 
 Pose2DStampedProperty::VisualPtr
 Pose2DStampedProperty::createAndInsertOrUpdateVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                                                     const fuse_variables::Position2DStamped& position,
-                                                     const fuse_variables::Orientation2DStamped& orientation)
+                                                     fuse_variables::Position2DStamped const& position,
+                                                     fuse_variables::Orientation2DStamped const& orientation)
 {
   auto& visual = variables_[position.uuid()];
 
@@ -125,7 +125,7 @@ Pose2DStampedProperty::createAndInsertOrUpdateVisual(Ogre::SceneManager* scene_m
   return visual;
 }
 
-void Pose2DStampedProperty::eraseVisual(const fuse_core::UUID& uuid)
+void Pose2DStampedProperty::eraseVisual(fuse_core::UUID const& uuid)
 {
   variables_.erase(uuid);
 }
@@ -183,36 +183,36 @@ void Pose2DStampedProperty::updateTextScale()
   }
 }
 
-void Pose2DStampedProperty::updateAxesAlpha(const VisualPtr& variable)
+void Pose2DStampedProperty::updateAxesAlpha(VisualPtr const& variable)
 {
   variable->setAxesAlpha(axes_alpha_property_->getFloat());
 }
 
-void Pose2DStampedProperty::updateScale(const VisualPtr& variable)
+void Pose2DStampedProperty::updateScale(VisualPtr const& variable)
 {
   variable->setScale(Ogre::Vector3{ scale_property_->getFloat() });  // NOLINT(whitespace/braces)
 }
 
-void Pose2DStampedProperty::updateShowText(const VisualPtr& variable)
+void Pose2DStampedProperty::updateShowText(VisualPtr const& variable)
 {
   variable->setTextVisible(show_text_property_->getBool());
 }
 
-void Pose2DStampedProperty::updateSphereColorAlpha(const VisualPtr& variable)
+void Pose2DStampedProperty::updateSphereColorAlpha(VisualPtr const& variable)
 {
-  const auto color = color_property_->getColor();
+  auto const color = color_property_->getColor();
 
   variable->setSphereColor(color.redF(), color.greenF(), color.blueF(), sphere_alpha_property_->getFloat());
 }
 
-void Pose2DStampedProperty::updateTextScale(const VisualPtr& variable)
+void Pose2DStampedProperty::updateTextScale(VisualPtr const& variable)
 {
   variable->setTextScale(Ogre::Vector3{ text_scale_property_->getFloat() });  // NOLINT
 }
 
-void Pose2DStampedProperty::updateVisibility(const VisualPtr& variable)
+void Pose2DStampedProperty::updateVisibility(VisualPtr const& variable)
 {
-  const auto visible = getBool();
+  auto const visible = getBool();
 
   variable->setVisible(visible);
   variable->setTextVisible(visible && show_text_property_->getBool());

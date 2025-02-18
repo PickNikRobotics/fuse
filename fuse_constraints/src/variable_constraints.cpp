@@ -51,7 +51,7 @@ bool VariableConstraints::empty() const
 
 size_t VariableConstraints::size() const
 {
-  auto sum_edges = [](const size_t input, const ConstraintCollection& edges) { return input + edges.size(); };
+  auto sum_edges = [](const size_t input, ConstraintCollection const& edges) { return input + edges.size(); };
   return std::accumulate(variable_constraints_.begin(), variable_constraints_.end(), 0u, sum_edges);
 }
 
@@ -60,7 +60,7 @@ unsigned int VariableConstraints::nextVariableIndex() const
   return variable_constraints_.size();
 }
 
-void VariableConstraints::insert(const unsigned int constraint, const unsigned int variable)
+void VariableConstraints::insert(unsigned int const constraint, unsigned int const variable)
 {
   if (variable >= variable_constraints_.size())
   {
@@ -69,12 +69,12 @@ void VariableConstraints::insert(const unsigned int constraint, const unsigned i
   variable_constraints_[variable].insert(constraint);
 }
 
-void VariableConstraints::insert(const unsigned int constraint, std::initializer_list<unsigned int> variable_list)
+void VariableConstraints::insert(unsigned int const constraint, std::initializer_list<unsigned int> variable_list)
 {
   return insert(constraint, variable_list.begin(), variable_list.end());
 }
 
-void VariableConstraints::insert(const unsigned int variable)
+void VariableConstraints::insert(unsigned int const variable)
 {
   if (variable >= variable_constraints_.size())
   {
@@ -89,7 +89,7 @@ void VariableConstraints::print(std::ostream& stream) const
   {
     stream << variable << ": [";
 
-    for (const auto& constraint : variable_constraints_[variable])
+    for (auto const& constraint : variable_constraints_[variable])
     {
       stream << constraint << ", ";
     }
@@ -98,7 +98,7 @@ void VariableConstraints::print(std::ostream& stream) const
   }
 }
 
-std::ostream& operator<<(std::ostream& stream, const VariableConstraints& variable_constraints)
+std::ostream& operator<<(std::ostream& stream, VariableConstraints const& variable_constraints)
 {
   variable_constraints.print(stream);
   return stream;

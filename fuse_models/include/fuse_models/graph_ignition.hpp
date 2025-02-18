@@ -96,7 +96,7 @@ public:
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
+                  std::string const& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
@@ -124,7 +124,7 @@ protected:
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
    */
-  void subscriberCallback(const fuse_msgs::msg::SerializedGraph& msg);
+  void subscriberCallback(fuse_msgs::msg::SerializedGraph const& msg);
 
   /**
    * @brief Triggers the publication of a new transaction equivalent to the supplied graph
@@ -146,7 +146,7 @@ protected:
    *
    * @param[in] msg - The graph message
    */
-  void process(const fuse_msgs::msg::SerializedGraph& msg, std::function<void()> post_process = nullptr);
+  void process(fuse_msgs::msg::SerializedGraph const& msg, std::function<void()> post_process = nullptr);
 
   /**
    * @brief Create and send a transaction equivalent to the supplied graph
@@ -154,7 +154,7 @@ protected:
    * @param[in] graph - The graph
    * @param[in] stamp - The graph stamp
    */
-  void sendGraph(const fuse_core::Graph& graph, const rclcpp::Time& stamp);
+  void sendGraph(fuse_core::Graph const& graph, rclcpp::Time const& stamp);
 
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Graph,
                                              fuse_core::node_interfaces::Logging, fuse_core::node_interfaces::Parameters,

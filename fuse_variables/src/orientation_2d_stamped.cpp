@@ -47,7 +47,7 @@
 namespace fuse_variables
 {
 
-Orientation2DStamped::Orientation2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id)
+Orientation2DStamped::Orientation2DStamped(rclcpp::Time const& stamp, fuse_core::UUID const& device_id)
   : FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)), Stamped(stamp, device_id)
 {
 }

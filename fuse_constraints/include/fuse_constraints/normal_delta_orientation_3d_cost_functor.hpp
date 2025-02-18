@@ -79,7 +79,7 @@ public:
    *              order (x, y, z)
    * @param[in] b The measured change between the two orientation variables
    */
-  NormalDeltaOrientation3DCostFunctor(const fuse_core::Matrix3d& A, const fuse_core::Vector4d& b) : A_(A), b_(b)
+  NormalDeltaOrientation3DCostFunctor(fuse_core::Matrix3d const& A, fuse_core::Vector4d const& b) : A_(A), b_(b)
   {
   }
 

@@ -42,7 +42,7 @@
 
 namespace fuse_variables
 {
-Point2DFixedLandmark::Point2DFixedLandmark(const uint64_t& landmark_id)
+Point2DFixedLandmark::Point2DFixedLandmark(uint64_t const& landmark_id)
   : FixedSizeVariable(fuse_core::uuid::generate(detail::type(), landmark_id)), id_(landmark_id)
 {
 }

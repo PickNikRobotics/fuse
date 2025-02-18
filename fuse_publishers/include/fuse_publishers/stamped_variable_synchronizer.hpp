@@ -75,7 +75,7 @@ public:
    *
    * @param[in] device_id The device id to use for all variable types
    */
-  explicit StampedVariableSynchronizer(const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit StampedVariableSynchronizer(fuse_core::UUID const& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Find the latest timestamp for which variables of all the specified template types exist
@@ -86,7 +86,7 @@ public:
    * @param[in] graph       The complete graph
    * @return The latest timestamp shared by all requested variable types
    */
-  rclcpp::Time findLatestCommonStamp(const fuse_core::Transaction& transaction, const fuse_core::Graph& graph);
+  rclcpp::Time findLatestCommonStamp(fuse_core::Transaction const& transaction, fuse_core::Graph const& graph);
 
 private:
   fuse_core::UUID device_id_;         //!< The device_id to use with the Stamped classes
@@ -101,7 +101,7 @@ private:
    *                           for a given time
    */
   template <typename VariableRange>
-  void updateTime(const VariableRange& variable_range, const fuse_core::Graph& graph);
+  void updateTime(VariableRange const& variable_range, fuse_core::Graph const& graph);
 };
 
 namespace detail
@@ -201,8 +201,8 @@ constexpr bool allStampedVariables = all_stamped_variables<Ts...>::value;
 template <typename...>
 struct all_variables_exist
 {
-  static bool value(const fuse_core::Graph& /*graph*/, const rclcpp::Time& /*stamp*/,
-                    const fuse_core::UUID& /*device_id*/)
+  static bool value(fuse_core::Graph const& /*graph*/, rclcpp::Time const& /*stamp*/,
+                    fuse_core::UUID const& /*device_id*/)
   {
     return true;
   }
@@ -222,7 +222,7 @@ struct all_variables_exist
 template <typename T, typename... Ts>
 struct all_variables_exist<T, Ts...>
 {
-  static bool value(const fuse_core::Graph& graph, const rclcpp::Time& stamp, const fuse_core::UUID& device_id)
+  static bool value(fuse_core::Graph const& graph, rclcpp::Time const& stamp, fuse_core::UUID const& device_id)
   {
     return graph.variableExists(T(stamp, device_id).uuid()) &&
            all_variables_exist<Ts...>::value(graph, stamp, device_id);
@@ -243,7 +243,7 @@ struct all_variables_exist<T, Ts...>
 template <typename...>
 struct is_variable_in_pack
 {
-  static bool value(const fuse_core::Variable& /*variable*/)
+  static bool value(fuse_core::Variable const& /*variable*/)
   {
     return false;
   }
@@ -261,7 +261,7 @@ struct is_variable_in_pack
 template <typename T, typename... Ts>
 struct is_variable_in_pack<T, Ts...>
 {
-  static bool value(const fuse_core::Variable& variable)
+  static bool value(fuse_core::Variable const& variable)
   {
     auto derived = dynamic_cast<const T*>(&variable);
     return static_cast<bool>(derived) || is_variable_in_pack<Ts...>::value(variable);
@@ -271,7 +271,7 @@ struct is_variable_in_pack<T, Ts...>
 }  // namespace detail
 
 template <typename... Ts>
-StampedVariableSynchronizer<Ts...>::StampedVariableSynchronizer(const fuse_core::UUID& device_id)
+StampedVariableSynchronizer<Ts...>::StampedVariableSynchronizer(fuse_core::UUID const& device_id)
   : device_id_(device_id)
   ,
   // NOTE(CH3): Uninitialized, for getting latest We use RCL_ROS_TIME so time comparisons are
@@ -284,8 +284,8 @@ StampedVariableSynchronizer<Ts...>::StampedVariableSynchronizer(const fuse_core:
 }
 
 template <typename... Ts>
-rclcpp::Time StampedVariableSynchronizer<Ts...>::findLatestCommonStamp(const fuse_core::Transaction& transaction,
-                                                                       const fuse_core::Graph& graph)
+rclcpp::Time StampedVariableSynchronizer<Ts...>::findLatestCommonStamp(fuse_core::Transaction const& transaction,
+                                                                       fuse_core::Graph const& graph)
 {
   // Clear the previous stamp if the variable was deleted
   if (0u != latest_common_stamp_.nanoseconds() &&
@@ -305,13 +305,13 @@ rclcpp::Time StampedVariableSynchronizer<Ts...>::findLatestCommonStamp(const fus
 
 template <typename... Ts>
 template <typename VariableRange>
-void StampedVariableSynchronizer<Ts...>::updateTime(const VariableRange& variable_range, const fuse_core::Graph& graph)
+void StampedVariableSynchronizer<Ts...>::updateTime(VariableRange const& variable_range, fuse_core::Graph const& graph)
 {
-  for (const auto& candidate_variable : variable_range)
+  for (auto const& candidate_variable : variable_range)
   {
     if (detail::is_variable_in_pack<Ts...>::value(candidate_variable))
     {
-      const auto& stamped_variable = dynamic_cast<const fuse_variables::Stamped&>(candidate_variable);
+      auto const& stamped_variable = dynamic_cast<fuse_variables::Stamped const&>(candidate_variable);
       if ((stamped_variable.stamp() > latest_common_stamp_) && (stamped_variable.deviceId() == device_id_) &&
           (detail::all_variables_exist<Ts...>::value(graph, stamped_variable.stamp(), device_id_)))
       {

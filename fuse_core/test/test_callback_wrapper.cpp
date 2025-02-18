@@ -44,12 +44,12 @@
 class MyClass
 {
 public:
-  double processData(const std::vector<double>& data)
+  double processData(std::vector<double> const& data)
   {
     return std::accumulate(data.begin(), data.end(), 0.0);
   }
 
-  void processDataInPlace(const std::vector<double>& data, double& output)
+  void processDataInPlace(std::vector<double> const& data, double& output)
   {
     output = std::accumulate(data.begin(), data.end(), 0.0);
   }

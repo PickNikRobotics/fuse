@@ -183,7 +183,7 @@ TEST(UUID, CollisionSingleThread)
 
   // Check for duplicates
   std::unordered_set<fuse_core::UUID> unique_uuids;
-  for (const auto& uuid : raw_uuids)
+  for (auto const& uuid : raw_uuids)
   {
     ASSERT_TRUE(unique_uuids.find(uuid) == unique_uuids.end()) << "UUIDs before duplicate " << unique_uuids.size();
     unique_uuids.insert(uuid);
@@ -209,7 +209,7 @@ TEST(UUID, CollisionManyThreads)
   std::unordered_set<fuse_core::UUID> unique_uuids;
   for (size_t i = 0; i < raw_uuids.size(); ++i)
   {
-    for (const auto& uuid : raw_uuids[i])
+    for (auto const& uuid : raw_uuids[i])
     {
       ASSERT_TRUE(unique_uuids.find(uuid) == unique_uuids.end()) << "UUIDs before duplicate " << unique_uuids.size();
       unique_uuids.insert(uuid);

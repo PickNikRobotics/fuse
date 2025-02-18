@@ -239,7 +239,7 @@ public:
    * @param[in] constraint_uuid The UUID of the requested constraint
    * @return                    The constraint in the graph with the specified UUID
    */
-  virtual const Constraint& getConstraint(const UUID& constraint_uuid) const = 0;
+  virtual Constraint const& getConstraint(const UUID& constraint_uuid) const = 0;
 
   /**
    * @brief Read-only access to all of the constraints in the graph
@@ -293,7 +293,7 @@ public:
    * @param[in] variable_uuid The UUID of the requested variable
    * @return                  The variable in the graph with the specified UUID
    */
-  virtual const Variable& getVariable(const UUID& variable_uuid) const = 0;
+  virtual Variable const& getVariable(const UUID& variable_uuid) const = 0;
 
   /**
    * @brief Read-only access to all of the variables in the graph
@@ -352,9 +352,9 @@ public:
    *                                 variable's tangent space/local coordinates. Otherwise it is
    *                                 computed in the variable's parameter space.
    */
-  virtual void getCovariance(const std::vector<std::pair<UUID, UUID>>& covariance_requests,
+  virtual void getCovariance(std::vector<std::pair<UUID, UUID>> const& covariance_requests,
                              std::vector<std::vector<double>>& covariance_matrices,
-                             const ceres::Covariance::Options& options = ceres::Covariance::Options(),
+                             ceres::Covariance::Options const& options = ceres::Covariance::Options(),
                              bool use_tangent_space = true) const = 0;
 
   /**
@@ -362,7 +362,7 @@ public:
    *
    * @param[in] transaction A set of variable and constraints additions and deletions
    */
-  void update(const Transaction& transaction);
+  void update(Transaction const& transaction);
 
   /**
    * @brief Optimize the values of the current set of variables, given the current set of
@@ -376,7 +376,7 @@ public:
    * @return            A Ceres Solver Summary structure containing information about the
    *                    optimization process
    */
-  virtual ceres::Solver::Summary optimize(const ceres::Solver::Options& options = ceres::Solver::Options()) = 0;
+  virtual ceres::Solver::Summary optimize(ceres::Solver::Options const& options = ceres::Solver::Options()) = 0;
 
   /**
    * @brief Optimize the values of the current set of variables, given the current set of
@@ -394,8 +394,8 @@ public:
    *                    optimization process
    */
   virtual ceres::Solver::Summary
-  optimizeFor(const rclcpp::Duration& max_optimization_time,
-              const ceres::Solver::Options& options = ceres::Solver::Options(),
+  optimizeFor(rclcpp::Duration const& max_optimization_time,
+              ceres::Solver::Options const& options = ceres::Solver::Options(),
               rclcpp::Clock clock = rclcpp::Clock(RCL_STEADY_TIME)) = 0;  // NOTE(CH3): We need to copy
                                                                           // because clock.now() is non-const
 
@@ -423,7 +423,7 @@ public:
    * @return True if the problem evaluation was successful; False, otherwise.
    */
   virtual bool evaluate(double* cost, std::vector<double>* residuals = nullptr, std::vector<double>* gradient = nullptr,
-                        const ceres::Problem::EvaluateOptions& options = ceres::Problem::EvaluateOptions()) const = 0;
+                        ceres::Problem::EvaluateOptions const& options = ceres::Problem::EvaluateOptions()) const = 0;
 
   /**
    * @brief Structure containing the cost and residual information for a single constraint.
@@ -522,7 +522,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& /* archive */, const unsigned int /* version */)
+  void serialize(Archive& /* archive */, unsigned int const /* version */)
   {
   }
 };
@@ -530,7 +530,7 @@ private:
 /**
  * Stream operator for printing Graph objects.
  */
-std::ostream& operator<<(std::ostream& stream, const Graph& graph);
+std::ostream& operator<<(std::ostream& stream, Graph const& graph);
 
 template <class UuidForwardIterator, class OutputIterator>
 void Graph::getConstraintCosts(UuidForwardIterator first, UuidForwardIterator last, OutputIterator output)
@@ -542,13 +542,13 @@ void Graph::getConstraintCosts(UuidForwardIterator first, UuidForwardIterator la
   while (first != last)
   {
     // Get the next requested constraint
-    const auto& constraint = getConstraint(*first);
+    auto const& constraint = getConstraint(*first);
     // Collect all of the involved variables
-    auto parameter_blocks = std::vector<const double*>();
+    auto parameter_blocks = std::vector<double const*>();
     parameter_blocks.reserve(constraint.variables().size());
     for (auto variable_uuid : constraint.variables())
     {
-      const auto& variable = getVariable(variable_uuid);
+      auto const& variable = getVariable(variable_uuid);
       parameter_blocks.push_back(variable.data());
     }
     // Compute the residuals for this constraint using the cost function

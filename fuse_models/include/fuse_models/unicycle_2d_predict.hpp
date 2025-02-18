@@ -110,23 +110,23 @@ inline void predict(const T position1_x, const T position1_y, const T yaw1, cons
  * @param[out] acc_linear2_y - Second Y acceleration
  * @param[out] jacobians - Jacobians wrt the state
  */
-inline void predict(const double position1_x, const double position1_y, const double yaw1, const double vel_linear1_x,
-                    const double vel_linear1_y, const double vel_yaw1, const double acc_linear1_x,
-                    const double acc_linear1_y, const double dt, double& position2_x, double& position2_y, double& yaw2,
+inline void predict(double const position1_x, double const position1_y, double const yaw1, double const vel_linear1_x,
+                    double const vel_linear1_y, double const vel_yaw1, double const acc_linear1_x,
+                    double const acc_linear1_y, double const dt, double& position2_x, double& position2_y, double& yaw2,
                     double& vel_linear2_x, double& vel_linear2_y, double& vel_yaw2, double& acc_linear2_x,
                     double& acc_linear2_y, double** jacobians)
 {
   // There are better models for this projection, but this matches the one used by r_l.
-  const double sy = ceres::sin(yaw1);  // Should probably be sin((yaw1 + yaw2) / 2), but r_l uses
+  double const sy = ceres::sin(yaw1);  // Should probably be sin((yaw1 + yaw2) / 2), but r_l uses
                                        // this model
-  const double cy = ceres::cos(yaw1);
+  double const cy = ceres::cos(yaw1);
 
-  const double half_dt2 = 0.5 * dt * dt;
-  const double delta_x = vel_linear1_x * dt + acc_linear1_x * half_dt2;
-  const double delta_y = vel_linear1_y * dt + acc_linear1_y * half_dt2;
+  double const half_dt2 = 0.5 * dt * dt;
+  double const delta_x = vel_linear1_x * dt + acc_linear1_x * half_dt2;
+  double const delta_y = vel_linear1_y * dt + acc_linear1_y * half_dt2;
 
-  const double delta_x_rot = cy * delta_x - sy * delta_y;
-  const double delta_y_rot = sy * delta_x + cy * delta_y;
+  double const delta_x_rot = cy * delta_x - sy * delta_y;
+  double const delta_y_rot = sy * delta_x + cy * delta_y;
 
   position2_x = position1_x + delta_x_rot;
   position2_y = position1_y + delta_y_rot;
@@ -158,8 +158,8 @@ inline void predict(const double position1_x, const double position1_y, const do
     // Jacobian wrt vel_linear1
     if (jacobians[2])
     {
-      const double cy_dt = cy * dt;
-      const double sy_dt = sy * dt;
+      double const cy_dt = cy * dt;
+      double const sy_dt = sy * dt;
 
       Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[2]);
       jacobian << cy_dt, -sy_dt, sy_dt, cy_dt, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0;
@@ -175,8 +175,8 @@ inline void predict(const double position1_x, const double position1_y, const do
     // Jacobian wrt acc_linear1
     if (jacobians[4])
     {
-      const double cy_half_dt2 = cy * half_dt2;
-      const double sy_half_dt2 = sy * half_dt2;
+      double const cy_half_dt2 = cy * half_dt2;
+      double const sy_half_dt2 = sy * half_dt2;
 
       Eigen::Map<fuse_core::Matrix<double, 8, 2>> jacobian(jacobians[4]);
       jacobian << cy_half_dt2, -sy_half_dt2, sy_half_dt2, cy_half_dt2, 0, 0, dt, 0, 0, dt, 0, 0, 1, 0, 0, 1;
@@ -221,8 +221,8 @@ inline void predict(const T* const position1, const T* const yaw1, const T* cons
  * @param[in] acc_linear2 - The second linear acceleration
  * @param[in] jacobian - The jacobian wrt the state
  */
-inline void predict(const tf2_2d::Transform& pose1, const tf2_2d::Vector2& vel_linear1, const double vel_yaw1,
-                    const tf2_2d::Vector2& acc_linear1, const double dt, tf2_2d::Transform& pose2,
+inline void predict(tf2_2d::Transform const& pose1, tf2_2d::Vector2 const& vel_linear1, double const vel_yaw1,
+                    tf2_2d::Vector2 const& acc_linear1, double const dt, tf2_2d::Transform& pose2,
                     tf2_2d::Vector2& vel_linear2, double& vel_yaw2, tf2_2d::Vector2& acc_linear2,
                     fuse_core::Matrix8d& jacobian)
 {
@@ -279,8 +279,8 @@ inline void predict(const tf2_2d::Transform& pose1, const tf2_2d::Vector2& vel_l
  * @param[in] vel_yaw2 - The second yaw velocity
  * @param[in] acc_linear2 - The second linear acceleration
  */
-inline void predict(const tf2_2d::Transform& pose1, const tf2_2d::Vector2& vel_linear1, const double vel_yaw1,
-                    const tf2_2d::Vector2& acc_linear1, const double dt, tf2_2d::Transform& pose2,
+inline void predict(tf2_2d::Transform const& pose1, tf2_2d::Vector2 const& vel_linear1, double const vel_yaw1,
+                    tf2_2d::Vector2 const& acc_linear1, double const dt, tf2_2d::Transform& pose2,
                     tf2_2d::Vector2& vel_linear2, double& vel_yaw2, tf2_2d::Vector2& acc_linear2)
 {
   double x_pred{};

@@ -44,7 +44,7 @@
 namespace fuse_variables
 {
 
-VelocityLinear2DStamped::VelocityLinear2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id)
+VelocityLinear2DStamped::VelocityLinear2DStamped(rclcpp::Time const& stamp, fuse_core::UUID const& device_id)
   : FixedSizeVariable(fuse_core::uuid::generate(detail::type(), stamp, device_id)), Stamped(stamp, device_id)
 {
 }

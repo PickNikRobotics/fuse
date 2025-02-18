@@ -67,7 +67,7 @@ public:
    * @param[in] a ScaledLoss parameter 'a'. See Ceres documentation for more details.
    * @param[in] loss The loss function to scale. Its output is scaled/multiplied by 'a'.
    */
-  explicit ScaledLoss(const double a = 1.0, const std::shared_ptr<fuse_core::Loss>& loss = nullptr);
+  explicit ScaledLoss(double const a = 1.0, std::shared_ptr<fuse_core::Loss> const& loss = nullptr);
 
   /**
    * @brief Destructor
@@ -88,7 +88,7 @@ public:
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& name) override;
+      std::string const& name) override;
 
   /**
    * @brief Print a human-readable description of the loss function to the provided stream.
@@ -135,7 +135,7 @@ public:
    *
    * @param[in] a Parameter 'a'.
    */
-  void a(const double a)
+  void a(double const a)
   {
     a_ = a;
   }
@@ -145,7 +145,7 @@ public:
    *
    * @param[in] loss Parameter 'loss'.
    */
-  void loss(const std::shared_ptr<fuse_core::Loss>& loss)
+  void loss(std::shared_ptr<fuse_core::Loss> const& loss)
   {
     loss_ = loss;
   }
@@ -165,7 +165,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Loss>(*this);
     archive& a_;

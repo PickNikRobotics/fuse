@@ -78,7 +78,7 @@ public:
    *              order (quaternion_x, quaternion_y, quaternion_z)
    * @param[in] b The orientation measurement or prior in order (w, x, y, z)
    */
-  NormalPriorOrientation3DCostFunctor(const fuse_core::Matrix3d& A, const fuse_core::Vector4d& b) : A_(A), b_(b)
+  NormalPriorOrientation3DCostFunctor(fuse_core::Matrix3d const& A, fuse_core::Vector4d const& b) : A_(A), b_(b)
   {
   }
 

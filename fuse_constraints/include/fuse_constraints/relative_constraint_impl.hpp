@@ -46,9 +46,9 @@ namespace fuse_constraints
 {
 
 template <class Variable>
-RelativeConstraint<Variable>::RelativeConstraint(const std::string& source, const Variable& variable1,
-                                                 const Variable& variable2, const fuse_core::VectorXd& delta,
-                                                 const fuse_core::MatrixXd& covariance)
+RelativeConstraint<Variable>::RelativeConstraint(std::string const& source, Variable const& variable1,
+                                                 Variable const& variable2, fuse_core::VectorXd const& delta,
+                                                 fuse_core::MatrixXd const& covariance)
   : fuse_core::Constraint(source, { variable1.uuid(), variable2.uuid() })
   ,  // NOLINT(whitespace/braces)
   delta_(delta)
@@ -61,10 +61,10 @@ RelativeConstraint<Variable>::RelativeConstraint(const std::string& source, cons
 }
 
 template <class Variable>
-RelativeConstraint<Variable>::RelativeConstraint(const std::string& source, const Variable& variable1,
-                                                 const Variable& variable2, const fuse_core::VectorXd& partial_delta,
-                                                 const fuse_core::MatrixXd& partial_covariance,
-                                                 const std::vector<size_t>& indices)
+RelativeConstraint<Variable>::RelativeConstraint(std::string const& source, Variable const& variable1,
+                                                 Variable const& variable2, fuse_core::VectorXd const& partial_delta,
+                                                 fuse_core::MatrixXd const& partial_covariance,
+                                                 std::vector<size_t> const& indices)
   : fuse_core::Constraint(source, { variable1.uuid(), variable2.uuid() })  // NOLINT(whitespace/braces)
 {
   assert(variable1.size() == variable2.size());

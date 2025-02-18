@@ -79,9 +79,9 @@ public:
    * @param[in] mean        The measured/prior orientation as a quaternion (4x1 vector: w, x, y, z)
    * @param[in] covariance  The measurement/prior covariance (3x3 matrix: qx, qy, qz)
    */
-  AbsoluteOrientation3DStampedConstraint(const std::string& source,
-                                         const fuse_variables::Orientation3DStamped& orientation,
-                                         const fuse_core::Vector4d& mean, const fuse_core::Matrix3d& covariance);
+  AbsoluteOrientation3DStampedConstraint(std::string const& source,
+                                         fuse_variables::Orientation3DStamped const& orientation,
+                                         fuse_core::Vector4d const& mean, fuse_core::Matrix3d const& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
@@ -91,9 +91,9 @@ public:
    * @param[in] mean        The measured/prior orientation as an Eigen quaternion
    * @param[in] covariance  The measurement/prior covariance (3x3 matrix: qx, qy, qz)
    */
-  AbsoluteOrientation3DStampedConstraint(const std::string& source,
-                                         const fuse_variables::Orientation3DStamped& orientation,
-                                         const Eigen::Quaterniond& mean, const fuse_core::Matrix3d& covariance);
+  AbsoluteOrientation3DStampedConstraint(std::string const& source,
+                                         fuse_variables::Orientation3DStamped const& orientation,
+                                         Eigen::Quaterniond const& mean, fuse_core::Matrix3d const& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of a 3D orientation
@@ -103,10 +103,10 @@ public:
    * @param[in] mean        The measured/prior orientation as a ROS quaternion message
    * @param[in] covariance  The measurement/prior covariance (3x3 matrix: qx, qy, qz)
    */
-  AbsoluteOrientation3DStampedConstraint(const std::string& source,
-                                         const fuse_variables::Orientation3DStamped& orientation,
-                                         const geometry_msgs::msg::Quaternion& mean,
-                                         const std::array<double, 9>& covariance);
+  AbsoluteOrientation3DStampedConstraint(std::string const& source,
+                                         fuse_variables::Orientation3DStamped const& orientation,
+                                         geometry_msgs::msg::Quaternion const& mean,
+                                         std::array<double, 9> const& covariance);
 
   /**
    * @brief Destructor
@@ -118,7 +118,7 @@ public:
    *
    * Order is (w, x, y, z)
    */
-  const fuse_core::Vector4d& mean() const
+  fuse_core::Vector4d const& mean() const
   {
     return mean_;
   }
@@ -128,7 +128,7 @@ public:
    *
    * Order is (x, y, z)
    */
-  const fuse_core::Matrix3d& sqrtInformation() const
+  fuse_core::Matrix3d const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -165,21 +165,21 @@ protected:
    * @param[in] quaternion - The input Eigen quaternion
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
-  static fuse_core::Vector4d toEigen(const Eigen::Quaterniond& quaternion);
+  static fuse_core::Vector4d toEigen(Eigen::Quaterniond const& quaternion);
 
   /**
    * @brief Utility method to convert an ROS quaternion message to an Eigen Vector4d
    * @param[in] quaternion - The input ROS quaternion message
    * @return The \p quaternion, converted to an Eigen Vector4d
    */
-  static fuse_core::Vector4d toEigen(const geometry_msgs::msg::Quaternion& quaternion);
+  static fuse_core::Vector4d toEigen(geometry_msgs::msg::Quaternion const& quaternion);
 
   /**
    * @brief Utility method to convert a flat 1D array to a 3x3 Eigen matrix
    * @param[in] covariance - The input covariance array
    * @return The \p covariance, converted to an Eigen Matrix3d
    */
-  static fuse_core::Matrix3d toEigen(const std::array<double, 9>& covariance);
+  static fuse_core::Matrix3d toEigen(std::array<double, 9> const& covariance);
 
   fuse_core::Vector4d mean_;              //!< The measured/prior mean vector for this variable
   fuse_core::Matrix3d sqrt_information_;  //!< The square root information matrix
@@ -196,7 +196,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& mean_;

@@ -2,6 +2,8 @@
 
 Welcome to PickNik Robotics's fork of fuse!
 
+This branch is for ROS Humble.
+
 ## Getting Started
 
 Using the Dockerfile is the easiest way to get started. Once inside, simply `rosdep update` and `colcon build` and you're ready to get started! Try `ros2 launch fuse_tutorials fuse_3d_tutorial.launch.py` and look at its pertinent code for a crash course in fuse and its capabilities.
@@ -40,7 +42,7 @@ optimizer will cache the constraints and process them in small batches on some s
 require considerable processing time, introducing a delay between the completion of the optimization cycle and the
 publishing of data to the ROS topic.
 
-![fuse sequence diagram](doc/fuse_sequence_diagram.png)
+![fuse sequence diagram](doc/images/fuse_sequence_diagram.png)
 
 ## Example
 
@@ -74,14 +76,14 @@ time. This is enough to construct our first `fuse` system. Below is the constrai
 system. The large circles represent state variables at a given time, while the small squares represent measurements.
 The graph connectivity indicates which variables are involved in what measurements.
 
-![fuse graph](doc/fuse_graph_1.png)
+![fuse graph](doc/images/fuse_graph_1.png)
 
 The two sensor models are configured as plugins to an optimizer implementation. The optimizer performs the required
 computation to generate the optimal state variable values based on the provided sensor constraints. We will never be
 able to exactly satisfy both the wheel encoder constraints and the laserscan constraints. Instead we minimize the error
 of all the constraints using nonlinear least squares optimization.
 
-![fuse optimizer](doc/fuse_optimizer_1.png)
+![fuse optimizer](doc/images/fuse_optimizer_1.png)
 
 While our `fuse` system is optimizing constraints from two different sensors, it is not yet publishing any data back
 out to ROS. In order to publish data to ROS, we derive a `fuse_core::Publisher` class and add it to the
@@ -90,7 +92,7 @@ implementation determines what type of messages are published and at what freque
 we would like visualize the current pose of the robot in RViz, so we create a `fuse` publisher that finds the most
 recent pose and converts it into a `geometry_msgs::msg::PoseStamped` message, then publishes the message to a topic.
 
-![fuse optimizer](doc/fuse_optimizer_2.png)
+![fuse optimizer](doc/images/fuse_optimizer_2.png)
 
 We finally have something that is starting to be useful.
 
@@ -100,7 +102,7 @@ Typically the laser measurements and the wheel encoder measurements are not sync
 sampled faster than the laser, and are sampled at different times using a different clock. If we do not do anything
 different in this situation, the constraint graph becomes disconnected.
 
-![fuse graph](doc/fuse_graph_2.png)
+![fuse graph](doc/images/fuse_graph_2.png)
 
 This is where motion models come into play. A motion model differs from a sensor model in that constraints can be
 generated between any two requested timestamps. Motion model constraints are generated upon request, not due to their
@@ -108,12 +110,12 @@ own internal clock. We use the motion model to connect the states introduced by 
 derive a class from the `fuse_core::MotionModel` base class and implement a differential drive kinematic
 constraint for our robot.
 
-![fuse optimizer](doc/fuse_optimizer_3.png)
+![fuse optimizer](doc/images/fuse_optimizer_3.png)
 
 The motion models are also configured as plugins to the optimizer. The optimizer requests motion models constraints
 from the configured plugins whenever new states are created by the sensor models.
 
-![fuse graph](doc/fuse_graph_3.png)
+![fuse graph](doc/images/fuse_graph_3.png)
 
 ### Adaptation #2: Full path publishing
 
@@ -121,7 +123,7 @@ Nothing about the `fuse` framework limits you to having a single publisher. What
 robot trajectory, instead of just the most recent pose? Well, we can create a new derived `fuse_core::Publisher` class
 that publishes all of the robot poses using a `nav_msgs::msg::Path` message.
 
-![fuse optimizer](doc/fuse_optimizer_4.png)
+![fuse optimizer](doc/images/fuse_optimizer_4.png)
 
 ### Adaptation #3: Changing kinematics
 
@@ -129,9 +131,9 @@ In your spare time, you also build [autonomous power wheels racers](http://www.p
 don't use differential drive; you need a different motion model. Easy enough. We simply derive a new
 `fuse_core::MotionModel` class that implements an Ackermann steering model. Everything else can be reused.
 
-![fuse optimizer](doc/fuse_optimizer_5.png)
+![fuse optimizer](doc/images/fuse_optimizer_5.png)
 
-![fuse graph](doc/fuse_graph_4.png)
+![fuse graph](doc/images/fuse_graph_4.png)
 
 ### Adaptation #4: Online calibration
 
@@ -146,9 +148,9 @@ how the wheel diameter is expected to change over time. Maybe some sort of expon
 derive a new publisher plugin from `fuse_core::Publisher` that publishes the current wheel diameter. This allows us to
 plot how the wheel diameter changes over the length of the race.
 
-![fuse optimizer](doc/fuse_optimizer_6.png)
+![fuse optimizer](doc/images/fuse_optimizer_6.png)
 
-![fuse graph](doc/fuse_graph_5.png)
+![fuse graph](doc/images/fuse_graph_5.png)
 
 Now our system estimates the wheel diameters at each time step as well as the robot's pose.
 
@@ -167,11 +169,27 @@ end users to concentrate on modeling the robot, sensor, system, etc. and spend l
 sensor models together into runable code. And since all of the models are implemented as plugins, separate plugin
 libraries can be shared or kept private at the discretion of their authors.
 
-## API Concepts
+## Documentation
 
-* [Variables](doc/Variables.md)
-* [Constraints](doc/Constraints.md)
+### API Concepts
+
+* Optimizers -- coming soon
+* [Variables](doc/concepts/Variables.md)
+* Graphs -- coming soon
 * Sensor Models -- coming soon
 * Motion Models -- coming soon
 * Publishers -- coming soon
-* Optimizers -- coming soon
+* [Constraints](doc/concepts/Constraints.md)
+
+### Implementation Documentation
+
+This is documentation of specific implementations of the above concepts.
+
+Documentation in progress, see [this issue](https://github.com/PickNikRobotics/fuse/issues/23).
+
+* [Optimizers](./fuse_optimizers/doc/optimizers.md)
+* [Variables](./fuse_variables/doc/variables.md)
+* [Graphs](./fuse_graphs/doc/graphs.md)
+* [Motion Models](./fuse_models/doc/motion_models/motion_models.md)
+* [Sensor Models](./fuse_models/doc/sensor_models/sensor_models.md)
+* [Constraints](./fuse_constraints/doc/constraints.md)

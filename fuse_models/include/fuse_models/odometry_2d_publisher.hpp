@@ -123,7 +123,7 @@ public:
    * @brief Shadowing extension to the AsyncPublisher::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name) override;
+                  std::string const& name) override;
 
 protected:
   /**
@@ -173,7 +173,7 @@ protected:
    *                          structure
    * @return true if the checks pass, false otherwise
    */
-  bool getState(const fuse_core::Graph& graph, const rclcpp::Time& stamp, const fuse_core::UUID& device_id,
+  bool getState(fuse_core::Graph const& graph, rclcpp::Time const& stamp, fuse_core::UUID const& device_id,
                 fuse_core::UUID& position_uuid, fuse_core::UUID& orientation_uuid,
                 fuse_core::UUID& velocity_linear_uuid, fuse_core::UUID& velocity_angular_uuid,
                 fuse_core::UUID& acceleration_linear_uuid, nav_msgs::msg::Odometry& odometry,

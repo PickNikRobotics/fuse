@@ -40,7 +40,7 @@
 namespace fuse_constraints
 {
 
-NormalDeltaPose2D::NormalDeltaPose2D(const fuse_core::MatrixXd& A, const fuse_core::Vector3d& b) : A_(A), b_(b)
+NormalDeltaPose2D::NormalDeltaPose2D(fuse_core::MatrixXd const& A, fuse_core::Vector3d const& b) : A_(A), b_(b)
 {
   CHECK_GT(A_.rows(), 0);
   CHECK_EQ(A_.cols(), 3);

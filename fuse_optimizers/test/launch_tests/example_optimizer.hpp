@@ -55,22 +55,22 @@ public:
   {
   }
 
-  const MotionModels& getMotionModels() const
+  MotionModels const& getMotionModels() const
   {
     return motion_models_;
   }
 
-  const SensorModels& getSensorModels() const
+  SensorModels const& getSensorModels() const
   {
     return sensor_models_;
   }
 
-  const Publishers& getPublishers() const
+  Publishers const& getPublishers() const
   {
     return publishers_;
   }
 
-  void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) override
+  void transactionCallback(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction) override
   {
     (void)sensor_name;
     (void)transaction;

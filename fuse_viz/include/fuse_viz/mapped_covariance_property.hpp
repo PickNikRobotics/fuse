@@ -86,9 +86,9 @@ public:
     RGB,
   };
 
-  MappedCovarianceProperty(const QString& name = "Covariance", bool default_value = false,
-                           const QString& description = QString(), rviz_common::properties::Property* parent = 0,
-                           const char* changed_slot = 0, QObject* receiver = 0);
+  MappedCovarianceProperty(QString const& name = "Covariance", bool default_value = false,
+                           QString const& description = QString(), rviz_common::properties::Property* parent = 0,
+                           char const* changed_slot = 0, QObject* receiver = 0);
 
   virtual ~MappedCovarianceProperty();
 
@@ -96,9 +96,9 @@ public:
   bool getOrientationBool();
 
   // Methods to manage the unordered map of Covariance Visuals
-  MappedCovarianceVisualPtr createAndInsertVisual(const std::string& key, Ogre::SceneManager* scene_manager,
+  MappedCovarianceVisualPtr createAndInsertVisual(std::string const& key, Ogre::SceneManager* scene_manager,
                                                   Ogre::SceneNode* parent_node);
-  void eraseVisual(const std::string& key);
+  void eraseVisual(std::string const& key);
   void clearVisual();
   size_t sizeVisual();
 
@@ -111,9 +111,9 @@ private Q_SLOTS:
   void updateColorStyleChoice();
 
 private:
-  void updateColorAndAlphaAndScaleAndOffset(const MappedCovarianceVisualPtr& visual);
-  void updateOrientationFrame(const MappedCovarianceVisualPtr& visual);
-  void updateVisibility(const MappedCovarianceVisualPtr& visual);
+  void updateColorAndAlphaAndScaleAndOffset(MappedCovarianceVisualPtr const& visual);
+  void updateOrientationFrame(MappedCovarianceVisualPtr const& visual);
+  void updateVisibility(MappedCovarianceVisualPtr const& visual);
 
   std::unordered_map<std::string, MappedCovarianceVisualPtr> covariances_;
 

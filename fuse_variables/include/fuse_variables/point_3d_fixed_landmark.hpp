@@ -80,7 +80,7 @@ public:
    *
    * @param[in] landmark_id  The id associated to a landmark
    */
-  explicit Point3DFixedLandmark(const uint64_t& landmark_id);
+  explicit Point3DFixedLandmark(uint64_t const& landmark_id);
 
   /**
    * @brief Read-write access to the X-axis position.
@@ -93,7 +93,7 @@ public:
   /**
    * @brief Read-only access to the X-axis position.
    */
-  const double& x() const
+  double const& x() const
   {
     return data_[X];
   }
@@ -109,7 +109,7 @@ public:
   /**
    * @brief Read-only access to the Y-axis position.
    */
-  const double& y() const
+  double const& y() const
   {
     return data_[Y];
   }
@@ -125,7 +125,7 @@ public:
   /**
    * @brief Read-only access to the Z-axis position.
    */
-  const double& z() const
+  double const& z() const
   {
     return data_[Z];
   }
@@ -133,7 +133,7 @@ public:
   /**
    * @brief Read-only access to the id
    */
-  const uint64_t& id() const
+  uint64_t const& id() const
   {
     return id_;
   }
@@ -175,7 +175,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& id_;

@@ -43,7 +43,7 @@
 namespace fuse_loss
 {
 
-FairLoss::FairLoss(const double a) : a_(a)
+FairLoss::FairLoss(double const a) : a_(a)
 {
 }
 
@@ -51,7 +51,7 @@ void FairLoss::initialize(
     fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                fuse_core::node_interfaces::Parameters>
         interfaces,
-    const std::string& name)
+    std::string const& name)
 {
   a_ = fuse_core::getParam(interfaces, name + ".a", a_);
 }

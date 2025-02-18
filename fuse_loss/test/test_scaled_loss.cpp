@@ -53,7 +53,7 @@ TEST(ScaledLoss, Constructor)
 
   // Create a loss with a parameter
   {
-    const double a{ 0.3 };
+    double const a{ 0.3 };
     fuse_loss::ScaledLoss scaled_loss(a);
     EXPECT_EQ(a, scaled_loss.a());
     EXPECT_EQ(nullptr, scaled_loss.loss());
@@ -63,7 +63,7 @@ TEST(ScaledLoss, Constructor)
   {
     std::shared_ptr<fuse_loss::HuberLoss> loss{ new fuse_loss::HuberLoss };
 
-    const double a{ 0.3 };
+    double const a{ 0.3 };
     fuse_loss::ScaledLoss scaled_loss(a, loss);
     EXPECT_EQ(a, scaled_loss.a());
     EXPECT_NE(nullptr, scaled_loss.loss());
@@ -73,7 +73,7 @@ TEST(ScaledLoss, Constructor)
 
 struct CostFunctor
 {
-  explicit CostFunctor(const double data) : data(data)
+  explicit CostFunctor(double const data) : data(data)
   {
   }
 
@@ -93,19 +93,19 @@ TEST(ScaledLoss, Optimization)
   double x{ 5.0 };
 
   // Create a simple inlier constraint
-  const double inlier{ 1.0 };
+  double const inlier{ 1.0 };
 
   // Create a simple outlier constraint
-  const double outlier{ 10.0 };
+  double const outlier{ 10.0 };
   ceres::CostFunction* cost_function_outlier =
       new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(outlier));
 
   // Create loss
-  const double a{ 0.1 };
+  double const a{ 0.1 };
   std::shared_ptr<fuse_loss::HuberLoss> loss{ new fuse_loss::HuberLoss(a) };
 
   // Create a scaled loss, which should not have a significant impact in this test
-  const double scaled_a{ 0.7 };
+  double const scaled_a{ 0.7 };
   fuse_loss::ScaledLoss scaled_loss(scaled_a, loss);
 
   // Build the problem.
@@ -155,11 +155,11 @@ TEST(ScaledLoss, Optimization)
 TEST(ScaledLoss, Serialization)
 {
   // Construct a loss
-  const double loss_a{ 0.3 };
+  double const loss_a{ 0.3 };
   std::shared_ptr<fuse_loss::HuberLoss> loss{ new fuse_loss::HuberLoss(loss_a) };
 
   // Construct a scaled loss
-  const double a{ 0.7 };
+  double const a{ 0.7 };
   fuse_loss::ScaledLoss expected(a, loss);
 
   // Serialize the loss into an archive
@@ -182,7 +182,7 @@ TEST(ScaledLoss, Serialization)
   EXPECT_NE(nullptr, actual.loss());
 
   // Test inlier (s <= loss_a*loss_a)
-  const double s = 0.95 * loss_a * loss_a;
+  double const s = 0.95 * loss_a * loss_a;
   double rho[3] = { 0.0 };
   actual.lossFunction()->Evaluate(s, rho);
 
@@ -191,7 +191,7 @@ TEST(ScaledLoss, Serialization)
   EXPECT_EQ(0.0, rho[2]);
 
   // Test outlier
-  const double s_outlier = 1.05 * loss_a * loss_a;
+  double const s_outlier = 1.05 * loss_a * loss_a;
   actual.lossFunction()->Evaluate(s_outlier, rho);
 
   // In the outlier region rho() satisfies:

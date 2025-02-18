@@ -37,7 +37,7 @@
 namespace fuse_constraints
 {
 
-NormalPriorOrientation2D::NormalPriorOrientation2D(const double A, const double b) : A_(A), b_(b)
+NormalPriorOrientation2D::NormalPriorOrientation2D(double const A, double const b) : A_(A), b_(b)
 {
 }
 

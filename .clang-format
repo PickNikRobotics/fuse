@@ -15,6 +15,7 @@ NamespaceIndentation: None
 ContinuationIndentWidth: 4
 IndentCaseLabels: true
 IndentFunctionDeclarationAfterType: false
+QualifierAlignment: Right
 
 AlignEscapedNewlinesLeft: false
 AlignTrailingComments: true

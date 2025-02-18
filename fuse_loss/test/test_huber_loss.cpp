@@ -49,7 +49,7 @@ TEST(HuberLoss, Constructor)
 
   // Create a loss with a parameter
   {
-    const double a{ 0.3 };
+    double const a{ 0.3 };
     fuse_loss::HuberLoss loss(a);
     ASSERT_EQ(a, loss.a());
   }
@@ -57,7 +57,7 @@ TEST(HuberLoss, Constructor)
 
 struct CostFunctor
 {
-  explicit CostFunctor(const double data) : data(data)
+  explicit CostFunctor(double const data) : data(data)
   {
   }
 
@@ -77,10 +77,10 @@ TEST(HuberLoss, Optimization)
   double x{ 5.0 };
 
   // Create a simple inlier constraint
-  const double inlier{ 1.0 };
+  double const inlier{ 1.0 };
 
   // Create a simple outlier constraint
-  const double outlier{ 10.0 };
+  double const outlier{ 10.0 };
   ceres::CostFunction* cost_function_outlier =
       new ceres::AutoDiffCostFunction<CostFunctor, 1, 1>(new CostFunctor(outlier));
 
@@ -134,7 +134,7 @@ TEST(HuberLoss, Optimization)
 TEST(HuberLoss, Serialization)
 {
   // Construct a loss
-  const double a{ 0.3 };
+  double const a{ 0.3 };
   fuse_loss::HuberLoss expected(a);
 
   // Serialize the loss into an archive
@@ -156,7 +156,7 @@ TEST(HuberLoss, Serialization)
   EXPECT_NE(nullptr, actual.lossFunction());
 
   // Test inlier (s <= a*a)
-  const double s = 0.95 * a * a;
+  double const s = 0.95 * a * a;
   double rho[3] = { 0.0 };
   actual.lossFunction()->Evaluate(s, rho);
 
@@ -165,7 +165,7 @@ TEST(HuberLoss, Serialization)
   EXPECT_EQ(0.0, rho[2]);
 
   // Test outlier
-  const double s_outlier = 1.05 * a * a;
+  double const s_outlier = 1.05 * a * a;
   actual.lossFunction()->Evaluate(s_outlier, rho);
 
   // In the outlier region rho() satisfies:

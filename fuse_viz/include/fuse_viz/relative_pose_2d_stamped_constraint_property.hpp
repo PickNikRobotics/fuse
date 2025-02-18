@@ -90,20 +90,20 @@ public:
   using Visual = RelativePose2DStampedConstraintVisual;
   using VisualPtr = std::shared_ptr<Visual>;
 
-  RelativePose2DStampedConstraintProperty(const QString& name = "RelativePose2DStampedConstraint",
-                                          bool default_value = true, const QString& description = QString(),
-                                          Property* parent = NULL, const char* changed_slot = NULL,
+  RelativePose2DStampedConstraintProperty(QString const& name = "RelativePose2DStampedConstraint",
+                                          bool default_value = true, QString const& description = QString(),
+                                          Property* parent = NULL, char const* changed_slot = NULL,
                                           QObject* receiver = NULL);
 
   ~RelativePose2DStampedConstraintProperty() override = default;
 
   VisualPtr createAndInsertVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                                  const fuse_constraints::RelativePose2DStampedConstraint& constraint,
-                                  const fuse_core::Graph& graph);
-  void eraseVisual(const fuse_core::UUID& uuid);
+                                  fuse_constraints::RelativePose2DStampedConstraint const& constraint,
+                                  fuse_core::Graph const& graph);
+  void eraseVisual(fuse_core::UUID const& uuid);
   void clearVisual();
 
-  void setColor(const QColor& color);
+  void setColor(QColor const& color);
 
 public Q_SLOTS:
   void updateVisibility();
@@ -121,17 +121,17 @@ private Q_SLOTS:
   void updateTextScale();
 
 private:
-  void updateColor(const VisualPtr& constraint);
-  void updateErrorLineAlpha(const VisualPtr& constraint);
-  void updateErrorLineWidth(const VisualPtr& constraint);
-  void updateLossMinBrightness(const VisualPtr& constraint);
-  void updateRelativePoseAxesAlpha(const VisualPtr& constraint);
-  void updateRelativePoseAxesScale(const VisualPtr& constraint);
-  void updateRelativePoseLineAlpha(const VisualPtr& constraint);
-  void updateRelativePoseLineWidth(const VisualPtr& constraint);
-  void updateShowText(const VisualPtr& constraint);
-  void updateTextScale(const VisualPtr& constraint);
-  void updateVisibility(const VisualPtr& constraint);
+  void updateColor(VisualPtr const& constraint);
+  void updateErrorLineAlpha(VisualPtr const& constraint);
+  void updateErrorLineWidth(VisualPtr const& constraint);
+  void updateLossMinBrightness(VisualPtr const& constraint);
+  void updateRelativePoseAxesAlpha(VisualPtr const& constraint);
+  void updateRelativePoseAxesScale(VisualPtr const& constraint);
+  void updateRelativePoseLineAlpha(VisualPtr const& constraint);
+  void updateRelativePoseLineWidth(VisualPtr const& constraint);
+  void updateShowText(VisualPtr const& constraint);
+  void updateTextScale(VisualPtr const& constraint);
+  void updateVisibility(VisualPtr const& constraint);
 
   std::unordered_map<fuse_core::UUID, VisualPtr, fuse_core::uuid::hash> constraints_;
 

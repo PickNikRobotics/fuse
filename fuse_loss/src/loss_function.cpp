@@ -44,8 +44,8 @@ void DCSLoss::Evaluate(double s, double rho[3]) const
   if (s > a_)
   {
     // Outlier region
-    const double inv = 1.0 / (a_ + s);
-    const double scale = 2.0 * a_ * inv;
+    double const inv = 1.0 / (a_ + s);
+    double const scale = 2.0 * a_ * inv;
 
     rho[0] = a_ * (3.0 * s - a_) * inv;
     rho[1] = scale * scale;
@@ -62,9 +62,9 @@ void DCSLoss::Evaluate(double s, double rho[3]) const
 
 void FairLoss::Evaluate(double s, double rho[3]) const
 {
-  const double r = std::sqrt(s);
-  const double ra = r / a_;
-  const double sum = 1.0 + ra;
+  double const r = std::sqrt(s);
+  double const ra = r / a_;
+  double const sum = 1.0 + ra;
 
   rho[0] = 2.0 * b_ * (ra - std::log(sum));
   rho[1] = 1.0 / sum;
@@ -73,9 +73,9 @@ void FairLoss::Evaluate(double s, double rho[3]) const
 
 void GemanMcClureLoss::Evaluate(double s, double rho[3]) const
 {
-  const double sum = b_ + s;
-  const double inv = 1.0 / sum;
-  const double scale = b_ * inv;
+  double const sum = b_ + s;
+  double const inv = 1.0 / sum;
+  double const scale = b_ * inv;
 
   rho[0] = s * scale;
   rho[1] = scale * scale;
@@ -84,7 +84,7 @@ void GemanMcClureLoss::Evaluate(double s, double rho[3]) const
 
 void WelschLoss::Evaluate(double s, double rho[3]) const
 {
-  const double exp = std::exp(s * c_);
+  double const exp = std::exp(s * c_);
 
   rho[0] = b_ * (1 - exp);
   rho[1] = exp;

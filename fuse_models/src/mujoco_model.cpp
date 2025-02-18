@@ -10,7 +10,7 @@ MujocoMotionModel::MujocoMotionModel()
 {
 }
 
-void MujocoMotionModel::generateMotionModel(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
+void MujocoMotionModel::generateMotionModel(rclcpp::Time const& beginning_stamp, rclcpp::Time const& ending_stamp,
                                             std::vector<fuse_core::Constraint::SharedPtr>& constraints,
                                             std::vector<fuse_core::Variable::SharedPtr>& variables)
 {
@@ -39,7 +39,7 @@ bool MujocoMotionModel::applyCallback(fuse_core::Transaction& transaction)
     // Now actually generate the motion model segments
     timestamp_manager_.query(transaction, true);
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                  "An error occurred while completing the motion model query. Error: " << e.what());

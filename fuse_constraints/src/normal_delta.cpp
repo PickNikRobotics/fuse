@@ -39,7 +39,7 @@
 namespace fuse_constraints
 {
 
-NormalDelta::NormalDelta(const fuse_core::MatrixXd& A, const fuse_core::VectorXd& b) : A_(A), b_(b)
+NormalDelta::NormalDelta(fuse_core::MatrixXd const& A, fuse_core::VectorXd const& b) : A_(A), b_(b)
 {
   CHECK_GT(b_.rows(), 0);
   CHECK_GT(A_.rows(), 0);

@@ -135,7 +135,7 @@ public:
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
+                  std::string const& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Receives the set of known beacon positions
@@ -148,7 +148,7 @@ public:
    *
    * @param[in] msg - Message containing the database of known but noisy beacon positions.
    */
-  void priorBeaconsCallback(const sensor_msgs::msg::PointCloud2& msg);
+  void priorBeaconsCallback(sensor_msgs::msg::PointCloud2 const& msg);
 
   /**
    * @brief Callback for range measurement messages
@@ -159,7 +159,7 @@ public:
    *
    * @param[in] msg - The range message to process
    */
-  void rangesCallback(const sensor_msgs::msg::PointCloud2& msg);
+  void rangesCallback(sensor_msgs::msg::PointCloud2 const& msg);
 
 protected:
   /**

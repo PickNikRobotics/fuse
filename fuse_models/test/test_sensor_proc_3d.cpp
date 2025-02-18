@@ -18,7 +18,7 @@ TEST(TestSuite, mergeFullPositionAndFullOrientationIndices)
 
   const size_t orientation_offset = 3;
 
-  const auto merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
+  auto const merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
 
   EXPECT_EQ(position_indices.size() + orientation_indices.size(), merged_indices.size());
   EXPECT_THAT(position_indices,
@@ -33,7 +33,7 @@ TEST(TestSuite, mergeXYPositionAndRollYawOrientationIndices)
 
   const size_t orientation_offset = 3;
 
-  const auto merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
+  auto const merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
 
   EXPECT_EQ(position_indices.size() + orientation_indices.size(), merged_indices.size());
   EXPECT_THAT(position_indices,
@@ -48,7 +48,7 @@ TEST(TestSuite, mergeFullPositionAndEmptyOrientationIndices)
 
   const size_t orientation_offset = 3;
 
-  const auto merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
+  auto const merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
 
   EXPECT_EQ(position_indices.size(), merged_indices.size());
   EXPECT_THAT(position_indices, testing::ElementsAreArray(merged_indices));
@@ -61,7 +61,7 @@ TEST(TestSuite, mergeEmptyPositionAndFullOrientationIndices)
 
   const size_t orientation_offset = 3;
 
-  const auto merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
+  auto const merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
 
   EXPECT_EQ(orientation_indices.size(), merged_indices.size());
   EXPECT_EQ(orientation_indices.back() + orientation_offset, merged_indices.back());
@@ -74,7 +74,7 @@ TEST(TestSuite, mergeEmptyPositionAndEmptyOrientationIndices)
 
   const size_t orientation_offset = 3;
 
-  const auto merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
+  auto const merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
 
   EXPECT_TRUE(merged_indices.empty());
 }
@@ -102,11 +102,11 @@ TEST(TestSuite, populatePartialMeasurements)
 
   const size_t orientation_offset = 3;
 
-  const auto merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
+  auto const merged_indices = fm_common::mergeIndices(position_indices, orientation_indices, orientation_offset);
 
   std::replace_if(
       pose_mean_partial.data(), pose_mean_partial.data() + pose_mean_partial.size(),
-      [&merged_indices, &pose_mean_partial](const double& value) {
+      [&merged_indices, &pose_mean_partial](double const& value) {
         return std::find(merged_indices.begin(), merged_indices.end(), &value - pose_mean_partial.data()) ==
                merged_indices.end();
       },
