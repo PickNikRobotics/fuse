@@ -78,7 +78,7 @@ public:
    *              order (x, y, z, qx, qy, qz)
    * @param[in] b The 3D pose measurement or prior in order (x, y, z, qw, qx, qy, qz)
    */
-  NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b);
+  NormalPriorPose3DCostFunctor(fuse_core::Matrix6d const& A, fuse_core::Vector7d const& b);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -93,7 +93,7 @@ private:
   NormalPriorOrientation3DCostFunctor orientation_functor_;
 };
 
-NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(const fuse_core::Matrix6d& A, const fuse_core::Vector7d& b)
+NormalPriorPose3DCostFunctor::NormalPriorPose3DCostFunctor(fuse_core::Matrix6d const& A, fuse_core::Vector7d const& b)
   : A_(A), b_(b), orientation_functor_(fuse_core::Matrix3d::Identity(), b_.tail<4>())  // Delta will not be scaled
 {
 }

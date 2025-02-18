@@ -73,7 +73,7 @@ public:
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& ns)
+      std::string const& ns)
   {
     publish_tf = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "publish_tf"), publish_tf);
     invert_tf = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "invert_tf"), invert_tf);
@@ -108,7 +108,7 @@ public:
     world_frame_id =
         fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "world_frame_id"), world_frame_id);
 
-    const bool frames_valid = map_frame_id != odom_frame_id && map_frame_id != base_link_frame_id &&
+    bool const frames_valid = map_frame_id != odom_frame_id && map_frame_id != base_link_frame_id &&
                               map_frame_id != base_link_output_frame_id && odom_frame_id != base_link_frame_id &&
                               odom_frame_id != base_link_output_frame_id &&
                               (world_frame_id == map_frame_id || world_frame_id == odom_frame_id);

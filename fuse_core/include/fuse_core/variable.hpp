@@ -282,7 +282,7 @@ public:
    * Variable::size() elements will be accessed externally. This interface is provided for
    * integration with Ceres, which uses raw pointers.
    */
-  [[nodiscard]] virtual const double* data() const = 0;
+  [[nodiscard]] virtual double const* data() const = 0;
 
   /**
    * @brief Read-write access to the variable data
@@ -474,7 +474,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& uuid_;
   }
@@ -483,7 +483,7 @@ private:
 /**
  * Stream operator implementation used for all derived Variable classes.
  */
-std::ostream& operator<<(std::ostream& stream, const Variable& variable);
+std::ostream& operator<<(std::ostream& stream, Variable const& variable);
 
 }  // namespace fuse_core
 

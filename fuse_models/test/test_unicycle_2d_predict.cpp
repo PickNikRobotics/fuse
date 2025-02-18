@@ -223,15 +223,15 @@ TEST(Predict, predictObjects)
 
 TEST(Predict, predictJacobians)
 {
-  const double position1_x = 0.0;
-  const double position1_y = 0.0;
-  const double yaw1 = 0.0;
-  const double vel_linear1_x = 1.0;
-  const double vel_linear1_y = 0.0;
-  const double vel_yaw1 = 1.570796327;
-  const double acc_linear1_x = 1.0;
-  const double acc_linear1_y = 0.0;
-  const double dt = 0.1;
+  double const position1_x = 0.0;
+  double const position1_y = 0.0;
+  double const yaw1 = 0.0;
+  double const vel_linear1_x = 1.0;
+  double const vel_linear1_y = 0.0;
+  double const vel_yaw1 = 1.570796327;
+  double const acc_linear1_x = 1.0;
+  double const acc_linear1_y = 0.0;
+  double const dt = 0.1;
   double position2_x = 0.0;
   double position2_y = 0.0;
   double yaw2 = 0.0;
@@ -242,7 +242,7 @@ TEST(Predict, predictJacobians)
   double acc_linear2_y = 0.0;
 
   const std::array<size_t, 5> block_sizes = { 2, 1, 2, 1, 2 };
-  const auto num_parameter_blocks = block_sizes.size();
+  auto const num_parameter_blocks = block_sizes.size();
 
   const size_t num_residuals{ 8 };
 

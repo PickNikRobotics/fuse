@@ -61,7 +61,7 @@ public:
   {
     return data_.size();
   }
-  const double* data() const override
+  double const* data() const override
   {
     return data_.data();
   }
@@ -87,7 +87,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Variable>(*this);
     archive& data_;

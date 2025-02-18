@@ -59,7 +59,7 @@ class StampedVariable : public fuse_core::Variable, public fuse_variables::Stamp
 public:
   FUSE_VARIABLE_DEFINITIONS(StampedVariable)
 
-  explicit StampedVariable(const rclcpp::Time& stamp = rclcpp::Time(0, 0, RCL_ROS_TIME))
+  explicit StampedVariable(rclcpp::Time const& stamp = rclcpp::Time(0, 0, RCL_ROS_TIME))
     : fuse_core::Variable(fuse_core::uuid::generate()), fuse_variables::Stamped(stamp), data_{}
   {
   }
@@ -69,7 +69,7 @@ public:
     return 1;
   }
 
-  const double* data() const override
+  double const* data() const override
   {
     return &data_;
   }
@@ -97,7 +97,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Variable>(*this);
     archive& boost::serialization::base_object<fuse_variables::Stamped>(*this);
@@ -124,7 +124,7 @@ public:
     return 1;
   }
 
-  const double* data() const override
+  double const* data() const override
   {
     return &data_;
   }
@@ -152,7 +152,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Variable>(*this);
     archive& data_;
@@ -171,23 +171,23 @@ public:
 
   GenericConstraint() = default;
 
-  GenericConstraint(const std::string& source, std::initializer_list<fuse_core::UUID> variable_uuids)
+  GenericConstraint(std::string const& source, std::initializer_list<fuse_core::UUID> variable_uuids)
     : Constraint(source, variable_uuids)
   {
   }
 
-  explicit GenericConstraint(const std::string& source, const fuse_core::UUID& variable1)
+  explicit GenericConstraint(std::string const& source, fuse_core::UUID const& variable1)
     : fuse_core::Constraint(source, { variable1 })
   {
   }
 
-  GenericConstraint(const std::string& source, const fuse_core::UUID& variable1, const fuse_core::UUID& variable2)
+  GenericConstraint(std::string const& source, fuse_core::UUID const& variable1, fuse_core::UUID const& variable2)
     : fuse_core::Constraint(source, { variable1, variable2 })
   {
   }
 
-  GenericConstraint(const std::string& source, const fuse_core::UUID& variable1, const fuse_core::UUID& variable2,
-                    const fuse_core::UUID& variable3)
+  GenericConstraint(std::string const& source, fuse_core::UUID const& variable1, fuse_core::UUID const& variable2,
+                    fuse_core::UUID const& variable3)
     : fuse_core::Constraint(source, { variable1, variable2, variable3 })
   {
   }
@@ -213,7 +213,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
   }

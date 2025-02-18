@@ -90,13 +90,13 @@ public:
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
+                  std::string const& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Callback for acceleration messages
    * @param[in] msg - The acceleration message to process
    */
-  void process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg);
+  void process(geometry_msgs::msg::AccelWithCovarianceStamped const& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device

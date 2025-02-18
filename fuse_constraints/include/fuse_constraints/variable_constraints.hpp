@@ -79,23 +79,23 @@ public:
   /**
    * @brief Add this constraint to a single variable
    */
-  void insert(const unsigned int constraint, const unsigned int variable);
+  void insert(unsigned int const constraint, unsigned int const variable);
 
   /**
    * @brief Add this constraint to all variables in the provided list
    */
-  void insert(const unsigned int constraint, std::initializer_list<unsigned int> variable_list);
+  void insert(unsigned int const constraint, std::initializer_list<unsigned int> variable_list);
 
   /**
    * @brief Add this constraint to all variables in the provided range
    */
   template <typename VariableIndexIterator>
-  void insert(const unsigned int constraint, VariableIndexIterator first, VariableIndexIterator last);
+  void insert(unsigned int const constraint, VariableIndexIterator first, VariableIndexIterator last);
 
   /**
    * @brief Add a single orphan variable, i.e. a variable without constraints
    */
-  void insert(const unsigned int variable);
+  void insert(unsigned int const variable);
 
   /**
    * @brief Insert all of the constraints connected to the requested variable into the provided
@@ -104,7 +104,7 @@ public:
    * Accessing a variable id that is not part of this container results in undefined behavior
    */
   template <typename OutputIterator>
-  OutputIterator getConstraints(const unsigned int variable_id, OutputIterator result) const;
+  OutputIterator getConstraints(unsigned int const variable_id, OutputIterator result) const;
 
   /**
    * @brief Print a human-readable description of the variable constraints to the provided stream.
@@ -121,7 +121,7 @@ private:
 };
 
 template <typename VariableIndexIterator>
-void VariableConstraints::insert(const unsigned int constraint, VariableIndexIterator first, VariableIndexIterator last)
+void VariableConstraints::insert(unsigned int const constraint, VariableIndexIterator first, VariableIndexIterator last)
 {
   for (; first != last; ++first)
   {
@@ -130,16 +130,16 @@ void VariableConstraints::insert(const unsigned int constraint, VariableIndexIte
 }
 
 template <class OutputIterator>
-OutputIterator VariableConstraints::getConstraints(const unsigned int variable_id, OutputIterator result) const
+OutputIterator VariableConstraints::getConstraints(unsigned int const variable_id, OutputIterator result) const
 {
-  const auto& constraints = variable_constraints_[variable_id];
+  auto const& constraints = variable_constraints_[variable_id];
   return std::copy(std::begin(constraints), std::end(constraints), result);
 }
 
 /**
  * Stream operator for printing VariableConstraints objects.
  */
-std::ostream& operator<<(std::ostream& stream, const VariableConstraints& variable_constraints);
+std::ostream& operator<<(std::ostream& stream, VariableConstraints const& variable_constraints);
 
 }  // namespace fuse_constraints
 

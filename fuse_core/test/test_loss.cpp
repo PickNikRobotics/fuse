@@ -37,7 +37,7 @@
 
 TEST(Loss, Constructor)
 {
-  const double a{ 0.3 };
+  double const a{ 0.3 };
   ExampleLoss loss(a);
   ASSERT_EQ(a, loss.a);
 

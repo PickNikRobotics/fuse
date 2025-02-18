@@ -51,8 +51,8 @@ namespace fuse_viz
 using rviz_rendering::MovableText;
 
 Pose2DStampedVisual::Pose2DStampedVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                                         const fuse_variables::Position2DStamped& position,
-                                         const fuse_variables::Orientation2DStamped& orientation, const bool visible)
+                                         fuse_variables::Position2DStamped const& position,
+                                         fuse_variables::Orientation2DStamped const& orientation, bool const visible)
   : Object(scene_manager), root_node_(parent_node->createChildSceneNode()), visible_(visible)
 {
   // Create sphere:
@@ -65,7 +65,7 @@ Pose2DStampedVisual::Pose2DStampedVisual(Ogre::SceneManager* scene_manager, Ogre
   axes_ = std::make_shared<rviz_rendering::Axes>(scene_manager_, axes_node_, 10.0, 1.0);
 
   // Create text:
-  const auto caption = position.type() + "::" + fuse_core::uuid::to_string(position.uuid()) + '\n' +
+  auto const caption = position.type() + "::" + fuse_core::uuid::to_string(position.uuid()) + '\n' +
                        orientation.type() + "::" + fuse_core::uuid::to_string(orientation.uuid());
   text_ = new MovableText(caption);
   text_->setCaption(caption);
@@ -93,28 +93,28 @@ Pose2DStampedVisual::~Pose2DStampedVisual()
   scene_manager_->destroySceneNode(root_node_);
 }
 
-void Pose2DStampedVisual::setPose2DStamped(const fuse_variables::Position2DStamped& position,
-                                           const fuse_variables::Orientation2DStamped& orientation)
+void Pose2DStampedVisual::setPose2DStamped(fuse_variables::Position2DStamped const& position,
+                                           fuse_variables::Orientation2DStamped const& orientation)
 {
   setPose2DStamped(toOgre(position), toOgre(orientation));
 }
 
-void Pose2DStampedVisual::setUserData(const Ogre::Any& data)
+void Pose2DStampedVisual::setUserData(Ogre::Any const& data)
 {
   axes_->setUserData(data);
   sphere_->setUserData(data);
 }
 
-void Pose2DStampedVisual::setSphereColor(const float r, const float g, const float b, const float a)
+void Pose2DStampedVisual::setSphereColor(float const r, float const g, float const b, float const a)
 {
   sphere_->setColor(r, g, b, a);
 }
 
-void Pose2DStampedVisual::setAxesAlpha(const float alpha)
+void Pose2DStampedVisual::setAxesAlpha(float const alpha)
 {
-  static const auto& default_x_color_ = axes_->getDefaultXColor();
-  static const auto& default_y_color_ = axes_->getDefaultYColor();
-  static const auto& default_z_color_ = axes_->getDefaultZColor();
+  static auto const& default_x_color_ = axes_->getDefaultXColor();
+  static auto const& default_y_color_ = axes_->getDefaultYColor();
+  static auto const& default_z_color_ = axes_->getDefaultZColor();
 
   axes_->setXColor(Ogre::ColourValue(default_x_color_.r, default_x_color_.g, default_x_color_.b,
                                      alpha));  // NOLINT
@@ -124,29 +124,29 @@ void Pose2DStampedVisual::setAxesAlpha(const float alpha)
                                      alpha));  // NOLINT
 }
 
-void Pose2DStampedVisual::setScale(const Ogre::Vector3& scale)
+void Pose2DStampedVisual::setScale(Ogre::Vector3 const& scale)
 {
   sphere_->setScale(scale);
   axes_->setScale(scale);
 }
 
-void Pose2DStampedVisual::setTextScale(const Ogre::Vector3& scale)
+void Pose2DStampedVisual::setTextScale(Ogre::Vector3 const& scale)
 {
   text_node_->setScale(scale);
 }
 
-void Pose2DStampedVisual::setTextVisible(const bool visible)
+void Pose2DStampedVisual::setTextVisible(bool const visible)
 {
   text_->setVisible(visible);
 }
 
-void Pose2DStampedVisual::setVisible(const bool visible)
+void Pose2DStampedVisual::setVisible(bool const visible)
 {
   sphere_node_->setVisible(visible);
   axes_node_->setVisible(visible);
 }
 
-void Pose2DStampedVisual::setPose2DStamped(const Ogre::Vector3& position, const Ogre::Quaternion& orientation)
+void Pose2DStampedVisual::setPose2DStamped(Ogre::Vector3 const& position, Ogre::Quaternion const& orientation)
 {
   axes_->setPosition(position);
   axes_->setOrientation(orientation);
@@ -154,22 +154,22 @@ void Pose2DStampedVisual::setPose2DStamped(const Ogre::Vector3& position, const 
   text_node_->setPosition(position);
 }
 
-const Ogre::Vector3& Pose2DStampedVisual::getPosition()
+Ogre::Vector3 const& Pose2DStampedVisual::getPosition()
 {
   return root_node_->getPosition();
 }
 
-const Ogre::Quaternion& Pose2DStampedVisual::getOrientation()
+Ogre::Quaternion const& Pose2DStampedVisual::getOrientation()
 {
   return root_node_->getOrientation();
 }
 
-void Pose2DStampedVisual::setPosition(const Ogre::Vector3& position)
+void Pose2DStampedVisual::setPosition(Ogre::Vector3 const& position)
 {
   root_node_->setPosition(position);
 }
 
-void Pose2DStampedVisual::setOrientation(const Ogre::Quaternion& orientation)
+void Pose2DStampedVisual::setOrientation(Ogre::Quaternion const& orientation)
 {
   root_node_->setOrientation(orientation);
 }

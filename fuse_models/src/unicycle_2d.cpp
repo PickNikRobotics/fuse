@@ -65,24 +65,24 @@ PLUGINLIB_EXPORT_CLASS(fuse_models::Unicycle2D, fuse_core::MotionModel)
 namespace std
 {
 
-inline bool isfinite(const tf2_2d::Vector2& vector)
+inline bool isfinite(tf2_2d::Vector2 const& vector)
 {
   return std::isfinite(vector.x()) && std::isfinite(vector.y());
 }
 
-inline bool isfinite(const tf2_2d::Transform& transform)
+inline bool isfinite(tf2_2d::Transform const& transform)
 {
   return std::isfinite(transform.x()) && std::isfinite(transform.y()) && std::isfinite(transform.yaw());
 }
 
-std::string to_string(const tf2_2d::Vector2& vector)
+std::string to_string(tf2_2d::Vector2 const& vector)
 {
   std::ostringstream oss;
   oss << vector;
   return oss.str();
 }
 
-std::string to_string(const tf2_2d::Transform& transform)
+std::string to_string(tf2_2d::Transform const& transform)
 {
   std::ostringstream oss;
   oss << transform;
@@ -95,8 +95,8 @@ namespace fuse_core
 {
 
 template <typename Derived>
-inline void validateCovariance(const Eigen::DenseBase<Derived>& covariance,
-                               const double precision = Eigen::NumTraits<double>::dummy_precision())
+inline void validateCovariance(Eigen::DenseBase<Derived> const& covariance,
+                               double const precision = Eigen::NumTraits<double>::dummy_precision())
 {
   if (!fuse_core::isSymmetric(covariance, precision))
   {
@@ -128,7 +128,7 @@ Unicycle2D::Unicycle2D()
 void Unicycle2D::print(std::ostream& stream) const
 {
   stream << "state history:\n";
-  for (const auto& state : state_history_)
+  for (auto const& state : state_history_)
   {
     stream << "- stamp: " << state.first.nanoseconds() << "\n";
     state.second.print(stream);
@@ -180,7 +180,7 @@ bool Unicycle2D::applyCallback(fuse_core::Transaction& transaction)
     // Now actually generate the motion model segments
     timestamp_manager_.query(transaction, true);
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                  "An error occurred while completing the motion model query. Error: " << e.what());
@@ -195,7 +195,7 @@ void Unicycle2D::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
 }
 
 void Unicycle2D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                            const std::string& name)
+                            std::string const& name)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncMotionModel::initialize(interfaces, name);
@@ -245,7 +245,7 @@ void Unicycle2D::onStart()
   state_history_.clear();
 }
 
-void Unicycle2D::generateMotionModel(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
+void Unicycle2D::generateMotionModel(rclcpp::Time const& beginning_stamp, rclcpp::Time const& ending_stamp,
                                      std::vector<fuse_core::Constraint::SharedPtr>& constraints,
                                      std::vector<fuse_core::Variable::SharedPtr>& variables)
 {
@@ -287,7 +287,7 @@ void Unicycle2D::generateMotionModel(const rclcpp::Time& beginning_stamp, const 
   }
 
   // If dt is zero, we only need to update the state history:
-  const double dt = (ending_stamp - beginning_stamp).seconds();
+  double const dt = (ending_stamp - beginning_stamp).seconds();
 
   if (dt == 0.0)
   {
@@ -367,7 +367,7 @@ void Unicycle2D::generateMotionModel(const rclcpp::Time& beginning_stamp, const 
     {
       validateMotionModel(state1, state2, process_noise_covariance);
     }
-    catch (const std::runtime_error& ex)
+    catch (std::runtime_error const& ex)
     {
       RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                    "Invalid '" << name_ << "' motion model: " << ex.what());
@@ -394,8 +394,8 @@ void Unicycle2D::generateMotionModel(const rclcpp::Time& beginning_stamp, const 
   variables.push_back(acceleration_linear2);
 }
 
-void Unicycle2D::updateStateHistoryEstimates(const fuse_core::Graph& graph, StateHistory& state_history,
-                                             const rclcpp::Duration& buffer_length)
+void Unicycle2D::updateStateHistoryEstimates(fuse_core::Graph const& graph, StateHistory& state_history,
+                                             rclcpp::Duration const& buffer_length)
 {
   if (state_history.empty())
   {
@@ -403,7 +403,7 @@ void Unicycle2D::updateStateHistoryEstimates(const fuse_core::Graph& graph, Stat
   }
 
   // Compute the expiration time carefully, as ROS can't handle negative times
-  const auto& ending_stamp = state_history.rbegin()->first;
+  auto const& ending_stamp = state_history.rbegin()->first;
 
   rclcpp::Time expiration_time;
   if (ending_stamp.seconds() > buffer_length.seconds())
@@ -433,18 +433,18 @@ void Unicycle2D::updateStateHistoryEstimates(const fuse_core::Graph& graph, Stat
   // state
   for (auto current_iter = state_history.begin(); current_iter != state_history.end(); ++current_iter)
   {
-    const auto& current_stamp = current_iter->first;
+    auto const& current_stamp = current_iter->first;
     auto& current_state = current_iter->second;
     if (graph.variableExists(current_state.position_uuid) && graph.variableExists(current_state.yaw_uuid) &&
         graph.variableExists(current_state.vel_linear_uuid) && graph.variableExists(current_state.vel_yaw_uuid) &&
         graph.variableExists(current_state.acc_linear_uuid))
     {
       // This pose does exist in the graph. Update it directly.
-      const auto& position = graph.getVariable(current_state.position_uuid);
-      const auto& yaw = graph.getVariable(current_state.yaw_uuid);
-      const auto& vel_linear = graph.getVariable(current_state.vel_linear_uuid);
-      const auto& vel_yaw = graph.getVariable(current_state.vel_yaw_uuid);
-      const auto& acc_linear = graph.getVariable(current_state.acc_linear_uuid);
+      auto const& position = graph.getVariable(current_state.position_uuid);
+      auto const& yaw = graph.getVariable(current_state.yaw_uuid);
+      auto const& vel_linear = graph.getVariable(current_state.vel_linear_uuid);
+      auto const& vel_yaw = graph.getVariable(current_state.vel_yaw_uuid);
+      auto const& acc_linear = graph.getVariable(current_state.acc_linear_uuid);
 
       current_state.pose.setX(position.data()[fuse_variables::Position2DStamped::X]);
       current_state.pose.setY(position.data()[fuse_variables::Position2DStamped::Y]);
@@ -458,8 +458,8 @@ void Unicycle2D::updateStateHistoryEstimates(const fuse_core::Graph& graph, Stat
     else if (current_iter != state_history.begin())
     {
       auto previous_iter = std::prev(current_iter);
-      const auto& previous_stamp = previous_iter->first;
-      const auto& previous_state = previous_iter->second;
+      auto const& previous_stamp = previous_iter->first;
+      auto const& previous_state = previous_iter->second;
 
       // This state is not in the graph yet, so we can't update/correct the value in our state
       // history. However, the state *before* this one may have been corrected (or one of its
@@ -472,14 +472,14 @@ void Unicycle2D::updateStateHistoryEstimates(const fuse_core::Graph& graph, Stat
   }
 }
 
-void Unicycle2D::validateMotionModel(const StateHistoryElement& state1, const StateHistoryElement& state2,
-                                     const fuse_core::Matrix8d& process_noise_covariance)
+void Unicycle2D::validateMotionModel(StateHistoryElement const& state1, StateHistoryElement const& state2,
+                                     fuse_core::Matrix8d const& process_noise_covariance)
 {
   try
   {
     state1.validate();
   }
-  catch (const std::runtime_error& ex)
+  catch (std::runtime_error const& ex)
   {
     throw std::runtime_error("Invalid state #1: " + std::string(ex.what()));
   }
@@ -488,7 +488,7 @@ void Unicycle2D::validateMotionModel(const StateHistoryElement& state1, const St
   {
     state2.validate();
   }
-  catch (const std::runtime_error& ex)
+  catch (std::runtime_error const& ex)
   {
     throw std::runtime_error("Invalid state #2: " + std::string(ex.what()));
   }
@@ -497,13 +497,13 @@ void Unicycle2D::validateMotionModel(const StateHistoryElement& state1, const St
   {
     fuse_core::validateCovariance(process_noise_covariance);
   }
-  catch (const std::runtime_error& ex)
+  catch (std::runtime_error const& ex)
   {
     throw std::runtime_error("Invalid process noise covariance: " + std::string(ex.what()));
   }
 }
 
-std::ostream& operator<<(std::ostream& stream, const Unicycle2D& unicycle_2d)
+std::ostream& operator<<(std::ostream& stream, Unicycle2D const& unicycle_2d)
 {
   unicycle_2d.print(stream);
   return stream;

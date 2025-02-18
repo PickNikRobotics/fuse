@@ -196,7 +196,7 @@ TEST(AbsolutePose3DStampedConstraint, Optimization)
   EXPECT_NEAR(0.0, orientation_variable->z(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*>> covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> covariance_blocks;
   covariance_blocks.emplace_back(position_variable->data(), position_variable->data());
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   covariance_blocks.emplace_back(position_variable->data(), orientation_variable->data());

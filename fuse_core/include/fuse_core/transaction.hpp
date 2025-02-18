@@ -117,7 +117,7 @@ public:
   /**
    * @brief Read-only access to this transaction's timestamp
    */
-  [[nodiscard]] const rclcpp::Time& stamp() const
+  [[nodiscard]] rclcpp::Time const& stamp() const
   {
     return stamp_;
   }
@@ -125,7 +125,7 @@ public:
   /**
    * @brief Write access to this transaction's timestamp
    */
-  void stamp(const rclcpp::Time& stamp)
+  void stamp(rclcpp::Time const& stamp)
   {
     stamp_ = stamp;
   }
@@ -146,7 +146,7 @@ public:
    *
    * @return The minimum (oldest) timestamp.
    */
-  [[nodiscard]] const rclcpp::Time& minStamp() const;
+  [[nodiscard]] rclcpp::Time const& minStamp() const;
 
   /**
    * @brief Read-only access to the maximum (newest) timestamp among the transaction's stamp and all
@@ -154,7 +154,7 @@ public:
    *
    * @return The maximum (newest) timestamp.
    */
-  [[nodiscard]] const rclcpp::Time& maxStamp() const;
+  [[nodiscard]] rclcpp::Time const& maxStamp() const;
 
   /**
    * @brief Read-only access to the added constraints
@@ -206,7 +206,7 @@ public:
    *
    * @param[in] stamp The timestamp to be added
    */
-  void addInvolvedStamp(const rclcpp::Time& stamp);
+  void addInvolvedStamp(rclcpp::Time const& stamp);
 
   /**
    * @brief Add a constraint to this transaction
@@ -265,7 +265,7 @@ public:
    * @param[in] overwrite Flag indicating that variables and constraints in \p other should
    *                      overwrite existing variables and constraints with the UUIDs.
    */
-  void merge(const Transaction& other, bool overwrite = false);
+  void merge(Transaction const& other, bool overwrite = false);
 
   /**
    * @brief Print a human-readable description of the transaction to the provided stream.
@@ -330,7 +330,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& stamp_;
     archive& added_constraints_;
@@ -344,7 +344,7 @@ private:
 /**
  * Stream operator for printing Transaction objects.
  */
-std::ostream& operator<<(std::ostream& stream, const Transaction& transaction);
+std::ostream& operator<<(std::ostream& stream, Transaction const& transaction);
 
 }  // namespace fuse_core
 

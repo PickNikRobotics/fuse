@@ -50,7 +50,7 @@
  * @return The output stream with the vector printed into it
  */
 template <typename T>
-std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
+std::ostream& operator<<(std::ostream& os, std::vector<T> const& v)
 {
   os << '[';
 
@@ -73,11 +73,11 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
  * @return The output stream with the vector printed into it
  */
 template <typename K, typename V>
-std::ostream& operator<<(std::ostream& os, const std::unordered_map<K, V>& m)
+std::ostream& operator<<(std::ostream& os, std::unordered_map<K, V> const& m)
 {
   os << '[';
 
-  for (const auto& entry : m)
+  for (auto const& entry : m)
   {
     os << entry.first << ", ";
   }
@@ -96,13 +96,13 @@ std::ostream& operator<<(std::ostream& os, const std::unordered_map<K, V>& m)
  * @return A vector with the symmetric difference strings
  */
 template <typename T>
-std::vector<std::string> set_symmetric_difference(const std::vector<std::string>& lhs,
-                                                  const std::unordered_map<std::string, T>& rhs)
+std::vector<std::string> set_symmetric_difference(std::vector<std::string> const& lhs,
+                                                  std::unordered_map<std::string, T> const& rhs)
 {
   // Retrieve the keys:
   std::vector<std::string> rhs_keys;
   std::transform(rhs.begin(), rhs.end(), std::back_inserter(rhs_keys),
-                 [](const auto& pair) { return pair.first; });  // NOLINT(whitespace/braces)
+                 [](auto const& pair) { return pair.first; });  // NOLINT(whitespace/braces)
 
   // Sort the keys so we can use std::set_symmetric_difference:
   std::sort(rhs_keys.begin(), rhs_keys.end());

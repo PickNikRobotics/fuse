@@ -121,7 +121,7 @@ public:
    * @param b Blue component
    */
   virtual void setPositionColor(float r, float g, float b, float a);
-  void setPositionColor(const Ogre::ColourValue& color);
+  void setPositionColor(Ogre::ColourValue const& color);
 
   /**
    * \brief Set the color of the orientation covariance. Values are in the range [0, 1]
@@ -131,7 +131,7 @@ public:
    * @param b Blue component
    */
   virtual void setOrientationColor(float r, float g, float b, float a);
-  void setOrientationColor(const Ogre::ColourValue& color);
+  void setOrientationColor(Ogre::ColourValue const& color);
   void setOrientationColorToRGB(float a);
 
   /** @brief Set the covariance.
@@ -139,10 +139,10 @@ public:
    * This effectively changes the orientation and scale of position and orientation
    * covariance shapes
    */
-  virtual void setCovariance(const geometry_msgs::msg::PoseWithCovariance& pose);
+  virtual void setCovariance(geometry_msgs::msg::PoseWithCovariance const& pose);
 
-  virtual const Ogre::Vector3& getPositionCovarianceScale();
-  virtual const Ogre::Quaternion& getPositionCovarianceOrientation();
+  virtual Ogre::Vector3 const& getPositionCovarianceScale();
+  virtual Ogre::Quaternion const& getPositionCovarianceOrientation();
 
   /**
    * \brief Get the root scene node of the position part of this covariance
@@ -180,7 +180,7 @@ public:
   /**
    * \brief Sets user data on all ogre objects we own
    */
-  virtual void setUserData(const Ogre::Any& data);
+  virtual void setUserData(Ogre::Any const& data);
 
   /**
    * \brief Sets visibility of this covariance
@@ -202,12 +202,12 @@ public:
   /**
    * \brief Sets position of the frame this covariance is attached
    */
-  virtual void setPosition(const Ogre::Vector3& position);
+  virtual void setPosition(Ogre::Vector3 const& position);
 
   /**
    * \brief Sets orientation of the frame this covariance is attached
    */
-  virtual void setOrientation(const Ogre::Quaternion& orientation);
+  virtual void setOrientation(Ogre::Quaternion const& orientation);
 
   /**
    * \brief Sets which frame to attach the covariance of the orientation
@@ -215,8 +215,8 @@ public:
   virtual void setRotatingFrame(bool use_rotating_frame);
 
 private:
-  void updatePosition(const Eigen::Matrix6d& covariance);
-  void updateOrientation(const Eigen::Matrix6d& covariance, ShapeIndex index);
+  void updatePosition(Eigen::Matrix6d const& covariance);
+  void updateOrientation(Eigen::Matrix6d const& covariance, ShapeIndex index);
   void updateOrientationVisibility();
 
   Ogre::SceneNode* root_node_ = nullptr;
@@ -241,19 +241,19 @@ private:
   Ogre::Vector3 current_ori_scale_[kNumOriShapes];
   float current_ori_scale_factor_;
 
-  static const float max_degrees;
+  static float const max_degrees;
 
 private:
   // Hide Object methods we don't want to expose
   // NOTE: Apparently we still need to define them...
-  virtual void setScale(const Ogre::Vector3&)
+  virtual void setScale(Ogre::Vector3 const&)
   {
   }
   virtual void setColor(float, float, float, float)
   {
   }
-  virtual const Ogre::Vector3& getPosition();
-  virtual const Ogre::Quaternion& getOrientation();
+  virtual Ogre::Vector3 const& getPosition();
+  virtual Ogre::Quaternion const& getOrientation();
 
   // Make MappedCovarianceProperty friend class so it create MappedCovarianceVisual objects
   friend class MappedCovarianceProperty;

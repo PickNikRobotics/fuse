@@ -52,8 +52,8 @@ using rviz_common::properties::ColorProperty;
 using rviz_common::properties::EnumProperty;
 using rviz_common::properties::FloatProperty;
 
-MappedCovarianceProperty::MappedCovarianceProperty(const QString& name, bool default_value, const QString& description,
-                                                   Property* parent, const char* changed_slot, QObject* receiver)
+MappedCovarianceProperty::MappedCovarianceProperty(QString const& name, bool default_value, QString const& description,
+                                                   Property* parent, char const* changed_slot, QObject* receiver)
   // NOTE: changed_slot and receiver aren't passed to BoolProperty here, but initialized at the end of
   // this constructor
   : BoolProperty(name, default_value, description, parent)
@@ -151,13 +151,13 @@ void MappedCovarianceProperty::updateColorStyleChoice()
 
 void MappedCovarianceProperty::updateColorAndAlphaAndScaleAndOffset()
 {
-  for (const auto& entry : covariances_)
+  for (auto const& entry : covariances_)
   {
     updateColorAndAlphaAndScaleAndOffset(entry.second);
   }
 }
 
-void MappedCovarianceProperty::updateColorAndAlphaAndScaleAndOffset(const MappedCovarianceVisualPtr& visual)
+void MappedCovarianceProperty::updateColorAndAlphaAndScaleAndOffset(MappedCovarianceVisualPtr const& visual)
 {
   float pos_alpha = position_alpha_property_->getFloat();
   float pos_scale = position_scale_property_->getFloat();
@@ -183,13 +183,13 @@ void MappedCovarianceProperty::updateColorAndAlphaAndScaleAndOffset(const Mapped
 
 void MappedCovarianceProperty::updateVisibility()
 {
-  for (const auto& entry : covariances_)
+  for (auto const& entry : covariances_)
   {
     updateVisibility(entry.second);
   }
 }
 
-void MappedCovarianceProperty::updateVisibility(const MappedCovarianceVisualPtr& visual)
+void MappedCovarianceProperty::updateVisibility(MappedCovarianceVisualPtr const& visual)
 {
   bool show_covariance = getBool();
   if (!show_covariance)
@@ -207,19 +207,19 @@ void MappedCovarianceProperty::updateVisibility(const MappedCovarianceVisualPtr&
 
 void MappedCovarianceProperty::updateOrientationFrame()
 {
-  for (const auto& entry : covariances_)
+  for (auto const& entry : covariances_)
   {
     updateOrientationFrame(entry.second);
   }
 }
 
-void MappedCovarianceProperty::updateOrientationFrame(const MappedCovarianceVisualPtr& visual)
+void MappedCovarianceProperty::updateOrientationFrame(MappedCovarianceVisualPtr const& visual)
 {
   bool use_rotating_frame = (orientation_frame_property_->getOptionInt() == Local);
   visual->setRotatingFrame(use_rotating_frame);
 }
 
-void MappedCovarianceProperty::eraseVisual(const std::string& key)
+void MappedCovarianceProperty::eraseVisual(std::string const& key)
 {
   covariances_.erase(key);
 }
@@ -235,7 +235,7 @@ size_t MappedCovarianceProperty::sizeVisual()
 }
 
 MappedCovarianceProperty::MappedCovarianceVisualPtr
-MappedCovarianceProperty::createAndInsertVisual(const std::string& key, Ogre::SceneManager* scene_manager,
+MappedCovarianceProperty::createAndInsertVisual(std::string const& key, Ogre::SceneManager* scene_manager,
                                                 Ogre::SceneNode* parent_node)
 {
   bool use_rotating_frame = (orientation_frame_property_->getOptionInt() == Local);

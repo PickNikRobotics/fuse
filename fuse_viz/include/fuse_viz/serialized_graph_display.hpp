@@ -83,7 +83,7 @@ protected:
 
   void onDisable() override;
 
-  void load(const rviz_common::Config& config) override;
+  void load(rviz_common::Config const& config) override;
 
 private Q_SLOTS:
   void updateShowVariables();

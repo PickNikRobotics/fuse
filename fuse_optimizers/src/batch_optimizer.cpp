@@ -184,7 +184,7 @@ void BatchOptimizer::optimizerTimerCallback()
   }
 }
 
-void BatchOptimizer::transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction)
+void BatchOptimizer::transactionCallback(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction)
 {
   // Add the new transaction to the pending set
   // Either we haven't "started" yet and we want to keep a short history of transactions around

@@ -37,7 +37,7 @@
 namespace fuse_constraints
 {
 
-NormalDeltaOrientation2D::NormalDeltaOrientation2D(const double A, const double b) : A_(A), b_(b)
+NormalDeltaOrientation2D::NormalDeltaOrientation2D(double const A, double const b) : A_(A), b_(b)
 {
 }
 

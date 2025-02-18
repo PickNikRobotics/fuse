@@ -107,14 +107,14 @@ std::vector<Beacon> createBeacons()
 /**
  * @brief Create a noisy set of beacon priors from the true set of beacons
  */
-std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
+std::vector<Beacon> createNoisyBeacons(std::vector<Beacon> const& beacons)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
   static std::normal_distribution<> noise{ 0.0, BEACON_SIGMA };
 
   auto noisy_beacons = std::vector<Beacon>();
-  for (const auto& beacon : beacons)
+  for (auto const& beacon : beacons)
   {
     noisy_beacons.push_back({ beacon.x + noise(generator), beacon.y + noise(generator) });  // NOLINT
   }
@@ -124,7 +124,7 @@ std::vector<Beacon> createNoisyBeacons(const std::vector<Beacon>& beacons)
 /**
  * @brief Convert the set of beacons into a pointcloud for visualization purposes
  */
-sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(const std::vector<Beacon>& beacons, rclcpp::Clock& clock)
+sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(std::vector<Beacon> const& beacons, rclcpp::Clock& clock)
 {
   auto msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
   msg->header.stamp = clock.now();
@@ -144,7 +144,7 @@ sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(const std::vector<B
   for (auto id = 0u; id < beacons.size(); ++id)
   {
     // Compute the distance to each beacon
-    const auto& beacon = beacons.at(id);
+    auto const& beacon = beacons.at(id);
     *x_it = static_cast<float>(beacon.x);
     *y_it = static_cast<float>(beacon.y);
     *z_it = 10.0f;
@@ -161,7 +161,7 @@ sensor_msgs::msg::PointCloud2::SharedPtr beaconsToPointcloud(const std::vector<B
 /**
  * @brief Convert the robot state into a ground truth odometry message
  */
-nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
+nav_msgs::msg::Odometry::SharedPtr robotToOdometry(Robot const& state)
 {
   auto msg = std::make_shared<nav_msgs::msg::Odometry>();
   msg->header.stamp = state.stamp;
@@ -201,7 +201,7 @@ nav_msgs::msg::Odometry::SharedPtr robotToOdometry(const Robot& state)
  * The state estimator will not run until it has been sent a starting pose.
  */
 void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                               const Robot& state, const rclcpp::Clock::SharedPtr& clock, const rclcpp::Logger& logger)
+                               Robot const& state, rclcpp::Clock::SharedPtr const& clock, rclcpp::Logger const& logger)
 {
   // Send the initial localization signal to the state estimator
   auto srv = std::make_shared<fuse_msgs::srv::SetPose::Request>();
@@ -252,7 +252,7 @@ void initializeStateEstimation(fuse_core::node_interfaces::NodeInterfaces<ALL_FU
 /**
  * @brief Compute the next robot state given the current robot state and a simulated step time
  */
-Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
+Robot simulateRobotMotion(Robot const& previous_state, rclcpp::Time const& now)
 {
   auto dt = (now - previous_state.stamp).seconds();
   auto theta = std::atan2(previous_state.y, previous_state.x) + (dt * previous_state.vyaw);
@@ -270,7 +270,7 @@ Robot simulateRobotMotion(const Robot& previous_state, const rclcpp::Time& now)
 /**
  * @brief Create a simulated Imu measurement from the current state
  */
-sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
+sensor_msgs::msg::Imu::SharedPtr simulateImu(Robot const& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
@@ -289,7 +289,7 @@ sensor_msgs::msg::Imu::SharedPtr simulateImu(const Robot& robot)
 /**
  * @brief Create a simulated Odometry measurement from the current state
  */
-nav_msgs::msg::Odometry::SharedPtr simulateWheelOdometry(const Robot& robot)
+nav_msgs::msg::Odometry::SharedPtr simulateWheelOdometry(Robot const& robot)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
@@ -309,7 +309,7 @@ nav_msgs::msg::Odometry::SharedPtr simulateWheelOdometry(const Robot& robot)
   return msg;
 }
 
-sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(const Robot& robot, const std::vector<Beacon>& beacons)
+sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(Robot const& robot, std::vector<Beacon> const& beacons)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
@@ -333,7 +333,7 @@ sensor_msgs::msg::PointCloud2::SharedPtr simulateRangeSensor(const Robot& robot,
   for (auto id = 0u; id < beacons.size(); ++id)
   {
     // Compute the distance to each beacon
-    const auto& beacon = beacons.at(id);
+    auto const& beacon = beacons.at(id);
     auto dx = robot.x - beacon.x;
     auto dy = robot.y - beacon.y;
     auto range = std::sqrt(dx * dx + dy * dy) + noise(generator);

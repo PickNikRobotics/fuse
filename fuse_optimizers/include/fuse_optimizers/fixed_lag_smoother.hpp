@@ -144,15 +144,15 @@ protected:
     std::string sensor_name;
     fuse_core::Transaction::SharedPtr transaction;
 
-    const rclcpp::Time& stamp() const
+    rclcpp::Time const& stamp() const
     {
       return transaction->stamp();
     }
-    const rclcpp::Time& minStamp() const
+    rclcpp::Time const& minStamp() const
     {
       return transaction->minStamp();
     }
-    const rclcpp::Time& maxStamp() const
+    rclcpp::Time const& maxStamp() const
     {
       return transaction->maxStamp();
     }
@@ -238,7 +238,7 @@ protected:
    * @param[in] new_transaction All new, non-marginal-related transactions that *will be* applied to
    *                            the graph
    */
-  void preprocessMarginalization(const fuse_core::Transaction& new_transaction);
+  void preprocessMarginalization(fuse_core::Transaction const& new_transaction);
 
   /**
    * @brief Compute the oldest timestamp that is part of the configured lag window
@@ -255,7 +255,7 @@ protected:
    * @return A container with the set of variables to marginalize out. Order of the variables is not
    *         specified.
    */
-  std::vector<fuse_core::UUID> computeVariablesToMarginalize(const rclcpp::Time& lag_expiration);
+  std::vector<fuse_core::UUID> computeVariablesToMarginalize(rclcpp::Time const& lag_expiration);
 
   /**
    * @brief Perform any required post-marginalization bookkeeping
@@ -266,7 +266,7 @@ protected:
    * @param[in] marginal_transaction The actual changes to the graph caused my marginalizing out the
    *                                 requested variables.
    */
-  void postprocessMarginalization(const fuse_core::Transaction& marginal_transaction);
+  void postprocessMarginalization(fuse_core::Transaction const& marginal_transaction);
 
   /**
    * @brief Function that optimizes all constraints, designed to be run in a separate thread.
@@ -299,7 +299,7 @@ protected:
    *                         sensor transactions
    * @param[in]  lag_expiration The oldest timestamp that should remain in the graph
    */
-  void processQueue(fuse_core::Transaction& transaction, const rclcpp::Time& lag_expiration);
+  void processQueue(fuse_core::Transaction& transaction, rclcpp::Time const& lag_expiration);
 
   /**
    * @brief Service callback that resets the optimizer to its original state
@@ -319,7 +319,7 @@ protected:
   /**
    * @brief Thread-safe write access to the optimizer start time
    */
-  void setStartTime(const rclcpp::Time& start_time)
+  void setStartTime(rclcpp::Time const& start_time)
   {
     std::lock_guard<std::mutex> lock(start_time_mutex_);
     start_time_ = start_time;
@@ -338,7 +338,7 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel
    *                        plugin
    */
-  void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) override;
+  void transactionCallback(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction) override;
 
   /**
    * @brief Update and publish diagnostics

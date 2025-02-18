@@ -82,7 +82,7 @@ public:
   /**
    * @brief Constructor
    */
-  explicit FixedSizeVariable(const fuse_core::UUID& uuid)
+  explicit FixedSizeVariable(fuse_core::UUID const& uuid)
     : fuse_core::Variable(uuid), data_{}  // zero-initialize the data array
   {
   }
@@ -106,7 +106,7 @@ public:
   /**
    * @brief Read-only access to the variable data
    */
-  const double* data() const override
+  double const* data() const override
   {
     return data_.data();
   }
@@ -122,7 +122,7 @@ public:
   /**
    * @brief Read-only access to the variable data as a std::array
    */
-  const std::array<double, N>& array() const
+  std::array<double, N> const& array() const
   {
     return data_;
   }
@@ -150,7 +150,7 @@ protected:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Variable>(*this);
     archive& data_;

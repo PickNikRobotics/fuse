@@ -57,7 +57,7 @@ Pose2D::Pose2D()
 }
 
 void Pose2D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                        const std::string& name, fuse_core::TransactionCallback transaction_callback)
+                        std::string const& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -99,7 +99,7 @@ void Pose2D::onStart()
 
     sub_ = rclcpp::create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
         interfaces_, params_.topic, params_.queue_size,
-        std::bind(&PoseThrottledCallback::callback<const geometry_msgs::msg::PoseWithCovarianceStamped&>,
+        std::bind(&PoseThrottledCallback::callback<geometry_msgs::msg::PoseWithCovarianceStamped const&>,
                   &throttled_callback_, std::placeholders::_1),
         sub_options);
   }
@@ -110,13 +110,13 @@ void Pose2D::onStop()
   sub_.reset();
 }
 
-void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
+void Pose2D::process(geometry_msgs::msg::PoseWithCovarianceStamped const& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();
   transaction->stamp(msg.header.stamp);
 
-  const bool validate = !params_.disable_checks;
+  bool const validate = !params_.disable_checks;
 
   if (params_.differential)
   {
@@ -133,7 +133,7 @@ void Pose2D::process(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
   sendTransaction(transaction);
 }
 
-void Pose2D::processDifferential(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, const bool validate,
+void Pose2D::processDifferential(geometry_msgs::msg::PoseWithCovarianceStamped const& pose, bool const validate,
                                  fuse_core::Transaction& transaction)
 {
   auto transformed_pose = std::make_unique<geometry_msgs::msg::PoseWithCovarianceStamped>();

@@ -45,13 +45,13 @@
 
 namespace fuse_variables
 {
-PinholeCameraFixed::PinholeCameraFixed(const uint64_t& camera_id)
+PinholeCameraFixed::PinholeCameraFixed(uint64_t const& camera_id)
   : PinholeCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id)
 {
 }
 
-PinholeCameraFixed::PinholeCameraFixed(const uint64_t& camera_id, const double& fx, const double& fy, const double& cx,
-                                       const double& cy)
+PinholeCameraFixed::PinholeCameraFixed(uint64_t const& camera_id, double const& fx, double const& fy, double const& cx,
+                                       double const& cy)
   : PinholeCamera(fuse_core::uuid::generate(detail::type(), camera_id), camera_id, fx, fy, cx, cy)
 {
 }

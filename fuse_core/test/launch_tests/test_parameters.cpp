@@ -73,7 +73,7 @@ private:
 TEST_F(TestParameters, getPositiveParam)
 {
   // Load parameters enforcing they are positive:
-  const double default_value{ 1.0 };
+  double const default_value{ 1.0 };
 
   auto node = rclcpp::Node::make_shared("test_parameters_node");
 
@@ -130,7 +130,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
 
     try
     {
-      const auto covariance = fuse_core::getCovarianceDiagonalParam<size>(*node, parameter_name, defaultVariance);
+      auto const covariance = fuse_core::getCovarianceDiagonalParam<size>(*node, parameter_name, defaultVariance);
 
       EXPECT_EQ(size, covariance.rows());
       EXPECT_EQ(size, covariance.cols());
@@ -141,7 +141,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
           << expected_covariance << "\nActual\n"
           << covariance;
     }
-    catch (const std::exception& ex)
+    catch (std::exception const& ex)
     {
       FAIL() << "Failed to get " << parameter_name.c_str() << ": " << ex.what();
     }
@@ -155,7 +155,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
 
     try
     {
-      const auto covariance = fuse_core::getCovarianceDiagonalParam<size>(*node, parameter_name, defaultVariance);
+      auto const covariance = fuse_core::getCovarianceDiagonalParam<size>(*node, parameter_name, defaultVariance);
 
       EXPECT_EQ(size, covariance.rows());
       EXPECT_EQ(size, covariance.cols());
@@ -165,7 +165,7 @@ TEST_F(TestParameters, GetCovarianceDiagonalParam)
           << default_covariance << "\nActual\n"
           << covariance;
     }
-    catch (const std::exception& ex)
+    catch (std::exception const& ex)
     {
       FAIL() << "Failed to get " << parameter_name.c_str() << ": " << ex.what();
     }

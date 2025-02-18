@@ -94,31 +94,31 @@ TEST(Util, wrapAngle2D)
 {
   // Wrap angle already in [-Pi, +Pi) range
   {
-    const double angle = 0.5;
+    double const angle = 0.5;
     EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle));
   }
 
   // Wrap angle equal to +Pi
   {
-    const double angle = M_PI;
+    double const angle = M_PI;
     EXPECT_EQ(-angle, fuse_core::wrapAngle2D(angle));
   }
 
   // Wrap angle equal to -Pi
   {
-    const double angle = -M_PI;
+    double const angle = -M_PI;
     EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle));
   }
 
   // Wrap angle greater than +Pi
   {
-    const double angle = 0.5;
+    double const angle = 0.5;
     EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle + 3.0 * 2.0 * M_PI));
   }
 
   // Wrap angle smaller than -Pi
   {
-    const double angle = 0.5;
+    double const angle = 0.5;
     EXPECT_EQ(angle, fuse_core::wrapAngle2D(angle - 3.0 * 2.0 * M_PI));
   }
 

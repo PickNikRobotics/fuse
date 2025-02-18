@@ -50,30 +50,30 @@
 namespace fuse_graphs
 {
 
-HashGraph::HashGraph(const HashGraphParams& params) : problem_options_(params.problem_options)
+HashGraph::HashGraph(HashGraphParams const& params) : problem_options_(params.problem_options)
 {
   // Set Ceres loss function ownership according to the fuse_core::Loss specification
   problem_options_.loss_function_ownership = fuse_core::Loss::Ownership;
 }
 
-HashGraph::HashGraph(const HashGraph& other)
+HashGraph::HashGraph(HashGraph const& other)
   : constraints_by_variable_uuid_(other.constraints_by_variable_uuid_)
   , problem_options_(other.problem_options_)
   , variables_on_hold_(other.variables_on_hold_)
 {
   // Make a deep copy of the constraints
   std::transform(other.constraints_.begin(), other.constraints_.end(), std::inserter(constraints_, constraints_.end()),
-                 [](const Constraints::value_type& uuid_constraint) -> Constraints::value_type {
+                 [](Constraints::value_type const& uuid_constraint) -> Constraints::value_type {
                    return { uuid_constraint.first, uuid_constraint.second->clone() };
                  });  // NOLINT(whitespace/braces)
   // Make a deep copy of the variables
   std::transform(other.variables_.begin(), other.variables_.end(), std::inserter(variables_, variables_.end()),
-                 [](const Variables::value_type& uuid_variable) -> Variables::value_type {
+                 [](Variables::value_type const& uuid_variable) -> Variables::value_type {
                    return { uuid_variable.first, uuid_variable.second->clone() };
                  });  // NOLINT(whitespace/braces)
 }
 
-HashGraph& HashGraph::operator=(const HashGraph& other)
+HashGraph& HashGraph::operator=(HashGraph const& other)
 {
   // Make a copy (might throw an exception)
   HashGraph tmp(other);
@@ -99,7 +99,7 @@ fuse_core::Graph::UniquePtr HashGraph::clone() const
   return HashGraph::make_unique(*this);
 }
 
-bool HashGraph::constraintExists(const fuse_core::UUID& constraint_uuid) const noexcept
+bool HashGraph::constraintExists(fuse_core::UUID const& constraint_uuid) const noexcept
 {
   // map.find() does not itself throw exceptions, but may as a result of the key comparison
   // operator. Because the UUID comparisons are marked as noexcept by Boost, I feel safe marking
@@ -116,7 +116,7 @@ bool HashGraph::addConstraint(fuse_core::Constraint::SharedPtr constraint)
     return false;
   }
   // Check that all of the referenced variables exist. Throw a logic_error if they do not.
-  for (const auto& variable_uuid : constraint->variables())
+  for (auto const& variable_uuid : constraint->variables())
   {
     if (!variableExists(variable_uuid))
     {
@@ -127,14 +127,14 @@ bool HashGraph::addConstraint(fuse_core::Constraint::SharedPtr constraint)
   // Add the constraint to the list of known constraints
   constraints_.emplace(constraint->uuid(), constraint);
   // Also add it to the variable-constraint cross reference
-  for (const auto& variable_uuid : constraint->variables())
+  for (auto const& variable_uuid : constraint->variables())
   {
     constraints_by_variable_uuid_[variable_uuid].push_back(constraint->uuid());
   }
   return true;
 }
 
-bool HashGraph::removeConstraint(const fuse_core::UUID& constraint_uuid)
+bool HashGraph::removeConstraint(fuse_core::UUID const& constraint_uuid)
 {
   // Check if the constraint exists
   auto constraints_iter = constraints_.find(constraint_uuid);
@@ -143,7 +143,7 @@ bool HashGraph::removeConstraint(const fuse_core::UUID& constraint_uuid)
     return false;
   }
   // Remove the constraint from the cross-reference data structure
-  for (const auto& variable_uuid : constraints_iter->second->variables())
+  for (auto const& variable_uuid : constraints_iter->second->variables())
   {
     auto& constraints = constraints_by_variable_uuid_.at(variable_uuid);
     constraints.erase(std::remove(constraints.begin(), constraints.end(), constraint_uuid), constraints.end());
@@ -153,7 +153,7 @@ bool HashGraph::removeConstraint(const fuse_core::UUID& constraint_uuid)
   return true;
 }
 
-const fuse_core::Constraint& HashGraph::getConstraint(const fuse_core::UUID& constraint_uuid) const
+fuse_core::Constraint const& HashGraph::getConstraint(fuse_core::UUID const& constraint_uuid) const
 {
   auto constraints_iter = constraints_.find(constraint_uuid);
   if (constraints_iter == constraints_.end())
@@ -165,8 +165,8 @@ const fuse_core::Constraint& HashGraph::getConstraint(const fuse_core::UUID& con
 
 fuse_core::Graph::const_constraint_range HashGraph::getConstraints() const noexcept
 {
-  std::function<const fuse_core::Constraint&(const Constraints::value_type& uuid_constraint)> const to_constraint_ref =
-      [](const Constraints::value_type& uuid_constraint) -> const fuse_core::Constraint& {
+  std::function<fuse_core::Constraint const&(Constraints::value_type const& uuid_constraint)> const to_constraint_ref =
+      [](Constraints::value_type const& uuid_constraint) -> fuse_core::Constraint const& {
     return *uuid_constraint.second;
   };
 
@@ -174,17 +174,17 @@ fuse_core::Graph::const_constraint_range HashGraph::getConstraints() const noexc
            boost::make_transform_iterator(constraints_.cend(), to_constraint_ref) };
 }
 
-fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(const fuse_core::UUID& variable_uuid) const
+fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(fuse_core::UUID const& variable_uuid) const
 {
   auto cross_reference_iter = constraints_by_variable_uuid_.find(variable_uuid);
   if (cross_reference_iter != constraints_by_variable_uuid_.end())
   {
-    std::function<const fuse_core::Constraint&(const fuse_core::UUID& constraint_uuid)> const uuid_to_constraint_ref =
-        [this](const fuse_core::UUID& constraint_uuid) -> const fuse_core::Constraint& {
+    std::function<fuse_core::Constraint const&(fuse_core::UUID const& constraint_uuid)> const uuid_to_constraint_ref =
+        [this](fuse_core::UUID const& constraint_uuid) -> fuse_core::Constraint const& {
       return this->getConstraint(constraint_uuid);
     };
 
-    const auto& constraints = cross_reference_iter->second;
+    auto const& constraints = cross_reference_iter->second;
     return { boost::make_transform_iterator(constraints.cbegin(), uuid_to_constraint_ref),
              boost::make_transform_iterator(constraints.cend(), uuid_to_constraint_ref) };
   }
@@ -201,7 +201,7 @@ fuse_core::Graph::const_constraint_range HashGraph::getConnectedConstraints(cons
                          "), but that variable does not exist in this graph.");
 }
 
-bool HashGraph::variableExists(const fuse_core::UUID& variable_uuid) const noexcept
+bool HashGraph::variableExists(fuse_core::UUID const& variable_uuid) const noexcept
 {
   auto variables_iter = variables_.find(variable_uuid);
   return variables_iter != variables_.end();
@@ -222,7 +222,7 @@ bool HashGraph::addVariable(fuse_core::Variable::SharedPtr variable)
   return true;
 }
 
-bool HashGraph::removeVariable(const fuse_core::UUID& variable_uuid)
+bool HashGraph::removeVariable(fuse_core::UUID const& variable_uuid)
 {
   // Check if the variable exists
   auto variables_iter = variables_.find(variable_uuid);
@@ -250,7 +250,7 @@ bool HashGraph::removeVariable(const fuse_core::UUID& variable_uuid)
   return true;
 }
 
-const fuse_core::Variable& HashGraph::getVariable(const fuse_core::UUID& variable_uuid) const
+fuse_core::Variable const& HashGraph::getVariable(fuse_core::UUID const& variable_uuid) const
 {
   auto variables_iter = variables_.find(variable_uuid);
   if (variables_iter == variables_.end())
@@ -262,14 +262,14 @@ const fuse_core::Variable& HashGraph::getVariable(const fuse_core::UUID& variabl
 
 fuse_core::Graph::const_variable_range HashGraph::getVariables() const noexcept
 {
-  std::function<const fuse_core::Variable&(const Variables::value_type& uuid_variable)> const to_variable_ref =
-      [](const Variables::value_type& uuid_variable) -> const fuse_core::Variable& { return *uuid_variable.second; };
+  std::function<fuse_core::Variable const&(Variables::value_type const& uuid_variable)> const to_variable_ref =
+      [](Variables::value_type const& uuid_variable) -> fuse_core::Variable const& { return *uuid_variable.second; };
 
   return { boost::make_transform_iterator(variables_.cbegin(), to_variable_ref),
            boost::make_transform_iterator(variables_.cend(), to_variable_ref) };
 }
 
-void HashGraph::holdVariable(const fuse_core::UUID& variable_uuid, bool hold_constant)
+void HashGraph::holdVariable(fuse_core::UUID const& variable_uuid, bool hold_constant)
 {
   // Adjust the variable setting in the Ceres Problem object
   if (hold_constant)
@@ -282,14 +282,14 @@ void HashGraph::holdVariable(const fuse_core::UUID& variable_uuid, bool hold_con
   }
 }
 
-bool HashGraph::isVariableOnHold(const fuse_core::UUID& variable_uuid) const
+bool HashGraph::isVariableOnHold(fuse_core::UUID const& variable_uuid) const
 {
   return variables_on_hold_.find(variable_uuid) != variables_on_hold_.end();
 }
 
-void HashGraph::getCovariance(const std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>>& covariance_requests,
+void HashGraph::getCovariance(std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> const& covariance_requests,
                               std::vector<std::vector<double>>& covariance_matrices,
-                              const ceres::Covariance::Options& options, const bool use_tangent_space) const
+                              ceres::Covariance::Options const& options, bool const use_tangent_space) const
 {
   // Avoid doing a bunch of work if the request is empty
   if (covariance_requests.empty())
@@ -302,8 +302,8 @@ void HashGraph::getCovariance(const std::vector<std::pair<fuse_core::UUID, fuse_
   // The Ceres interface requires that the variable pairs not contain duplicates. Since the
   // covariance matrix is symmetric, requesting Cov(A,B) and Cov(B,A) counts as a duplicate. Create
   // an expression to test a pair of data pointers such that (A,B) == (A,B) OR (B,A)
-  auto symmetric_equal = [](const std::pair<const double*, const double*>& x,
-                            const std::pair<const double*, const double*>& y) {
+  auto symmetric_equal = [](std::pair<double const*, double const*> const& x,
+                            std::pair<double const*, double const*> const& y) {
     return ((x.first == y.first) && (x.second == y.second)) || ((x.first == y.second) && (x.second == y.first));
   };
   // Convert the covariance requests into the input structure needed by Ceres. Namely, we must
@@ -311,13 +311,13 @@ void HashGraph::getCovariance(const std::vector<std::pair<fuse_core::UUID, fuse_
   // blocks: one only contains the unique variable pairs that we give to Ceres, and a second that
   // contains all requested variable pairs used to keep the output structure in sync with the
   // request structure.
-  std::vector<std::pair<const double*, const double*>> unique_covariance_blocks;
-  std::vector<std::pair<const double*, const double*>> all_covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> unique_covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> all_covariance_blocks;
   all_covariance_blocks.resize(covariance_requests.size());
   covariance_matrices.resize(covariance_requests.size());
   for (size_t i = 0; i < covariance_requests.size(); ++i)
   {
-    const auto& request = covariance_requests.at(i);
+    auto const& request = covariance_requests.at(i);
     auto variable1_iter = variables_.find(request.first);
     if (variable1_iter == variables_.end())
     {
@@ -363,11 +363,11 @@ void HashGraph::getCovariance(const std::vector<std::pair<fuse_core::UUID, fuse_
   {
     for (size_t i = 0; i < covariance_requests.size(); ++i)
     {
-      const auto& block = all_covariance_blocks.at(i);
+      auto const& block = all_covariance_blocks.at(i);
       auto& output_matrix = covariance_matrices.at(i);
       if (!covariance.GetCovarianceBlockInTangentSpace(block.first, block.second, output_matrix.data()))
       {
-        const auto& request = covariance_requests.at(i);
+        auto const& request = covariance_requests.at(i);
         throw std::runtime_error("Could not get covariance block for variable UUIDs " +
                                  fuse_core::uuid::to_string(request.first) + " and " +
                                  fuse_core::uuid::to_string(request.second) + ".");
@@ -378,11 +378,11 @@ void HashGraph::getCovariance(const std::vector<std::pair<fuse_core::UUID, fuse_
   {
     for (size_t i = 0; i < covariance_requests.size(); ++i)
     {
-      const auto& block = all_covariance_blocks.at(i);
+      auto const& block = all_covariance_blocks.at(i);
       auto& output_matrix = covariance_matrices.at(i);
       if (!covariance.GetCovarianceBlock(block.first, block.second, output_matrix.data()))
       {
-        const auto& request = covariance_requests.at(i);
+        auto const& request = covariance_requests.at(i);
         throw std::runtime_error("Could not get covariance block for variable UUIDs " +
                                  fuse_core::uuid::to_string(request.first) + " and " +
                                  fuse_core::uuid::to_string(request.second) + ".");
@@ -391,7 +391,7 @@ void HashGraph::getCovariance(const std::vector<std::pair<fuse_core::UUID, fuse_
   }
 }
 
-ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options)
+ceres::Solver::Summary HashGraph::optimize(ceres::Solver::Options const& options)
 {
   // Construct the ceres::Problem object from scratch
   ceres::Problem problem(problem_options_);
@@ -403,8 +403,8 @@ ceres::Solver::Summary HashGraph::optimize(const ceres::Solver::Options& options
   return summary;
 }
 
-ceres::Solver::Summary HashGraph::optimizeFor(const rclcpp::Duration& max_optimization_time,
-                                              const ceres::Solver::Options& options, rclcpp::Clock clock)
+ceres::Solver::Summary HashGraph::optimizeFor(rclcpp::Duration const& max_optimization_time,
+                                              ceres::Solver::Options const& options, rclcpp::Clock clock)
 {
   auto start = clock.now();
 
@@ -427,7 +427,7 @@ ceres::Solver::Summary HashGraph::optimizeFor(const rclcpp::Duration& max_optimi
 }
 
 bool HashGraph::evaluate(double* cost, std::vector<double>* residuals, std::vector<double>* gradient,
-                         const ceres::Problem::EvaluateOptions& options) const
+                         ceres::Problem::EvaluateOptions const& options) const
 {
   ceres::Problem problem(problem_options_);
   createProblem(problem);
@@ -439,14 +439,14 @@ void HashGraph::print(std::ostream& stream) const
 {
   stream << "HashGraph\n"
          << "  constraints:\n";
-  for (const auto& constraint : constraints_)
+  for (auto const& constraint : constraints_)
   {
     stream << "   - " << *constraint.second << "\n";
   }
   stream << "  variables:\n";
-  for (const auto& variable : variables_)
+  for (auto const& variable : variables_)
   {
-    const auto is_on_hold = variables_on_hold_.find(variable.first) != variables_on_hold_.end();
+    auto const is_on_hold = variables_on_hold_.find(variable.first) != variables_on_hold_.end();
 
     stream << "   - " << *variable.second << "\n"
            << "     on_hold: " << std::boolalpha << is_on_hold << "\n";
@@ -493,7 +493,7 @@ void HashGraph::createProblem(ceres::Problem& problem) const
     // We need the memory address of each variable value referenced by this constraint
     parameter_blocks.clear();
     parameter_blocks.reserve(constraint.variables().size());
-    for (const auto& uuid : constraint.variables())
+    for (auto const& uuid : constraint.variables())
     {
       parameter_blocks.push_back(variables_.at(uuid)->data());
     }

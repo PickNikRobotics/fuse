@@ -109,8 +109,8 @@ private:
    * @param[in] visible Initial visibility.
    */
   RelativePose2DStampedConstraintVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node,
-                                        const fuse_constraints::RelativePose2DStampedConstraint& constraint,
-                                        const bool visible = true);
+                                        fuse_constraints::RelativePose2DStampedConstraint const& constraint,
+                                        bool const visible = true);
 
 public:
   using CovarianceVisualPtr = MappedCovarianceProperty::MappedCovarianceVisualPtr;
@@ -123,7 +123,7 @@ public:
    * @param[in] graph fuse_core::Graph, used to retrieve the first/source and second/target
    *                  constraint variables pose.
    */
-  void setConstraint(const fuse_constraints::RelativePose2DStampedConstraint& constraint, const fuse_core::Graph& graph);
+  void setConstraint(fuse_constraints::RelativePose2DStampedConstraint const& constraint, fuse_core::Graph const& graph);
 
   /**
    * @brief Get the root scene node of this constraint visual
@@ -137,25 +137,25 @@ public:
   /**
    * @brief Sets user data on all ogre objects we own
    */
-  void setUserData(const Ogre::Any& data) override;
+  void setUserData(Ogre::Any const& data) override;
 
-  void setRelativePoseLineWidth(const float line_width);
+  void setRelativePoseLineWidth(float const line_width);
 
-  void setErrorLineWidth(const float line_width);
+  void setErrorLineWidth(float const line_width);
 
-  void setLossMinBrightness(const float min_brightness);
+  void setLossMinBrightness(float const min_brightness);
 
-  void setRelativePoseLineColor(const float r, const float g, const float b, const float a);
+  void setRelativePoseLineColor(float const r, float const g, float const b, float const a);
 
-  void setErrorLineColor(const float r, const float g, const float b, const float a);
+  void setErrorLineColor(float const r, float const g, float const b, float const a);
 
-  void setRelativePoseAxesAlpha(const float alpha);
+  void setRelativePoseAxesAlpha(float const alpha);
 
-  void setRelativePoseAxesScale(const Ogre::Vector3& scale);
+  void setRelativePoseAxesScale(Ogre::Vector3 const& scale);
 
-  void setTextScale(const Ogre::Vector3& scale);
+  void setTextScale(Ogre::Vector3 const& scale);
 
-  void setTextVisible(const bool visible);
+  void setTextVisible(bool const visible);
 
   /**
    * @brief Sets visibility of this constraint
@@ -167,24 +167,24 @@ public:
   /**
    * @brief Sets position of the frame this constraint is attached
    */
-  void setPosition(const Ogre::Vector3& position) override;
+  void setPosition(Ogre::Vector3 const& position) override;
 
   /**
    * @brief Sets orientation of the frame this constraint is attached
    */
-  void setOrientation(const Ogre::Quaternion& orientation) override;
+  void setOrientation(Ogre::Quaternion const& orientation) override;
 
-  const CovarianceVisualPtr& getCovariance() const
+  CovarianceVisualPtr const& getCovariance() const
   {
     return covariance_;
   }
 
-  void setCovariance(const CovarianceVisualPtr& covariance)
+  void setCovariance(CovarianceVisualPtr const& covariance)
   {
     covariance_ = covariance;
   }
 
-  const std::string& getSource() const
+  std::string const& getSource() const
   {
     return source_;
   }
@@ -212,16 +212,16 @@ private:
 private:
   // Hide Object methods we don't want to expose
   // NOTE: Apparently we still need to define them...
-  void setScale(const Ogre::Vector3&) override
+  void setScale(Ogre::Vector3 const&) override
   {
   }
   void setColor(float, float, float, float) override
   {
   }
-  const Ogre::Vector3& getPosition() override;
-  const Ogre::Quaternion& getOrientation() override;
+  Ogre::Vector3 const& getPosition() override;
+  Ogre::Quaternion const& getOrientation() override;
 
-  Ogre::ColourValue computeLossErrorLineColor(const Ogre::ColourValue& color, const float loss_scale);
+  Ogre::ColourValue computeLossErrorLineColor(Ogre::ColourValue const& color, float const loss_scale);
 
   // Make RelativePose2DStampedConstraintProperty friend class so it create
   // RelativePose2DStampedConstraintVisual objects

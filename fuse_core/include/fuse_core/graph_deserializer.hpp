@@ -46,7 +46,7 @@ namespace fuse_core
 /**
  * @brief Serialize a graph into a message
  */
-void serializeGraph(const fuse_core::Graph& graph, fuse_msgs::msg::SerializedGraph& msg);
+void serializeGraph(fuse_core::Graph const& graph, fuse_msgs::msg::SerializedGraph& msg);
 
 /**
  * @brief Deserialize a graph
@@ -87,7 +87,7 @@ public:
    * @param[in]  msg  The SerializedGraph message to be deserialized
    * @return          A unique_ptr to a derived Graph object
    */
-  fuse_core::Graph::UniquePtr deserialize(const fuse_msgs::msg::SerializedGraph& msg) const;
+  fuse_core::Graph::UniquePtr deserialize(fuse_msgs::msg::SerializedGraph const& msg) const;
 
 private:
   //! Pluginlib class loader for Variable types

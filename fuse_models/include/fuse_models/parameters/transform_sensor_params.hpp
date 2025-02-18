@@ -63,7 +63,7 @@ public:
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& ns)
+      std::string const& ns)
   {
     position_indices = loadSensorConfig<fuse_variables::Position3DStamped>(
         interfaces, fuse_core::joinParameterName(ns, "position_dimensions"));

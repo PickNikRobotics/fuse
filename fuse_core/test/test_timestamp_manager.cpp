@@ -69,7 +69,7 @@ public:
     generated_time_spans.clear();
   }
 
-  void generator(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
+  void generator(rclcpp::Time const& beginning_stamp, rclcpp::Time const& ending_stamp,
                  std::vector<fuse_core::Constraint::SharedPtr>& /*constraints*/,
                  std::vector<fuse_core::Variable::SharedPtr>& /*variables*/)
   {

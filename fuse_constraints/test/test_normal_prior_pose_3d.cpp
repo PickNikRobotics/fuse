@@ -74,7 +74,7 @@ TEST_F(NormalPriorPose3DTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqual)
   auto q = Eigen::Quaterniond::UnitRandom();
   full_mean << 1.0, 2.0, 1.0, q.w(), q.x(), q.y(), q.z();  // Create automatic differentiation cost function
   const fuse_constraints::NormalPriorPose3D cost_function{ full_sqrt_information, full_mean };
-  const auto num_residuals = full_sqrt_information.rows();
+  auto const num_residuals = full_sqrt_information.rows();
 
   AutoDiffNormalPriorPose3D autodiff_cost_function(
       new fuse_constraints::NormalPriorPose3DCostFunctor(full_sqrt_information, full_mean), num_residuals);

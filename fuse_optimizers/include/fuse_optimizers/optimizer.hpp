@@ -135,7 +135,7 @@ protected:
      * @param[in] model The sensor model
      * @param[in] ignition Whether this sensor model is an ignition one or not
      */
-    SensorModelInfo(SensorModelUniquePtr model, const bool ignition) : model(std::move(model)), ignition(ignition)
+    SensorModelInfo(SensorModelUniquePtr model, bool const ignition) : model(std::move(model)), ignition(ignition)
     {
     }
 
@@ -183,7 +183,7 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel
    *                        plugin
    */
-  virtual void transactionCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction) = 0;
+  virtual void transactionCallback(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction) = 0;
 
   /**
    * @brief Configure the motion model plugins specified on the parameter server
@@ -222,7 +222,7 @@ protected:
    * @return                 Flag indicating if all motion model constraints were successfully
    *                         generated
    */
-  bool applyMotionModels(const std::string& sensor_name, fuse_core::Transaction& transaction) const;
+  bool applyMotionModels(std::string const& sensor_name, fuse_core::Transaction& transaction) const;
 
   /**
    * @brief Send the sensors, motion models, and publishers updated graph information
@@ -240,7 +240,7 @@ protected:
    * @param[in] transaction The populated Transaction object created by the loaded SensorModel
    *                        plugin
    */
-  void injectCallback(const std::string& sensor_name, fuse_core::Transaction::SharedPtr transaction);
+  void injectCallback(std::string const& sensor_name, fuse_core::Transaction::SharedPtr transaction);
 
   /**
    * @brief Clear all of the callbacks inserted into the callback queue by the injectCallback()

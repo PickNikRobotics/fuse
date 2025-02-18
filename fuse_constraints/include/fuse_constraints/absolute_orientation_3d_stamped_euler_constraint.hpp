@@ -86,10 +86,10 @@ public:
    * @param[in] axes        Used to specify which of the Euler axes they want to include in the
    *                        constraint, e.g. "{ Euler::ROLL, EULER::YAW }"
    */
-  AbsoluteOrientation3DStampedEulerConstraint(const std::string& source,
-                                              const fuse_variables::Orientation3DStamped& orientation,
-                                              const fuse_core::VectorXd& mean, const fuse_core::MatrixXd& covariance,
-                                              const std::vector<Euler>& axes);
+  AbsoluteOrientation3DStampedEulerConstraint(std::string const& source,
+                                              fuse_variables::Orientation3DStamped const& orientation,
+                                              fuse_core::VectorXd const& mean, fuse_core::MatrixXd const& covariance,
+                                              std::vector<Euler> const& axes);
 
   /**
    * @brief Destructor
@@ -112,7 +112,7 @@ public:
    * other currently implemented constraints in that the order does _not_ match the order defined in
    * the variable.
    */
-  const fuse_core::VectorXd& mean() const
+  fuse_core::VectorXd const& mean() const
   {
     return mean_;
   }
@@ -124,7 +124,7 @@ public:
    * from all other currently implemented constraints in that the order does _not_ match the order
    * defined in the variable.
    */
-  const fuse_core::MatrixXd& sqrtInformation() const
+  fuse_core::MatrixXd const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -174,7 +174,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& mean_;

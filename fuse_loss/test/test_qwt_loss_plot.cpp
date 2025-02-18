@@ -57,9 +57,9 @@ public:
   QwtLossPlotTest()
   {
     // Generate samples:
-    const double step{ 0.01 };
+    double const step{ 0.01 };
     const size_t half_samples{ 1000 };
-    const double x_min = -(half_samples * step);
+    double const x_min = -(half_samples * step);
 
     const size_t samples{ 2 * half_samples + 1 };
 
@@ -106,7 +106,7 @@ TEST_F(QwtLossPlotTest, PlotLossQt)
   plot.setAxisScale(QwtPlot::yLeft, 0.0, 15.0);
 
   // Create a curve for each loss rho function:
-  for (const auto& loss : losses)
+  for (auto const& loss : losses)
   {
     rho_loss_plot.plotRho(loss);
   }
@@ -124,7 +124,7 @@ TEST_F(QwtLossPlotTest, PlotLossQt)
   influence_plot.setAxisScale(QwtPlot::yLeft, -3.0, 3.0);
 
   // Create a curve for each loss rho function:
-  for (const auto& loss : losses)
+  for (auto const& loss : losses)
   {
     influence_loss_plot.plotInfluence(loss);
   }
@@ -142,7 +142,7 @@ TEST_F(QwtLossPlotTest, PlotLossQt)
   weight_plot.setAxisScale(QwtPlot::yLeft, 0.0, 1.5);
 
   // Create a curve for each loss rho function:
-  for (const auto& loss : losses)
+  for (auto const& loss : losses)
   {
     weight_loss_plot.plotWeight(loss);
   }
@@ -160,7 +160,7 @@ TEST_F(QwtLossPlotTest, PlotLossQt)
   second_derivative_plot.setAxisScale(QwtPlot::yLeft, -0.15, 0.15);
 
   // Create a curve for each loss rho function:
-  for (const auto& loss : losses)
+  for (auto const& loss : losses)
   {
     second_derivative_loss_plot.plotSecondDerivative(loss);
   }

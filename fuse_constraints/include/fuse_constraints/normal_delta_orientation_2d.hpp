@@ -68,7 +68,7 @@ public:
    *              these are the same type of variable. At a minimum, they must have the same
    *              dimensions and the per-element subtraction operator must be valid.
    */
-  NormalDeltaOrientation2D(const double A, const double b);
+  NormalDeltaOrientation2D(double const A, double const b);
 
   /**
    * @brief Destructor

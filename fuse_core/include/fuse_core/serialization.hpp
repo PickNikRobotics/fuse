@@ -77,12 +77,12 @@ public:
    *
    * @param[in] data A byte vector from a ROS message
    */
-  explicit MessageBufferStreamSource(const std::vector<unsigned char>& data);
+  explicit MessageBufferStreamSource(std::vector<unsigned char> const& data);
 
   /**
    * @brief The stream source is non-copyable
    */
-  MessageBufferStreamSource operator=(const MessageBufferStreamSource&) = delete;
+  MessageBufferStreamSource operator=(MessageBufferStreamSource const&) = delete;
 
   /**
    * @brief Read up to n characters from the data vector
@@ -96,7 +96,7 @@ public:
   std::streamsize read(char_type* s, std::streamsize n);
 
 private:
-  const std::vector<unsigned char>& data_;  //!< Reference to the source container
+  std::vector<unsigned char> const& data_;  //!< Reference to the source container
   size_t index_;                            //!< The next vector index to read
 };
 
@@ -122,7 +122,7 @@ public:
   /**
    * @brief The stream sink is non-copyable
    */
-  MessageBufferStreamSink operator=(const MessageBufferStreamSink&) = delete;
+  MessageBufferStreamSink operator=(MessageBufferStreamSink const&) = delete;
 
   /**
    * @brief Write n characters to the data vector
@@ -133,7 +133,7 @@ public:
    * @param[in] n The number of bytes to write to the stream
    * @return The number of bytes written
    */
-  std::streamsize write(const char_type* s, std::streamsize n);
+  std::streamsize write(char_type const* s, std::streamsize n);
 
 private:
   std::vector<unsigned char>& data_;  //!< Reference to the destination container
@@ -150,7 +150,7 @@ namespace serialization
  * @brief Serialize a rclcpp::Time variable using Boost Serialization
  */
 template <class Archive>
-void serialize(Archive& archive, rclcpp::Time& stamp, const unsigned int /* version */)
+void serialize(Archive& archive, rclcpp::Time& stamp, unsigned int const /* version */)
 {
   auto nanoseconds = stamp.nanoseconds();
   auto clock_type = stamp.get_clock_type();
@@ -167,7 +167,7 @@ void serialize(Archive& archive, rclcpp::Time& stamp, const unsigned int /* vers
  */
 template <class Archive, typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
 inline void serialize(Archive& archive, Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols>& matrix,
-                      const unsigned int /* version */)
+                      unsigned int const /* version */)
 {
   Eigen::Index rows = matrix.rows();
   Eigen::Index cols = matrix.cols();

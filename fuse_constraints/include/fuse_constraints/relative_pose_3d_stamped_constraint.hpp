@@ -84,11 +84,11 @@ public:
    *                         (7x1 vector: dx, dy, dz, dqw, dqx, dqy, dqz)
    * @param[in] covariance   The measurement covariance (6x6 matrix: dx, dy, dz, dqx, dqy, dqz)
    */
-  RelativePose3DStampedConstraint(const std::string& source, const fuse_variables::Position3DStamped& position1,
-                                  const fuse_variables::Orientation3DStamped& orientation1,
-                                  const fuse_variables::Position3DStamped& position2,
-                                  const fuse_variables::Orientation3DStamped& orientation2,
-                                  const fuse_core::Vector7d& delta, const fuse_core::Matrix6d& covariance);
+  RelativePose3DStampedConstraint(std::string const& source, fuse_variables::Position3DStamped const& position1,
+                                  fuse_variables::Orientation3DStamped const& orientation1,
+                                  fuse_variables::Position3DStamped const& position2,
+                                  fuse_variables::Orientation3DStamped const& orientation2,
+                                  fuse_core::Vector7d const& delta, fuse_core::Matrix6d const& covariance);
 
   /**
    * @brief Destructor
@@ -98,7 +98,7 @@ public:
   /**
    * @brief Read-only access to the measured pose change.
    */
-  const fuse_core::Vector7d& delta() const
+  fuse_core::Vector7d const& delta() const
   {
     return delta_;
   }
@@ -106,7 +106,7 @@ public:
   /**
    * @brief Read-only access to the square root information matrix.
    */
-  const fuse_core::Matrix6d& sqrtInformation() const
+  fuse_core::Matrix6d const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -155,7 +155,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& delta_;

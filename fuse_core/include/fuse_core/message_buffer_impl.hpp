@@ -47,20 +47,20 @@ namespace fuse_core
 {
 
 template <class Message>
-MessageBuffer<Message>::MessageBuffer(const rclcpp::Duration& buffer_length) : buffer_length_(buffer_length)
+MessageBuffer<Message>::MessageBuffer(rclcpp::Duration const& buffer_length) : buffer_length_(buffer_length)
 {
 }
 
 template <class Message>
-void MessageBuffer<Message>::insert(const rclcpp::Time& stamp, const Message& msg)
+void MessageBuffer<Message>::insert(rclcpp::Time const& stamp, Message const& msg)
 {
   buffer_.emplace_back(stamp, msg);
   purgeHistory();
 }
 
 template <class Message>
-typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(const rclcpp::Time& beginning_stamp,
-                                                                             const rclcpp::Time& ending_stamp,
+typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(rclcpp::Time const& beginning_stamp,
+                                                                             rclcpp::Time const& ending_stamp,
                                                                              bool extended_range)
 {
   // Verify the query is valid
@@ -95,7 +95,7 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(con
   }
   // Find the entry that is strictly greater than the requested beginning stamp. If the extended
   // range flag is true, we will then back up one entry.
-  auto upper_bound_comparison = [](const auto& stamp, const auto& element) -> bool { return element.first > stamp; };
+  auto upper_bound_comparison = [](auto const& stamp, auto const& element) -> bool { return element.first > stamp; };
   auto beginning_iter = std::upper_bound(buffer_.begin(), buffer_.end(), beginning_stamp, upper_bound_comparison);
   if (extended_range)
   {
@@ -103,7 +103,7 @@ typename MessageBuffer<Message>::message_range MessageBuffer<Message>::query(con
   }
   // Find the entry that is greater than or equal to the ending stamp. If the extended range flag is
   // false, we will back up one entry.
-  auto lower_bound_comparison = [](const auto& element, const auto& stamp) -> bool { return element.first < stamp; };
+  auto lower_bound_comparison = [](auto const& element, auto const& stamp) -> bool { return element.first < stamp; };
   auto ending_iter = std::lower_bound(buffer_.begin(), buffer_.end(), ending_stamp, lower_bound_comparison);
   if (extended_range && (ending_iter != buffer_.end()))
   {
@@ -132,7 +132,7 @@ void MessageBuffer<Message>::purgeHistory()
   }
 
   // Compute the expiration time carefully, as ROS can't handle negative times
-  const auto& ending_stamp = buffer_.back().first;
+  auto const& ending_stamp = buffer_.back().first;
 
   rclcpp::Time expiration_time;
   if (ending_stamp.seconds() > buffer_length_.seconds())
@@ -149,7 +149,7 @@ void MessageBuffer<Message>::purgeHistory()
   // Be careful to ensure that:
   //  - at least two entries remains at all times
   //  - the buffer covers *at least* until the expiration time. Longer is acceptable.
-  auto is_greater = [](const auto& stamp, const auto& element) -> bool { return element.first > stamp; };
+  auto is_greater = [](auto const& stamp, auto const& element) -> bool { return element.first > stamp; };
   auto expiration_iter = std::upper_bound(buffer_.begin(), buffer_.end(), expiration_time, is_greater);
   if (expiration_iter != buffer_.begin())
   {

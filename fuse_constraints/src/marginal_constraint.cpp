@@ -51,7 +51,7 @@ void MarginalConstraint::print(std::ostream& stream) const
          << "  source: " << source() << "\n"
          << "  uuid: " << uuid() << "\n"
          << "  variable:\n";
-  for (const auto& variable : variables())
+  for (auto const& variable : variables())
   {
     stream << "   - " << variable << "\n";
   }

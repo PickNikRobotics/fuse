@@ -59,8 +59,8 @@ namespace testing
  * @return AssertionSuccess or AssertionFailure
  */
 template <typename Derived1, typename Derived2>
-AssertionResult AssertMatrixEqualHelper(const char* e1, const char* e2, const Eigen::MatrixBase<Derived1>& v1,
-                                        const Eigen::MatrixBase<Derived2>& v2)
+AssertionResult AssertMatrixEqualHelper(char const* e1, char const* e2, Eigen::MatrixBase<Derived1> const& v1,
+                                        Eigen::MatrixBase<Derived2> const& v2)
 {
   if (v1 == v2)
   {
@@ -89,8 +89,8 @@ AssertionResult AssertMatrixEqualHelper(const char* e1, const char* e2, const Ei
  * @return AssertionSuccess or AssertionFailure
  */
 template <typename Derived1, typename Derived2>
-AssertionResult AssertMatrixNearHelper(const char* e1, const char* e2, const Eigen::MatrixBase<Derived1>& v1,
-                                       const Eigen::MatrixBase<Derived2>& v2, double tol)
+AssertionResult AssertMatrixNearHelper(char const* e1, char const* e2, Eigen::MatrixBase<Derived1> const& v1,
+                                       Eigen::MatrixBase<Derived2> const& v2, double tol)
 {
   if ((v1 - v2).cwiseAbs().maxCoeff() < tol)
   {

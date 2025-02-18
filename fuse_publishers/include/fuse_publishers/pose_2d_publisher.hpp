@@ -129,7 +129,7 @@ public:
    * @brief Shadowing extension to the AsyncPublisher::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name) override;
+                  std::string const& name) override;
 
   /**
    * @brief Perform any required post-construction initialization, such as advertising publishers or

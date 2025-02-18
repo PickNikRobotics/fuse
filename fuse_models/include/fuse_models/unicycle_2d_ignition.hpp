@@ -98,6 +98,10 @@ public:
    * All plugins are required to have a constructor that accepts no arguments
    */
   Unicycle2DIgnition();
+  Unicycle2DIgnition(Unicycle2DIgnition const&) = delete;
+  Unicycle2DIgnition& operator=(Unicycle2DIgnition const&) = delete;
+  Unicycle2DIgnition(Unicycle2DIgnition&&) = delete;
+  Unicycle2DIgnition& operator=(Unicycle2DIgnition&&) = delete;
 
   /**
    * @brief Destructor
@@ -108,7 +112,7 @@ public:
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
+                  std::string const& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
@@ -135,20 +139,21 @@ public:
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  void subscriberCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg);
+  void subscriberCallback(geometry_msgs::msg::PoseWithCovarianceStamped const& msg);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  bool setPoseServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr service,
-                              std::shared_ptr<rmw_request_id_t>, const fuse_msgs::srv::SetPose::Request::SharedPtr req);
+  bool setPoseServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPose>::SharedPtr const& service,
+                              std::shared_ptr<rmw_request_id_t> const&,
+                              fuse_msgs::srv::SetPose::Request::SharedPtr const& req);
 
   /**
    * @brief Triggers the publication of a new prior transaction at the supplied pose
    */
-  bool setPoseDeprecatedServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr service,
-                                        std::shared_ptr<rmw_request_id_t> request_id,
-                                        const fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr req);
+  bool setPoseDeprecatedServiceCallback(rclcpp::Service<fuse_msgs::srv::SetPoseDeprecated>::SharedPtr const& service,
+                                        std::shared_ptr<rmw_request_id_t> const& request_id,
+                                        fuse_msgs::srv::SetPoseDeprecated::Request::SharedPtr const& req);
 
 protected:
   /**
@@ -164,7 +169,8 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void process(const geometry_msgs::msg::PoseWithCovarianceStamped& pose, std::function<void()> post_process = nullptr);
+  void process(geometry_msgs::msg::PoseWithCovarianceStamped const& pose,
+               std::function<void()> const& post_process = nullptr);
 
   /**
    * @brief Create and send a prior transaction based on the supplied pose
@@ -175,7 +181,7 @@ protected:
    *
    * @param[in] pose - The pose and covariance to use for the prior constraints on (x, y, yaw)
    */
-  void sendPrior(const geometry_msgs::msg::PoseWithCovarianceStamped& pose);
+  void sendPrior(geometry_msgs::msg::PoseWithCovarianceStamped const& pose);
 
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,
                                              fuse_core::node_interfaces::Graph, fuse_core::node_interfaces::Logging,

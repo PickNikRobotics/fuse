@@ -85,8 +85,8 @@ public:
    * @param[in] b The orientation measurement or prior. Its order must match the values in \p axes.
    * @param[in] axes The Euler angle axes for which we want to compute errors. Defaults to all axes.
    */
-  NormalPriorOrientation3DEulerCostFunctor(const fuse_core::MatrixXd& A, const fuse_core::VectorXd& b,
-                                           const std::vector<Euler>& axes = { Euler::ROLL, Euler::PITCH, Euler::YAW })
+  NormalPriorOrientation3DEulerCostFunctor(fuse_core::MatrixXd const& A, fuse_core::VectorXd const& b,
+                                           std::vector<Euler> const& axes = { Euler::ROLL, Euler::PITCH, Euler::YAW })
     :  // NOLINT
     A_(A)
     , b_(b)

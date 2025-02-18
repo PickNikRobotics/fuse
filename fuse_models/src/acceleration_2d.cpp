@@ -54,7 +54,7 @@ Acceleration2D::Acceleration2D()
 }
 
 void Acceleration2D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                const std::string& name, fuse_core::TransactionCallback transaction_callback)
+                                std::string const& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -96,7 +96,7 @@ void Acceleration2D::onStart()
 
     sub_ = rclcpp::create_subscription<geometry_msgs::msg::AccelWithCovarianceStamped>(
         interfaces_, params_.topic, params_.queue_size,
-        std::bind(&AccelerationThrottledCallback::callback<const geometry_msgs::msg::AccelWithCovarianceStamped&>,
+        std::bind(&AccelerationThrottledCallback::callback<geometry_msgs::msg::AccelWithCovarianceStamped const&>,
                   &throttled_callback_, std::placeholders::_1),
         sub_options);
   }
@@ -107,7 +107,7 @@ void Acceleration2D::onStop()
   sub_.reset();
 }
 
-void Acceleration2D::process(const geometry_msgs::msg::AccelWithCovarianceStamped& msg)
+void Acceleration2D::process(geometry_msgs::msg::AccelWithCovarianceStamped const& msg)
 {
   // Create a transaction object
   auto transaction = fuse_core::Transaction::make_shared();

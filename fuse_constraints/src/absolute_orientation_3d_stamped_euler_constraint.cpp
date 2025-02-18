@@ -46,8 +46,8 @@ namespace fuse_constraints
 {
 
 AbsoluteOrientation3DStampedEulerConstraint::AbsoluteOrientation3DStampedEulerConstraint(
-    const std::string& source, const fuse_variables::Orientation3DStamped& orientation, const fuse_core::VectorXd& mean,
-    const fuse_core::MatrixXd& covariance, const std::vector<Euler>& axes)
+    std::string const& source, fuse_variables::Orientation3DStamped const& orientation, fuse_core::VectorXd const& mean,
+    fuse_core::MatrixXd const& covariance, std::vector<Euler> const& axes)
   : fuse_core::Constraint(source, { orientation.uuid() })
   ,  // NOLINT(whitespace/braces)
   mean_(mean)

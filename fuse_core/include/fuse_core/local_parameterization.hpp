@@ -100,7 +100,7 @@ public:
    * @param[in] delta variable of size \p LocalSize()
    * @param[out] x_plus_delta of size \p GlobalSize()
    */
-  virtual bool Plus(const double* x, const double* delta, double* x_plus_delta) const = 0;
+  virtual bool Plus(double const* x, double const* delta, double* x_plus_delta) const = 0;
 
   /**
    * @brief The jacobian of Plus(x, delta) w.r.t delta at delta = 0.
@@ -109,7 +109,7 @@ public:
    * @param[out] jacobian a row-major GlobalSize() x LocalSize() matrix.
    * @return
    */
-  virtual bool ComputeJacobian(const double* x, double* jacobian) const = 0;
+  virtual bool ComputeJacobian(double const* x, double* jacobian) const = 0;
 
   /**
    * @brief Generalization of the subtraction operation
@@ -126,7 +126,7 @@ public:
    *                       \p LocalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool Minus(const double* x, const double* y, double* y_minus_x) const = 0;
+  virtual bool Minus(double const* x, double const* y, double* y_minus_x) const = 0;
 
   /**
    * @brief The jacobian of Minus(x, y) w.r.t y at x == y
@@ -136,7 +136,7 @@ public:
    *                      GlobalSize()
    * @return True if successful, false otherwise
    */
-  virtual bool ComputeMinusJacobian(const double* x, double* jacobian) const = 0;
+  virtual bool ComputeMinusJacobian(double const* x, double* jacobian) const = 0;
 
 #if CERES_SUPPORTS_MANIFOLDS
   // If the fuse::LocalParameterization class does not inherit from the
@@ -156,7 +156,7 @@ public:
    * @param[in] global_matrix is a num_rows x GlobalSize  row major matrix.
    * @param[out] local_matrix is a num_rows x LocalSize row major matrix.
    */
-  virtual bool MultiplyByJacobian(const double* x, const int num_rows, const double* global_matrix,
+  virtual bool MultiplyByJacobian(double const* x, int const num_rows, double const* global_matrix,
                                   double* local_matrix) const
   {
     using Matrix = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
@@ -191,7 +191,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& /* archive */, const unsigned int /* version */)
+  void serialize(Archive& /* archive */, unsigned int const /* version */)
   {
   }
 };

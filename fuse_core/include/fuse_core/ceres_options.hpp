@@ -54,7 +54,7 @@
  * For a given Ceres Solver Option <T>, the function ToString calls ceres::<T>ToString
  */
 #define CERES_OPTION_TO_STRING_DEFINITION(Option)                                                                      \
-  static inline const char* ToString(ceres::Option value)                                                              \
+  static inline char const* ToString(ceres::Option value)                                                              \
   {                                                                                                                    \
     return ceres::Option##ToString(value);                                                                             \
   }
@@ -103,7 +103,7 @@ static void UpperCase(std::string* input)
   std::transform(input->begin(), input->end(), input->begin(), ::toupper);
 }
 
-inline const char* LoggingTypeToString(LoggingType type)
+inline char const* LoggingTypeToString(LoggingType type)
 {
   switch (type)
   {
@@ -122,7 +122,7 @@ inline bool StringToLoggingType(std::string value, LoggingType* type)
   return false;
 }
 
-inline const char* DumpFormatTypeToString(DumpFormatType type)
+inline char const* DumpFormatTypeToString(DumpFormatType type)
 {
   switch (type)
   {
@@ -201,8 +201,8 @@ template <class T>
 T declareCeresParam(
     node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
         interfaces,
-    const std::string& parameter_name, const T& default_value,
-    const rcl_interfaces::msg::ParameterDescriptor& parameter_descriptor = rcl_interfaces::msg::ParameterDescriptor())
+    std::string const& parameter_name, const T& default_value,
+    rcl_interfaces::msg::ParameterDescriptor const& parameter_descriptor = rcl_interfaces::msg::ParameterDescriptor())
 {
   const std::string default_string_value{ ToString(default_value) };
 
@@ -233,7 +233,7 @@ T declareCeresParam(
 void loadCovarianceOptionsFromROS(
     node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
         interfaces,
-    ceres::Covariance::Options& covariance_options, const std::string& ns = std::string());
+    ceres::Covariance::Options& covariance_options, std::string const& ns = std::string());
 
 /**
  * @brief Populate a ceres::Problem::Options object with information from the parameter server
@@ -244,7 +244,7 @@ void loadCovarianceOptionsFromROS(
  * @param[in] namespace_string - Period delimited string to prepend to the loaded parameters' names
  */
 void loadProblemOptionsFromROS(node_interfaces::NodeInterfaces<node_interfaces::Parameters> interfaces,
-                               ceres::Problem::Options& problem_options, const std::string& ns = std::string());
+                               ceres::Problem::Options& problem_options, std::string const& ns = std::string());
 
 /**
  * @brief Populate a ceres::Solver::Options object with information from the parameter server
@@ -257,7 +257,7 @@ void loadProblemOptionsFromROS(node_interfaces::NodeInterfaces<node_interfaces::
 void loadSolverOptionsFromROS(
     node_interfaces::NodeInterfaces<node_interfaces::Base, node_interfaces::Logging, node_interfaces::Parameters>
         interfaces,
-    ceres::Solver::Options& solver_options, const std::string& ns = std::string());
+    ceres::Solver::Options& solver_options, std::string const& ns = std::string());
 
 }  // namespace fuse_core
 

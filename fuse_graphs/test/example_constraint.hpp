@@ -53,7 +53,7 @@
 class ExampleFunctor
 {
 public:
-  explicit ExampleFunctor(const double& b) : b_(b)
+  explicit ExampleFunctor(double const& b) : b_(b)
   {
   }
 
@@ -78,7 +78,7 @@ public:
 
   ExampleConstraint() = default;
 
-  explicit ExampleConstraint(const std::string& source, const fuse_core::UUID& variable_uuid)
+  explicit ExampleConstraint(std::string const& source, fuse_core::UUID const& variable_uuid)
     : fuse_core::Constraint(source, { variable_uuid })
     ,  // NOLINT
     data(0.0)
@@ -107,7 +107,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& data;

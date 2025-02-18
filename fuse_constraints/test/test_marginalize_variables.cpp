@@ -67,7 +67,7 @@ public:
   {
   }
 
-  explicit GenericVariable(const fuse_core::UUID& uuid) : fuse_core::Variable(uuid), data_{}
+  explicit GenericVariable(fuse_core::UUID const& uuid) : fuse_core::Variable(uuid), data_{}
   {
   }
 
@@ -76,7 +76,7 @@ public:
     return 1;
   }
 
-  [[nodiscard]] const double* data() const override
+  [[nodiscard]] double const* data() const override
   {
     return &data_;
   }
@@ -104,7 +104,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Variable>(*this);
     archive& data_;
@@ -125,11 +125,11 @@ public:
   {
   }
 
-  explicit GenericConstraint(const fuse_core::UUID& variable1) : fuse_core::Constraint("test", { variable1 })
+  explicit GenericConstraint(fuse_core::UUID const& variable1) : fuse_core::Constraint("test", { variable1 })
   {
   }
 
-  GenericConstraint(const fuse_core::UUID& variable1, const fuse_core::UUID& variable2)
+  GenericConstraint(fuse_core::UUID const& variable1, fuse_core::UUID const& variable2)
     : fuse_core::Constraint("test", { variable1, variable2 })
   {
   }
@@ -155,7 +155,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
   }
@@ -168,7 +168,7 @@ public:
 
   FixedOrientation3DStamped() = default;
 
-  explicit FixedOrientation3DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL)
+  explicit FixedOrientation3DStamped(rclcpp::Time const& stamp, fuse_core::UUID const& device_id = fuse_core::uuid::NIL)
     : Orientation3DStamped(stamp, device_id)
   {
   }
@@ -190,7 +190,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_variables::Orientation3DStamped>(*this);
   }
@@ -304,7 +304,7 @@ TEST(MarginalizeVariables, ComputeEliminationOrderWithOrphanVariables)
 
   // Check all marginalized variables are in the elimination order
   // This check is equivalent to the assert in marginalizeVariables
-  for (const auto& variable_uuid : to_be_marginalized)
+  for (auto const& variable_uuid : to_be_marginalized)
   {
     SCOPED_TRACE(fuse_core::uuid::to_string(variable_uuid));
 
@@ -524,9 +524,9 @@ TEST(MarginalizeVariables, MarginalizeVariables)
                                                                             { l1->uuid(), l1->uuid() } };
   auto expected_covariances = std::vector<std::vector<double>>();
   graph.getCovariance(requests, expected_covariances);
-  const auto& expected_x2_cov = expected_covariances[0];
-  const auto& expected_x3_cov = expected_covariances[1];
-  const auto& expected_l1_cov = expected_covariances[2];
+  auto const& expected_x2_cov = expected_covariances[0];
+  auto const& expected_x3_cov = expected_covariances[1];
+  auto const& expected_l1_cov = expected_covariances[2];
 
   // Marginalize out X1
   auto transaction = fuse_constraints::marginalizeVariables("test", { x1->uuid() }, graph);  // NOLINT
@@ -563,9 +563,9 @@ TEST(MarginalizeVariables, MarginalizeVariables)
 
   auto actual_covariances = std::vector<std::vector<double>>();
   graph.getCovariance(requests, actual_covariances);
-  const auto& actual_x2_cov = actual_covariances[0];
-  const auto& actual_x3_cov = actual_covariances[1];
-  const auto& actual_l1_cov = actual_covariances[2];
+  auto const& actual_x2_cov = actual_covariances[0];
+  auto const& actual_x3_cov = actual_covariances[1];
+  auto const& actual_l1_cov = actual_covariances[2];
 
   // Compare. The post-marginal results should be identical to the pre-marginal results
   ASSERT_EQ(expected_x2.size(), actual_x2.size());
@@ -687,8 +687,8 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
                                                                             { x3->uuid(), x3->uuid() } };
   auto expected_covariances = std::vector<std::vector<double>>();
   graph.getCovariance(requests, expected_covariances);
-  const auto& expected_x2_cov = expected_covariances[0];
-  const auto& expected_x3_cov = expected_covariances[1];
+  auto const& expected_x2_cov = expected_covariances[0];
+  auto const& expected_x3_cov = expected_covariances[1];
 
   // Marginalize out X1 and L1
   auto transaction = fuse_constraints::marginalizeVariables("test", { x1->uuid(), l1->uuid() }, graph);  // NOLINT
@@ -728,8 +728,8 @@ TEST(MarginalizeVariables, MarginalizeFixedVariables)
 
   auto actual_covariances = std::vector<std::vector<double>>();
   graph.getCovariance(requests, actual_covariances);
-  const auto& actual_x2_cov = actual_covariances[0];
-  const auto& actual_x3_cov = actual_covariances[1];
+  auto const& actual_x2_cov = actual_covariances[0];
+  auto const& actual_x3_cov = actual_covariances[1];
 
   // Compare. The post-marginal results should be identical to the pre-marginal results
   ASSERT_EQ(expected_x2.size(), actual_x2.size());

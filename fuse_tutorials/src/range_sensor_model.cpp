@@ -49,13 +49,13 @@ PLUGINLIB_EXPORT_CLASS(fuse_tutorials::RangeSensorModel, fuse_core::SensorModel)
 namespace fuse_tutorials
 {
 void RangeSensorModel::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                  const std::string& name, fuse_core::TransactionCallback transaction_callback)
+                                  std::string const& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
 }
 
-void RangeSensorModel::priorBeaconsCallback(const sensor_msgs::msg::PointCloud2& msg)
+void RangeSensorModel::priorBeaconsCallback(sensor_msgs::msg::PointCloud2 const& msg)
 {
   // Store a copy of the beacon database. We use a map to allow efficient lookups by ID number.
   sensor_msgs::PointCloud2ConstIterator<float> x_it(msg, "x");
@@ -117,7 +117,7 @@ void RangeSensorModel::onStop()
   sub_.reset();
 }
 
-void RangeSensorModel::rangesCallback(const sensor_msgs::msg::PointCloud2& msg)
+void RangeSensorModel::rangesCallback(sensor_msgs::msg::PointCloud2 const& msg)
 {
   // We received a new message for our sensor. This is where most of the processing happens for our
   // sensor model. We take the published ROS message and transform it into one or more Constraints,

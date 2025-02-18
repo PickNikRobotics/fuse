@@ -94,7 +94,7 @@ public:
    * @brief Shadowing extension to the AsyncMotionModel::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name) override;
+                  std::string const& name) override;
 
   void print(std::ostream& stream = std::cout) const;
 
@@ -159,7 +159,7 @@ protected:
    *                             ending_stamp. The variables should include initial values for the
    *                             optimizer.
    */
-  void generateMotionModel(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
+  void generateMotionModel(rclcpp::Time const& beginning_stamp, rclcpp::Time const& ending_stamp,
                            std::vector<fuse_core::Constraint::SharedPtr>& constraints,
                            std::vector<fuse_core::Variable::SharedPtr>& variables);
 
@@ -188,8 +188,8 @@ protected:
    * @param[in] state_history The state history object to be updated
    * @param[in] buffer_length States older than this in the history will be pruned
    */
-  static void updateStateHistoryEstimates(const fuse_core::Graph& graph, StateHistory& state_history,
-                                          const rclcpp::Duration& buffer_length);
+  static void updateStateHistoryEstimates(fuse_core::Graph const& graph, StateHistory& state_history,
+                                          rclcpp::Duration const& buffer_length);
 
   /**
    * @brief Validate the motion model state #1, state #2 and process noise covariance
@@ -202,8 +202,8 @@ protected:
    * @param[in] process_noise_covariance The process noise covariance, after it is scaled and
    *                                     multiplied by dt
    */
-  static void validateMotionModel(const StateHistoryElement& state1, const StateHistoryElement& state2,
-                                  const fuse_core::Matrix15d& process_noise_covariance);
+  static void validateMotionModel(StateHistoryElement const& state1, StateHistoryElement const& state2,
+                                  fuse_core::Matrix15d const& process_noise_covariance);
 
   fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Clock,
                                              fuse_core::node_interfaces::Logging,
@@ -232,7 +232,7 @@ protected:
   StateHistory state_history_;                     //!< History of optimized graph pose estimates
 };
 
-std::ostream& operator<<(std::ostream& stream, const Omnidirectional3D& omnidirectional_3d);
+std::ostream& operator<<(std::ostream& stream, Omnidirectional3D const& omnidirectional_3d);
 
 }  // namespace fuse_models
 

@@ -114,8 +114,8 @@ public:
    * @param[in] z - The distance measured between the robot and beacon by our new sensor
    * @param[in] sigma - The uncertainty of measured distance
    */
-  RangeConstraint(const std::string& source, const fuse_variables::Position2DStamped& robot_position,
-                  const fuse_variables::Point2DLandmark& beacon_position, const double z, const double sigma);
+  RangeConstraint(std::string const& source, fuse_variables::Position2DStamped const& robot_position,
+                  fuse_variables::Point2DLandmark const& beacon_position, double const z, double const sigma);
 
   /**
    * @brief Print a human-readable description of the constraint to the provided stream.
@@ -163,7 +163,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& sigma_;

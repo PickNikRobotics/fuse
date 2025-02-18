@@ -176,19 +176,19 @@ public:
     rclcpp::shutdown();
   }
 
-  void poseCallback(const geometry_msgs::msg::PoseStamped& msg)
+  void poseCallback(geometry_msgs::msg::PoseStamped const& msg)
   {
     received_pose_msg_ = true;
     pose_msg_ = msg;
   }
 
-  void poseWithCovarianceCallback(const geometry_msgs::msg::PoseWithCovarianceStamped& msg)
+  void poseWithCovarianceCallback(geometry_msgs::msg::PoseWithCovarianceStamped const& msg)
   {
     received_pose_with_covariance_msg_ = true;
     pose_with_covariance_msg_ = msg;
   }
 
-  void tfCallback(const tf2_msgs::msg::TFMessage& msg)
+  void tfCallback(tf2_msgs::msg::TFMessage const& msg)
   {
     received_tf_msg_ = true;
     tf_msg_ = msg;

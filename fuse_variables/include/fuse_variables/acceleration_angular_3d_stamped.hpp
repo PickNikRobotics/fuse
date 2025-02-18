@@ -88,8 +88,8 @@ public:
    * @param[in] device_id An optional device id, for use when variables originate from multiple
    *                      robots or devices
    */
-  explicit AccelerationAngular3DStamped(const rclcpp::Time& stamp,
-                                        const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit AccelerationAngular3DStamped(rclcpp::Time const& stamp,
+                                        fuse_core::UUID const& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the roll (X-axis) angular acceleration.
@@ -102,7 +102,7 @@ public:
   /**
    * @brief Read-only access to the roll (X-axis) angular acceleration.
    */
-  const double& roll() const
+  double const& roll() const
   {
     return data_[ROLL];
   }
@@ -118,7 +118,7 @@ public:
   /**
    * @brief Read-only access to the pitch (Y-axis) angular acceleration.
    */
-  const double& pitch() const
+  double const& pitch() const
   {
     return data_[PITCH];
   }
@@ -134,7 +134,7 @@ public:
   /**
    * @brief Read-only access to the yaw (Z-axis) angular acceleration.
    */
-  const double& yaw() const
+  double const& yaw() const
   {
     return data_[YAW];
   }
@@ -170,7 +170,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& boost::serialization::base_object<Stamped>(*this);

@@ -87,9 +87,9 @@ public:
    *                        (7x1 vector: x, y, z, qw, qx, qy, qz)
    * @param[in] covariance  The measurement/prior covariance (6x6 matrix: x, y, z, qx, qy, qz)
    */
-  AbsolutePose3DStampedConstraint(const std::string& source, const fuse_variables::Position3DStamped& position,
-                                  const fuse_variables::Orientation3DStamped& orientation,
-                                  const fuse_core::Vector7d& mean, const fuse_core::Matrix6d& covariance);
+  AbsolutePose3DStampedConstraint(std::string const& source, fuse_variables::Position3DStamped const& position,
+                                  fuse_variables::Orientation3DStamped const& orientation,
+                                  fuse_core::Vector7d const& mean, fuse_core::Matrix6d const& covariance);
 
   /**
    * @brief Destructor
@@ -101,7 +101,7 @@ public:
    *
    * Order is (x, y, z, qw, qx, qy, qz)
    */
-  const fuse_core::Vector7d& mean() const
+  fuse_core::Vector7d const& mean() const
   {
     return mean_;
   }
@@ -111,7 +111,7 @@ public:
    *
    * Order is (x, y, z, qx, qy, qz)
    */
-  const fuse_core::Matrix6d& sqrtInformation() const
+  fuse_core::Matrix6d const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -161,7 +161,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& mean_;

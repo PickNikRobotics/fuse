@@ -61,7 +61,7 @@ public:
       fuse_core::node_interfaces::NodeInterfaces<fuse_core::node_interfaces::Base, fuse_core::node_interfaces::Logging,
                                                  fuse_core::node_interfaces::Parameters>
           interfaces,
-      const std::string& ns)
+      std::string const& ns)
   {
     queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
     reset_service = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "reset_service"), reset_service);

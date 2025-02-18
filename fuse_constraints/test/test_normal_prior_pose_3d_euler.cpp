@@ -77,7 +77,7 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   auto rpy = Eigen::Vector3d::Random();
   full_mean << 1.0, 2.0, 1.0, rpy.x(), rpy.y(), rpy.z();
   const fuse_constraints::NormalPriorPose3DEuler cost_function{ full_sqrt_information, full_mean };
-  const auto num_residuals = full_sqrt_information.rows();
+  auto const num_residuals = full_sqrt_information.rows();
 
   AutoDiffNormalPriorPose3DEuler autodiff_cost_function(
       new fuse_constraints::NormalPriorPose3DEulerCostFunctor(full_sqrt_information, full_mean), num_residuals);
@@ -107,7 +107,7 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   const fuse_constraints::NormalPriorPose3DEuler cost_function{ partial_sqrt_information, full_mean };
 
   // Create automatic differentiation cost function
-  const auto num_residuals = partial_sqrt_information.rows();
+  auto const num_residuals = partial_sqrt_information.rows();
 
   AutoDiffNormalPriorPose3DEuler autodiff_cost_function(
       new fuse_constraints::NormalPriorPose3DEulerCostFunctor(partial_sqrt_information, full_mean), num_residuals);
@@ -134,7 +134,7 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   const fuse_constraints::NormalPriorPose3DEuler cost_function{ partial_sqrt_information, full_mean };
 
   // Create automatic differentiation cost function
-  const auto num_residuals = partial_sqrt_information.rows();
+  auto const num_residuals = partial_sqrt_information.rows();
 
   AutoDiffNormalPriorPose3DEuler autodiff_cost_function(
       new fuse_constraints::NormalPriorPose3DEulerCostFunctor(partial_sqrt_information, full_mean), num_residuals);
@@ -159,7 +159,7 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   const fuse_constraints::NormalPriorPose3DEuler cost_function{ partial_sqrt_information, full_mean };
 
   // Create automatic differentiation cost function
-  const auto num_residuals = partial_sqrt_information.rows();
+  auto const num_residuals = partial_sqrt_information.rows();
 
   AutoDiffNormalPriorPose3DEuler autodiff_cost_function(
       new fuse_constraints::NormalPriorPose3DEulerCostFunctor(partial_sqrt_information, full_mean), num_residuals);
@@ -185,7 +185,7 @@ TEST_F(NormalPriorPose3DEulerTestFixture, AnalyticAndAutoDiffCostFunctionsAreEqu
   const fuse_constraints::NormalPriorPose3DEuler cost_function{ partial_sqrt_information, full_mean };
 
   // Create automatic differentiation cost function
-  const auto num_residuals = partial_sqrt_information.rows();
+  auto const num_residuals = partial_sqrt_information.rows();
 
   AutoDiffNormalPriorPose3DEuler autodiff_cost_function(
       new fuse_constraints::NormalPriorPose3DEulerCostFunctor(partial_sqrt_information, full_mean), num_residuals);

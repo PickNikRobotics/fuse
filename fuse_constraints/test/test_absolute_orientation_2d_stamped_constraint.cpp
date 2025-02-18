@@ -123,7 +123,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, Optimization)
   EXPECT_NEAR(1.0, orientation_variable->yaw(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*>> covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> covariance_blocks;
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);
@@ -179,7 +179,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationZero)
   EXPECT_NEAR(0.0, orientation_variable->yaw(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*>> covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> covariance_blocks;
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);
@@ -306,7 +306,7 @@ TEST(AbsoluteOrientation2DStampedConstraint, OptimizationNegativePi)
   EXPECT_NEAR(-M_PI, orientation_variable->yaw(), 1.0e-3);
 
   // Compute the covariance
-  std::vector<std::pair<const double*, const double*>> covariance_blocks;
+  std::vector<std::pair<double const*, double const*>> covariance_blocks;
   covariance_blocks.emplace_back(orientation_variable->data(), orientation_variable->data());
   ceres::Covariance::Options cov_options;
   ceres::Covariance covariance(cov_options);

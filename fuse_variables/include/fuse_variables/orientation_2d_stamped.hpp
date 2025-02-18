@@ -78,27 +78,27 @@ public:
     return 1;
   }
 
-  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
+  bool Plus(double const* x, double const* delta, double* x_plus_delta) const override
   {
     // Compute the angle increment as a linear update, and handle the 2*Pi rollover
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
-  bool ComputeJacobian(const double* /*x*/, double* jacobian) const override
+  bool ComputeJacobian(double const* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
   }
 
-  bool Minus(const double* x, const double* y, double* y_minus_x) const override
+  bool Minus(double const* x, double const* y, double* y_minus_x) const override
   {
     // Compute the difference from x to y, and handle the 2*Pi rollover
     y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
     return true;
   }
 
-  bool ComputeMinusJacobian(const double* /*x*/, double* jacobian) const override
+  bool ComputeMinusJacobian(double const* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
@@ -116,7 +116,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::LocalParameterization>(*this);
   }
@@ -145,27 +145,27 @@ public:
     return 1;
   }
 
-  bool Plus(const double* x, const double* delta, double* x_plus_delta) const override
+  bool Plus(double const* x, double const* delta, double* x_plus_delta) const override
   {
     // Compute the angle increment as a linear update, and handle the 2*Pi rollover
     x_plus_delta[0] = fuse_core::wrapAngle2D(x[0] + delta[0]);
     return true;
   }
 
-  bool PlusJacobian(const double* /*x*/, double* jacobian) const override
+  bool PlusJacobian(double const* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
   }
 
-  bool Minus(const double* y, const double* x, double* y_minus_x) const override
+  bool Minus(double const* y, double const* x, double* y_minus_x) const override
   {
     // Compute the difference from y to x, and handle the 2*Pi rollover
     y_minus_x[0] = fuse_core::wrapAngle2D(y[0] - x[0]);
     return true;
   }
 
-  bool MinusJacobian(const double* /*x*/, double* jacobian) const override
+  bool MinusJacobian(double const* /*x*/, double* jacobian) const override
   {
     jacobian[0] = 1.0;
     return true;
@@ -182,7 +182,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Manifold>(*this);
   }
@@ -222,7 +222,7 @@ public:
    * @param[in] device_id An optional device id, for use when variables originate from multiple
    *                      robots or devices
    */
-  explicit Orientation2DStamped(const rclcpp::Time& stamp, const fuse_core::UUID& device_id = fuse_core::uuid::NIL);
+  explicit Orientation2DStamped(rclcpp::Time const& stamp, fuse_core::UUID const& device_id = fuse_core::uuid::NIL);
 
   /**
    * @brief Read-write access to the heading angle.
@@ -235,7 +235,7 @@ public:
   /**
    * @brief Read-only access to the heading angle.
    */
-  const double& yaw() const
+  double const& yaw() const
   {
     return data_[YAW];
   }
@@ -292,7 +292,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<FixedSizeVariable<varSize>>(*this);
     archive& boost::serialization::base_object<Stamped>(*this);

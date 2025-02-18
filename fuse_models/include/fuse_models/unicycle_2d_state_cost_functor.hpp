@@ -91,7 +91,7 @@ public:
    * @param[in] A The residual weighting matrix, most likely the square root information matrix in
    *              order (x, y, yaw, x_vel, y_vel, yaw_vel, x_acc, y_acc)
    */
-  Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A);
+  Unicycle2DStateCostFunctor(double const dt, fuse_core::Matrix8d const& A);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -118,7 +118,7 @@ private:
                            //!< information matrix
 };
 
-Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(const double dt, const fuse_core::Matrix8d& A) : dt_(dt), A_(A)
+Unicycle2DStateCostFunctor::Unicycle2DStateCostFunctor(double const dt, fuse_core::Matrix8d const& A) : dt_(dt), A_(A)
 {
 }
 

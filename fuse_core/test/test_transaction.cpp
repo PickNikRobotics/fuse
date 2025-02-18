@@ -59,7 +59,7 @@ using fuse_core::UUID;
  *                     transaction, False otherwise.
  */
 template <typename TimeRange>
-bool testInvolvedStamps(const TimeRange& expected, const Transaction& transaction)
+bool testInvolvedStamps(TimeRange const& expected, Transaction const& transaction)
 {
   auto range = transaction.involvedStamps();
   if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
@@ -69,10 +69,10 @@ bool testInvolvedStamps(const TimeRange& expected, const Transaction& transactio
 
   for (auto iter = range.begin(); iter != range.end(); ++iter)
   {
-    const auto& actual_stamp = *iter;
+    auto const& actual_stamp = *iter;
 
     bool found = false;
-    for (const auto& expected_stamp : expected)
+    for (auto const& expected_stamp : expected)
     {
       if (actual_stamp == expected_stamp)
       {
@@ -105,7 +105,7 @@ bool testInvolvedStamps(const TimeRange& expected, const Transaction& transactio
  *                          exist in the transaction, False otherwise.
  */
 template <typename ConstraintRange>
-bool testAddedConstraints(const ConstraintRange& expected, const Transaction& transaction)
+bool testAddedConstraints(ConstraintRange const& expected, Transaction const& transaction)
 {
   auto range = transaction.addedConstraints();
   if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
@@ -115,10 +115,10 @@ bool testAddedConstraints(const ConstraintRange& expected, const Transaction& tr
 
   for (auto iter = range.begin(); iter != range.end(); ++iter)
   {
-    const auto& actual_constraint = dynamic_cast<const ExampleConstraint&>(*iter);
+    auto const& actual_constraint = dynamic_cast<ExampleConstraint const&>(*iter);
 
     bool found = false;
-    for (const auto& expected_constraint : expected)
+    for (auto const& expected_constraint : expected)
     {
       if (actual_constraint.uuid() == expected_constraint.uuid())
       {
@@ -130,7 +130,7 @@ bool testAddedConstraints(const ConstraintRange& expected, const Transaction& tr
         {
           is_equal = is_equal && (expected_constraint.variables().at(i) == actual_constraint.variables().at(i));
         }
-        const auto& expected_derived = dynamic_cast<const ExampleConstraint&>(expected_constraint);
+        auto const& expected_derived = dynamic_cast<ExampleConstraint const&>(expected_constraint);
         is_equal = is_equal && (expected_derived.data == actual_constraint.data);
 
         if (!is_equal)
@@ -165,7 +165,7 @@ bool testAddedConstraints(const ConstraintRange& expected, const Transaction& tr
  *                     the transaction, False otherwise.
  */
 template <typename UuidRange>
-bool testRemovedConstraints(const UuidRange& expected, const Transaction& transaction)
+bool testRemovedConstraints(UuidRange const& expected, Transaction const& transaction)
 {
   auto range = transaction.removedConstraints();
   if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
@@ -175,10 +175,10 @@ bool testRemovedConstraints(const UuidRange& expected, const Transaction& transa
 
   for (auto iter = range.begin(); iter != range.end(); ++iter)
   {
-    const auto& actual_constraint_uuid = *iter;
+    auto const& actual_constraint_uuid = *iter;
 
     bool found = false;
-    for (const auto& expected_constraint_uuid : expected)
+    for (auto const& expected_constraint_uuid : expected)
     {
       if (actual_constraint_uuid == expected_constraint_uuid)
       {
@@ -210,7 +210,7 @@ bool testRemovedConstraints(const UuidRange& expected, const Transaction& transa
  *                        the transaction, False otherwise.
  */
 template <typename VariableRange>
-bool testAddedVariables(const VariableRange& expected, const Transaction& transaction)
+bool testAddedVariables(VariableRange const& expected, Transaction const& transaction)
 {
   auto range = transaction.addedVariables();
   if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
@@ -220,10 +220,10 @@ bool testAddedVariables(const VariableRange& expected, const Transaction& transa
 
   for (auto iter = range.begin(); iter != range.end(); ++iter)
   {
-    const auto& actual_variable = dynamic_cast<const ExampleVariable&>(*iter);
+    auto const& actual_variable = dynamic_cast<ExampleVariable const&>(*iter);
 
     bool found = false;
-    for (const auto& expected_variable : expected)
+    for (auto const& expected_variable : expected)
     {
       if (actual_variable.uuid() == expected_variable.uuid())
       {
@@ -264,7 +264,7 @@ bool testAddedVariables(const VariableRange& expected, const Transaction& transa
  *                     transaction, False otherwise.
  */
 template <typename UuidRange>
-bool testRemovedVariables(const UuidRange& expected, const Transaction& transaction)
+bool testRemovedVariables(UuidRange const& expected, Transaction const& transaction)
 {
   auto range = transaction.removedVariables();
   if (std::distance(expected.begin(), expected.end()) != std::distance(range.begin(), range.end()))
@@ -274,10 +274,10 @@ bool testRemovedVariables(const UuidRange& expected, const Transaction& transact
 
   for (auto iter = range.begin(); iter != range.end(); ++iter)
   {
-    const auto& actual_variable_uuid = *iter;
+    auto const& actual_variable_uuid = *iter;
 
     bool found = false;
-    for (const auto& expected_variable_uuid : expected)
+    for (auto const& expected_variable_uuid : expected)
     {
       if (actual_variable_uuid == expected_variable_uuid)
       {
@@ -307,8 +307,8 @@ TEST(Transaction, Empty)
 
   // A transaction with added constraints cannot be empty
   {
-    const auto variable_uuid = fuse_core::uuid::generate();
-    const auto constraint = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable_uuid });
+    auto const variable_uuid = fuse_core::uuid::generate();
+    auto const constraint = ExampleConstraint::make_shared("test", std::initializer_list<UUID>{ variable_uuid });
 
     Transaction transaction;
     transaction.addConstraint(constraint);
@@ -318,7 +318,7 @@ TEST(Transaction, Empty)
 
   // A transaction with removed constraints cannot be empty
   {
-    const auto constraint_uuid = fuse_core::uuid::generate();
+    auto const constraint_uuid = fuse_core::uuid::generate();
 
     Transaction transaction;
     transaction.removeConstraint(constraint_uuid);
@@ -328,7 +328,7 @@ TEST(Transaction, Empty)
 
   // A transaction with added variables cannot be empty
   {
-    const auto variable = ExampleVariable::make_shared();
+    auto const variable = ExampleVariable::make_shared();
 
     Transaction transaction;
     transaction.addVariable(variable);
@@ -338,7 +338,7 @@ TEST(Transaction, Empty)
 
   // A transaction with removed variables cannot be empty
   {
-    const auto variable_uuid = fuse_core::uuid::generate();
+    auto const variable_uuid = fuse_core::uuid::generate();
 
     Transaction transaction;
     transaction.removeVariable(variable_uuid);

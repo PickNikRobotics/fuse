@@ -85,11 +85,11 @@ public:
    *                         (6x1 vector: dx, dy, dz, droll, dpitch, dyaw)
    * @param[in] covariance   The measurement covariance (6x6 matrix: dx, dy, dz, droll, dpitch, dyaw)
    */
-  RelativePose3DStampedEulerConstraint(const std::string& source, const fuse_variables::Position3DStamped& position1,
-                                       const fuse_variables::Orientation3DStamped& orientation1,
-                                       const fuse_variables::Position3DStamped& position2,
-                                       const fuse_variables::Orientation3DStamped& orientation2,
-                                       const fuse_core::Vector6d& delta, const fuse_core::Matrix6d& covariance);
+  RelativePose3DStampedEulerConstraint(std::string const& source, fuse_variables::Position3DStamped const& position1,
+                                       fuse_variables::Orientation3DStamped const& orientation1,
+                                       fuse_variables::Position3DStamped const& position2,
+                                       fuse_variables::Orientation3DStamped const& orientation2,
+                                       fuse_core::Vector6d const& delta, fuse_core::Matrix6d const& covariance);
 
   /**
    * @brief Create a constraint using a measurement/prior of the relative 3D pose
@@ -104,13 +104,13 @@ public:
    * @param[in] partial_covariance  The measurement subset covariance (max 6x6 matrix: x, y, z, droll, dpitch, dyaw)
    * @param[in] variable_indices    The indices of the measured variables
    */
-  RelativePose3DStampedEulerConstraint(const std::string& source, const fuse_variables::Position3DStamped& position1,
-                                       const fuse_variables::Orientation3DStamped& orientation1,
-                                       const fuse_variables::Position3DStamped& position2,
-                                       const fuse_variables::Orientation3DStamped& orientation2,
-                                       const fuse_core::Vector6d& partial_delta,
-                                       const fuse_core::MatrixXd& partial_covariance,
-                                       const std::vector<size_t>& variable_indices);
+  RelativePose3DStampedEulerConstraint(std::string const& source, fuse_variables::Position3DStamped const& position1,
+                                       fuse_variables::Orientation3DStamped const& orientation1,
+                                       fuse_variables::Position3DStamped const& position2,
+                                       fuse_variables::Orientation3DStamped const& orientation2,
+                                       fuse_core::Vector6d const& partial_delta,
+                                       fuse_core::MatrixXd const& partial_covariance,
+                                       std::vector<size_t> const& variable_indices);
 
   /**
    * @brief Destructor
@@ -120,7 +120,7 @@ public:
   /**
    * @brief Read-only access to the measured pose change.
    */
-  const fuse_core::Vector6d& delta() const
+  fuse_core::Vector6d const& delta() const
   {
     return delta_;
   }
@@ -128,7 +128,7 @@ public:
   /**
    * @brief Read-only access to the square root information matrix.
    */
-  const fuse_core::MatrixXd& sqrtInformation() const
+  fuse_core::MatrixXd const& sqrtInformation() const
   {
     return sqrt_information_;
   }
@@ -174,7 +174,7 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, const unsigned int /* version */)
+  void serialize(Archive& archive, unsigned int const /* version */)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& delta_;

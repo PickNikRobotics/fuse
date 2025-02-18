@@ -183,7 +183,7 @@ public:
 
   void execute(std::shared_ptr<void>& data) override;
 
-  void addCallback(const std::shared_ptr<CallbackWrapperBase>& callback);
+  void addCallback(std::shared_ptr<CallbackWrapperBase> const& callback);
 
   void addCallback(std::shared_ptr<CallbackWrapperBase>&& callback);
 

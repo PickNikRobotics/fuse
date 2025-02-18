@@ -98,13 +98,13 @@ public:
    * @brief Shadowing extension to the AsyncSensorModel::initialize call
    */
   void initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                  const std::string& name, fuse_core::TransactionCallback transaction_callback) override;
+                  std::string const& name, fuse_core::TransactionCallback transaction_callback) override;
 
   /**
    * @brief Callback for tf messages
    * @param[in] msg - The IMU message to process
    */
-  void process(const MessageType& msg);
+  void process(MessageType const& msg);
 
 protected:
   fuse_core::UUID device_id_;  //!< The UUID of this device

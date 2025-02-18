@@ -17,16 +17,16 @@ the system. There are several reasons multiple identities of a Variable will be 
 
 * The Variable may represent a property common to multiple entity types. Both a robot and a visual landmark have a
   position in space. Different identities of the same Variable may be used to describe these different entities.
-  ![common property](variables-common_property.png)
+  ![common property](../images/variables-common_property.png)
 * Similarly, there may be multiple occurrences of the same entity type within the system. A multi-robot configuration
   will want to track the pose of each robot, and thus different identities of a Variable will be used for each robot
   in the system.
-  ![multiple occurrences](variables-multiple_occurrences.png)
+  ![multiple occurrences](../images/variables-multiple_occurrences.png)
 * Most commonly, a Variable will represent a time-varying process. A different identity will be required for each
   time instant for which the process value is to be estimated. For example, the pose of the robot will change over
   time, so we need a unique identity representing the robot pose at time `t1` **and** another unique identity
   representing the robot pose at time `t2`. Any time-varying process must be discretized within the fuse stack.
-  ![time series](variables-time_series.png)
+  ![time series](../images/variables-time_series.png)
 
 The identity takes the form of a UUID or hash, and is generally derived from a set of additional properties that
 describe what makes each occurrence unique from other occurrences. In the case of a time-varying process, this will

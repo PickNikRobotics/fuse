@@ -51,7 +51,7 @@ GraphIgnition::GraphIgnition()
 }
 
 void GraphIgnition::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                               const std::string& name, fuse_core::TransactionCallback transaction_callback)
+                               std::string const& name, fuse_core::TransactionCallback transaction_callback)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
@@ -99,13 +99,13 @@ void GraphIgnition::stop()
   started_ = false;
 }
 
-void GraphIgnition::subscriberCallback(const fuse_msgs::msg::SerializedGraph& msg)
+void GraphIgnition::subscriberCallback(fuse_msgs::msg::SerializedGraph const& msg)
 {
   try
   {
     process(msg);
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     RCLCPP_ERROR_STREAM(logger_, e.what() << " Ignoring message.");
   }
@@ -123,7 +123,7 @@ bool GraphIgnition::setGraphServiceCallback(rclcpp::Service<fuse_msgs::srv::SetG
       service->send_response(*request_id, response);
     });
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     fuse_msgs::srv::SetGraph::Response response;
     response.success = false;
@@ -134,7 +134,7 @@ bool GraphIgnition::setGraphServiceCallback(rclcpp::Service<fuse_msgs::srv::SetG
   return true;
 }
 
-void GraphIgnition::process(const fuse_msgs::msg::SerializedGraph& msg, std::function<void()> post_process)
+void GraphIgnition::process(fuse_msgs::msg::SerializedGraph const& msg, std::function<void()> post_process)
 {
   // Verify we are in the correct state to process set graph requests
   if (!started_)
@@ -146,7 +146,7 @@ void GraphIgnition::process(const fuse_msgs::msg::SerializedGraph& msg, std::fun
   // NOTE(methylDragon): We convert the Graph::UniquePtr to a shared pointer so it can be passed as
   //                     a copyable object to the deferred service call's std::function<> arg to
   //                     satisfy the requirement that std::function<> arguments are copyable.
-  const auto graph = std::shared_ptr<fuse_core::Graph>(std::move(graph_deserializer_.deserialize(msg)));
+  auto const graph = std::shared_ptr<fuse_core::Graph>(std::move(graph_deserializer_.deserialize(msg)));
 
   // Validate the requested graph before we do anything
   if (boost::empty(graph->getConstraints()))
@@ -197,19 +197,19 @@ void GraphIgnition::process(const fuse_msgs::msg::SerializedGraph& msg, std::fun
   }
 }
 
-void GraphIgnition::sendGraph(const fuse_core::Graph& graph, const rclcpp::Time& stamp)
+void GraphIgnition::sendGraph(fuse_core::Graph const& graph, rclcpp::Time const& stamp)
 {
   // Create a transaction equivalent to the graph
   auto transaction = fuse_core::Transaction::make_shared();
   transaction->stamp(stamp);
 
   // Add variables
-  for (const auto& variable : graph.getVariables())
+  for (auto const& variable : graph.getVariables())
   {
     transaction->addVariable(variable.clone());
 
     // If the variable is a fuse_variables::Stamped variable, set the involved stamp
-    const auto stamped_variable = dynamic_cast<const fuse_variables::Stamped*>(&variable);
+    auto const stamped_variable = dynamic_cast<fuse_variables::Stamped const*>(&variable);
     if (stamped_variable)
     {
       transaction->addInvolvedStamp(stamped_variable->stamp());
@@ -224,7 +224,7 @@ void GraphIgnition::sendGraph(const fuse_core::Graph& graph, const rclcpp::Time&
   }
 
   // Add constraints
-  for (const auto& constraint : graph.getConstraints())
+  for (auto const& constraint : graph.getConstraints())
   {
     transaction->addConstraint(constraint.clone());
   }

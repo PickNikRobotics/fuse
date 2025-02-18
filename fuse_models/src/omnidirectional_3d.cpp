@@ -65,25 +65,25 @@ PLUGINLIB_EXPORT_CLASS(fuse_models::Omnidirectional3D, fuse_core::MotionModel)
 namespace std
 {
 
-inline bool isfinite(const fuse_core::Vector3d& vector)
+inline bool isfinite(fuse_core::Vector3d const& vector)
 {
   return std::isfinite(vector.x()) && std::isfinite(vector.y()) && std::isfinite(vector.z());
 }
 
-inline bool isNormalized(const Eigen::Quaterniond& q)
+inline bool isNormalized(Eigen::Quaterniond const& q)
 {
   return std::sqrt(q.w() * q.w() + q.x() * q.x() + q.y() * q.y() + q.z() * q.z()) - 1.0 <
          Eigen::NumTraits<double>::dummy_precision();
 }
 
-std::string to_string(const fuse_core::Vector3d& vector)
+std::string to_string(fuse_core::Vector3d const& vector)
 {
   std::ostringstream oss;
   oss << vector;
   return oss.str();
 }
 
-std::string to_string(const Eigen::Quaterniond& quaternion)
+std::string to_string(Eigen::Quaterniond const& quaternion)
 {
   std::ostringstream oss;
   oss << quaternion;
@@ -95,8 +95,8 @@ namespace fuse_core
 {
 
 template <typename Derived>
-inline void validateCovariance(const Eigen::DenseBase<Derived>& covariance,
-                               const double precision = Eigen::NumTraits<double>::dummy_precision())
+inline void validateCovariance(Eigen::DenseBase<Derived> const& covariance,
+                               double const precision = Eigen::NumTraits<double>::dummy_precision())
 {
   if (!fuse_core::isSymmetric(covariance, precision))
   {
@@ -129,7 +129,7 @@ Omnidirectional3D::Omnidirectional3D()
 void Omnidirectional3D::print(std::ostream& stream) const
 {
   stream << "state history:\n";
-  for (const auto& state : state_history_)
+  for (auto const& state : state_history_)
   {
     stream << "- stamp: " << state.first.nanoseconds() << "\n";
     state.second.print(stream);
@@ -183,7 +183,7 @@ bool Omnidirectional3D::applyCallback(fuse_core::Transaction& transaction)
     // Now actually generate the motion model segments
     timestamp_manager_.query(transaction, true);
   }
-  catch (const std::exception& e)
+  catch (std::exception const& e)
   {
     RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                  "An error occurred while completing the motion model query. Error: " << e.what());
@@ -198,7 +198,7 @@ void Omnidirectional3D::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
 }
 
 void Omnidirectional3D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
-                                   const std::string& name)
+                                   std::string const& name)
 {
   interfaces_ = interfaces;
   fuse_core::AsyncMotionModel::initialize(interfaces, name);
@@ -251,7 +251,7 @@ void Omnidirectional3D::onStart()
   state_history_.clear();
 }
 
-void Omnidirectional3D::generateMotionModel(const rclcpp::Time& beginning_stamp, const rclcpp::Time& ending_stamp,
+void Omnidirectional3D::generateMotionModel(rclcpp::Time const& beginning_stamp, rclcpp::Time const& ending_stamp,
                                             std::vector<fuse_core::Constraint::SharedPtr>& constraints,
                                             std::vector<fuse_core::Variable::SharedPtr>& variables)
 {
@@ -292,7 +292,7 @@ void Omnidirectional3D::generateMotionModel(const rclcpp::Time& beginning_stamp,
   }
 
   // If dt is zero, we only need to update the state history:
-  const double dt = (ending_stamp - beginning_stamp).seconds();
+  double const dt = (ending_stamp - beginning_stamp).seconds();
 
   if (dt == 0.0)
   {
@@ -393,7 +393,7 @@ void Omnidirectional3D::generateMotionModel(const rclcpp::Time& beginning_stamp,
     {
       validateMotionModel(state1, state2, process_noise_covariance);
     }
-    catch (const std::runtime_error& ex)
+    catch (std::runtime_error const& ex)
     {
       RCLCPP_ERROR_STREAM_THROTTLE(logger_, *clock_, 10.0 * 1000,
                                    "Invalid '" << name_ << "' motion model: " << ex.what());
@@ -423,8 +423,8 @@ void Omnidirectional3D::generateMotionModel(const rclcpp::Time& beginning_stamp,
   variables.push_back(acceleration_linear2);
 }
 
-void Omnidirectional3D::updateStateHistoryEstimates(const fuse_core::Graph& graph, StateHistory& state_history,
-                                                    const rclcpp::Duration& buffer_length)
+void Omnidirectional3D::updateStateHistoryEstimates(fuse_core::Graph const& graph, StateHistory& state_history,
+                                                    rclcpp::Duration const& buffer_length)
 {
   if (state_history.empty())
   {
@@ -432,7 +432,7 @@ void Omnidirectional3D::updateStateHistoryEstimates(const fuse_core::Graph& grap
   }
 
   // Compute the expiration time carefully, as ROS can't handle negative times
-  const auto& ending_stamp = state_history.rbegin()->first;
+  auto const& ending_stamp = state_history.rbegin()->first;
 
   rclcpp::Time expiration_time;
   if (ending_stamp.seconds() > buffer_length.seconds())
@@ -462,18 +462,18 @@ void Omnidirectional3D::updateStateHistoryEstimates(const fuse_core::Graph& grap
   // state
   for (auto current_iter = state_history.begin(); current_iter != state_history.end(); ++current_iter)
   {
-    const auto& current_stamp = current_iter->first;
+    auto const& current_stamp = current_iter->first;
     auto& current_state = current_iter->second;
     if (graph.variableExists(current_state.position_uuid) && graph.variableExists(current_state.orientation_uuid) &&
         graph.variableExists(current_state.vel_linear_uuid) && graph.variableExists(current_state.vel_angular_uuid) &&
         graph.variableExists(current_state.acc_linear_uuid))
     {
       // This pose does exist in the graph. Update it directly.
-      const auto& position = graph.getVariable(current_state.position_uuid);
-      const auto& orientation = graph.getVariable(current_state.orientation_uuid);
-      const auto& vel_linear = graph.getVariable(current_state.vel_linear_uuid);
-      const auto& vel_angular = graph.getVariable(current_state.vel_angular_uuid);
-      const auto& acc_linear = graph.getVariable(current_state.acc_linear_uuid);
+      auto const& position = graph.getVariable(current_state.position_uuid);
+      auto const& orientation = graph.getVariable(current_state.orientation_uuid);
+      auto const& vel_linear = graph.getVariable(current_state.vel_linear_uuid);
+      auto const& vel_angular = graph.getVariable(current_state.vel_angular_uuid);
+      auto const& acc_linear = graph.getVariable(current_state.acc_linear_uuid);
 
       current_state.position.x() = position.data()[fuse_variables::Position3DStamped::X];
       current_state.position.y() = position.data()[fuse_variables::Position3DStamped::Y];
@@ -499,8 +499,8 @@ void Omnidirectional3D::updateStateHistoryEstimates(const fuse_core::Graph& grap
     else if (current_iter != state_history.begin())
     {
       auto previous_iter = std::prev(current_iter);
-      const auto& previous_stamp = previous_iter->first;
-      const auto& previous_state = previous_iter->second;
+      auto const& previous_stamp = previous_iter->first;
+      auto const& previous_state = previous_iter->second;
 
       // This state is not in the graph yet, so we can't update/correct the value in our state
       // history. However, the state *before* this one may have been corrected (or one of its
@@ -514,14 +514,14 @@ void Omnidirectional3D::updateStateHistoryEstimates(const fuse_core::Graph& grap
   }
 }
 
-void Omnidirectional3D::validateMotionModel(const StateHistoryElement& state1, const StateHistoryElement& state2,
-                                            const fuse_core::Matrix15d& process_noise_covariance)
+void Omnidirectional3D::validateMotionModel(StateHistoryElement const& state1, StateHistoryElement const& state2,
+                                            fuse_core::Matrix15d const& process_noise_covariance)
 {
   try
   {
     state1.validate();
   }
-  catch (const std::runtime_error& ex)
+  catch (std::runtime_error const& ex)
   {
     throw std::runtime_error("Invalid state #1: " + std::string(ex.what()));
   }
@@ -530,7 +530,7 @@ void Omnidirectional3D::validateMotionModel(const StateHistoryElement& state1, c
   {
     state2.validate();
   }
-  catch (const std::runtime_error& ex)
+  catch (std::runtime_error const& ex)
   {
     throw std::runtime_error("Invalid state #2: " + std::string(ex.what()));
   }
@@ -538,13 +538,13 @@ void Omnidirectional3D::validateMotionModel(const StateHistoryElement& state1, c
   {
     fuse_core::validateCovariance(process_noise_covariance);
   }
-  catch (const std::runtime_error& ex)
+  catch (std::runtime_error const& ex)
   {
     throw std::runtime_error("Invalid process noise covariance: " + std::string(ex.what()));
   }
 }
 
-std::ostream& operator<<(std::ostream& stream, const Omnidirectional3D& omnidirectional_3d)
+std::ostream& operator<<(std::ostream& stream, Omnidirectional3D const& omnidirectional_3d)
 {
   omnidirectional_3d.print(stream);
   return stream;
