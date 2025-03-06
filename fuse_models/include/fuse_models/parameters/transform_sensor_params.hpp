@@ -83,8 +83,8 @@ public:
 
     target_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "target_frame"), target_frame);
 
-    estimation_frame =
-        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "estimation_frame"), estimation_frame);
+    estimation_frames =
+        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "estimation_frames"), estimation_frames);
 
     pose_loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "pose_loss"));
     pose_covariance = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "pose_covariance"),
@@ -101,7 +101,8 @@ public:
   int queue_size{ 10 };
   std::vector<std::string> transforms;
   std::string target_frame;
-  std::string estimation_frame;
+  std::string base_frame;
+  std::vector<std::string> estimation_frames;
   std::vector<size_t> position_indices;
   std::vector<size_t> orientation_indices;
   fuse_core::Loss::SharedPtr pose_loss;

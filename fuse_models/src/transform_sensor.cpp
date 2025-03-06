@@ -102,12 +102,16 @@ void TransformSensor::onInit()
 
   for (auto const& name : params_.transforms)
   {
-    transforms_of_interest_.insert(name);
+    fiducial_transforms_.insert(name);
   }
 
-  if (params_.estimation_frame.empty())
+  if (params_.estimation_frames.empty())
   {
-    throw std::runtime_error("No estimation frame specified.");
+    throw std::runtime_error("No estimation frames specified.");
+  }
+
+  for (auto const& name: params_.estimation_frames) {
+    estimation_transforms_.insert(name);
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
@@ -137,7 +141,8 @@ void TransformSensor::process(MessageType const& msg)
     std::string const& parent_tf_name = transform.header.frame_id;
 
     std::string const& child_tf_name = transform.child_frame_id;
-    bool const child_of_interest = transforms_of_interest_.find(child_tf_name) != transforms_of_interest_.end();
+    bool const child_of_interest = fiducial_transforms_.find(child_tf_name) != fiducial_transforms_.end();
+    bool const parent_of_interest = estimation_transforms_.find(parent_tf_name) != estimation_transforms_.end();
 
     if (!child_of_interest)
     {
@@ -149,7 +154,7 @@ void TransformSensor::process(MessageType const& msg)
     // we must either have april tag -> estimation frame or estimation frame -> april tag tf
     if (child_of_interest)
     {
-      if (parent_tf_name != params_.estimation_frame)
+      if (!parent_of_interest)
       {
         // we don't care about this transform , skip it
         RCLCPP_DEBUG(logger_, "Ignoring transform from %s to %s", transform.header.frame_id.c_str(),
@@ -165,10 +170,9 @@ void TransformSensor::process(MessageType const& msg)
 
     tf2::Transform net_transform;
     tf2::fromMsg(transform.transform, net_transform);
-    std::string target_frame_name;
     if (!params_.target_frame.empty())
     {
-      target_frame_name = params_.target_frame + "_" + child_tf_name;
+      std::string target_frame_name = params_.target_frame + "_" + child_tf_name;
       tf2::Transform april_to_target;
       try
       {
@@ -187,9 +191,25 @@ void TransformSensor::process(MessageType const& msg)
       }
       net_transform = net_transform * april_to_target.inverse();
     }
-    else
-    {
-      target_frame_name = "";
+    // transform to base frame if it is defined
+    if (!params_.base_frame.empty()) {
+      tf2::Transform base_to_estimation;
+      try
+      {
+        tf2::fromMsg((*tf_buffer_)
+                         .lookupTransform(parent_tf_name, params_.base_frame,
+                                          rclcpp::Time(transform.header.stamp.sec - 1, transform.header.stamp.nanosec),
+                                          params_.tf_timeout)
+                         .transform,
+                         base_to_estimation);
+      }
+      catch (...)
+      {
+        // tf2 throws a bunch of different exceptions that don't inherit from one base, just skip (this will happen for
+        // at least 1 second on startup)
+        continue;
+      }
+      net_transform = net_transform * base_to_estimation.inverse();
     }
 
     // Create the pose from the transform
