@@ -83,6 +83,8 @@ public:
 
     target_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "target_frame"), target_frame);
 
+    base_frame = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "base_frame"), base_frame);
+
     estimation_frames =
         fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "estimation_frames"), estimation_frames);
 
