@@ -142,8 +142,8 @@ protected:
 
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
-  std::set<std::string> fiducial_transforms_;
-  std::set<std::string> estimation_transforms_;
+  std::set<std::string> fiducial_frames_;
+  std::set<std::string> estimation_frames_;
 
   rclcpp::Subscription<MessageType>::SharedPtr sub_;
 

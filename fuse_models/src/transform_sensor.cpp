@@ -48,6 +48,8 @@
 #include <pluginlib/class_list_macros.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <stdexcept>
+#include <string>
+#include <tf2/LinearMath/Transform.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 
 // Register this sensor model with ROS as a plugin.
@@ -102,7 +104,7 @@ void TransformSensor::onInit()
 
   for (auto const& name : params_.transforms)
   {
-    fiducial_transforms_.insert(name);
+    fiducial_frames_.insert(name);
   }
 
   if (params_.estimation_frames.empty())
@@ -110,8 +112,9 @@ void TransformSensor::onInit()
     throw std::runtime_error("No estimation frames specified.");
   }
 
-  for (auto const& name: params_.estimation_frames) {
-    estimation_transforms_.insert(name);
+  for (auto const& name : params_.estimation_frames)
+  {
+    estimation_frames_.insert(name);
   }
 
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
@@ -141,8 +144,8 @@ void TransformSensor::process(MessageType const& msg)
     std::string const& parent_tf_name = transform.header.frame_id;
 
     std::string const& child_tf_name = transform.child_frame_id;
-    bool const child_of_interest = fiducial_transforms_.find(child_tf_name) != fiducial_transforms_.end();
-    bool const parent_of_interest = estimation_transforms_.find(parent_tf_name) != estimation_transforms_.end();
+    bool const child_of_interest = fiducial_frames_.find(child_tf_name) != fiducial_frames_.end();
+    bool const parent_of_interest = estimation_frames_.find(parent_tf_name) != estimation_frames_.end();
 
     if (!child_of_interest)
     {
@@ -191,26 +194,6 @@ void TransformSensor::process(MessageType const& msg)
       }
       net_transform = net_transform * april_to_target.inverse();
     }
-    // transform to base frame if it is defined
-    if (!params_.base_frame.empty()) {
-      tf2::Transform base_to_estimation;
-      try
-      {
-        tf2::fromMsg((*tf_buffer_)
-                         .lookupTransform(parent_tf_name, params_.base_frame,
-                                          rclcpp::Time(transform.header.stamp.sec - 1, transform.header.stamp.nanosec),
-                                          params_.tf_timeout)
-                         .transform,
-                         base_to_estimation);
-      }
-      catch (...)
-      {
-        // tf2 throws a bunch of different exceptions that don't inherit from one base, just skip (this will happen for
-        // at least 1 second on startup)
-        continue;
-      }
-      net_transform = net_transform * base_to_estimation.inverse();
-    }
 
     // Create the pose from the transform
     // we want a measurement from the april tag (transform of interest) to some reference frame
@@ -218,6 +201,28 @@ void TransformSensor::process(MessageType const& msg)
     geometry_msgs::msg::PoseWithCovarianceStamped pose;
     pose.header = transform.header;
     pose.header.frame_id = parent_tf_name;
+    // transform to base frame if it is defined
+    if (!params_.base_frame.empty())
+    {
+      tf2::Transform base_to_estimation;
+      try
+      {
+        tf2::fromMsg((*tf_buffer_)
+                         .lookupTransform(params_.base_frame, parent_tf_name,
+                                          rclcpp::Time(transform.header.stamp.sec - 1, transform.header.stamp.nanosec),
+                                          params_.tf_timeout)
+                         .transform,
+                     base_to_estimation);
+      }
+      catch (...)
+      {
+        // tf2 throws a bunch of different exceptions that don't inherit from one base, just skip (this will happen for
+        // at least 1 second on startup)
+        continue;
+      }
+      net_transform = base_to_estimation * net_transform;
+      pose.header.frame_id = params_.base_frame;
+    }
     pose.pose.pose.orientation.w = net_transform.getRotation().w();
     pose.pose.pose.orientation.x = net_transform.getRotation().x();
     pose.pose.pose.orientation.y = net_transform.getRotation().y();
