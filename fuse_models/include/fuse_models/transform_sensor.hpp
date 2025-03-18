@@ -144,6 +144,7 @@ protected:
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;
   std::set<std::string> fiducial_frames_;
   std::set<std::string> estimation_frames_;
+  std::vector<std::array<double, 6>> pose_covariances_;
 
   rclcpp::Subscription<MessageType>::SharedPtr sub_;
 

@@ -117,6 +117,21 @@ void TransformSensor::onInit()
     estimation_frames_.insert(name);
   }
 
+  if (params_.pose_covariance.size() != 6 * estimation_frames_.size())
+  {
+    throw std::runtime_error("Must provide 6 `pose_covariance` values per estimation frame");
+  }
+
+  for (std::size_t i = 0; i < estimation_frames_.size(); ++i)
+  {
+    pose_covariances_.emplace_back();
+    auto& cur_entry = pose_covariances_.back();
+    for (std::size_t j = 0; j < 6; ++j)
+    {
+      cur_entry[j] = params_.pose_covariance[(i * 6) + j];
+    }
+  }
+
   tf_buffer_ = std::make_unique<tf2_ros::Buffer>(clock_);
   tf_listener_ = std::make_unique<tf2_ros::TransformListener>(*tf_buffer_, &interfaces_);
 }
@@ -145,7 +160,8 @@ void TransformSensor::process(MessageType const& msg)
 
     std::string const& child_tf_name = transform.child_frame_id;
     bool const child_of_interest = fiducial_frames_.find(child_tf_name) != fiducial_frames_.end();
-    bool const parent_of_interest = estimation_frames_.find(parent_tf_name) != estimation_frames_.end();
+    auto const parent_it = estimation_frames_.find(parent_tf_name);
+    bool const parent_of_interest = parent_it != estimation_frames_.end();
 
     if (!child_of_interest)
     {
@@ -165,6 +181,7 @@ void TransformSensor::process(MessageType const& msg)
         continue;
       }
     }
+    std::size_t estimation_index = std::distance(estimation_frames_.begin(), parent_it);
     RCLCPP_DEBUG(logger_, "Got transform of interest from %s to %s", transform.header.frame_id.c_str(),
                  child_tf_name.c_str());
     // Create a transaction object
@@ -232,9 +249,9 @@ void TransformSensor::process(MessageType const& msg)
     pose.pose.pose.position.z = net_transform.getOrigin().z();
 
     // TODO(henrygerardmoore): figure out better method to set the covariance
-    for (std::size_t i = 0; i < params_.pose_covariance.size(); ++i)
+    for (std::size_t i = 0; i < pose_covariances_[estimation_index].size(); ++i)
     {
-      pose.pose.covariance[i * 7] = params_.pose_covariance[i];
+      pose.pose.covariance[i * 7] = pose_covariances_[estimation_index][i];
     }
 
     bool const validate = !params_.disable_checks;
