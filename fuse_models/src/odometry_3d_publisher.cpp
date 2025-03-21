@@ -441,7 +441,7 @@ void Odometry3DPublisher::predict(tf2::Transform& pose, nav_msgs::msg::Odometry&
                                   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output,
                                   bool latest_covariance_valid) const
 {
-  double const dt = to_predict_to.seconds() - rclcpp::Time(odom_output.header.stamp).seconds();
+  double const dt = std::min(to_predict_to.seconds() - rclcpp::Time(odom_output.header.stamp).seconds(), 0.);
   // Convert pose in Eigen representation
   fuse_core::Vector3d position;
   fuse_core::Vector3d velocity_linear;
