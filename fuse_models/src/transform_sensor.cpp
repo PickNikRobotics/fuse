@@ -283,7 +283,7 @@ void TransformSensor::process(MessageType const& msg)
       auto const distance = position_difference.norm();
       auto const time_difference = (rclcpp::Time(transform.header.stamp) - last_stamp_.value()).seconds();
 
-      if (distance > 0.5 && time_difference <= 0.2)
+      if (distance > 0.1 && time_difference <= 0.2)
       {
         // this is an outlier
         RCLCPP_WARN(logger_, "Filtered outlier with distance %.3f %.3f seconds after most recent update", distance,
