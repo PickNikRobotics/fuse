@@ -38,6 +38,7 @@
 #include <tf2_ros/transform_listener.h>
 
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <fuse_models/parameters/transform_sensor_params.hpp>
@@ -119,6 +120,9 @@ protected:
    */
   void onInit() override;
 
+  // only used to reject outlier measurements
+  void onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph) override;
+
   /**
    * @brief Subscribe to the input topic to start sending transactions to the optimizer
    */
@@ -139,6 +143,11 @@ protected:
   rclcpp::Logger logger_;           //!< The sensor model's logger
 
   ParameterType params_;
+
+  std::optional<rclcpp::Time> last_stamp_;
+  std::optional<fuse_core::UUID> last_uuid_;
+  std::optional<Eigen::Vector3d> last_position_;
+  std::vector<std::vector<double>> last_covariance_;
 
   std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
   std::unique_ptr<tf2_ros::TransformListener> tf_listener_;

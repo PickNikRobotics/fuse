@@ -36,6 +36,9 @@
 #include <tf2/impl/utils.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/message_filter.h>
+#include <fuse_core/graph.hpp>
+#include <fuse_variables/position_3d_stamped.hpp>
+#include <geometry_msgs/msg/detail/point__struct.hpp>
 #include <memory>
 
 #include <fuse_core/transaction.hpp>
@@ -46,11 +49,13 @@
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <pluginlib/class_list_macros.hpp>
+#include <rclcpp/logging.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <stdexcept>
 #include <string>
 #include <tf2/LinearMath/Transform.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <utility>
 
 // Register this sensor model with ROS as a plugin.
 PLUGINLIB_EXPORT_CLASS(fuse_models::TransformSensor, fuse_core::SensorModel)
@@ -71,6 +76,25 @@ void TransformSensor::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_
 {
   interfaces_ = interfaces;
   fuse_core::AsyncSensorModel::initialize(interfaces, name, transaction_callback);
+}
+
+void TransformSensor::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
+{
+  if (last_uuid_.has_value())
+  {
+    if (graph->variableExists(last_uuid_.value()))
+    {
+      auto const& last_position = graph->getVariable(last_uuid_.value());
+      last_covariance_.clear();
+      std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> input_uuids;
+      input_uuids.emplace_back(last_uuid_, last_uuid_);
+      graph->getCovariance(input_uuids, last_covariance_);
+      last_position_ = Eigen::Vector3d::Zero();
+      last_position_->x() = last_position.data()[fuse_variables::Position3DStamped::X];
+      last_position_->y() = last_position.data()[fuse_variables::Position3DStamped::Y];
+      last_position_->z() = last_position.data()[fuse_variables::Position3DStamped::Z];
+    }
+  }
 }
 
 void TransformSensor::onInit()
@@ -253,6 +277,37 @@ void TransformSensor::process(MessageType const& msg)
     {
       pose.pose.covariance[i * 7] = pose_covariances_[estimation_index][i];
     }
+
+    // outlier filtering
+    if (params_.filter_outliers && last_position_.has_value() && last_stamp_.has_value())
+    {
+      // calculate the mahalinobis distance and use that for filtering outliers
+      Eigen::Vector3d position_difference = Eigen::Vector3d::Zero();
+      position_difference.x() = pose.pose.pose.position.x - last_position_->x();
+      position_difference.y() = pose.pose.pose.position.y - last_position_->y();
+      position_difference.z() = pose.pose.pose.position.z - last_position_->z();
+
+      Eigen::Matrix3d inverse_covariance_matrix = Eigen::Matrix3d::Zero();
+      inverse_covariance_matrix.diagonal() =
+          Eigen::Vector3d{ 1. / last_covariance_[0][0], 1. / last_covariance_[0][1], 1. / last_covariance_[0][2] };
+
+      auto const mahalinobis_distance =
+          std::sqrt(position_difference.transpose() * inverse_covariance_matrix * position_difference);
+      auto const time_difference = (rclcpp::Time(transform.header.stamp) - last_stamp_.value()).seconds();
+
+      if (mahalinobis_distance > params_.outlier_mahalinobis_threshold &&
+          time_difference <= params_.outlier_time_threshold_seconds)
+      {
+        // this is an outlier
+        RCLCPP_WARN(logger_, "Filtered outlier with Mahalinobis distance %.3f %.3f seconds after most recent update",
+                    mahalinobis_distance, time_difference);
+        return;
+      }
+    }
+
+    // update outlier finding variables (must occur after outlier filtering)
+    last_stamp_ = transform.header.stamp;
+    last_uuid_ = fuse_variables::Position3DStamped(transform.header.stamp, device_id_).uuid();
 
     bool const validate = !params_.disable_checks;
     common::processAbsolutePose3DWithCovariance(name(), device_id_, pose, params_.pose_loss, "",

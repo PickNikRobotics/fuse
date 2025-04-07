@@ -72,6 +72,16 @@ public:
 
     disable_checks =
         fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "disable_checks"), disable_checks);
+
+    filter_outliers =
+        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "filter_outliers"), filter_outliers);
+
+    outlier_mahalinobis_threshold = fuse_core::getParam(
+        interfaces, fuse_core::joinParameterName(ns, "outlier_z_score_threshold"), outlier_mahalinobis_threshold);
+
+    outlier_time_threshold_seconds = fuse_core::getParam(
+        interfaces, fuse_core::joinParameterName(ns, "outlier_time_threshold_seconds"), outlier_time_threshold_seconds);
+
     queue_size = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "queue_size"), queue_size);
     fuse_core::getPositiveParam(interfaces, fuse_core::joinParameterName(ns, "tf_timeout"), tf_timeout, false);
 
@@ -95,7 +105,10 @@ public:
 
   bool disable_checks{ false };
   bool independent{ true };
-  fuse_core::Matrix6d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
+  bool filter_outliers{ false };
+  double outlier_mahalinobis_threshold = 4.0331422236561565;  //!< sqrt of 99.9% value for 3-dof chi^2, from scipy
+  double outlier_time_threshold_seconds = 0.2;                //!< arbitrary, set based on sensor frequency
+  fuse_core::Matrix6d minimum_pose_relative_covariance;       //!< Minimum pose relative covariance matrix
   rclcpp::Duration tf_timeout{ 0, 0 };       //!< The maximum time to wait for a transform to become  available
   rclcpp::Duration throttle_period{ 0, 0 };  //!< The throttle period duration in seconds
   bool throttle_use_wall_time{ false };      //!< Whether to throttle using ros::WallTime or not
