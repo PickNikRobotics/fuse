@@ -87,7 +87,7 @@ void TransformSensor::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
       auto const& last_position = graph->getVariable(last_uuid_.value());
       last_covariance_.clear();
       std::vector<std::pair<fuse_core::UUID, fuse_core::UUID>> input_uuids;
-      input_uuids.emplace_back(last_uuid_, last_uuid_);
+      input_uuids.emplace_back(last_uuid_.value(), last_uuid_.value());
       graph->getCovariance(input_uuids, last_covariance_);
       last_position_ = Eigen::Vector3d::Zero();
       last_position_->x() = last_position.data()[fuse_variables::Position3DStamped::X];
