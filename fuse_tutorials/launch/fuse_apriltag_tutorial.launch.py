@@ -49,7 +49,7 @@ def generate_launch_description():
                         [pkg_dir, "config", "fuse_apriltag_tutorial.yaml"]
                     )
                 ],
-                # prefix=['gdbserver localhost:3000'],
+                prefix=["gdbserver localhost:3000"],
             ),
             # run visualization
             Node(

@@ -77,7 +77,7 @@ public:
         fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "filter_outliers"), filter_outliers);
 
     outlier_mahalinobis_threshold = fuse_core::getParam(
-        interfaces, fuse_core::joinParameterName(ns, "outlier_z_score_threshold"), outlier_mahalinobis_threshold);
+        interfaces, fuse_core::joinParameterName(ns, "outlier_mahalinobis_threshold"), outlier_mahalinobis_threshold);
 
     outlier_time_threshold_seconds = fuse_core::getParam(
         interfaces, fuse_core::joinParameterName(ns, "outlier_time_threshold_seconds"), outlier_time_threshold_seconds);

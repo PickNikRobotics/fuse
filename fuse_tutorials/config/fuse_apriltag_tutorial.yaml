@@ -34,11 +34,12 @@ state_estimator:
     transform_sensor:
       transforms: ['april_1', 'april_2', 'april_3', 'april_4', 'april_5', 'april_6', 'april_7', 'april_8']
       target_frame: 'base_link'
-      estimation_frame: 'odom'
+      estimation_frames: ['odom']
       position_dimensions: ['x', 'y', 'z']
       orientation_dimensions: ['roll', 'pitch', 'yaw']
       # these are the true covariance values used by the simulator; what happens if we change these?
       pose_covariance: [0.1, 0.1, 0.1, 0.25, 0.25, 0.25]
+      filter_outliers: true
 
     # this publishes our estimated odometry
     publishers:
@@ -54,4 +55,3 @@ state_estimator:
       world_frame_id: 'odom'
       publish_tf: true
       publish_frequency: 100.0
-      predict_to_future: true

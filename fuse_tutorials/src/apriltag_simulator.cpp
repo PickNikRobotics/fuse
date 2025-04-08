@@ -275,7 +275,7 @@ int main(int argc, char** argv)
 
   // you can modify the rate at which this loop runs to see the different performance of the estimator and the effect of
   // integration inaccuracy on the ground truth
-  auto rate = rclcpp::Rate(1000.0);
+  auto rate = rclcpp::Rate(100.0);
 
   // normally we would have to initialize the state estimation, but we included an ignition 'sensor' in our config,
   // which takes care of that.
