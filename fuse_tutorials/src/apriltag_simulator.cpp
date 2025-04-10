@@ -315,7 +315,7 @@ int main(int argc, char** argv)
     double const mod_time = std::fmod(now_d, motion_duration);
 
     // apply a harmonic force (oscillates `N_cycles` times per `motion_duration`)
-    double const force_magnitude = 0 * std::cos(2 * M_PI * n_cycles * mod_time / motion_duration);
+    double const force_magnitude = 100 * std::cos(2 * M_PI * n_cycles * mod_time / motion_duration);
     Eigen::Vector3d external_force = { 0, 0, 0 };
 
     // switch oscillation axes every `motion_duration` seconds (with one 'rest period')

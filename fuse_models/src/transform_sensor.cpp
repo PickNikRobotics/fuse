@@ -89,6 +89,14 @@ void TransformSensor::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
       last_position_->y = last_position.data()[fuse_variables::Position3DStamped::Y];
       last_position_->z = last_position.data()[fuse_variables::Position3DStamped::Z];
     }
+    else
+    {
+      last_position_.reset();
+    }
+  }
+  else
+  {
+    last_position_.reset();
   }
 }
 
@@ -289,8 +297,9 @@ void TransformSensor::process(MessageType const& msg)
       if (distance >= params_.outlier_distance && time_difference <= params_.outlier_time_threshold)
       {
         // this is an outlier
-        RCLCPP_WARN(logger_, "Filtered outlier with distance %.3f %.3f seconds after most recent update", distance,
-                    time_difference);
+        RCLCPP_WARN(logger_,
+                    "Filtered outlier with distance %.3f from (%.3f, %.3f, %.3f) %.3f seconds after most recent update",
+                    distance, last_position_->x, last_position_->y, last_position_->z, time_difference);
         return;
       }
     }

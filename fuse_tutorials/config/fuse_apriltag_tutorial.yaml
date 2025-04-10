@@ -28,9 +28,9 @@ state_estimator:
           0.01,
           0.01,
           0.01,
-          0.01,
-          0.01,
-          0.01,
+          10.,
+          10.,
+          10.,
         ]
 
     sensor_models:
@@ -74,3 +74,21 @@ state_estimator:
       publish_tf: true
       publish_frequency: 100.0
       predict_to_current_time: true
+      process_noise_diagonal:
+        [
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          0.01,
+          10.,
+          10.,
+          10.,
+        ]
