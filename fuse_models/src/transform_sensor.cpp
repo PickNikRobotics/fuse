@@ -273,8 +273,11 @@ void TransformSensor::process(MessageType const& msg)
       pose.pose.covariance[i * 7] = pose_covariances_[estimation_index][i];
     }
 
+    std::stringstream s;
+    s << "xyz: " << pose.pose.pose.position.x << "," << pose.pose.pose.position.y << "," << pose.pose.pose.position.z;
+    RCLCPP_WARN(logger_, "%s", s.str().c_str());
     // outlier filtering
-    if (last_position_.has_value() && last_stamp_.has_value())
+    if (params_.filter_outliers && last_position_.has_value() && last_stamp_.has_value())
     {
       Eigen::Vector3d position_difference = Eigen::Vector3d::Zero();
       position_difference.x() = last_position_->x - pose.pose.pose.position.x;
@@ -283,7 +286,7 @@ void TransformSensor::process(MessageType const& msg)
       auto const distance = position_difference.norm();
       auto const time_difference = (rclcpp::Time(transform.header.stamp) - last_stamp_.value()).seconds();
 
-      if (distance > 0.1 && time_difference <= 0.2)
+      if (distance >= params_.outlier_distance && time_difference <= params_.outlier_time_threshold)
       {
         // this is an outlier
         RCLCPP_WARN(logger_, "Filtered outlier with distance %.3f %.3f seconds after most recent update", distance,

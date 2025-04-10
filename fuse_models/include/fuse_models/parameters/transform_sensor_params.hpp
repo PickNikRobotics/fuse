@@ -88,6 +88,15 @@ public:
     estimation_frames =
         fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "estimation_frames"), estimation_frames);
 
+    filter_outliers =
+        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "filter_outliers"), filter_outliers);
+
+    outlier_distance =
+        fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "outlier_distance"), outlier_distance);
+
+    outlier_time_threshold = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "outlier_time_threshold"),
+                                                 outlier_time_threshold);
+
     pose_loss = fuse_core::loadLossConfig(interfaces, fuse_core::joinParameterName(ns, "pose_loss"));
     pose_covariance = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "pose_covariance"),
                                           std::vector<double>{ 1, 1, 1, 1, 1, 1 });
@@ -96,7 +105,11 @@ public:
   bool disable_checks{ false };
   bool independent{ true };
   fuse_core::Matrix6d minimum_pose_relative_covariance;  //!< Minimum pose relative covariance matrix
-  rclcpp::Duration tf_timeout{ 0, 0 };       //!< The maximum time to wait for a transform to become  available
+  rclcpp::Duration tf_timeout{ 0, 0 };  //!< The maximum time to wait for a transform to become  available
+
+  bool filter_outliers{ false };
+  double outlier_distance{ 0.2 };
+  double outlier_time_threshold{ 0.2 };
   rclcpp::Duration throttle_period{ 0, 0 };  //!< The throttle period duration in seconds
   bool throttle_use_wall_time{ false };      //!< Whether to throttle using ros::WallTime or not
   std::vector<double> pose_covariance;       //!< The diagonal elements of the tag pose covariance
