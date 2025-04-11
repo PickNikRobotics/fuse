@@ -52,13 +52,13 @@
 
 namespace
 {
-constexpr char baselinkFrame[] = "base_link";      //!< The base_link frame id used when
-                                                   //!< publishing sensor data
-constexpr char mapFrame[] = "map";                 //!< The map frame id used when publishing ground truth
-                                                   //!< data
-constexpr double aprilTagPositionSigma = 0.1;      //!< the april tag position std dev
-constexpr double aprilTagOrientationSigma = 0.25;  //!< the april tag orientation std dev
-constexpr size_t numAprilTags = 8;                 //!< the number of april tags
+constexpr char baselinkFrame[] = "base_link";        //!< The base_link frame id used when
+                                                     //!< publishing sensor data
+constexpr char mapFrame[] = "map";                   //!< The map frame id used when publishing ground truth
+                                                     //!< data
+constexpr double aprilTagPositionVariance = 0.01;    //!< the april tag position variance
+constexpr double aprilTagOrientationVariance = 0.0;  //!< the april tag orientation variance
+constexpr size_t numAprilTags = 8;                   //!< the number of april tags
 constexpr double detectionProbability =
     0.5;  //!< the probability that any given april tag is detectable on a given tick of the simulation
 
@@ -210,8 +210,8 @@ tf2_msgs::msg::TFMessage simulateAprilTag(Robot const& robot, rclcpp::Logger con
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
   static std::uniform_real_distribution<> outlier_distribution(0.0, 1.0);
-  static std::normal_distribution<> position_noise{ 0.0, aprilTagPositionSigma };
-  static std::normal_distribution<> orientation_noise{ 0.0, aprilTagOrientationSigma };
+  static std::normal_distribution<> position_noise{ 0.0, std::sqrt(aprilTagPositionVariance) };
+  static std::normal_distribution<> orientation_noise{ 0.0, std::sqrt(aprilTagOrientationVariance) };
   static std::bernoulli_distribution april_tag_detectable(detectionProbability);
 
   tf2_msgs::msg::TFMessage msg;
@@ -247,10 +247,10 @@ tf2_msgs::msg::TFMessage simulateAprilTag(Robot const& robot, rclcpp::Logger con
     // robot position with offset and noise
     if (outlier_distribution(generator) < outlierProbabilityPercent / 100.)
     {
-      RCLCPP_WARN(logger, "Published (likely) outlier");
-      april_to_world.transform.translation.x = robot.x + x_offset + 1000. * position_noise(generator);
-      april_to_world.transform.translation.y = robot.y + y_offset + 1000. * position_noise(generator);
-      april_to_world.transform.translation.z = robot.z + z_offset + 1000. * position_noise(generator);
+      RCLCPP_WARN(logger, "Published outlier");
+      april_to_world.transform.translation.x = robot.x + x_offset + 10.;
+      april_to_world.transform.translation.y = robot.y + y_offset - 10.;
+      april_to_world.transform.translation.z = robot.z + z_offset + 10.;
     }
     else
     {

@@ -281,9 +281,6 @@ void TransformSensor::process(MessageType const& msg)
       pose.pose.covariance[i * 7] = pose_covariances_[estimation_index][i];
     }
 
-    std::stringstream s;
-    s << "xyz: " << pose.pose.pose.position.x << "," << pose.pose.pose.position.y << "," << pose.pose.pose.position.z;
-    RCLCPP_WARN(logger_, "%s", s.str().c_str());
     // outlier filtering
     if (params_.filter_outliers && last_position_.has_value() && last_stamp_.has_value())
     {

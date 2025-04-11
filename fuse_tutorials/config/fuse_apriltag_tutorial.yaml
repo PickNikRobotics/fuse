@@ -54,8 +54,8 @@ state_estimator:
       estimation_frames: ['odom']
       position_dimensions: ['x', 'y', 'z']
       orientation_dimensions: ['roll', 'pitch', 'yaw']
-      # these are the true covariance values used by the simulator; what happens if we change these?
-      pose_covariance: [0.1, 0.1, 0.1, 0.25, 0.25, 0.25]
+      # these values are the real values but the orientation variance is set to nonzero to avoid numerical issues
+      pose_covariance: [0.01, 0.01, 0.01, 0.001, 0.001, 0.001]
       filter_outliers: true
       outlier_distance: 0.5
 
