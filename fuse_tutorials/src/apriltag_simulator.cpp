@@ -41,6 +41,7 @@
 #include <fuse_core/util.hpp>
 #include <fuse_msgs/srv/set_pose.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+#include <rclcpp/logger.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -51,15 +52,17 @@
 
 namespace
 {
-constexpr char baselinkFrame[] = "base_link";      //!< The base_link frame id used when
-                                                   //!< publishing sensor data
-constexpr char mapFrame[] = "map";                 //!< The map frame id used when publishing ground truth
-                                                   //!< data
-constexpr double aprilTagPositionSigma = 0.1;      //!< the april tag position std dev
-constexpr double aprilTagOrientationSigma = 0.25;  //!< the april tag orientation std dev
-constexpr size_t numAprilTags = 8;                 //!< the number of april tags
+constexpr char baselinkFrame[] = "base_link";        //!< The base_link frame id used when
+                                                     //!< publishing sensor data
+constexpr char mapFrame[] = "map";                   //!< The map frame id used when publishing ground truth
+                                                     //!< data
+constexpr double aprilTagPositionVariance = 0.01;    //!< the april tag position variance
+constexpr double aprilTagOrientationVariance = 0.0;  //!< the april tag orientation variance
+constexpr size_t numAprilTags = 8;                   //!< the number of april tags
 constexpr double detectionProbability =
     0.5;  //!< the probability that any given april tag is detectable on a given tick of the simulation
+
+constexpr double outlierProbabilityPercent = 0.01;
 constexpr double futurePredictionTimeSeconds = 0.1;
 }  // namespace
 
@@ -202,12 +205,13 @@ tf2_msgs::msg::TFMessage aprilTagPoses(Robot const& robot)
   return msg;
 }
 
-tf2_msgs::msg::TFMessage simulateAprilTag(Robot const& robot)
+tf2_msgs::msg::TFMessage simulateAprilTag(Robot const& robot, rclcpp::Logger const& logger)
 {
   static std::random_device rd{};
   static std::mt19937 generator{ rd() };
-  static std::normal_distribution<> position_noise{ 0.0, aprilTagPositionSigma };
-  static std::normal_distribution<> orientation_noise{ 0.0, aprilTagOrientationSigma };
+  static std::uniform_real_distribution<> outlier_distribution(0.0, 1.0);
+  static std::normal_distribution<> position_noise{ 0.0, std::sqrt(aprilTagPositionVariance) };
+  static std::normal_distribution<> orientation_noise{ 0.0, std::sqrt(aprilTagOrientationVariance) };
   static std::bernoulli_distribution april_tag_detectable(detectionProbability);
 
   tf2_msgs::msg::TFMessage msg;
@@ -241,9 +245,19 @@ tf2_msgs::msg::TFMessage simulateAprilTag(Robot const& robot)
     double const z_offset = z_positive ? -1. : 1.;
 
     // robot position with offset and noise
-    april_to_world.transform.translation.x = robot.x + x_offset + position_noise(generator);
-    april_to_world.transform.translation.y = robot.y + y_offset + position_noise(generator);
-    april_to_world.transform.translation.z = robot.z + z_offset + position_noise(generator);
+    if (outlier_distribution(generator) < outlierProbabilityPercent / 100.)
+    {
+      RCLCPP_WARN(logger, "Published outlier");
+      april_to_world.transform.translation.x = robot.x + x_offset + 10.;
+      april_to_world.transform.translation.y = robot.y + y_offset - 10.;
+      april_to_world.transform.translation.z = robot.z + z_offset + 10.;
+    }
+    else
+    {
+      april_to_world.transform.translation.x = robot.x + x_offset + position_noise(generator);
+      april_to_world.transform.translation.y = robot.y + y_offset + position_noise(generator);
+      april_to_world.transform.translation.z = robot.z + z_offset + position_noise(generator);
+    }
 
     if (april_tag_detectable(generator))
     {
@@ -275,7 +289,7 @@ int main(int argc, char** argv)
 
   // you can modify the rate at which this loop runs to see the different performance of the estimator and the effect of
   // integration inaccuracy on the ground truth
-  auto rate = rclcpp::Rate(1000.0);
+  auto rate = rclcpp::Rate(100.0);
 
   // normally we would have to initialize the state estimation, but we included an ignition 'sensor' in our config,
   // which takes care of that.
@@ -307,18 +321,6 @@ int main(int argc, char** argv)
     // switch oscillation axes every `motion_duration` seconds (with one 'rest period')
     if (std::fmod(now_d, 4 * motion_duration) < motion_duration)
     {
-      external_force.x() = force_magnitude;
-    }
-    else if (std::fmod(now_d, 4 * motion_duration) < 2 * motion_duration)
-    {
-      external_force.y() = force_magnitude;
-    }
-    else if (std::fmod(now_d, 4 * motion_duration) < 3 * motion_duration)
-    {
-      external_force.z() = force_magnitude;
-    }
-    else
-    {
       // reset the robot's position and velocity, leave the external force as 0
       // we do this so the ground truth doesn't drift (due to inaccuracy from euler integration)
       state.x = 0;
@@ -328,6 +330,18 @@ int main(int argc, char** argv)
       state.vy = 0;
       state.vz = 0;
     }
+    else if (std::fmod(now_d, 4 * motion_duration) < 2 * motion_duration)
+    {
+      external_force.x() = force_magnitude;
+    }
+    else if (std::fmod(now_d, 4 * motion_duration) < 3 * motion_duration)
+    {
+      external_force.y() = force_magnitude;
+    }
+    else
+    {
+      external_force.z() = force_magnitude;
+    }
 
     // Simulate the robot motion
     auto new_state = simulateRobotMotion(state, now, external_force);
@@ -336,10 +350,7 @@ int main(int argc, char** argv)
     ground_truth_publisher->publish(robotToOdometry(new_state));
 
     // Generate and publish simulated measurements from the new robot state
-    if (now_d < 10.)
-    {
-      tf_publisher->publish(aprilTagPoses(new_state));
-    }
+    tf_publisher->publish(aprilTagPoses(new_state));
 
     // Wait for the next time step
     state = new_state;
@@ -347,7 +358,7 @@ int main(int argc, char** argv)
     rate.sleep();
 
     // publish simulated position after the static april tag poses since we need them to be in the tf buffer to run
-    tf_publisher->publish(simulateAprilTag(new_state));
+    tf_publisher->publish(simulateAprilTag(new_state, node->get_logger()));
   }
 
   rclcpp::shutdown();

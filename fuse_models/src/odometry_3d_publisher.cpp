@@ -551,23 +551,27 @@ void Odometry3DPublisher::publishTF(nav_msgs::msg::Odometry const& odom_output, 
   trans.transform = tf2::toMsg(pose);
   if (!params_.invert_tf && params_.world_frame_id == params_.map_frame_id)
   {
-    try
+    if (params_.base_link_frame_id != params_.odom_frame_id)
     {
-      auto base_to_odom = tf_buffer_->lookupTransform(params_.base_link_frame_id, params_.odom_frame_id,
-                                                      trans.header.stamp, params_.tf_timeout);
+      try
+      {
+        auto base_to_odom = tf_buffer_->lookupTransform(params_.base_link_frame_id, params_.odom_frame_id,
+                                                        trans.header.stamp, params_.tf_timeout);
 
-      geometry_msgs::msg::TransformStamped map_to_odom;
-      tf2::doTransform(base_to_odom, map_to_odom, trans);
-      map_to_odom.child_frame_id = params_.odom_frame_id;
-      trans = map_to_odom;
-    }
-    catch (std::exception const& e)
-    {
-      RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
-                                  "Could not lookup the " << params_.base_link_frame_id << "->" << params_.odom_frame_id
-                                                          << " transform. Error: " << e.what());
+        geometry_msgs::msg::TransformStamped map_to_odom;
+        tf2::doTransform(base_to_odom, map_to_odom, trans);
+        map_to_odom.child_frame_id = params_.odom_frame_id;
+        trans = map_to_odom;
+      }
+      catch (std::exception const& e)
+      {
+        RCLCPP_WARN_STREAM_THROTTLE(logger_, *clock_, 5.0 * 1000,
+                                    "Could not lookup the " << params_.base_link_frame_id << "->"
+                                                            << params_.odom_frame_id
+                                                            << " transform. Error: " << e.what());
 
-      return;
+        return;
+      }
     }
   }
 
