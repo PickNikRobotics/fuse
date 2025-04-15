@@ -17,6 +17,8 @@ This allows the transform sensor to use any number of cameras to estimate the po
 
 A slightly confusing aspect of the sensor is the need for multiple definitions of the target frame. Every frame in `transforms` needs a corresponding `target_frame` to be published for it to be used. This is simply because `tf` uses a tree data structure, and the target frames are leaves. These should all end up being in the same global location (discounting measurement noise) but will have different names.
 
+Finally, an optional feature of the transform sensor is outlier filtering. This can be enabled by setting `filter_outliers` to `true`. This filters outliers based on a simple distance threshold. This distance value and the associated timeout before any distance is allowed (to avoid the situation in which measurements are lost for a period and return but are ignored) can be configured with `outlier_distance` and `outlier_time_threshold`, respectively. Mahalanobis distance thresholding was explored as well, but performs poorly in most cases with external forcing (because this is generally not accounted for in the model or measured).
+
 ## Example
 
 For example, say we have `estimation_frame` `camera`, `transforms` {`apriltag_1`, `apriltag_2`}, and `target_frame` `robot_center_of_mass`.
@@ -34,3 +36,5 @@ Thus, our measurement of the actual position of `target_frame` that will be used
 It is not (-1.25, -0.5, 0) because the translation of `T_a_to_b` is the negation of the pose of `b` in frame `a`.
 
 Finally, this transaction is sent to the optimizer, as normal.
+
+To see this sensor running in an example, run `ros2 launch fuse_tutorials fuse_apriltag_tutorial.launch.py`.

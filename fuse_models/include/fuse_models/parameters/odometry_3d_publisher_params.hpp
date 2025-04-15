@@ -111,24 +111,6 @@ public:
     world_frame_id =
         fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "world_frame_id"), world_frame_id);
 
-    bool const frames_valid = map_frame_id != odom_frame_id && map_frame_id != base_link_frame_id &&
-                              map_frame_id != base_link_output_frame_id && odom_frame_id != base_link_frame_id &&
-                              odom_frame_id != base_link_output_frame_id &&
-                              (world_frame_id == map_frame_id || world_frame_id == odom_frame_id);
-
-    if (!frames_valid)
-    {
-      RCLCPP_FATAL_STREAM(interfaces.get_node_logging_interface()->get_logger(),
-                          "Invalid frame configuration! Please note:\n"
-                              << " - The values for map_frame_id, odom_frame_id, and base_link_frame_id must be "
-                              << "unique\n"
-                              << " - The values for map_frame_id, odom_frame_id, and base_link_output_frame_id must be "
-                              << "unique\n"
-                              << " - The world_frame_id must be the same as the map_frame_id or odom_frame_id\n");
-
-      assert(frames_valid);
-    }
-
     topic = fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "topic"), topic);
     acceleration_topic =
         fuse_core::getParam(interfaces, fuse_core::joinParameterName(ns, "acceleration_topic"), acceleration_topic);
