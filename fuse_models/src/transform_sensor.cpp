@@ -89,14 +89,6 @@ void TransformSensor::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
       last_position_->y = last_position.data()[fuse_variables::Position3DStamped::Y];
       last_position_->z = last_position.data()[fuse_variables::Position3DStamped::Z];
     }
-    else
-    {
-      last_position_.reset();
-    }
-  }
-  else
-  {
-    last_position_.reset();
   }
 }
 
