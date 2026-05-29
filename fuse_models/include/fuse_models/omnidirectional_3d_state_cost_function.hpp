@@ -96,7 +96,7 @@ public:
    *              order (x, y, z, roll, pitch, yaw, x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
    *              x_acc, y_acc, z_acc)
    */
-  Omnidirectional3DStateCostFunction(double const dt, fuse_core::Matrix15d const& A);
+  Omnidirectional3DStateCostFunction(double const dt, fuse_core::Matrix15d const& A, double velocity_decay = 0.0);
 
   /**
    * @brief Evaluate the cost function. Used by the Ceres optimization engine.
@@ -161,7 +161,7 @@ public:
             dt_, position_pred[0], position_pred[1], position_pred[2], orientation_pred_rpy[0], orientation_pred_rpy[1],
             orientation_pred_rpy[2], vel_linear_pred[0], vel_linear_pred[1], vel_linear_pred[2], vel_angular_pred[0],
             vel_angular_pred[1], vel_angular_pred[2], acc_linear_pred[0], acc_linear_pred[1], acc_linear_pred[2],
-            jacobians, j1_quat2rpy);
+            jacobians, j1_quat2rpy, velocity_decay_);
 
     residuals[0] = parameters[5][0] - position_pred[0];
     residuals[1] = parameters[5][1] - position_pred[1];
@@ -267,12 +267,14 @@ public:
 
 private:
   double dt_;
+  double velocity_decay_{ 0.0 };
   fuse_core::Matrix15d A_;  //!< The residual weighting matrix, most likely the square root
                             //!< information matrix
 };
 
-Omnidirectional3DStateCostFunction::Omnidirectional3DStateCostFunction(double const dt, fuse_core::Matrix15d const& A)
-  : dt_(dt), A_(A)
+Omnidirectional3DStateCostFunction::Omnidirectional3DStateCostFunction(double const dt, fuse_core::Matrix15d const& A,
+                                                                       double const velocity_decay)
+  : dt_(dt), velocity_decay_(velocity_decay), A_(A)
 {
 }
 

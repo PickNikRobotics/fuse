@@ -193,7 +193,8 @@ TEST(Omnidirectional3D, UpdateStateHistoryEstimates)
                             fuse_core::Vector3d(0.0, 0.0, 0.0) });  // NOLINT(whitespace/braces)
 
   // Update the state history
-  Omnidirectional3DModelTest::updateStateHistoryEstimates(graph, state_history, rclcpp::Duration::from_seconds(10.0));
+  Omnidirectional3DModelTest::updateStateHistoryEstimates(graph, state_history, rclcpp::Duration::from_seconds(10.0),
+                                                          0.0);
 
   // Check the state estimates in the state history
   {

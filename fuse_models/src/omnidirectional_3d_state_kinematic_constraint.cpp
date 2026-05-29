@@ -57,13 +57,15 @@ Omnidirectional3DStateKinematicConstraint::Omnidirectional3DStateKinematicConstr
     fuse_variables::Position3DStamped const& position2, fuse_variables::Orientation3DStamped const& orientation2,
     fuse_variables::VelocityLinear3DStamped const& velocity_linear2,
     fuse_variables::VelocityAngular3DStamped const& velocity_angular2,
-    fuse_variables::AccelerationLinear3DStamped const& acceleration_linear2, fuse_core::Matrix15d const& covariance)
+    fuse_variables::AccelerationLinear3DStamped const& acceleration_linear2, fuse_core::Matrix15d const& covariance,
+    double const velocity_decay)
   : fuse_core::Constraint(source,
                           { position1.uuid(), orientation1.uuid(), velocity_linear1.uuid(), velocity_angular1.uuid(),
                             acceleration_linear1.uuid(), position2.uuid(), orientation2.uuid(), velocity_linear2.uuid(),
                             velocity_angular2.uuid(), acceleration_linear2.uuid() })
   ,  // NOLINT
   dt_((position2.stamp() - position1.stamp()).seconds())
+  , velocity_decay_(velocity_decay)
   , sqrt_information_(covariance.inverse().llt().matrixU())
 {
 }
@@ -84,17 +86,18 @@ void Omnidirectional3DStateKinematicConstraint::print(std::ostream& stream) cons
          << "  angular velocity variable 2: " << variables().at(8) << "\n"
          << "  linear acceleration variable 2: " << variables().at(9) << "\n"
          << "  dt: " << dt() << "\n"
+         << "  velocity_decay: " << velocity_decay_ << "\n"
          << "  sqrt_info: " << sqrtInformation() << "\n";
 }
 
 ceres::CostFunction* Omnidirectional3DStateKinematicConstraint::costFunction() const
 {
-  return new Omnidirectional3DStateCostFunction(dt_, sqrt_information_);
+  return new Omnidirectional3DStateCostFunction(dt_, sqrt_information_, velocity_decay_);
   // Here we return a cost function that computes the analytic derivatives/jacobians, but we could
   // use automatic differentiation as follows:
   //
   // return new ceres::AutoDiffCostFunction<Omnidirectional3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>(
-  //   new Omnidirectional3DStateCostFunctor(dt_, sqrt_information_));
+  //   new Omnidirectional3DStateCostFunctor(dt_, sqrt_information_, velocity_decay_));
 
   // And including the followings:
   // #include <ceres/autodiff_cost_function.h>

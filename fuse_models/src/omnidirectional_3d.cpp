@@ -194,7 +194,7 @@ bool Omnidirectional3D::applyCallback(fuse_core::Transaction& transaction)
 
 void Omnidirectional3D::onGraphUpdate(fuse_core::Graph::ConstSharedPtr graph)
 {
-  updateStateHistoryEstimates(*graph, state_history_, buffer_length_);
+  updateStateHistoryEstimates(*graph, state_history_, buffer_length_, velocity_decay_);
 }
 
 void Omnidirectional3D::initialize(fuse_core::node_interfaces::NodeInterfaces<ALL_FUSE_CORE_NODE_INTERFACES> interfaces,
@@ -230,6 +230,15 @@ void Omnidirectional3D::onInit()
 
   disable_checks_ =
       fuse_core::getParam(interfaces_, fuse_core::joinParameterName(name_, "disable_checks"), disable_checks_);
+
+  velocity_decay_ =
+      fuse_core::getParam(interfaces_, fuse_core::joinParameterName(name_, "velocity_decay"), velocity_decay_);
+
+  if (!std::isfinite(velocity_decay_) || velocity_decay_ < 0.0)
+  {
+    throw std::runtime_error("Invalid velocity_decay of " + std::to_string(velocity_decay_) +
+                             " specified. Must be a finite value >= 0.");
+  }
 
   double buffer_length = 3.0;
   buffer_length = fuse_core::getParam(interfaces_, fuse_core::joinParameterName(name_, "buffer_length"), buffer_length);
@@ -284,7 +293,7 @@ void Omnidirectional3D::generateMotionModel(rclcpp::Time const& beginning_stamp,
   {
     predict(base_state.position, base_state.orientation, base_state.vel_linear, base_state.vel_angular,
             base_state.acc_linear, (beginning_stamp - base_time).seconds(), state1.position, state1.orientation,
-            state1.vel_linear, state1.vel_angular, state1.acc_linear);
+            state1.vel_linear, state1.vel_angular, state1.acc_linear, velocity_decay_);
   }
   else
   {
@@ -308,7 +317,8 @@ void Omnidirectional3D::generateMotionModel(rclcpp::Time const& beginning_stamp,
   // Now predict to get an initial guess for the state at the ending stamp
   StateHistoryElement state2;
   predict(state1.position, state1.orientation, state1.vel_linear, state1.vel_angular, state1.acc_linear, dt,
-          state2.position, state2.orientation, state2.vel_linear, state2.vel_angular, state2.acc_linear);
+          state2.position, state2.orientation, state2.vel_linear, state2.vel_angular, state2.acc_linear,
+          velocity_decay_);
 
   // Define the fuse variables required for this constraint
   auto position1 = fuse_variables::Position3DStamped::make_shared(beginning_stamp, device_id_);
@@ -407,7 +417,8 @@ void Omnidirectional3D::generateMotionModel(rclcpp::Time const& beginning_stamp,
   // Create the constraints for this motion model segment
   auto constraint = fuse_models::Omnidirectional3DStateKinematicConstraint::make_shared(
       name(), *position1, *orientation1, *velocity_linear1, *velocity_angular1, *acceleration_linear1, *position2,
-      *orientation2, *velocity_linear2, *velocity_angular2, *acceleration_linear2, process_noise_covariance);
+      *orientation2, *velocity_linear2, *velocity_angular2, *acceleration_linear2, process_noise_covariance,
+      velocity_decay_);
 
   // Update the output variables
   constraints.push_back(constraint);
@@ -424,7 +435,7 @@ void Omnidirectional3D::generateMotionModel(rclcpp::Time const& beginning_stamp,
 }
 
 void Omnidirectional3D::updateStateHistoryEstimates(fuse_core::Graph const& graph, StateHistory& state_history,
-                                                    rclcpp::Duration const& buffer_length)
+                                                    rclcpp::Duration const& buffer_length, double const velocity_decay)
 {
   if (state_history.empty())
   {
@@ -509,7 +520,7 @@ void Omnidirectional3D::updateStateHistoryEstimates(fuse_core::Graph const& grap
       predict(previous_state.position, previous_state.orientation, previous_state.vel_linear,
               previous_state.vel_angular, previous_state.acc_linear, (current_stamp - previous_stamp).seconds(),
               current_state.position, current_state.orientation, current_state.vel_linear, current_state.vel_angular,
-              current_state.acc_linear);
+              current_state.acc_linear, velocity_decay);
     }
   }
 }

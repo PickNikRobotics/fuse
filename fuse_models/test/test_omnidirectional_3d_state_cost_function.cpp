@@ -82,13 +82,13 @@ TEST(CostFunction, evaluateCostFunction)
 
   auto const num_residuals = cost_function.num_residuals();
 
-  std::vector<fuse_core::MatrixXd> J(num_parameter_blocks);
+  std::vector<fuse_core::MatrixXd> j_blocks(num_parameter_blocks);
   std::vector<double*> jacobians(num_parameter_blocks);
 
   for (size_t i = 0; i < num_parameter_blocks; ++i)
   {
-    J[i].resize(num_residuals, block_sizes[i]);
-    jacobians[i] = J[i].data();
+    j_blocks[i].resize(num_residuals, block_sizes[i]);
+    jacobians[i] = j_blocks[i].data();
   }
 
   EXPECT_TRUE(cost_function.Evaluate(parameters, residuals.data(), jacobians.data()));
@@ -120,24 +120,87 @@ TEST(CostFunction, evaluateCostFunction)
   ceres::AutoDiffCostFunction<fuse_models::Omnidirectional3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>
       cost_function_autodiff(new fuse_models::Omnidirectional3DStateCostFunctor(dt, sqrt_information));
   // Evaluate cost function that uses automatic differentiation
-  std::vector<fuse_core::MatrixXd> J_autodiff(num_parameter_blocks);
+  std::vector<fuse_core::MatrixXd> j_autodiff(num_parameter_blocks);
   std::vector<double*> jacobians_autodiff(num_parameter_blocks);
 
   for (size_t i = 0; i < num_parameter_blocks; ++i)
   {
-    J_autodiff[i].resize(num_residuals, cost_function_autodiff.parameter_block_sizes()[i]);
-    jacobians_autodiff[i] = J_autodiff[i].data();
+    j_autodiff[i].resize(num_residuals, cost_function_autodiff.parameter_block_sizes()[i]);
+    jacobians_autodiff[i] = j_autodiff[i].data();
   }
 
   EXPECT_TRUE(cost_function_autodiff.Evaluate(parameters, residuals.data(), jacobians_autodiff.data()));
 
-  const Eigen::IOFormat HeavyFmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+  const Eigen::IOFormat heavy_fmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
 
   for (size_t i = 0; i < num_parameter_blocks; ++i)
   {
-    EXPECT_MATRIX_NEAR(J_autodiff[i], J[i], 1e-4)
+    EXPECT_MATRIX_NEAR(j_autodiff[i], j_blocks[i], 1e-4)
         << "Autodiff Jacobian[" << i << "] =\n"
-        << J_autodiff[i].format(HeavyFmt) << "\nAnalytic Jacobian[" << i << "] =\n"
-        << J[i].format(HeavyFmt);
+        << j_autodiff[i].format(heavy_fmt) << "\nAnalytic Jacobian[" << i << "] =\n"
+        << j_blocks[i].format(heavy_fmt);
+  }
+}
+
+TEST(CostFunction, AnalyticAndAutodiffJacobiansMatchWithVelocityDecay)
+{
+  // GIVEN analytic and autodiff cost functions both constructed with velocity_decay = 1.0
+  double const process_noise_diagonal[] = { 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3,
+                                            1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3 };
+  fuse_core::Matrix15d const covariance = fuse_core::Vector15d(process_noise_diagonal).asDiagonal();
+  double const dt{ 0.1 };
+  double const velocity_decay{ 1.0 };
+  fuse_core::Matrix15d const sqrt_information{ covariance.inverse().llt().matrixU() };
+
+  fuse_models::Omnidirectional3DStateCostFunction const cost_function{ dt, sqrt_information, velocity_decay };
+  ceres::AutoDiffCostFunction<fuse_models::Omnidirectional3DStateCostFunctor, 15, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3>
+      cost_function_autodiff(new fuse_models::Omnidirectional3DStateCostFunctor(dt, sqrt_information, velocity_decay));
+
+  double const position1[3] = { 0.0, 0.0, 0.0 };
+  double const orientation1[4] = { 1.0, 0.0, 0.0, 0.0 };
+  double const vel_linear1[3] = { 1.0, 1.0, 1.0 };
+  double const vel_angular1[3] = { 1.570796327, 1.570796327, 1.570796327 };
+  double const acc_linear1[3] = { 1.0, 1.0, 1.0 };
+  double const position2[3] = { 0.105, 0.105, 0.105 };
+  Eigen::Quaterniond q2 = Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitZ()) *
+                          Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitY()) *
+                          Eigen::AngleAxisd(0.1570796327, Eigen::Vector3d::UnitX());
+  double const orientation2[4] = { q2.w(), q2.x(), q2.y(), q2.z() };
+  double const vel_linear2[3] = { 1.1, 1.1, 1.1 };
+  double const vel_angular2[3] = { 1.570796327, 1.570796327, 1.570796327 };
+  double const acc_linear2[3] = { 1.0, 1.0, 1.0 };
+
+  double const* parameters[10] = { position1, orientation1, vel_linear1, vel_angular1, acc_linear1,
+                                   position2, orientation2, vel_linear2, vel_angular2, acc_linear2 };
+
+  auto const num_parameter_blocks = cost_function.parameter_block_sizes().size();
+  auto const num_residuals = cost_function.num_residuals();
+
+  fuse_core::Vector15d residuals;
+  std::vector<fuse_core::MatrixXd> j_blocks(num_parameter_blocks);
+  std::vector<double*> jacobians(num_parameter_blocks);
+  std::vector<fuse_core::MatrixXd> j_autodiff(num_parameter_blocks);
+  std::vector<double*> jacobians_autodiff(num_parameter_blocks);
+
+  for (size_t i = 0; i < num_parameter_blocks; ++i)
+  {
+    j_blocks[i].resize(num_residuals, cost_function.parameter_block_sizes()[i]);
+    jacobians[i] = j_blocks[i].data();
+    j_autodiff[i].resize(num_residuals, cost_function_autodiff.parameter_block_sizes()[i]);
+    jacobians_autodiff[i] = j_autodiff[i].data();
+  }
+
+  // WHEN evaluating both cost functions
+  EXPECT_TRUE(cost_function.Evaluate(parameters, residuals.data(), jacobians.data()));
+  EXPECT_TRUE(cost_function_autodiff.Evaluate(parameters, residuals.data(), jacobians_autodiff.data()));
+
+  // THEN analytic and autodiff Jacobians match — decay is applied consistently in both paths
+  const Eigen::IOFormat heavy_fmt(Eigen::FullPrecision, 0, ", ", ";\n", "[", "]", "[", "]");
+  for (size_t i = 0; i < num_parameter_blocks; ++i)
+  {
+    EXPECT_MATRIX_NEAR(j_autodiff[i], j_blocks[i], 1e-4)
+        << "Autodiff Jacobian[" << i << "] =\n"
+        << j_autodiff[i].format(heavy_fmt) << "\nAnalytic Jacobian[" << i << "] =\n"
+        << j_blocks[i].format(heavy_fmt);
   }
 }
