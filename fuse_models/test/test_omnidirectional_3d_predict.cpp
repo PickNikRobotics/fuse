@@ -490,3 +490,224 @@ TEST(Predict, predictFromJetPointers)
   EXPECT_DOUBLE_EQ(Jet(1.0).a, acc_linear2[1].a);
   EXPECT_DOUBLE_EQ(Jet(1.0).a, acc_linear2[2].a);
 }
+
+TEST(Predict, VelocityDecayZeroIsNoOp)
+{
+  // GIVEN a state with known non-zero velocity
+  fuse_core::Vector3d const position1(1.0, 2.0, 0.0);
+  Eigen::Quaterniond const orientation1(Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()));
+  fuse_core::Vector3d const vel_linear1(0.5, 0.3, 0.0);
+  fuse_core::Vector3d const vel_angular1(0.0, 0.0, 0.1);
+  fuse_core::Vector3d const acc_linear1(0.0, 0.0, 0.0);
+  double const dt = 0.05;
+
+  fuse_core::Vector3d position2;
+  Eigen::Quaterniond orientation2;
+  fuse_core::Vector3d vel_linear2_default;
+  fuse_core::Vector3d vel_angular2_default;
+  fuse_core::Vector3d acc_linear2;
+  fuse_core::Vector3d vel_linear2_zero;
+  fuse_core::Vector3d vel_angular2_zero;
+
+  // WHEN predicting with default (no decay arg) and explicit velocity_decay = 0.0
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2_default, vel_angular2_default, acc_linear2);
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2_zero, vel_angular2_zero, acc_linear2, 0.0);
+
+  // THEN results are identical — velocity_decay = 0.0 is a no-op
+  EXPECT_DOUBLE_EQ(vel_linear2_default.x(), vel_linear2_zero.x());
+  EXPECT_DOUBLE_EQ(vel_linear2_default.y(), vel_linear2_zero.y());
+  EXPECT_DOUBLE_EQ(vel_angular2_default.z(), vel_angular2_zero.z());
+}
+
+TEST(Predict, VelocityDecayReducesVelocity)
+{
+  // GIVEN a robot with residual velocity and no acceleration
+  fuse_core::Vector3d const position1(0.0, 0.0, 0.0);
+  Eigen::Quaterniond const orientation1(Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()));
+  fuse_core::Vector3d const vel_linear1(0.2, 0.15, 0.0);
+  fuse_core::Vector3d const vel_angular1(0.0, 0.0, 0.1);
+  fuse_core::Vector3d const acc_linear1(0.0, 0.0, 0.0);
+  double const dt = 0.05;
+  double const k = 1.0;
+  double const expected_decay_factor = std::exp(-k * dt);
+
+  fuse_core::Vector3d position2;
+  Eigen::Quaterniond orientation2;
+  fuse_core::Vector3d acc_linear2;
+  fuse_core::Vector3d vel_linear2;
+  fuse_core::Vector3d vel_angular2;
+  fuse_core::Vector3d vel_linear2_no_decay;
+  fuse_core::Vector3d vel_angular2_no_decay;
+
+  // WHEN predicting with decay enabled
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2, k);
+
+  // THEN velocity is multiplied by exp(-k * dt)
+  EXPECT_NEAR(vel_linear2.x(), vel_linear1.x() * expected_decay_factor, 1e-9);
+  EXPECT_NEAR(vel_linear2.y(), vel_linear1.y() * expected_decay_factor, 1e-9);
+  EXPECT_NEAR(vel_linear2.z(), vel_linear1.z() * expected_decay_factor, 1e-9);
+  EXPECT_NEAR(vel_angular2.z(), vel_angular1.z() * expected_decay_factor, 1e-9);
+
+  // WHEN predicting with no decay
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2_no_decay, vel_angular2_no_decay, acc_linear2, 0.0);
+
+  // THEN undecayed velocity is strictly larger
+  EXPECT_GT(std::abs(vel_linear2_no_decay.x()), std::abs(vel_linear2.x()));
+  EXPECT_GT(std::abs(vel_linear2_no_decay.y()), std::abs(vel_linear2.y()));
+}
+
+TEST(Predict, VelocityDecayJacobiansMatchDecayFactor)
+{
+  // GIVEN a state and a known decay rate
+  double const k = 1.0;
+  double const dt = 0.05;
+  double const expected_decay_factor = std::exp(-k * dt);
+
+  double position1[3] = { 0.0, 0.0, 0.0 };
+  double orientation1[3] = { 0.0, 0.0, 0.0 };
+  double vel_linear1[3] = { 0.2, 0.15, 0.0 };
+  double vel_angular1[3] = { 0.0, 0.0, 0.1 };
+  double acc_linear1[3] = { 0.0, 0.0, 0.0 };
+  double position2[3] = {};
+  double orientation2[3] = {};
+  double vel_linear2[3] = {};
+  double vel_angular2[3] = {};
+  double acc_linear2[3] = {};
+  // Parameter block sizes: position=3, orientation=4, vel_linear=3, vel_angular=3, acc_linear=3
+  std::array<double, 15UL * 3UL> j0{};
+  std::array<double, 15UL * 4UL> j1{};  // orientation block is 15x4
+  std::array<double, 15UL * 3UL> j2{};
+  std::array<double, 15UL * 3UL> j3{};
+  std::array<double, 15UL * 3UL> j4{};
+  std::array<double*, 5> jacobians = { j0.data(), j1.data(), j2.data(), j3.data(), j4.data() };
+  double j_quat2rpy[12] = {};
+
+  // WHEN computing analytical Jacobians with decay enabled
+  fuse_models::predict(position1[0], position1[1], position1[2], orientation1[0], orientation1[1], orientation1[2],
+                       vel_linear1[0], vel_linear1[1], vel_linear1[2], vel_angular1[0], vel_angular1[1],
+                       vel_angular1[2], acc_linear1[0], acc_linear1[1], acc_linear1[2], dt, position2[0], position2[1],
+                       position2[2], orientation2[0], orientation2[1], orientation2[2], vel_linear2[0], vel_linear2[1],
+                       vel_linear2[2], vel_angular2[0], vel_angular2[1], vel_angular2[2], acc_linear2[0],
+                       acc_linear2[1], acc_linear2[2], jacobians.data(), j_quat2rpy, k);
+
+  // THEN d(vel_linear2_i)/d(vel_linear1_i) = decay_factor (not 1.0)
+  Eigen::Map<Eigen::Matrix<double, 15, 3, Eigen::RowMajor>> const j_vel_linear(j2.data());
+  EXPECT_NEAR(j_vel_linear(6, 0), expected_decay_factor, 1e-9);
+  EXPECT_NEAR(j_vel_linear(7, 1), expected_decay_factor, 1e-9);
+  EXPECT_NEAR(j_vel_linear(8, 2), expected_decay_factor, 1e-9);
+
+  // AND d(vel_angular2_i)/d(vel_angular1_i) = decay_factor (not 1.0)
+  Eigen::Map<Eigen::Matrix<double, 15, 3, Eigen::RowMajor>> const j_vel_angular(j3.data());
+  EXPECT_NEAR(j_vel_angular(9, 0), expected_decay_factor, 1e-9);
+  EXPECT_NEAR(j_vel_angular(10, 1), expected_decay_factor, 1e-9);
+  EXPECT_NEAR(j_vel_angular(11, 2), expected_decay_factor, 1e-9);
+}
+
+TEST(Predict, VelocityDecayAppliesToFullPrediction)
+{
+  // GIVEN a robot with both non-zero velocity and non-zero acceleration.
+  // Pins: vel2 = (vel1 + acc*dt) * decay_factor, not vel1*decay_factor + acc*dt.
+  fuse_core::Vector3d const position1(0.0, 0.0, 0.0);
+  Eigen::Quaterniond const orientation1(Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()));
+  fuse_core::Vector3d const vel_linear1(0.2, 0.0, 0.0);
+  fuse_core::Vector3d const vel_angular1(0.0, 0.0, 0.0);
+  fuse_core::Vector3d const acc_linear1(1.0, 0.0, 0.0);
+  double const dt = 0.05;
+  double const k = 1.0;
+  double const expected_decay_factor = std::exp(-k * dt);
+
+  fuse_core::Vector3d position2;
+  Eigen::Quaterniond orientation2;
+  fuse_core::Vector3d vel_linear2;
+  fuse_core::Vector3d vel_angular2;
+  fuse_core::Vector3d acc_linear2;
+
+  // WHEN predicting with decay enabled
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2, k);
+
+  // THEN vel2.x = (vel1.x + acc.x*dt) * decay_factor
+  double const expected_vx = (vel_linear1.x() + acc_linear1.x() * dt) * expected_decay_factor;
+  EXPECT_NEAR(vel_linear2.x(), expected_vx, 1e-9);
+
+  // AND the old formula vel1*decay + acc*dt gives a different result, confirming acc is decayed too
+  double const old_formula_vx = vel_linear1.x() * expected_decay_factor + acc_linear1.x() * dt;
+  EXPECT_NE(vel_linear2.x(), old_formula_vx);
+}
+
+TEST(Predict, VelocityDecayAccelerationJacobianIsScaledByDecayFactor)
+{
+  // GIVEN a state and a known decay rate
+  double const k = 1.0;
+  double const dt = 0.05;
+  double const expected_decay_factor = std::exp(-k * dt);
+
+  double position1[3] = { 0.0, 0.0, 0.0 };
+  double orientation1[3] = { 0.0, 0.0, 0.0 };
+  double vel_linear1[3] = { 0.2, 0.15, 0.0 };
+  double vel_angular1[3] = { 0.0, 0.0, 0.1 };
+  double acc_linear1[3] = { 0.0, 0.0, 0.0 };
+  double position2[3] = {};
+  double orientation2[3] = {};
+  double vel_linear2[3] = {};
+  double vel_angular2[3] = {};
+  double acc_linear2[3] = {};
+  // Parameter block sizes: position=3, orientation=4, vel_linear=3, vel_angular=3, acc_linear=3
+  std::array<double, 15UL * 3UL> j0{};
+  std::array<double, 15UL * 4UL> j1{};  // orientation block is 15x4
+  std::array<double, 15UL * 3UL> j2{};
+  std::array<double, 15UL * 3UL> j3{};
+  std::array<double, 15UL * 3UL> j4{};
+  std::array<double*, 5> jacobians = { j0.data(), j1.data(), j2.data(), j3.data(), j4.data() };
+  double j_quat2rpy[12] = {};
+
+  // WHEN computing analytical Jacobians with decay enabled
+  fuse_models::predict(position1[0], position1[1], position1[2], orientation1[0], orientation1[1], orientation1[2],
+                       vel_linear1[0], vel_linear1[1], vel_linear1[2], vel_angular1[0], vel_angular1[1],
+                       vel_angular1[2], acc_linear1[0], acc_linear1[1], acc_linear1[2], dt, position2[0], position2[1],
+                       position2[2], orientation2[0], orientation2[1], orientation2[2], vel_linear2[0], vel_linear2[1],
+                       vel_linear2[2], vel_angular2[0], vel_angular2[1], vel_angular2[2], acc_linear2[0],
+                       acc_linear2[1], acc_linear2[2], jacobians.data(), j_quat2rpy, k);
+
+  // THEN d(vel_linear2_i)/d(acc_linear1_i) = dt * decay_factor (not plain dt)
+  Eigen::Map<Eigen::Matrix<double, 15, 3, Eigen::RowMajor>> const j_acc(j4.data());
+  EXPECT_NEAR(j_acc(6, 0), dt * expected_decay_factor, 1e-9);
+  EXPECT_NEAR(j_acc(7, 1), dt * expected_decay_factor, 1e-9);
+  EXPECT_NEAR(j_acc(8, 2), dt * expected_decay_factor, 1e-9);
+}
+
+TEST(Predict, VelocityDecaysGeometricallyOverMultipleSteps)
+{
+  // GIVEN a robot with residual velocity and no acceleration (simulates odom going silent)
+  fuse_core::Vector3d const position1(0.0, 0.0, 0.0);
+  Eigen::Quaterniond const orientation1(Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitZ()));
+  fuse_core::Vector3d vel_linear(0.5, 0.0, 0.0);
+  fuse_core::Vector3d vel_angular(0.0, 0.0, 0.0);
+  fuse_core::Vector3d const acc_linear(0.0, 0.0, 0.0);
+  double const dt = 0.05;
+  double const k = 1.0;
+  double const decay_factor = std::exp(-k * dt);
+
+  // WHEN predicting 20 steps (1 second) with no sensor corrections
+  fuse_core::Vector3d position;
+  Eigen::Quaterniond orientation;
+  fuse_core::Vector3d acc_out;
+  for (int i = 0; i < 20; ++i)
+  {
+    fuse_core::Vector3d vel_next;
+    fuse_core::Vector3d vel_angular_next;
+    fuse_models::predict(position1, orientation1, vel_linear, vel_angular, acc_linear, dt, position, orientation,
+                         vel_next, vel_angular_next, acc_out, k);
+    // THEN each step velocity is multiplied by decay_factor
+    EXPECT_NEAR(vel_next.x(), vel_linear.x() * decay_factor, 1e-9);
+    vel_linear = vel_next;
+    vel_angular = vel_angular_next;
+  }
+
+  // AND after 1 second velocity has decayed to vel0 * exp(-k * 1.0)
+  EXPECT_NEAR(vel_linear.x(), 0.5 * std::exp(-k * 1.0), 1e-6);
+}

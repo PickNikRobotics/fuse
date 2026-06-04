@@ -104,7 +104,7 @@ public:
                                             fuse_variables::VelocityLinear3DStamped const& velocity_linear2,
                                             fuse_variables::VelocityAngular3DStamped const& velocity_angular2,
                                             fuse_variables::AccelerationLinear3DStamped const& acceleration_linear2,
-                                            fuse_core::Matrix15d const& covariance);
+                                            fuse_core::Matrix15d const& covariance, double velocity_decay = 0.0);
 
   /**
    * @brief Destructor
@@ -163,6 +163,7 @@ public:
 
 protected:
   double dt_;                              //!< The time delta for the constraint
+  double velocity_decay_{ 0.0 };           //!< Exponential velocity decay rate (1/s), forwarded to predict()
   fuse_core::Matrix15d sqrt_information_;  //!< The square root information matrix
 
 private:
@@ -177,16 +178,21 @@ private:
    * @param[in] version - The version of the archive being read/written. Generally unused.
    */
   template <class Archive>
-  void serialize(Archive& archive, unsigned int const /* version */)
+  void serialize(Archive& archive, unsigned int const version)
   {
     archive& boost::serialization::base_object<fuse_core::Constraint>(*this);
     archive& dt_;
+    if (version >= 1)
+    {
+      archive& velocity_decay_;
+    }
     archive& sqrt_information_;
   }
 };
 
 }  // namespace fuse_models
 
+BOOST_CLASS_VERSION(fuse_models::Omnidirectional3DStateKinematicConstraint, 1)
 BOOST_CLASS_EXPORT_KEY(fuse_models::Omnidirectional3DStateKinematicConstraint);
 
 #endif  // FUSE_MODELS__OMNIDIRECTIONAL_3D_STATE_KINEMATIC_CONSTRAINT_HPP_

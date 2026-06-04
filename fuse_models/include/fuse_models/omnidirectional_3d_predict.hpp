@@ -74,6 +74,8 @@ namespace fuse_models
  * @param[out] acc_linear2_x - Second X acceleration
  * @param[out] acc_linear2_y - Second Y acceleration
  * @param[out] acc_linear2_z - Second Z acceleration
+ * @param[in] velocity_decay - Exponential velocity decay rate (1/s, default 0.0 = no decay).
+ *                             Predicted velocity is multiplied by exp(-velocity_decay * dt).
  */
 template <typename T>
 inline void predict(const T position1_x, const T position1_y, const T position1_z, const T orientation1_r,
@@ -82,7 +84,8 @@ inline void predict(const T position1_x, const T position1_y, const T position1_
                     const T acc_linear1_x, const T acc_linear1_y, const T acc_linear1_z, const T dt, T& position2_x,
                     T& position2_y, T& position2_z, T& orientation2_r, T& orientation2_p, T& orientation2_y,
                     T& vel_linear2_x, T& vel_linear2_y, T& vel_linear2_z, T& vel_angular2_r, T& vel_angular2_p,
-                    T& vel_angular2_y, T& acc_linear2_x, T& acc_linear2_y, T& acc_linear2_z)
+                    T& vel_angular2_y, T& acc_linear2_x, T& acc_linear2_y, T& acc_linear2_z,
+                    double velocity_decay = 0.0)
 {
   // 3D material point projection model which matches the one used by r_l.
   const T sr = ceres::sin(orientation1_r);
@@ -117,17 +120,23 @@ inline void predict(const T position1_x, const T position1_y, const T position1_
   orientation2_p = orientation1_p + (cr * vel_angular1_p - sr * vel_angular1_y) * dt;
   orientation2_y = orientation1_y + (sr * cpi * vel_angular1_p + cr * cpi * vel_angular1_y) * dt;
 
-  vel_linear2_x = vel_linear1_x + acc_linear1_x * dt;
-  vel_linear2_y = vel_linear1_y + acc_linear1_y * dt;
-  vel_linear2_z = vel_linear1_z + acc_linear1_z * dt;
+  // Exponential velocity decay: when velocity_decay > 0, predicted velocity decays toward zero
+  // each prediction step. This prevents indefinite drift when the velocity sensor goes silent
+  // (e.g., wheel odometry stops publishing after a navigation controller deactivates).
+  // decay_factor = 1.0 when velocity_decay = 0 (no decay, preserves existing behavior).
+  const T decay_factor = ceres::exp(T(-velocity_decay) * dt);
 
-  vel_angular2_r = vel_angular1_r;
-  vel_angular2_p = vel_angular1_p;
-  vel_angular2_y = vel_angular1_y;
+  vel_linear2_x = (vel_linear1_x + acc_linear1_x * dt) * decay_factor;
+  vel_linear2_y = (vel_linear1_y + acc_linear1_y * dt) * decay_factor;
+  vel_linear2_z = (vel_linear1_z + acc_linear1_z * dt) * decay_factor;
 
-  acc_linear2_x = acc_linear1_x;
-  acc_linear2_y = acc_linear1_y;
-  acc_linear2_z = acc_linear1_z;
+  vel_angular2_r = vel_angular1_r * decay_factor;
+  vel_angular2_p = vel_angular1_p * decay_factor;
+  vel_angular2_y = vel_angular1_y * decay_factor;
+
+  acc_linear2_x = acc_linear1_x * decay_factor;
+  acc_linear2_y = acc_linear1_y * decay_factor;
+  acc_linear2_z = acc_linear1_z * decay_factor;
 
   fuse_core::wrapAngle2D(orientation2_r);
   fuse_core::wrapAngle2D(orientation2_p);
@@ -168,6 +177,8 @@ inline void predict(const T position1_x, const T position1_y, const T position1_
  * @param[out] acc_linear2_y - Second Y acceleration
  * @param[out] acc_linear2_z - Second Z acceleration
  * @param[out] jacobians - Jacobians wrt the state
+ * @param[in] velocity_decay - Exponential velocity decay rate (1/s, default 0.0 = no decay).
+ *                             Predicted velocity is multiplied by exp(-velocity_decay * dt).
  */
 inline void predict(double const position1_x, double const position1_y, double const position1_z,
                     double const orientation1_r, double const orientation1_p, double const orientation1_y,
@@ -178,7 +189,7 @@ inline void predict(double const position1_x, double const position1_y, double c
                     double& orientation2_p, double& orientation2_y, double& vel_linear2_x, double& vel_linear2_y,
                     double& vel_linear2_z, double& vel_angular2_r, double& vel_angular2_p, double& vel_angular2_y,
                     double& acc_linear2_x, double& acc_linear2_y, double& acc_linear2_z, double** jacobians,
-                    double* jacobian_quat2rpy)
+                    double* jacobian_quat2rpy, double velocity_decay = 0.0)
 {
   // 3D material point projection model which matches the one used by r_l.
   double const sr = ceres::sin(orientation1_r);
@@ -213,17 +224,19 @@ inline void predict(double const position1_x, double const position1_y, double c
   orientation2_p = orientation1_p + (cr * vel_angular1_p - sr * vel_angular1_y) * dt;
   orientation2_y = orientation1_y + (sr * cpi * vel_angular1_p + cr * cpi * vel_angular1_y) * dt;
 
-  vel_linear2_x = vel_linear1_x + acc_linear1_x * dt;
-  vel_linear2_y = vel_linear1_y + acc_linear1_y * dt;
-  vel_linear2_z = vel_linear1_z + acc_linear1_z * dt;
+  double const decay_factor = std::exp(-velocity_decay * dt);
 
-  vel_angular2_r = vel_angular1_r;
-  vel_angular2_p = vel_angular1_p;
-  vel_angular2_y = vel_angular1_y;
+  vel_linear2_x = (vel_linear1_x + acc_linear1_x * dt) * decay_factor;
+  vel_linear2_y = (vel_linear1_y + acc_linear1_y * dt) * decay_factor;
+  vel_linear2_z = (vel_linear1_z + acc_linear1_z * dt) * decay_factor;
 
-  acc_linear2_x = acc_linear1_x;
-  acc_linear2_y = acc_linear1_y;
-  acc_linear2_z = acc_linear1_z;
+  vel_angular2_r = vel_angular1_r * decay_factor;
+  vel_angular2_p = vel_angular1_p * decay_factor;
+  vel_angular2_y = vel_angular1_y * decay_factor;
+
+  acc_linear2_x = acc_linear1_x * decay_factor;
+  acc_linear2_y = acc_linear1_y * decay_factor;
+  acc_linear2_z = acc_linear1_z * decay_factor;
 
   fuse_core::wrapAngle2D(orientation2_r);
   fuse_core::wrapAngle2D(orientation2_p);
@@ -317,11 +330,11 @@ inline void predict(double const position1_x, double const position1_y, double c
       jacobian(2, 1) = sr * cp * dt;
       jacobian(2, 2) = cr * cp * dt;
       // partial derivatives of vel_linear2_x wrt vel_linear1
-      jacobian(6, 0) = 1.0;
+      jacobian(6, 0) = decay_factor;
       // partial derivatives of vel_linear2_y wrt vel_linear1
-      jacobian(7, 1) = 1.0;
+      jacobian(7, 1) = decay_factor;
       // partial derivatives of vel_linear2_z wrt vel_linear1
-      jacobian(8, 2) = 1.0;
+      jacobian(8, 2) = decay_factor;
     }
 
     // Jacobian wrt vel_angular1
@@ -341,11 +354,11 @@ inline void predict(double const position1_x, double const position1_y, double c
       jacobian(5, 1) = sr * cpi * dt;
       jacobian(5, 2) = cr * cpi * dt;
       // partial derivatives of vel_angular2_r wrt vel_angular1
-      jacobian(9, 0) = 1.0;
+      jacobian(9, 0) = decay_factor;
       // partial derivatives of vel_angular2_p wrt vel_angular1
-      jacobian(10, 1) = 1.0;
+      jacobian(10, 1) = decay_factor;
       // partial derivatives of vel_angular2_y wrt vel_angular1
-      jacobian(11, 2) = 1.0;
+      jacobian(11, 2) = decay_factor;
     }
 
     // Jacobian wrt acc_linear1
@@ -366,17 +379,17 @@ inline void predict(double const position1_x, double const position1_y, double c
       jacobian(2, 1) = sr * cp * dt2;
       jacobian(2, 2) = cr * cp * dt2;
       // partial derivatives of vel_linear2_x wrt acc_linear1
-      jacobian(6, 0) = dt;
+      jacobian(6, 0) = dt * decay_factor;
       // partial derivatives of vel_linear2_y wrt acc_linear1
-      jacobian(7, 1) = dt;
+      jacobian(7, 1) = dt * decay_factor;
       // partial derivatives of vel_linear2_z wrt acc_linear1
-      jacobian(8, 2) = dt;
+      jacobian(8, 2) = dt * decay_factor;
       // partial derivatives of acc_linear2_x wrt acc_linear1
-      jacobian(12, 0) = 1.0;
+      jacobian(12, 0) = decay_factor;
       // partial derivatives of acc_linear2_y wrt acc_linear1
-      jacobian(13, 1) = 1.0;
+      jacobian(13, 1) = decay_factor;
       // partial derivatives of acc_linear2_z wrt acc_linear1
-      jacobian(14, 2) = 1.0;
+      jacobian(14, 2) = decay_factor;
     }
   }
 }
@@ -398,13 +411,14 @@ inline void predict(double const position1_x, double const position1_y, double c
 template <typename T>
 inline void predict(const T* const position1, const T* const orientation1, const T* const vel_linear1,
                     const T* const vel_angular1, const T* const acc_linear1, const T dt, T* const position2,
-                    T* const orientation2, T* const vel_linear2, T* const vel_angular2, T* const acc_linear2)
+                    T* const orientation2, T* const vel_linear2, T* const vel_angular2, T* const acc_linear2,
+                    double velocity_decay = 0.0)
 {
   predict(position1[0], position1[1], position1[2], orientation1[0], orientation1[1], orientation1[2], vel_linear1[0],
           vel_linear1[1], vel_linear1[2], vel_angular1[0], vel_angular1[1], vel_angular1[2], acc_linear1[0],
           acc_linear1[1], acc_linear1[2], dt, position2[0], position2[1], position2[2], orientation2[0],
           orientation2[1], orientation2[2], vel_linear2[0], vel_linear2[1], vel_linear2[2], vel_angular2[0],
-          vel_angular2[1], vel_angular2[2], acc_linear2[0], acc_linear2[1], acc_linear2[2]);
+          vel_angular2[1], vel_angular2[2], acc_linear2[0], acc_linear2[1], acc_linear2[2], velocity_decay);
 }
 /**
  * @brief Given a state and time delta, predicts a new state
@@ -424,7 +438,7 @@ inline void predict(fuse_core::Vector3d const& position1, Eigen::Quaterniond con
                     fuse_core::Vector3d const& vel_linear1, fuse_core::Vector3d const& vel_angular1,
                     fuse_core::Vector3d const& acc_linear1, double const dt, fuse_core::Vector3d& position2,
                     Eigen::Quaterniond& orientation2, fuse_core::Vector3d& vel_linear2,
-                    fuse_core::Vector3d& vel_angular2, fuse_core::Vector3d& acc_linear2)
+                    fuse_core::Vector3d& vel_angular2, fuse_core::Vector3d& acc_linear2, double velocity_decay = 0.0)
 {
   fuse_core::Vector3d rpy(fuse_core::getRoll(orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z()),
                           fuse_core::getPitch(orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z()),
@@ -434,7 +448,7 @@ inline void predict(fuse_core::Vector3d const& position1, Eigen::Quaterniond con
           vel_linear1.z(), vel_angular1.x(), vel_angular1.y(), vel_angular1.z(), acc_linear1.x(), acc_linear1.y(),
           acc_linear1.z(), dt, position2.x(), position2.y(), position2.z(), rpy.x(), rpy.y(), rpy.z(), vel_linear2.x(),
           vel_linear2.y(), vel_linear2.z(), vel_angular2.x(), vel_angular2.y(), vel_angular2.z(), acc_linear2.x(),
-          acc_linear2.y(), acc_linear2.z());
+          acc_linear2.y(), acc_linear2.z(), velocity_decay);
 
   // Convert back to quaternion
   orientation2 = Eigen::AngleAxisd(rpy.z(), Eigen::Vector3d::UnitZ()) *
@@ -461,7 +475,8 @@ inline void predict(fuse_core::Vector3d const& position1, Eigen::Quaterniond con
                     fuse_core::Vector3d const& vel_linear1, fuse_core::Vector3d const& vel_angular1,
                     fuse_core::Vector3d const& acc_linear1, double const dt, fuse_core::Vector3d& position2,
                     Eigen::Quaterniond& orientation2, fuse_core::Vector3d& vel_linear2,
-                    fuse_core::Vector3d& vel_angular2, fuse_core::Vector3d& acc_linear2, fuse_core::Matrix15d& jacobian)
+                    fuse_core::Vector3d& vel_angular2, fuse_core::Vector3d& acc_linear2, fuse_core::Matrix15d& jacobian,
+                    double velocity_decay = 0.0)
 {
   double quat[4] = { orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z() };
   double rpy[3];
@@ -491,7 +506,7 @@ inline void predict(fuse_core::Vector3d const& position1, Eigen::Quaterniond con
           vel_linear1.z(), vel_angular1.x(), vel_angular1.y(), vel_angular1.z(), acc_linear1.x(), acc_linear1.y(),
           acc_linear1.z(), dt, position2.x(), position2.y(), position2.z(), rpy[0], rpy[1], rpy[2], vel_linear2.x(),
           vel_linear2.y(), vel_linear2.z(), vel_angular2.x(), vel_angular2.y(), vel_angular2.z(), acc_linear2.x(),
-          acc_linear2.y(), acc_linear2.z(), jacobians.data(), jacobian_quat2rpy);
+          acc_linear2.y(), acc_linear2.z(), jacobians.data(), jacobian_quat2rpy, velocity_decay);
 
   // TODO(henrygerardmoore): figure out how to fix this
   // see https://github.com/locusrobotics/fuse/pull/354#discussion_r1884288806

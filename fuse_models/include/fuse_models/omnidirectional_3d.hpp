@@ -68,6 +68,11 @@ namespace fuse_models
  *                                                 Variable order is (x, y, z, roll, pitch, yaw,
  *                                                 x_vel, y_vel, z_vel, roll_vel, pitch_vel, yaw_vel,
  *                                                 x_acc, y_acc, z_acc).
+ *  - ~velocity_decay (double, default: 0.0) Exponential velocity decay rate in 1/s. When > 0,
+ *                                           the predicted velocity is multiplied by exp(-k*dt) each
+ *                                           step, decaying toward zero when no velocity observations
+ *                                           arrive. Prevents indefinite drift after the odometry
+ *                                           source goes silent. Set to 0.0 to disable (default).
  */
 class Omnidirectional3D : public fuse_core::AsyncMotionModel
 {
@@ -189,7 +194,7 @@ protected:
    * @param[in] buffer_length States older than this in the history will be pruned
    */
   static void updateStateHistoryEstimates(fuse_core::Graph const& graph, StateHistory& state_history,
-                                          rclcpp::Duration const& buffer_length);
+                                          rclcpp::Duration const& buffer_length, double velocity_decay);
 
   /**
    * @brief Validate the motion model state #1, state #2 and process noise covariance
@@ -229,6 +234,10 @@ protected:
   bool disable_checks_{ false };                   //!< Whether to disable the validation checks for the current and
                                                    //!< predicted state, including the process noise covariance after
                                                    //!< it is scaled and multiplied by dt
+  double velocity_decay_{ 0.0 };                   //!< Exponential decay rate for velocity (1/s).
+                                                   //!< When > 0, predicted velocity decays toward zero when no
+                                                   //!< velocity observations arrive, preventing drift after the
+                                                   //!< odometry source goes silent.
   StateHistory state_history_;                     //!< History of optimized graph pose estimates
 };
 
