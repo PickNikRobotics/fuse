@@ -35,6 +35,7 @@
 #define FUSE_MODELS__OMNIDIRECTIONAL_3D_PREDICT_HPP_
 
 #include <Eigen/Core>
+#include <Eigen/QR>
 
 #include <fuse_core/util.hpp>
 #include <fuse_core/eigen.hpp>
@@ -508,9 +509,16 @@ inline void predict(fuse_core::Vector3d const& position1, Eigen::Quaterniond con
           vel_linear2.y(), vel_linear2.z(), vel_angular2.x(), vel_angular2.y(), vel_angular2.z(), acc_linear2.x(),
           acc_linear2.y(), acc_linear2.z(), jacobians.data(), jacobian_quat2rpy, velocity_decay);
 
-  // TODO(henrygerardmoore): figure out how to fix this
-  // see https://github.com/locusrobotics/fuse/pull/354#discussion_r1884288806
-  jacobian << J[0], J[1], J[2], J[3], J[4].block<15, 2>(0, 0);
+  // Convert J[1] from quaternion space (15x4) to RPY space (15x3) via the chain rule:
+  //   d(state2)/d(rpy1) = d(state2)/d(quat1) * d(quat1)/d(rpy1) = J[1] * pinv(d(rpy)/d(quat)).
+  // (see https://github.com/locusrobotics/fuse/pull/354#discussion_r1884288806)
+  // Use a rank-revealing pseudo-inverse: at gimbal lock, quaternion2rpy zeros rows of the
+  // quat->rpy Jacobian, so (A*A^T) is singular and an explicit A^T(A*A^T)^-1 would yield NaN.
+  Eigen::Map<fuse_core::Matrix<double, 3, 4>> const j_quat2rpy_map(jacobian_quat2rpy);
+  fuse_core::Matrix<double, 4, 3> const j_quat2rpy_pinv =
+      Eigen::CompleteOrthogonalDecomposition<fuse_core::Matrix<double, 3, 4>>(j_quat2rpy_map).pseudoInverse();
+  fuse_core::Matrix<double, 15, 3> const J1_rpy = J[1] * j_quat2rpy_pinv;
+  jacobian << J[0], J1_rpy, J[2], J[3], J[4];
 
   // Convert back to quaternion
   orientation2 = Eigen::AngleAxisd(rpy[2], Eigen::Vector3d::UnitZ()) *
