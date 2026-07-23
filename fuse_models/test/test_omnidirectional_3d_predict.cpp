@@ -38,6 +38,7 @@
 #include <vector>
 
 #include <fuse_core/eigen_gtest.hpp>
+#include <fuse_core/util.hpp>
 #include <fuse_models/omnidirectional_3d_predict.hpp>
 #include <ceres/jet.h>
 
@@ -710,4 +711,64 @@ TEST(Predict, VelocityDecaysGeometricallyOverMultipleSteps)
 
   // AND after 1 second velocity has decayed to vel0 * exp(-k * 1.0)
   EXPECT_NEAR(vel_linear.x(), 0.5 * std::exp(-k * 1.0), 1e-6);
+}
+
+TEST(Predict, predictJacobians)
+{
+  // GIVEN a state away from gimbal lock (small angles keep the RPY parameterization well conditioned)
+  double const dt = 0.1;
+  const fuse_core::Vector3d position1(0.1, -0.2, 0.3);
+  const fuse_core::Vector3d vel_linear1(1.0, 0.2, -0.1);
+  const fuse_core::Vector3d vel_angular1(0.3, -0.2, 0.5);
+  const fuse_core::Vector3d acc_linear1(0.5, -0.4, 0.2);
+  const Eigen::Quaterniond orientation1 = Eigen::AngleAxisd(0.3, Eigen::Vector3d::UnitZ()) *
+                                          Eigen::AngleAxisd(-0.1, Eigen::Vector3d::UnitY()) *
+                                          Eigen::AngleAxisd(0.2, Eigen::Vector3d::UnitX());
+
+  // Extract RPY with the same convention predict() uses so the autodiff input matches the analytic input.
+  double const quat[4] = { orientation1.w(), orientation1.x(), orientation1.y(), orientation1.z() };
+  double rpy[3];
+  fuse_core::quaternion2rpy(quat, rpy);
+
+  // WHEN computing the analytic 15x15 state Jacobian (orientation columns in RPY space)
+  fuse_core::Vector3d position2;
+  fuse_core::Vector3d vel_linear2;
+  fuse_core::Vector3d vel_angular2;
+  fuse_core::Vector3d acc_linear2;
+  Eigen::Quaterniond orientation2;
+  fuse_core::Matrix15d jacobian_analytic;
+  fuse_models::predict(position1, orientation1, vel_linear1, vel_angular1, acc_linear1, dt, position2, orientation2,
+                       vel_linear2, vel_angular2, acc_linear2, jacobian_analytic);
+
+  // AND the same Jacobian by autodiff through the templated (RPY-in, RPY-out) overload
+  using Jet = ceres::Jet<double, 15>;
+  const std::array<Jet, 15> x{
+    Jet(position1.x(), 0),    Jet(position1.y(), 1),    Jet(position1.z(), 2),     Jet(rpy[0], 3),
+    Jet(rpy[1], 4),           Jet(rpy[2], 5),           Jet(vel_linear1.x(), 6),   Jet(vel_linear1.y(), 7),
+    Jet(vel_linear1.z(), 8),  Jet(vel_angular1.x(), 9), Jet(vel_angular1.y(), 10), Jet(vel_angular1.z(), 11),
+    Jet(acc_linear1.x(), 12), Jet(acc_linear1.y(), 13), Jet(acc_linear1.z(), 14)
+  };
+  std::array<Jet, 3> position2_jet;
+  std::array<Jet, 3> orientation2_jet;
+  std::array<Jet, 3> vel_linear2_jet;
+  std::array<Jet, 3> vel_angular2_jet;
+  std::array<Jet, 3> acc_linear2_jet;
+  fuse_models::predict(x.data(), x.data() + 3, x.data() + 6, x.data() + 9, x.data() + 12, Jet(dt), position2_jet.data(),
+                       orientation2_jet.data(), vel_linear2_jet.data(), vel_angular2_jet.data(),
+                       acc_linear2_jet.data());
+
+  fuse_core::Matrix15d jacobian_autodiff;
+  const std::array<std::array<Jet, 3> const*, 5> outputs{ &position2_jet, &orientation2_jet, &vel_linear2_jet,
+                                                          &vel_angular2_jet, &acc_linear2_jet };
+  for (int block = 0; block < 5; ++block)
+  {
+    for (int row = 0; row < 3; ++row)
+    {
+      jacobian_autodiff.row(block * 3 + row) = (*outputs[block])[row].v.transpose();
+    }
+  }
+
+  // THEN the analytic Jacobian matches autodiff. This guards the quaternion->RPY conversion of the
+  // orientation columns: the prior truncated assembly would fail this check.
+  EXPECT_MATRIX_NEAR(jacobian_autodiff, jacobian_analytic, 1e-9);
 }

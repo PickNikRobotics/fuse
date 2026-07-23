@@ -48,6 +48,7 @@
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/uuid.hpp>
 #include <fuse_models/common/sensor_proc.hpp>
+#include <fuse_models/detail/prediction_time.hpp>
 #include <fuse_models/odometry_3d_publisher.hpp>
 #include <fuse_models/omnidirectional_3d_predict.hpp>
 #include <geometry_msgs/msg/accel_with_covariance_stamped.hpp>
@@ -441,7 +442,8 @@ void Odometry3DPublisher::predict(tf2::Transform& pose, nav_msgs::msg::Odometry&
                                   geometry_msgs::msg::AccelWithCovarianceStamped acceleration_output,
                                   bool latest_covariance_valid) const
 {
-  double const dt = std::min(to_predict_to.seconds() - rclcpp::Time(odom_output.header.stamp).seconds(), 0.);
+  double const dt =
+      detail::forwardPredictionDt(to_predict_to.seconds(), rclcpp::Time(odom_output.header.stamp).seconds());
   // Convert pose in Eigen representation
   fuse_core::Vector3d position;
   fuse_core::Vector3d velocity_linear;
