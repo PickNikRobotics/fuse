@@ -41,7 +41,7 @@
 // As a workaround, include the add_const.hpp header before any_range.hpp or any_iterator.hpp
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 108800 && BOOST_VERSION < 109100
-  #include <boost/type_traits/add_const.hpp>
+#include <boost/type_traits/add_const.hpp>
 #endif
 #include <boost/range/any_range.hpp>
 #include <fuse_core/fuse_macros.hpp>

@@ -8,7 +8,7 @@ on:
   # Run when a commit is pushed to main
   push:
     branches:
-      - humble
+      - jazzy-picknik
 
 permissions:
   # Allow reading the source code
@@ -19,7 +19,7 @@ permissions:
 jobs:
   build-ws:
     name: Build colcon workspace
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -54,14 +54,14 @@ jobs:
     needs:
       # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
       - build-ws
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
       # Run on the Docker image we tagged and pushed to a private repo in the job above
       image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}
     steps:
       - name: Unit test workspace
         run: |
-          . /opt/ros/humble/setup.sh
+          . /opt/ros/jazzy/setup.sh
           . /colcon_ws/install/local_setup.sh
           colcon test --event-handlers console_direct+ --packages-select-regex fuse*
         working-directory: /colcon_ws
@@ -74,12 +74,12 @@ jobs:
         working-directory: /colcon_ws
 
   clang_tidy:
-    if: github.ref != 'refs/heads/humble'
+    if: github.ref != 'refs/heads/jazzy-picknik'
     needs:
       # Ensure the test job runs after the build job finishes instead of attempting to run in parallel
       - build-ws
     name: clang-tidy
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     container:
       # Run on the Docker image we tagged and pushed to a private repo in the job above
       image: ghcr.io/picknikrobotics/fuse:${{ github.run_id }}

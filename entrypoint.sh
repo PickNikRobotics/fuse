@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /opt/ros/humble/setup.bash
+source /opt/ros/jazzy/setup.bash
 
 if [ -f /colcon_ws/install/local_setup.bash ]
 then

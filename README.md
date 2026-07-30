@@ -2,7 +2,7 @@
 
 Welcome to PickNik Robotics's fork of fuse!
 
-This branch is for ROS Humble.
+This branch is for ROS Jazzy.
 
 ## Getting Started
 
