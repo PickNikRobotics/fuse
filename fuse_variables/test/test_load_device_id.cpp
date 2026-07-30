@@ -70,49 +70,49 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("id1_node");
     node->declare_parameter("device_id", std::string("01234567-89AB-CDEF-0123-456789ABCDEF"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
-    fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB,
-                                   0xCD, 0xEF } };
+    const fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
+    const fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89,
+                                         0xAB, 0xCD, 0xEF } };
     EXPECT_EQ(expected, actual);
   }
   {
     auto node = rclcpp::Node::make_shared("id2_node");
     node->declare_parameter("device_id", std::string("01234567-89ab-cdef-0123-456789abcdef"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
-    fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB,
-                                   0xCD, 0xEF } };
+    const fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
+    const fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89,
+                                         0xAB, 0xCD, 0xEF } };
     EXPECT_EQ(expected, actual);
   }
   {
     auto node = rclcpp::Node::make_shared("id3_node");
     node->declare_parameter("device_id", std::string("0123456789ABCDEF0123456789ABCDEF"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
-    fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB,
-                                   0xCD, 0xEF } };
+    const fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
+    const fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89,
+                                         0xAB, 0xCD, 0xEF } };
     EXPECT_EQ(expected, actual);
   }
   {
     auto node = rclcpp::Node::make_shared("id4_node");
     node->declare_parameter("device_id", std::string("0123456789abcdef0123456789abcdef"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
-    fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB,
-                                   0xCD, 0xEF } };
+    const fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
+    const fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89,
+                                         0xAB, 0xCD, 0xEF } };
     EXPECT_EQ(expected, actual);
   }
   {
     auto node = rclcpp::Node::make_shared("id5_node");
     node->declare_parameter("device_id", std::string("{01234567-89ab-cdef-0123-456789abcdef}"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
-    fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB,
-                                   0xCD, 0xEF } };
+    const fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
+    const fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89,
+                                         0xAB, 0xCD, 0xEF } };
     EXPECT_EQ(expected, actual);
   }
   {
     auto node = rclcpp::Node::make_shared("id6_node");
     node->declare_parameter("device_id", std::string("{01234567-89AB-CDEF-0123-456789ABCDEF}"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
-    fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB,
-                                   0xCD, 0xEF } };
+    const fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
+    const fuse_core::UUID expected = { { 0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF, 0x01, 0x23, 0x45, 0x67, 0x89,
+                                         0xAB, 0xCD, 0xEF } };
     EXPECT_EQ(expected, actual);
   }
   {
@@ -123,16 +123,16 @@ TEST_F(TestLoadDeviceId, LoadDeviceId)
   {
     auto node = rclcpp::Node::make_shared("name_node");
     node->declare_parameter("device_name", std::string("Test"));
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
-    fuse_core::UUID expected = { { 0x5B, 0x23, 0x43, 0x6D, 0x8E, 0x7C, 0x51, 0xCF, 0x81, 0x62, 0x5C, 0xD5, 0xFD, 0x37,
-                                   0x9E, 0xCF } };
+    const fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
+    const fuse_core::UUID expected = { { 0x5B, 0x23, 0x43, 0x6D, 0x8E, 0x7C, 0x51, 0xCF, 0x81, 0x62, 0x5C, 0xD5, 0xFD,
+                                         0x37, 0x9E, 0xCF } };
     EXPECT_EQ(expected, actual);
   }
   {
     auto node = rclcpp::Node::make_shared("none_node");
     node->declare_parameter("some_other_parameter", 1);
-    fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
-    fuse_core::UUID expected = fuse_core::uuid::NIL;
+    const fuse_core::UUID actual = fuse_variables::loadDeviceId(*node);
+    const fuse_core::UUID expected = fuse_core::uuid::NIL;
     EXPECT_EQ(expected, actual);
   }
 }
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
   testing::InitGoogleTest(&argc, argv);
-  int ret = RUN_ALL_TESTS();
+  int const ret = RUN_ALL_TESTS();
   rclcpp::shutdown();
   return ret;
 }
