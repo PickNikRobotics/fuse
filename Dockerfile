@@ -1,6 +1,6 @@
 # Docker setup that's used for CI.
 
-FROM osrf/ros:humble-desktop-full
+FROM osrf/ros:jazzy-desktop-full
 
 SHELL ["/bin/bash", "-c"]
 
@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
       clang-tidy \
       python3-vcstool \
       # use cyclonedds instead of fastdds
-      ros-humble-rmw-cyclonedds-cpp
+      ros-jazzy-rmw-cyclonedds-cpp
 
 # Create the colcon ws. For now, copy the source files into the workspace
 # so that we don't have to deal with cloning this repo, which is private.
@@ -24,7 +24,7 @@ WORKDIR /colcon_ws
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get upgrade -y && \
-    . /opt/ros/humble/setup.sh && \
+    . /opt/ros/jazzy/setup.sh && \
     rosdep install --from-paths src -y --ignore-src && \
     # tf2_2d testing build fails due to upstream tf2 changes, it seems
     colcon build --mixin compile-commands coverage-gcc coverage-pytest
