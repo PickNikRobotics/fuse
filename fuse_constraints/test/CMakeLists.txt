@@ -11,6 +11,7 @@ set(TEST_TARGETS
     test_marginal_constraint
     test_marginalize_variables
     test_normal_delta_pose_2d
+    test_normal_prior_euler_angle_wrap
     test_normal_prior_pose_2d
     test_normal_prior_pose_3d
     test_normal_prior_pose_3d_euler
