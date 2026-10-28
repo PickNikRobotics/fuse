@@ -68,6 +68,11 @@ bool NormalPriorPose3DEuler::Evaluate(double const* const* parameters, double* r
   full_residuals(4) = orientation_rpy[1] - b_(4);
   full_residuals(5) = orientation_rpy[2] - b_(5);
 
+  // Use the shortest angular errors before mixing them with the information matrix.
+  fuse_core::wrapAngle2D(full_residuals(3));
+  fuse_core::wrapAngle2D(full_residuals(4));
+  fuse_core::wrapAngle2D(full_residuals(5));
+
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
   Eigen::Map<Eigen::Vector<double, Eigen::Dynamic>> residuals_map(residuals, A_.rows());

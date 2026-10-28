@@ -65,6 +65,8 @@ namespace fuse_constraints
  * where the matrix A and the vector b are fixed and (roll, pitch, yaw) are the components of the 3D
  * orientation variable.
  *
+ * Each Euler angle difference is wrapped to [-pi, pi) before multiplication by A.
+ *
  * In case the user is interested in implementing a cost function of the form
  *
  *   cost(X) = (X - mu)^T S^{-1} (X - mu)
@@ -129,6 +131,7 @@ public:
         }
       }
       residuals[i] = angle - T(b_[i]);
+      fuse_core::wrapAngle2D(residuals[i]);
     }
 
     Eigen::Map<Eigen::Matrix<T, Eigen::Dynamic, 1>> residuals_map(residuals, A_.rows());
