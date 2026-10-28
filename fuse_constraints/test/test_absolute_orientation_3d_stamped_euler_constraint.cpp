@@ -38,6 +38,8 @@
 #include <Eigen/Geometry>
 #include <gtest/gtest.h>
 
+#include <cmath>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -233,4 +235,29 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, Serialization)
   EXPECT_EQ(expected.variables(), actual.variables());
   EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
+}
+
+TEST(AbsoluteOrientation3DStampedEulerConstraint, YawResidualAcrossPi)
+{
+  const Orientation3DStamped orientation(rclcpp::Time(1, 0));
+  fuse_core::Matrix3d A;
+  A << 2.0, 0.3, -0.4, 0.0, 1.5, 0.6, 0.0, 0.0, 3.0;
+  const fuse_core::Matrix3d covariance = (A.transpose() * A).inverse();
+  for (const double direction : { 1.0, -1.0 })
+  {
+    SCOPED_TRACE(direction);
+    const fuse_core::Vector3d mean(0.2, -0.3, direction * (-M_PI + 0.01));
+    const AbsoluteOrientation3DStampedEulerConstraint constraint(
+        "test", orientation, mean, covariance,
+        { Orientation3DStamped::Euler::ROLL, Orientation3DStamped::Euler::PITCH, Orientation3DStamped::Euler::YAW });
+    const std::unique_ptr<ceres::CostFunction> cost_function(constraint.costFunction());
+    const Eigen::Quaterniond q = Eigen::AngleAxisd(direction * (M_PI - 0.01), Eigen::Vector3d::UnitZ()) *
+                                 Eigen::AngleAxisd(-0.3, Eigen::Vector3d::UnitY()) *
+                                 Eigen::AngleAxisd(0.2, Eigen::Vector3d::UnitX());
+    const double quaternion[] = { q.w(), q.x(), q.y(), q.z() };
+    const double* parameters[] = { quaternion };
+    fuse_core::Vector3d residual;
+    ASSERT_TRUE(cost_function->Evaluate(parameters, residual.data(), nullptr));
+    EXPECT_MATRIX_NEAR(A * fuse_core::Vector3d(0.0, 0.0, direction * -0.02), residual, 1.0e-12);
+  }
 }

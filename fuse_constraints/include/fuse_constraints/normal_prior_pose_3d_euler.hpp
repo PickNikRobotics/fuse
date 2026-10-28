@@ -47,6 +47,9 @@ namespace fuse_constraints
  * The Ceres::NormalPrior cost function only supports a single variable. This is a convenience cost
  * function that applies a prior constraint on both the position and orientation variables at once.
  *
+ * Each Euler angle difference is wrapped to [-pi, pi) before multiplication by A.
+ * The Jacobian is defined away from the pi-error cut and Euler singularities.
+ *
  * The cost function is of the form:
  *
  *             ||             [  x - b(0)]          ||^2

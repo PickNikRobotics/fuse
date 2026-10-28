@@ -31,15 +31,20 @@
  *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  *  POSSIBILITY OF SUCH DAMAGE.
  */
+#include <ceres/autodiff_cost_function.h>
 #include <ceres/covariance.h>
 #include <ceres/problem.h>
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <array>
+#include <cmath>
+#include <memory>
 #include <utility>
 #include <vector>
 
 #include <fuse_constraints/absolute_pose_3d_stamped_euler_constraint.hpp>
+#include <fuse_constraints/normal_prior_pose_3d_euler_cost_functor.hpp>
 #include <fuse_core/eigen.hpp>
 #include <fuse_core/eigen_gtest.hpp>
 #include <fuse_core/serialization.hpp>
@@ -457,4 +462,75 @@ TEST(AbsolutePose3DStampedEulerConstraint, Serialization)
   EXPECT_EQ(expected.variables(), actual.variables());
   EXPECT_MATRIX_EQ(expected.mean(), actual.mean());
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
+}
+
+namespace
+{
+// Exercise the same partial-pose constraint used for an absolute IMU orientation.
+void expectAngularResiduals(const Eigen::Vector3d& state_rpy, const Eigen::Vector3d& mean_rpy,
+                            const Eigen::Vector3d& expected_error, bool correlated)
+{
+  const Position3DStamped position(rclcpp::Time(1, 0));
+  const Orientation3DStamped orientation(rclcpp::Time(1, 0));
+  fuse_core::Vector6d mean = fuse_core::Vector6d::Zero();
+  mean.tail<3>() = mean_rpy;
+  fuse_core::Matrix3d A = fuse_core::Matrix3d::Identity();
+  if (correlated)
+  {
+    A << 2.0, 0.3, -0.4, 0.0, 1.5, 0.6, 0.0, 0.0, 3.0;
+  }
+  const fuse_core::Matrix3d covariance = (A.transpose() * A).inverse();
+  const AbsolutePose3DStampedEulerConstraint constraint("test", position, orientation, mean, covariance, { 3, 4, 5 });
+  const std::unique_ptr<ceres::CostFunction> analytic(constraint.costFunction());
+  ceres::AutoDiffCostFunction<fuse_constraints::NormalPriorPose3DEulerCostFunctor, ceres::DYNAMIC, 3, 4> autodiff(
+      new fuse_constraints::NormalPriorPose3DEulerCostFunctor(constraint.sqrtInformation(), mean), 3);
+  const Eigen::Quaterniond q = Eigen::AngleAxisd(state_rpy.z(), Eigen::Vector3d::UnitZ()) *
+                               Eigen::AngleAxisd(state_rpy.y(), Eigen::Vector3d::UnitY()) *
+                               Eigen::AngleAxisd(state_rpy.x(), Eigen::Vector3d::UnitX());
+  const Eigen::Vector3d expected = A * expected_error;
+  for (const double sign : { 1.0, -1.0 })
+  {
+    SCOPED_TRACE(sign);
+    const std::array<double, 4> quaternion{ sign * q.w(), sign * q.x(), sign * q.y(), sign * q.z() };
+    const double* parameters[] = { position.data(), quaternion.data() };
+    Eigen::Vector3d analytic_residual, autodiff_residual;
+    fuse_core::Matrix<double, 3, 3> analytic_position_jacobian, autodiff_position_jacobian;
+    fuse_core::Matrix<double, 3, 4> analytic_orientation_jacobian, autodiff_orientation_jacobian;
+    double* analytic_jacobians[] = { analytic_position_jacobian.data(), analytic_orientation_jacobian.data() };
+    double* autodiff_jacobians[] = { autodiff_position_jacobian.data(), autodiff_orientation_jacobian.data() };
+    ASSERT_TRUE(analytic->Evaluate(parameters, analytic_residual.data(), analytic_jacobians));
+    ASSERT_TRUE(autodiff.Evaluate(parameters, autodiff_residual.data(), autodiff_jacobians));
+    EXPECT_MATRIX_NEAR(expected, analytic_residual, 1.0e-12);
+    EXPECT_MATRIX_NEAR(expected, autodiff_residual, 1.0e-12);
+    // All cases avoid the pi-error cut and Euler pitch singularities.
+    EXPECT_MATRIX_NEAR(analytic_position_jacobian, autodiff_position_jacobian, 1.0e-12);
+    EXPECT_MATRIX_NEAR(analytic_orientation_jacobian, autodiff_orientation_jacobian, 1.0e-12);
+  }
+}
+}  // namespace
+
+TEST(AbsolutePose3DStampedEulerConstraint, YawResidualAcrossPi)
+{
+  for (const bool correlated : { false, true })
+  {
+    for (const double direction : { 1.0, -1.0 })
+    {
+      SCOPED_TRACE(correlated);
+      SCOPED_TRACE(direction);
+      expectAngularResiduals({ 0.2, -0.3, direction * (M_PI - 0.01) }, { 0.2, -0.3, direction * (-M_PI + 0.01) },
+                             { 0.0, 0.0, direction * -0.02 }, correlated);
+    }
+  }
+}
+
+TEST(AbsolutePose3DStampedEulerConstraint, OrdinaryAngularResiduals)
+{
+  expectAngularResiduals({ 0.3, -0.2, 0.7 }, { 0.2, -0.3, 0.4 }, { 0.1, 0.1, 0.3 }, true);
+}
+
+TEST(AbsolutePose3DStampedEulerConstraint, WrapAllAnglesBeforeWeighting)
+{
+  // Pitch uses an equivalent nonprincipal prior because quaternion pitch is in [-pi/2, pi/2].
+  expectAngularResiduals({ M_PI - 0.01, 0.2, M_PI - 0.01 }, { -M_PI + 0.01, 0.3 + 2.0 * M_PI, -M_PI + 0.01 },
+                         { -0.02, -0.1, -0.02 }, true);
 }

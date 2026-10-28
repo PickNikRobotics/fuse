@@ -50,6 +50,9 @@ namespace fuse_constraints
  * function that applies a prior constraint on both the 3D position and orientation variables at
  * once.
  *
+ * Each Euler angle difference is wrapped to [-pi, pi) before multiplication by A.
+ * The Jacobian is defined away from the pi-error cut and Euler singularities.
+ *
  * The cost function is of the form:
  *
  *   cost(x) = || A *       [  p - b(0:2)  ]      ||^2
@@ -113,6 +116,11 @@ bool NormalPriorPose3DEulerCostFunctor::operator()(const T* const position, cons
   full_residuals[3] = orientation_rpy[0] - T(b_(3));
   full_residuals[4] = orientation_rpy[1] - T(b_(4));
   full_residuals[5] = orientation_rpy[2] - T(b_(5));
+
+  // Use the shortest angular errors before mixing them with the information matrix.
+  fuse_core::wrapAngle2D(full_residuals[3]);
+  fuse_core::wrapAngle2D(full_residuals[4]);
+  fuse_core::wrapAngle2D(full_residuals[5]);
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
