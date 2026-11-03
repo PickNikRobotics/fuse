@@ -36,6 +36,9 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <array>
+#include <cmath>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -50,7 +53,6 @@
 #include <fuse_variables/position_3d_stamped.hpp>
 
 using fuse_constraints::AbsolutePose3DStampedConstraint;
-using fuse_constraints::AbsolutePose3DStampedEulerConstraint;
 using fuse_constraints::RelativePose3DStampedEulerConstraint;
 using fuse_variables::Orientation3DStamped;
 using fuse_variables::Position3DStamped;
@@ -58,10 +60,10 @@ using fuse_variables::Position3DStamped;
 TEST(RelativePose3DStampedEulerConstraint, Constructor)
 {
   // Construct a constraint just to make sure it compiles.
-  Orientation3DStamped orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Orientation3DStamped orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
 
   fuse_core::Vector6d delta;
   delta << 1.0, 2.0, 3.0, 0.988, 0.094, 0.079;
@@ -84,19 +86,19 @@ TEST(RelativePose3DStampedEulerConstraint, Constructor)
       2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  EXPECT_NO_THROW(RelativePose3DStampedEulerConstraint constraint("test", position1, orientation1, position2,
-                                                                  orientation2, delta, cov));
+  EXPECT_NO_THROW(const RelativePose3DStampedEulerConstraint constraint("test", position1, orientation1, position2,
+                                                                        orientation2, delta, cov));
 }
 
 TEST(RelativePose3DStampedEulerConstraint, ConstructorPartial)
 {
   // Construct a constraint just to make sure it compiles.
-  Orientation3DStamped orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Orientation3DStamped orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
 
-  std::vector<size_t> indices{ 0, 1, 3, 4, 5 };
+  std::vector<size_t> const indices{ 0, 1, 3, 4, 5 };
   fuse_core::Vector6d delta;
   delta << 1.0, 2.0, 0.0, 0.988, 0.094, 0.079;
 
@@ -111,17 +113,17 @@ TEST(RelativePose3DStampedEulerConstraint, ConstructorPartial)
       1.5153042667951, 1.28979625492894, 2.04350823837035, 1.73844731158092, 2.15326088526198;    // NOLINT
   /* *INDENT-ON* */
 
-  EXPECT_NO_THROW(RelativePose3DStampedEulerConstraint constraint("test", position1, orientation1, position2,
-                                                                  orientation2, delta, cov, indices));
+  EXPECT_NO_THROW(const RelativePose3DStampedEulerConstraint constraint("test", position1, orientation1, position2,
+                                                                        orientation2, delta, cov, indices));
 }
 
 TEST(RelativePose3DStampedEulerConstraint, Covariance)
 {
   // Verify the covariance <--> sqrt information conversions are correct
-  Orientation3DStamped orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Orientation3DStamped orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
   fuse_core::Vector6d delta;
   delta << 1.0, 2.0, 3.0, 0.988, 0.094, 0.079;
 
@@ -143,7 +145,8 @@ TEST(RelativePose3DStampedEulerConstraint, Covariance)
       2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  RelativePose3DStampedEulerConstraint constraint("test", position1, orientation1, position2, orientation2, delta, cov);
+  RelativePose3DStampedEulerConstraint const constraint("test", position1, orientation1, position2, orientation2, delta,
+                                                        cov);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix6d expected_sqrt_info;
@@ -156,7 +159,7 @@ TEST(RelativePose3DStampedEulerConstraint, Covariance)
       0.0, 0.0, 0.0, 0.0, 0.953302832761324, -0.769654414882847,                                        // NOLINT
       0.0, 0.0, 0.0, 0.0, 0.0, 0.681477739760948;                                                       // NOLINT
   /* *INDENT-ON* */
-  fuse_core::Matrix6d expected_cov = cov;
+  fuse_core::Matrix6d const expected_cov = cov;
 
   // Compare
   EXPECT_MATRIX_NEAR(expected_cov, constraint.covariance(), 1.0e-9);
@@ -166,12 +169,12 @@ TEST(RelativePose3DStampedEulerConstraint, Covariance)
 TEST(RelativePose3DStampedEulerConstraint, CovariancePartial)
 {
   // Verify the covariance <--> sqrt information conversions are correct
-  Orientation3DStamped orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Orientation3DStamped orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
 
-  std::vector<size_t> indices{ 0, 1, 3, 4, 5 };
+  std::vector<size_t> const indices{ 0, 1, 3, 4, 5 };
   fuse_core::Vector6d delta;
   delta << 1.0, 2.0, 0.0, 0.988, 0.094, 0.079;
 
@@ -186,8 +189,8 @@ TEST(RelativePose3DStampedEulerConstraint, CovariancePartial)
       1.5153042667951, 1.28979625492894, 2.04350823837035, 1.73844731158092, 2.15326088526198;    // NOLINT
   /* *INDENT-ON* */
 
-  RelativePose3DStampedEulerConstraint constraint("test", position1, orientation1, position2, orientation2, delta, cov,
-                                                  indices);
+  RelativePose3DStampedEulerConstraint const constraint("test", position1, orientation1, position2, orientation2, delta,
+                                                        cov, indices);
 
   // Define the expected matrices (used Octave to compute sqrt_info: 'chol(inv(A))')
   fuse_core::Matrix<double, 5, 6> expected_sqrt_info;
@@ -244,13 +247,13 @@ TEST(RelativePose3DStampedEulerConstraint, Optimization)
   // Create an absolute pose constraint at the origin
   fuse_core::Vector7d mean_origin;
   mean_origin << 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0;
-  fuse_core::Matrix6d cov_origin = fuse_core::Matrix6d::Identity();
+  fuse_core::Matrix6d const cov_origin = fuse_core::Matrix6d::Identity();
   auto prior = AbsolutePose3DStampedConstraint::make_shared("test", *position1, *orientation1, mean_origin, cov_origin);
 
   // Create a relative pose constraint for 1m in the x direction
   fuse_core::Vector6d mean_delta;
   mean_delta << 1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-  fuse_core::Matrix6d cov_delta = fuse_core::Matrix6d::Identity();
+  fuse_core::Matrix6d const cov_delta = fuse_core::Matrix6d::Identity();
   auto relative = RelativePose3DStampedEulerConstraint::make_shared("test", *position1, *orientation1, *position2,
                                                                     *orientation2, mean_delta, cov_delta);
 
@@ -258,25 +261,25 @@ TEST(RelativePose3DStampedEulerConstraint, Optimization)
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
-  problem.AddParameterBlock(orientation1->data(), orientation1->size(),
+  problem.AddParameterBlock(orientation1->data(), static_cast<int>(orientation1->size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                             orientation1->localParameterization());
 #else
                             orientation1->manifold());
 #endif
-  problem.AddParameterBlock(position1->data(), position1->size(),
+  problem.AddParameterBlock(position1->data(), static_cast<int>(position1->size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                             position1->localParameterization());
 #else
                             position1->manifold());
 #endif
-  problem.AddParameterBlock(orientation2->data(), orientation2->size(),
+  problem.AddParameterBlock(orientation2->data(), static_cast<int>(orientation2->size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                             orientation2->localParameterization());
 #else
                             orientation2->manifold());
 #endif
-  problem.AddParameterBlock(position2->data(), position2->size(),
+  problem.AddParameterBlock(position2->data(), static_cast<int>(position2->size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                             position2->localParameterization());
 #else
@@ -294,7 +297,7 @@ TEST(RelativePose3DStampedEulerConstraint, Optimization)
   problem.AddResidualBlock(relative->costFunction(), relative->lossFunction(), relative_parameter_blocks);
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 
@@ -321,7 +324,7 @@ TEST(RelativePose3DStampedEulerConstraint, Optimization)
     covariance_blocks.emplace_back(orientation1->data(), orientation1->data());
     covariance_blocks.emplace_back(position1->data(), orientation1->data());
 
-    ceres::Covariance::Options cov_options;
+    ceres::Covariance::Options const cov_options;
     ceres::Covariance covariance(cov_options);
     covariance.Compute(covariance_blocks, &problem);
 
@@ -355,7 +358,7 @@ TEST(RelativePose3DStampedEulerConstraint, Optimization)
     covariance_blocks.emplace_back(position2->data(), orientation2->data());
     covariance_blocks.emplace_back(orientation2->data(), orientation2->data());
 
-    ceres::Covariance::Options cov_options;
+    ceres::Covariance::Options const cov_options;
     ceres::Covariance covariance(cov_options);
     covariance.Compute(covariance_blocks, &problem);
 
@@ -411,26 +414,26 @@ TEST(RelativePose3DStampedEulerConstraint, OptimizationPartial)
   orientation2->y() = 0.145;
   orientation2->z() = -0.269;
 
-  std::vector<size_t> indices{ 0, 1, 3, 4, 5 };
+  std::vector<size_t> const indices{ 0, 1, 3, 4, 5 };
 
   // Create an absolute pose constraint at the origin
   fuse_core::Vector7d mean_origin;
   mean_origin << 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0;
-  fuse_core::Matrix6d cov_origin = fuse_core::Matrix6d::Identity();
+  fuse_core::Matrix6d const cov_origin = fuse_core::Matrix6d::Identity();
   auto prior = AbsolutePose3DStampedConstraint::make_shared("test", *position1, *orientation1, mean_origin, cov_origin);
 
   // Create a relative pose constraint for 1m in the x direction
   fuse_core::Vector6d mean_delta;
   mean_delta << 1.0, 0.0, 0.0, 0.0, 0.0, 0.0;
-  fuse_core::Matrix5d cov_delta = fuse_core::Matrix5d::Identity();
+  fuse_core::Matrix5d const cov_delta = fuse_core::Matrix5d::Identity();
   auto relative = RelativePose3DStampedEulerConstraint::make_shared("test", *position1, *orientation1, *position2,
                                                                     *orientation2, mean_delta, cov_delta, indices);
 
   // Create a relative pose constraint for 1m in the y direction
-  std::vector<size_t> indices_y{ 1, 2, 3, 4, 5 };
+  std::vector<size_t> const indices_y{ 1, 2, 3, 4, 5 };
   fuse_core::Vector6d mean_delta_y;
   mean_delta_y << 0.0, 1.0, 0.0, 0.0, 0.0, 0.0;
-  fuse_core::Matrix5d cov_delta_y = fuse_core::Matrix5d::Identity();
+  fuse_core::Matrix5d const cov_delta_y = fuse_core::Matrix5d::Identity();
   auto relative_y = RelativePose3DStampedEulerConstraint::make_shared(
       "test", *position1, *orientation1, *position2, *orientation2, mean_delta_y, cov_delta_y, indices_y);
 
@@ -438,25 +441,25 @@ TEST(RelativePose3DStampedEulerConstraint, OptimizationPartial)
   ceres::Problem::Options problem_options;
   problem_options.loss_function_ownership = fuse_core::Loss::Ownership;
   ceres::Problem problem(problem_options);
-  problem.AddParameterBlock(orientation1->data(), orientation1->size(),
+  problem.AddParameterBlock(orientation1->data(), static_cast<int>(orientation1->size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                             orientation1->localParameterization());
 #else
                             orientation1->manifold());
 #endif
-  problem.AddParameterBlock(position1->data(), position1->size(),
+  problem.AddParameterBlock(position1->data(), static_cast<int>(position1->size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                             position1->localParameterization());
 #else
                             position1->manifold());
 #endif
-  problem.AddParameterBlock(orientation2->data(), orientation2->size(),
+  problem.AddParameterBlock(orientation2->data(), static_cast<int>(orientation2->size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                             orientation2->localParameterization());
 #else
                             orientation2->manifold());
 #endif
-  problem.AddParameterBlock(position2->data(), position2->size(),
+  problem.AddParameterBlock(position2->data(), static_cast<int>(position2->size()),
 #if !CERES_SUPPORTS_MANIFOLDS
                             position2->localParameterization());
 #else
@@ -480,7 +483,7 @@ TEST(RelativePose3DStampedEulerConstraint, OptimizationPartial)
   problem.AddResidualBlock(relative_y->costFunction(), relative_y->lossFunction(), relative_parameter_blocks_y);
 
   // Run the solver
-  ceres::Solver::Options options;
+  ceres::Solver::Options const options;
   ceres::Solver::Summary summary;
   ceres::Solve(options, &problem, &summary);
 
@@ -574,10 +577,10 @@ TEST(RelativePose3DStampedEulerConstraint, OptimizationPartial)
 TEST(RelativePose3DStampedEulerConstraint, Serialization)
 {
   // Construct a constraint
-  Orientation3DStamped orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
-  Orientation3DStamped orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
-  Position3DStamped position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position1(rclcpp::Time(1234, 5678), fuse_core::uuid::generate("r5d4"));
+  Orientation3DStamped const orientation2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
+  Position3DStamped const position2(rclcpp::Time(1235, 5678), fuse_core::uuid::generate("r5d4"));
 
   fuse_core::Vector6d delta;
   delta << 1.0, 2.0, 3.0, 0.988, 0.094, 0.079;
@@ -600,7 +603,8 @@ TEST(RelativePose3DStampedEulerConstraint, Serialization)
       2.15326088526198;  // NOLINT
   /* *INDENT-ON* */
 
-  RelativePose3DStampedEulerConstraint expected("test", position1, orientation1, position2, orientation2, delta, cov);
+  RelativePose3DStampedEulerConstraint const expected("test", position1, orientation1, position2, orientation2, delta,
+                                                      cov);
 
   // Serialize the constraint into an archive
   std::stringstream stream;
@@ -621,4 +625,90 @@ TEST(RelativePose3DStampedEulerConstraint, Serialization)
   EXPECT_EQ(expected.variables(), actual.variables());
   EXPECT_MATRIX_EQ(expected.delta(), actual.delta());
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
+}
+
+namespace
+{
+void expectAngularResiduals(Eigen::Vector3d const& delta_rpy, Eigen::Vector3d const& mean_rpy,
+                            Eigen::Vector3d const& expected_error, bool correlated)
+{
+  const Position3DStamped position1(rclcpp::Time(1, 0));
+  const Orientation3DStamped orientation1(rclcpp::Time(1, 0));
+  const Position3DStamped position2(rclcpp::Time(2, 0));
+  const Orientation3DStamped orientation2(rclcpp::Time(2, 0));
+  fuse_core::Vector6d mean = fuse_core::Vector6d::Zero();
+  mean.tail<3>() = mean_rpy;
+  fuse_core::Matrix3d a = fuse_core::Matrix3d::Identity();
+  if (correlated)
+  {
+    a << 2.0, 0.3, -0.4, 0.0, 1.5, 0.6, 0.0, 0.0, 3.0;
+  }
+  const fuse_core::Matrix3d covariance = (a.transpose() * a).inverse();
+  const RelativePose3DStampedEulerConstraint constraint("test", position1, orientation1, position2, orientation2, mean,
+                                                        covariance, { 3, 4, 5 });
+  const std::unique_ptr<ceres::CostFunction> cost(constraint.costFunction());
+  // Compose the second pose from a nonidentity first pose to exercise relative rotation.
+  const Eigen::Quaterniond q1 = Eigen::AngleAxisd(-0.4, Eigen::Vector3d::UnitZ()) *
+                                Eigen::AngleAxisd(0.25, Eigen::Vector3d::UnitY()) *
+                                Eigen::AngleAxisd(0.15, Eigen::Vector3d::UnitX());
+  const Eigen::Quaterniond q_delta = Eigen::AngleAxisd(delta_rpy.z(), Eigen::Vector3d::UnitZ()) *
+                                     Eigen::AngleAxisd(delta_rpy.y(), Eigen::Vector3d::UnitY()) *
+                                     Eigen::AngleAxisd(delta_rpy.x(), Eigen::Vector3d::UnitX());
+  const Eigen::Quaterniond q2 = q1 * q_delta;
+  const Eigen::Vector3d expected = a * expected_error;
+  for (double const sign1 : { 1.0, -1.0 })
+  {
+    for (double const sign2 : { 1.0, -1.0 })
+    {
+      SCOPED_TRACE(sign1);
+      SCOPED_TRACE(sign2);
+      const std::array<double, 4> quaternion1{ sign1 * q1.w(), sign1 * q1.x(), sign1 * q1.y(), sign1 * q1.z() };
+      const std::array<double, 4> quaternion2{ sign2 * q2.w(), sign2 * q2.x(), sign2 * q2.y(), sign2 * q2.z() };
+      double const* parameters[] = { position1.data(), quaternion1.data(), position2.data(), quaternion2.data() };
+      Eigen::Vector3d residual;
+      Eigen::Vector3d autodiff_residual;
+      fuse_core::Matrix<double, 3, 3> position1_jacobian;
+      fuse_core::Matrix<double, 3, 3> position2_jacobian;
+      fuse_core::Matrix<double, 3, 4> orientation1_jacobian;
+      fuse_core::Matrix<double, 3, 4> orientation2_jacobian;
+      double* jacobians[] = { position1_jacobian.data(), orientation1_jacobian.data(), position2_jacobian.data(),
+                              orientation2_jacobian.data() };
+      ASSERT_TRUE(cost->Evaluate(parameters, residual.data(), nullptr));
+      ASSERT_TRUE(cost->Evaluate(parameters, autodiff_residual.data(), jacobians));
+      EXPECT_MATRIX_NEAR(expected, residual, 1.0e-12);
+      EXPECT_MATRIX_NEAR(expected, autodiff_residual, 1.0e-12);
+      // All cases avoid the pi-error cut and Euler pitch singularities.
+      EXPECT_TRUE(position1_jacobian.allFinite());
+      EXPECT_TRUE(orientation1_jacobian.allFinite());
+      EXPECT_TRUE(position2_jacobian.allFinite());
+      EXPECT_TRUE(orientation2_jacobian.allFinite());
+    }
+  }
+}
+}  // namespace
+
+TEST(RelativePose3DStampedEulerConstraint, YawResidualAcrossPi)
+{
+  for (bool const correlated : { false, true })
+  {
+    for (double const direction : { 1.0, -1.0 })
+    {
+      SCOPED_TRACE(correlated);
+      SCOPED_TRACE(direction);
+      expectAngularResiduals({ 0.2, -0.3, direction * (M_PI - 0.01) }, { 0.2, -0.3, direction * (-M_PI + 0.01) },
+                             { 0.0, 0.0, direction * -0.02 }, correlated);
+    }
+  }
+}
+
+TEST(RelativePose3DStampedEulerConstraint, OrdinaryAngularResiduals)
+{
+  expectAngularResiduals({ 0.3, -0.2, 0.7 }, { 0.2, -0.3, 0.4 }, { 0.1, 0.1, 0.3 }, true);
+}
+
+TEST(RelativePose3DStampedEulerConstraint, WrapAllAnglesBeforeWeighting)
+{
+  // Pitch uses an equivalent nonprincipal measurement because quaternion pitch is in [-pi/2, pi/2].
+  expectAngularResiduals({ M_PI - 0.01, 0.2, M_PI - 0.01 }, { -M_PI + 0.01, 0.3 + 2.0 * M_PI, -M_PI + 0.01 },
+                         { -0.02, -0.1, -0.02 }, true);
 }
