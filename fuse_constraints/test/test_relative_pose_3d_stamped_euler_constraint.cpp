@@ -36,6 +36,9 @@
 #include <ceres/solver.h>
 #include <gtest/gtest.h>
 
+#include <array>
+#include <cmath>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -621,4 +624,87 @@ TEST(RelativePose3DStampedEulerConstraint, Serialization)
   EXPECT_EQ(expected.variables(), actual.variables());
   EXPECT_MATRIX_EQ(expected.delta(), actual.delta());
   EXPECT_MATRIX_EQ(expected.sqrtInformation(), actual.sqrtInformation());
+}
+
+namespace
+{
+void expectAngularResiduals(const Eigen::Vector3d& delta_rpy, const Eigen::Vector3d& mean_rpy,
+                            const Eigen::Vector3d& expected_error, bool correlated)
+{
+  const Position3DStamped position1(rclcpp::Time(1, 0));
+  const Orientation3DStamped orientation1(rclcpp::Time(1, 0));
+  const Position3DStamped position2(rclcpp::Time(2, 0));
+  const Orientation3DStamped orientation2(rclcpp::Time(2, 0));
+  fuse_core::Vector6d mean = fuse_core::Vector6d::Zero();
+  mean.tail<3>() = mean_rpy;
+  fuse_core::Matrix3d A = fuse_core::Matrix3d::Identity();
+  if (correlated)
+  {
+    A << 2.0, 0.3, -0.4, 0.0, 1.5, 0.6, 0.0, 0.0, 3.0;
+  }
+  const fuse_core::Matrix3d covariance = (A.transpose() * A).inverse();
+  const RelativePose3DStampedEulerConstraint constraint("test", position1, orientation1, position2, orientation2, mean,
+                                                        covariance, { 3, 4, 5 });
+  const std::unique_ptr<ceres::CostFunction> cost(constraint.costFunction());
+  // Compose the second pose from a nonidentity first pose to exercise relative rotation.
+  const Eigen::Quaterniond q1 = Eigen::AngleAxisd(-0.4, Eigen::Vector3d::UnitZ()) *
+                                Eigen::AngleAxisd(0.25, Eigen::Vector3d::UnitY()) *
+                                Eigen::AngleAxisd(0.15, Eigen::Vector3d::UnitX());
+  const Eigen::Quaterniond q_delta = Eigen::AngleAxisd(delta_rpy.z(), Eigen::Vector3d::UnitZ()) *
+                                     Eigen::AngleAxisd(delta_rpy.y(), Eigen::Vector3d::UnitY()) *
+                                     Eigen::AngleAxisd(delta_rpy.x(), Eigen::Vector3d::UnitX());
+  const Eigen::Quaterniond q2 = q1 * q_delta;
+  const Eigen::Vector3d expected = A * expected_error;
+  for (const double sign1 : { 1.0, -1.0 })
+  {
+    for (const double sign2 : { 1.0, -1.0 })
+    {
+      SCOPED_TRACE(sign1);
+      SCOPED_TRACE(sign2);
+      const std::array<double, 4> quaternion1{ sign1 * q1.w(), sign1 * q1.x(), sign1 * q1.y(), sign1 * q1.z() };
+      const std::array<double, 4> quaternion2{ sign2 * q2.w(), sign2 * q2.x(), sign2 * q2.y(), sign2 * q2.z() };
+      const double* parameters[] = { position1.data(), quaternion1.data(), position2.data(), quaternion2.data() };
+      Eigen::Vector3d residual, autodiff_residual;
+      fuse_core::Matrix<double, 3, 3> position1_jacobian, position2_jacobian;
+      fuse_core::Matrix<double, 3, 4> orientation1_jacobian, orientation2_jacobian;
+      double* jacobians[] = { position1_jacobian.data(), orientation1_jacobian.data(), position2_jacobian.data(),
+                              orientation2_jacobian.data() };
+      ASSERT_TRUE(cost->Evaluate(parameters, residual.data(), nullptr));
+      ASSERT_TRUE(cost->Evaluate(parameters, autodiff_residual.data(), jacobians));
+      EXPECT_MATRIX_NEAR(expected, residual, 1.0e-12);
+      EXPECT_MATRIX_NEAR(expected, autodiff_residual, 1.0e-12);
+      // All cases avoid the pi-error cut and Euler pitch singularities.
+      EXPECT_TRUE(position1_jacobian.allFinite());
+      EXPECT_TRUE(orientation1_jacobian.allFinite());
+      EXPECT_TRUE(position2_jacobian.allFinite());
+      EXPECT_TRUE(orientation2_jacobian.allFinite());
+    }
+  }
+}
+}  // namespace
+
+TEST(RelativePose3DStampedEulerConstraint, YawResidualAcrossPi)
+{
+  for (const bool correlated : { false, true })
+  {
+    for (const double direction : { 1.0, -1.0 })
+    {
+      SCOPED_TRACE(correlated);
+      SCOPED_TRACE(direction);
+      expectAngularResiduals({ 0.2, -0.3, direction * (M_PI - 0.01) }, { 0.2, -0.3, direction * (-M_PI + 0.01) },
+                             { 0.0, 0.0, direction * -0.02 }, correlated);
+    }
+  }
+}
+
+TEST(RelativePose3DStampedEulerConstraint, OrdinaryAngularResiduals)
+{
+  expectAngularResiduals({ 0.3, -0.2, 0.7 }, { 0.2, -0.3, 0.4 }, { 0.1, 0.1, 0.3 }, true);
+}
+
+TEST(RelativePose3DStampedEulerConstraint, WrapAllAnglesBeforeWeighting)
+{
+  // Pitch uses an equivalent nonprincipal measurement because quaternion pitch is in [-pi/2, pi/2].
+  expectAngularResiduals({ M_PI - 0.01, 0.2, M_PI - 0.01 }, { -M_PI + 0.01, 0.3 + 2.0 * M_PI, -M_PI + 0.01 },
+                         { -0.02, -0.1, -0.02 }, true);
 }
