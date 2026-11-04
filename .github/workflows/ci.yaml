@@ -61,7 +61,7 @@ jobs:
     steps:
       - name: Unit test workspace
         run: |
-          . /opt/ros/rolling/setup.sh
+          . /opt/ros/jazzy/setup.sh
           . /colcon_ws/install/local_setup.sh
           colcon test --event-handlers console_direct+ --packages-select-regex fuse*
         working-directory: /colcon_ws
