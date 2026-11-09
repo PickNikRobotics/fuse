@@ -628,8 +628,8 @@ TEST(RelativePose3DStampedEulerConstraint, Serialization)
 
 namespace
 {
-void expectAngularResiduals(const Eigen::Vector3d& delta_rpy, const Eigen::Vector3d& mean_rpy,
-                            const Eigen::Vector3d& expected_error, bool correlated)
+void expectAngularResiduals(Eigen::Vector3d const& delta_rpy, Eigen::Vector3d const& mean_rpy,
+                            Eigen::Vector3d const& expected_error, bool correlated)
 {
   const Position3DStamped position1(rclcpp::Time(1, 0));
   const Orientation3DStamped orientation1(rclcpp::Time(1, 0));
@@ -655,15 +655,15 @@ void expectAngularResiduals(const Eigen::Vector3d& delta_rpy, const Eigen::Vecto
                                      Eigen::AngleAxisd(delta_rpy.x(), Eigen::Vector3d::UnitX());
   const Eigen::Quaterniond q2 = q1 * q_delta;
   const Eigen::Vector3d expected = A * expected_error;
-  for (const double sign1 : { 1.0, -1.0 })
+  for (double const sign1 : { 1.0, -1.0 })
   {
-    for (const double sign2 : { 1.0, -1.0 })
+    for (double const sign2 : { 1.0, -1.0 })
     {
       SCOPED_TRACE(sign1);
       SCOPED_TRACE(sign2);
       const std::array<double, 4> quaternion1{ sign1 * q1.w(), sign1 * q1.x(), sign1 * q1.y(), sign1 * q1.z() };
       const std::array<double, 4> quaternion2{ sign2 * q2.w(), sign2 * q2.x(), sign2 * q2.y(), sign2 * q2.z() };
-      const double* parameters[] = { position1.data(), quaternion1.data(), position2.data(), quaternion2.data() };
+      double const* parameters[] = { position1.data(), quaternion1.data(), position2.data(), quaternion2.data() };
       Eigen::Vector3d residual, autodiff_residual;
       fuse_core::Matrix<double, 3, 3> position1_jacobian, position2_jacobian;
       fuse_core::Matrix<double, 3, 4> orientation1_jacobian, orientation2_jacobian;
@@ -685,9 +685,9 @@ void expectAngularResiduals(const Eigen::Vector3d& delta_rpy, const Eigen::Vecto
 
 TEST(RelativePose3DStampedEulerConstraint, YawResidualAcrossPi)
 {
-  for (const bool correlated : { false, true })
+  for (bool const correlated : { false, true })
   {
-    for (const double direction : { 1.0, -1.0 })
+    for (double const direction : { 1.0, -1.0 })
     {
       SCOPED_TRACE(correlated);
       SCOPED_TRACE(direction);
