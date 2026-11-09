@@ -467,8 +467,8 @@ TEST(AbsolutePose3DStampedEulerConstraint, Serialization)
 namespace
 {
 // Exercise the same partial-pose constraint used for an absolute IMU orientation.
-void expectAngularResiduals(const Eigen::Vector3d& state_rpy, const Eigen::Vector3d& mean_rpy,
-                            const Eigen::Vector3d& expected_error, bool correlated)
+void expectAngularResiduals(Eigen::Vector3d const& state_rpy, Eigen::Vector3d const& mean_rpy,
+                            Eigen::Vector3d const& expected_error, bool correlated)
 {
   const Position3DStamped position(rclcpp::Time(1, 0));
   const Orientation3DStamped orientation(rclcpp::Time(1, 0));
@@ -488,11 +488,11 @@ void expectAngularResiduals(const Eigen::Vector3d& state_rpy, const Eigen::Vecto
                                Eigen::AngleAxisd(state_rpy.y(), Eigen::Vector3d::UnitY()) *
                                Eigen::AngleAxisd(state_rpy.x(), Eigen::Vector3d::UnitX());
   const Eigen::Vector3d expected = A * expected_error;
-  for (const double sign : { 1.0, -1.0 })
+  for (double const sign : { 1.0, -1.0 })
   {
     SCOPED_TRACE(sign);
     const std::array<double, 4> quaternion{ sign * q.w(), sign * q.x(), sign * q.y(), sign * q.z() };
-    const double* parameters[] = { position.data(), quaternion.data() };
+    double const* parameters[] = { position.data(), quaternion.data() };
     Eigen::Vector3d analytic_residual, autodiff_residual;
     fuse_core::Matrix<double, 3, 3> analytic_position_jacobian, autodiff_position_jacobian;
     fuse_core::Matrix<double, 3, 4> analytic_orientation_jacobian, autodiff_orientation_jacobian;
@@ -511,9 +511,9 @@ void expectAngularResiduals(const Eigen::Vector3d& state_rpy, const Eigen::Vecto
 
 TEST(AbsolutePose3DStampedEulerConstraint, YawResidualAcrossPi)
 {
-  for (const bool correlated : { false, true })
+  for (bool const correlated : { false, true })
   {
-    for (const double direction : { 1.0, -1.0 })
+    for (double const direction : { 1.0, -1.0 })
     {
       SCOPED_TRACE(correlated);
       SCOPED_TRACE(direction);

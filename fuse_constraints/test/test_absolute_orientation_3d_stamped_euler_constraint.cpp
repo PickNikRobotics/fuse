@@ -243,7 +243,7 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, YawResidualAcrossPi)
   fuse_core::Matrix3d A;
   A << 2.0, 0.3, -0.4, 0.0, 1.5, 0.6, 0.0, 0.0, 3.0;
   const fuse_core::Matrix3d covariance = (A.transpose() * A).inverse();
-  for (const double direction : { 1.0, -1.0 })
+  for (double const direction : { 1.0, -1.0 })
   {
     SCOPED_TRACE(direction);
     const fuse_core::Vector3d mean(0.2, -0.3, direction * (-M_PI + 0.01));
@@ -254,8 +254,8 @@ TEST(AbsoluteOrientation3DStampedEulerConstraint, YawResidualAcrossPi)
     const Eigen::Quaterniond q = Eigen::AngleAxisd(direction * (M_PI - 0.01), Eigen::Vector3d::UnitZ()) *
                                  Eigen::AngleAxisd(-0.3, Eigen::Vector3d::UnitY()) *
                                  Eigen::AngleAxisd(0.2, Eigen::Vector3d::UnitX());
-    const double quaternion[] = { q.w(), q.x(), q.y(), q.z() };
-    const double* parameters[] = { quaternion };
+    double const quaternion[] = { q.w(), q.x(), q.y(), q.z() };
+    double const* parameters[] = { quaternion };
     fuse_core::Vector3d residual;
     ASSERT_TRUE(cost_function->Evaluate(parameters, residual.data(), nullptr));
     EXPECT_MATRIX_NEAR(A * fuse_core::Vector3d(0.0, 0.0, direction * -0.02), residual, 1.0e-12);
