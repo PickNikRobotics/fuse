@@ -48,7 +48,9 @@ namespace fuse_constraints
  * @brief Implements a cost function that models a difference between 3D pose variables.
  *
  * A single pose involves two variables: a 3D position and a 3D orientation. This cost function
- * computes the difference using standard 3D transformation math:
+ * computes the difference using standard 3D transformation math.
+ * Each Euler angle difference is wrapped to [-pi, pi) before multiplication by A.
+ * The Jacobian is defined away from the pi-error cut and Euler singularities.
  *
  *   cost(x) = || A * [ (q1^-1 * (p2 - p1)) - b(0:2)  ] ||^2
  *             ||     [ quat2rpy(q1^-1 * q2) - b(3:5) ] ||
@@ -128,6 +130,11 @@ bool NormalDeltaPose3DEulerCostFunctor::operator()(const T* const position1, con
   full_residuals[3] = orientation_delta_rpy[0] - T(b_(3));
   full_residuals[4] = orientation_delta_rpy[1] - T(b_(4));
   full_residuals[5] = orientation_delta_rpy[2] - T(b_(5));
+
+  // Use the shortest angular errors before mixing them with the information matrix.
+  fuse_core::wrapAngle2D(full_residuals[3]);
+  fuse_core::wrapAngle2D(full_residuals[4]);
+  fuse_core::wrapAngle2D(full_residuals[5]);
 
   // Scale the residuals by the square root information matrix to account for
   // the measurement uncertainty.
